@@ -23,6 +23,7 @@ bị cắt hay sai, cho kết quả `None`.
 | `caplen` | Số byte đã lưu trong file |
 | `is_fragment` | Gói thuộc một datagram IP bị phân mảnh |
 | `l4_offset` | Vị trí header tầng trên trong byte của gói; `None` với mảnh không phải mảnh đầu. Dùng cho task C03-T03 |
+| `frag_id` | Identification của datagram bị phân mảnh (IPv4: trường Identification; IPv6: header Fragment); `None` nếu gói không phân mảnh. Thêm ở C04-T01 để gắn các mảnh vào cùng flow ([18_flow_hai_chieu.md](18_flow_hai_chieu.md)); không có trong CSV |
 
 Cổng và cờ TCP (C03-T03) mô tả ở [13_port_co_tcp.md](13_port_co_tcp.md).
 
@@ -96,6 +97,7 @@ Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
 | Trích xuất | Lấy ra các trường cần dùng từ byte thô của gói |
 | Tầng liên kết, header | Tầng thấp nhất như Ethernet; header là phần đầu chứa thông tin điều khiển |
 | IPv4 / IPv6 | Hai phiên bản giao thức địa chỉ Internet |
+| Identification | Số trong header IP mà mọi mảnh của cùng một gói gốc đều mang giống nhau |
 | Dạng rút gọn IPv6 | Cách viết ngắn bỏ các nhóm số 0, ví dụ `fe80:0:0:0:0:0:0:1` thành `fe80::1` |
 | Số hiệu giao thức | Số trong header IP cho biết bên trong là gì: 1 ICMP, 6 TCP, 17 UDP, 58 ICMPv6 |
 | ICMP / ICMPv6 | Giao thức báo lỗi và kiểm tra kết nối (lệnh ping) của IPv4 / IPv6 |

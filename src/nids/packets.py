@@ -124,6 +124,7 @@ class PacketRecord:
     src_port: int | None = None   # cổng TCP/UDP/SCTP; None nếu không có hoặc bị cắt
     dst_port: int | None = None
     tcp_flags: int | None = None  # 9 bit cờ TCP (TCP_*); None nếu không phải TCP hoặc bị cắt
+    frag_id: int | None = None    # Identification của datagram bị phân mảnh; None nếu không phân mảnh
 
     @property
     def protocol_name(self) -> str:
@@ -318,9 +319,10 @@ def _parse(pkt):
     pos, version = _network_offset(pkt.linktype, pkt.data)
     notes = []
     if version == 4:
-        src, dst, proto, ip_len, l4_offset, is_fragment = _parse_ipv4(pkt.data, pos, notes)
+        src, dst, proto, ip_len, l4_offset, frag_id = _parse_ipv4(pkt.data, pos, notes)
     else:
-        src, dst, proto, ip_len, l4_offset, is_fragment = _parse_ipv6(pkt.data, pos, notes)
+        src, dst, proto, ip_len, l4_offset, frag_id = _parse_ipv6(pkt.data, pos, notes)
+    is_fragment = frag_id is not None
     src_port = dst_port = tcp_flags = None
     if l4_offset is not None and proto in PORT_PROTOCOLS:
         # Chỉ đọc trong phạm vi gói IP để không lấy nhầm byte đệm của khung Ethernet.
@@ -338,14 +340,14 @@ def _parse(pkt):
         notes.append(NOTE_NO_TS)
     record = PacketRecord(pkt.index, pkt.ts_ns, src, dst, version, proto,
                           pkt.origlen, ip_len, pkt.caplen, l4_offset, is_fragment,
-                          src_port, dst_port, tcp_flags)
+                          src_port, dst_port, tcp_flags, frag_id)
     return record, tuple(notes)
 
 
 def _parse_ipv4(data, pos, notes):
     if len(data) < pos + 20:
         raise _Skip(SKIP_IP_TRUNCATED, "IPv4")
-    ver_ihl, _tos, total_len, _ident, flags_frag, _ttl, proto = struct.unpack_from(
+    ver_ihl, _tos, total_len, ident, flags_frag, _ttl, proto = struct.unpack_from(
         "!BBHHHBB", data, pos
     )
     ihl = (ver_ihl & 0x0F) * 4
@@ -365,7 +367,8 @@ def _parse_ipv4(data, pos, notes):
     src = socket.inet_ntoa(data[pos + 12:pos + 16])
     dst = socket.inet_ntoa(data[pos + 16:pos + 20])
     l4_offset = pos + ihl if frag_offset == 0 else None
-    return src, dst, proto, total_len, l4_offset, more_fragments or frag_offset > 0
+    frag_id = ident if more_fragments or frag_offset > 0 else None
+    return src, dst, proto, total_len, l4_offset, frag_id
 
 
 def _parse_ipv6(data, pos, notes):
@@ -377,7 +380,7 @@ def _parse_ipv6(data, pos, notes):
     src = IPv6Address(data[pos + 8:pos + 24]).compressed
     dst = IPv6Address(data[pos + 24:pos + 40]).compressed
     offset = pos + 40
-    is_fragment = False
+    frag_id = None
     first_fragment = True
     # Đi qua các header mở rộng để tới giao thức tầng trên.
     while next_header in (IPV6_EXT_HOP_BY_HOP, IPV6_EXT_ROUTING, IPV6_EXT_FRAGMENT,
@@ -385,11 +388,11 @@ def _parse_ipv6(data, pos, notes):
         if len(data) < offset + 8:
             # Header mở rộng bị cắt: vẫn biết địa chỉ nhưng không biết giao thức.
             notes.append(NOTE_L4_TRUNCATED)
-            return src, dst, next_header, 40 + payload_len, None, is_fragment
+            return src, dst, next_header, 40 + payload_len, None, frag_id
         nxt, hdr_len = data[offset], data[offset + 1]
         if next_header == IPV6_EXT_FRAGMENT:
-            is_fragment = True
-            frag_offset = struct.unpack_from("!H", data, offset + 2)[0] >> 3
+            frag_offset, frag_id = struct.unpack_from("!HI", data, offset + 2)
+            frag_offset >>= 3
             first_fragment = frag_offset == 0
             size = 8
         elif next_header == IPV6_EXT_AH:
@@ -401,7 +404,7 @@ def _parse_ipv6(data, pos, notes):
         if not first_fragment:
             break
     l4_offset = offset if first_fragment and next_header != IPV6_NO_NEXT else None
-    return src, dst, next_header, 40 + payload_len, l4_offset, is_fragment
+    return src, dst, next_header, 40 + payload_len, l4_offset, frag_id
 
 
 def _parse_l4(data, pos, end, proto):

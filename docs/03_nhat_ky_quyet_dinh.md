@@ -119,6 +119,13 @@ Mẫu:
 - Quyết định: Mỗi gói bị bỏ có một trong năm lý do (`khong_phai_ip`, `linktype_khong_ho_tro`, `header_lien_ket_bi_cat`, `header_ip_bi_cat`, `header_ip_sai`); gói giữ lại có ghi chú bất thường; `ParseStats` đếm cả hai (xem `docs/14_goi_bo_qua.md`). File hỏng giữa chừng thì dừng đọc, giữ các gói trước đó và ghi lỗi. IPv4 có Total Length 0 (TSO) được giữ, độ dài lấy theo số byte đã bắt như Wireshark.
 - Hệ quả: Nhật ký mỗi lần chạy lab phải lưu kết quả `ParseStats.as_dict()`. Lần chạy có `loi_file` hoặc tỉ lệ bỏ qua bất thường phải xem lại trước khi đưa vào train/test.
 
+## QĐ-016 — Flow hai chiều; forward là chiều của bên mở kết nối
+- Ngày: 25/10/2026
+- Trạng thái: Đã chốt
+- Bối cảnh: Đặc trưng fwd/bwd và tỷ lệ gửi/nhận cần biết gói nào đi từ client. CICFlowMeter lấy bên gửi gói đầu tiên làm forward, nên đảo chiều khi bắt giữa chừng kết nối hoặc khi lỡ mất gói SYN. Mảnh IP sau mảnh đầu không có cổng nên dễ rơi khỏi flow.
+- Quyết định: Flow hai chiều gồm các gói cùng phiên bản IP, giao thức và cặp đầu mút (IP, cổng; giao thức không có cổng thì chỉ IP), hai đầu xếp theo IP dạng số rồi cổng. Client được chọn một lần từ gói đầu tiên của flow, theo thứ tự: SYN (bên gửi), SYN+ACK (bên nhận), TCP giữa chừng có đúng một bên dùng cổng < 1024 (bên còn lại), còn lại là bên gửi gói đầu. Không đoán theo cổng với UDP. Mảnh sau được gắn vào flow và chiều của mảnh đầu cùng (IP nguồn, IP đích, giao thức, Identification) nếu mảnh đầu tới trước tối đa `flow.fragment_timeout_s` = 30 giây (xem `docs/18_flow_hai_chieu.md`).
+- Hệ quả: Bộ trích xuất packet thêm trường `frag_id`. Mỗi flow ghi `direction_basis` để biết chiều chắc chắn tới đâu. Chiều không bao giờ được sửa theo gói tới sau, nên huấn luyện và realtime giống nhau. Tách flow theo timeout, FIN/RST và 5-tuple dùng lại để cho C04-T02.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
@@ -136,6 +143,10 @@ Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
 | numpy, pandas, scikit-learn, scapy, networkx, PyYAML, joblib | Thư viện Python: tính toán mảng số; xử lý bảng; mô hình học máy; bắt và đọc gói tin; đồ thị; đọc file YAML; lưu mô hình ra file |
 | Access log | File Nginx ghi mỗi yêu cầu web nhận được, một dòng một yêu cầu |
 | Binetflow | File flow hai chiều có nhãn của CTU-13 |
+| Forward / backward, client | Chiều từ bên mở kết nối (client) sang bên kia / chiều ngược lại |
+| SYN, SYN+ACK | Gói mở kết nối TCP của client / gói trả lời đồng ý của server |
+| Identification, mảnh IP | Số chung của các mảnh thuộc cùng một gói IP lớn bị chia nhỏ |
+| CICFlowMeter | Công cụ tạo file flow CSV của CIC-IDS2017 |
 | Manifest | Bảng liệt kê mọi nguồn dữ liệu và cách dùng |
 | struct | Thư viện có sẵn của Python để đọc các con số nằm trong chuỗi byte |
 | Scapy, PyShark, dpkt | Ba thư viện Python đọc gói tin; dự án tự viết phần đọc thay vì dùng chúng (QĐ-013, QĐ-014) |

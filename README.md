@@ -53,6 +53,10 @@ Báo cáo Chặng 2: [docs/Bao_cao_Chang_2.md](docs/Bao_cao_Chang_2.md)
 
 Báo cáo Chặng 3: [docs/Bao_cao_Chang_3.md](docs/Bao_cao_Chang_3.md)
 
+### Chặng 4 — Xây dựng flow và đặc trưng
+
+- [x] C04-T01: Định nghĩa flow hai chiều và quy tắc forward/backward — `src/nids/flows.py`, [docs/18_flow_hai_chieu.md](docs/18_flow_hai_chieu.md)
+
 Những gì còn thiếu sau Chặng 1–3 (dữ liệu, lab, tham số chưa chốt): [docs/Viec_con_thieu_Chang_1_3.md](docs/Viec_con_thieu_Chang_1_3.md)
 
 ## Cấu trúc
@@ -71,6 +75,7 @@ src/nids/
   service_log.py      Đọc access log Nginx định dạng nids, xuất CSV
   log_compare.py      Đối chiếu bảng CSV của log với file gốc
   wireshark_compare.py  Đối chiếu kết quả đọc packet với tshark
+  flows.py            Ghép packet thành flow hai chiều, xác định forward/backward
   alerts.py           Schema cảnh báo, xuất terminal + CSV
 tests/                Kiểm thử
 scripts/              Script đọc PCAP, sinh traffic mô phỏng (chưa có)
@@ -122,6 +127,9 @@ python -m nids.packets data/pcap/<file>.pcap --csv output/packets.csv --stats ou
 # Đối chiếu từng packet với Wireshark (cần cài Wireshark/tshark)
 python -m nids.wireshark_compare data/pcap/<file>.pcap --report output/ws_compare.json
 
+# Ghép packet thành flow hai chiều, xác định chiều client → server
+python -m nids.flows data/pcap/<file>.pcap --csv output/flows.csv --stats output/flows_stats.json
+
 # Đọc access log Nginx của một lần chạy, xuất bảng CSV rồi đối chiếu với file gốc
 python -m nids.service_log data/service_logs/<run_id>/access_nids.log --csv output/log.csv
 python -m nids.log_compare data/service_logs/<run_id>/access_nids.log output/log.csv -k 20
@@ -167,3 +175,5 @@ Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
 | Lab cô lập | Mạng thử nghiệm riêng không nối ra Internet, để tấn công thử không ảnh hưởng ra ngoài |
 | Mã task Cxx-Txx | Mã công việc trong kế hoạch: Cxx là số chặng, Txx là số task trong chặng |
 | NIDS | Network Intrusion Detection System: hệ thống phát hiện xâm nhập mạng, theo dõi lưu lượng để phát hiện tấn công. Tên dự án `ml-nids` nghĩa là NIDS dùng học máy |
+| Flow hai chiều | Mọi gói qua lại giữa hai đầu của một kết nối (cùng IP, cổng, giao thức), gộp chiều đi và chiều về |
+| Forward / backward | Chiều từ bên mở kết nối (client) sang server / chiều từ server về client |

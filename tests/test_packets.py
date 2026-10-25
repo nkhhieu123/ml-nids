@@ -89,6 +89,9 @@ class Ipv4Test(unittest.TestCase):
         self.assertEqual(first.l4_offset, 34)
         self.assertTrue(later.is_fragment)
         self.assertIsNone(later.l4_offset)
+        # Identification của IPv4 (bằng 1 trong ipv4()) dùng để gắn các mảnh vào flow
+        self.assertEqual((first.frag_id, later.frag_id), (1, 1))
+        self.assertIsNone(parse_packet(raw(ether(ipv4()))).frag_id)
 
     def test_snaplen_cut_keeps_frame_len(self):
         frame = ether(ipv4(payload=b"\0" * 1000))
@@ -128,6 +131,7 @@ class Ipv6Test(unittest.TestCase):
         b = parse_packet(raw(ether(ipv6(44, later + bytes(20)), ethertype=0x86DD)))
         self.assertEqual((a.protocol_name, a.is_fragment, a.l4_offset), ("TCP", True, 62))
         self.assertEqual((b.protocol_name, b.is_fragment, b.l4_offset), ("TCP", True, None))
+        self.assertEqual((a.frag_id, b.frag_id), (7, 7))
 
 
 class PortFlagTest(unittest.TestCase):
