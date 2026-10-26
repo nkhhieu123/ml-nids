@@ -47,6 +47,7 @@ TSHARK_FIELDS = (
     "ipv6.fraghdr.offset", "ipv6.fraghdr.more",
     "tcp.srcport", "tcp.dstport", "tcp.flags",
     "udp.srcport", "udp.dstport", "sctp.srcport", "sctp.dstport",
+    "tcp.seq_raw",
 )
 # Tắt ghép mảnh và ghép đoạn TCP để mỗi dòng ứng đúng một gói như trong file.
 TSHARK_PREFS = (
@@ -54,7 +55,7 @@ TSHARK_PREFS = (
 )
 WINDOWS_TSHARK = Path("C:/Program Files/Wireshark/tshark.exe")
 COMPARED = ("ts", "frame_len", "caplen", "src_ip", "dst_ip", "protocol", "ip_len",
-            "is_fragment", "src_port", "dst_port", "tcp_flags")
+            "is_fragment", "src_port", "dst_port", "tcp_flags", "tcp_seq")
 
 # Khác biệt có chủ ý
 KNOWN_ICMP_QUOTE = "icmp_chep_header_goc"
@@ -135,6 +136,7 @@ def expected_from_tshark(line: str) -> dict:
             break
     exp["ports"] = ports
     exp["tcp_flags"] = _int(_first(v["tcp.flags"]), 16)
+    exp["tcp_seq"] = _int(_first(v["tcp.seq_raw"]))
     return exp
 
 
@@ -177,6 +179,8 @@ def compare_packet(result, exp) -> tuple[list[str], str | None]:
     exp_flags = None if exp["tcp_flags"] is None else exp["tcp_flags"] & TCP_FLAG_MASK
     if rec.tcp_flags != exp_flags and known is None:
         diffs.append("tcp_flags")
+    if rec.tcp_seq != exp["tcp_seq"] and known is None:
+        diffs.append("tcp_seq")
     return diffs, known
 
 

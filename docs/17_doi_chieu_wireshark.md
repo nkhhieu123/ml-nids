@@ -29,6 +29,7 @@ song đầu ra của `tshark` và bộ đọc PCAP của dự án, rồi so từ
 | `is_fragment` | `ip.flags.mf`, `ip.frag_offset`, hoặc có header Fragment của IPv6 |
 | `src_port`, `dst_port` | `tcp.*port`, `udp.*port`, `sctp.*port` |
 | `tcp_flags` | `tcp.flags` (bỏ 3 bit dự trữ) |
+| `tcp_seq` | `tcp.seq_raw` (thêm ở C04-T02) |
 | Gói bị bỏ qua | `tshark` cũng không thấy IPv4/IPv6; cột giao thức của `tshark` được ghi lại để biết đó là gì |
 
 `tshark` được chạy với ghép mảnh IP và ghép đoạn TCP **tắt**, để mỗi dòng đầu
@@ -82,6 +83,9 @@ Theo giao thức, các gói IP khớp gồm:
 - Ba file bot của CTU-13: TCP 90 281, UDP 476, ICMP 44, IGMP 4.
 - Hai file tổng hợp: thêm IPv6 TCP/UDP/ICMPv6, SCTP, VLAN, phân mảnh IPv6.
 
+Ngày 26/10/2026 (C04-T02) công cụ được bổ sung trường `tcp_seq` và chạy lại trên
+mọi file ở bảng trên, gồm cả PCAP toàn mạng scenario 5: vẫn 0 lệch.
+
 ## 4. Nhận xét
 
 - Mọi trường của mọi packet đều khớp với Wireshark trên các file trên, gồm cả
@@ -130,3 +134,4 @@ Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
 | Đọc song song hai luồng | Đọc từng gói từ bộ đọc PCAP và từng dòng từ tshark cùng lúc, không nạp hết file vào bộ nhớ |
 | Bit dự trữ | Bit chưa được dùng trong header TCP, phải bằng 0 |
 | SCTP, VLAN, QinQ | Giao thức tầng 4 ít gặp; thẻ chia mạng logic; hai thẻ VLAN lồng nhau |
+| Số thứ tự TCP (sequence number) | Số trong header TCP đánh dấu vị trí byte dữ liệu; gói gửi lại giữ nguyên số này |

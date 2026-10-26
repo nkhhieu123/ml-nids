@@ -16,6 +16,9 @@ windows:
 
 flow:
   idle_timeout_s: 60         # tạm thời, xem QĐ-006
+  active_timeout_s: 120      # flow dài hơn thì cắt, phần sau là flow tiếp nối; QĐ-017
+  close_grace_s: 10          # sau FIN hai chiều/RST còn nhận gói cuối trong khoảng này; QĐ-017
+  direction_memory_s: 3600   # nhớ chiều của flow đã kết thúc để flow sau giữ chiều; QĐ-017
   fragment_timeout_s: 30     # nhớ mảnh IP đầu để gắn các mảnh sau vào flow, xem QĐ-016
 
 lab:

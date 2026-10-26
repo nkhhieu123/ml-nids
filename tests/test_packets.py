@@ -140,6 +140,7 @@ class PortFlagTest(unittest.TestCase):
         self.assertEqual((rec.src_port, rec.dst_port), (51234, 443))
         self.assertEqual(rec.tcp_flags, 0x012)
         self.assertEqual(rec.tcp_flag_names, "SYN,ACK")
+        self.assertEqual(rec.tcp_seq, 1)          # tcp() đặt sequence number bằng 1
 
     def test_ae_bit_kept_reserved_bits_dropped(self):
         segment = bytearray(tcp(flags=TCP_ACK))
@@ -150,7 +151,8 @@ class PortFlagTest(unittest.TestCase):
 
     def test_udp_ports_no_flags(self):
         rec = parse_packet(raw(ether(ipv4(proto=17, payload=udp()))))
-        self.assertEqual((rec.src_port, rec.dst_port, rec.tcp_flags), (5353, 53, None))
+        self.assertEqual((rec.src_port, rec.dst_port, rec.tcp_flags, rec.tcp_seq),
+                         (5353, 53, None, None))
         self.assertEqual(rec.tcp_flag_names, "")
 
     def test_icmp_has_no_ports(self):
@@ -166,6 +168,8 @@ class PortFlagTest(unittest.TestCase):
         frame = ether(ipv4(payload=tcp()))
         ports_only = parse_packet(raw(frame[:34 + 8], origlen=len(frame)))
         self.assertEqual((ports_only.src_port, ports_only.tcp_flags), (40000, None))
+        # Bị cắt trước byte cờ: như Wireshark, không lấy số thứ tự dù còn đủ byte
+        self.assertIsNone(ports_only.tcp_seq)
         nothing = parse_packet(raw(frame[:34 + 2], origlen=len(frame)))
         self.assertEqual((nothing.src_port, nothing.dst_port), (None, None))
 

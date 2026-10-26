@@ -1,32 +1,36 @@
-"""Ghép packet thành flow hai chiều và xác định chiều forward/backward (C04-T01).
+"""Ghép packet thành flow hai chiều, xác định chiều và kết thúc flow (C04-T01, C04-T02).
 
-Một flow hai chiều gồm mọi packet có cùng giao thức và cùng cặp đầu mút
+Một flow hai chiều gồm các packet có cùng giao thức và cùng cặp đầu mút
 (IP, cổng), bất kể gói đi theo chiều nào. Chiều forward là chiều của bên mở
-kết nối (client); chiều backward là chiều ngược lại. Quy tắc chi tiết ở
-docs/18_flow_hai_chieu.md và QĐ-016.
+kết nối (client); chiều backward là chiều ngược lại (docs/18_flow_hai_chieu.md,
+QĐ-016).
 
-Module này chưa cắt flow theo timeout, FIN/RST hay tái sử dụng 5-tuple; phần
-đó thuộc C04-T02. Ở đây mỗi khóa flow ứng một flow trong cả file.
+Một flow kết thúc khi (docs/19_ket_thuc_flow.md, QĐ-017):
+- TCP đã đóng bằng FIN hai chiều hoặc RST, rồi có SYN mới hoặc hết thời gian chờ;
+- không có gói mới trong ``idle_timeout_s``;
+- có SYN mở kết nối mới trên cùng 5-tuple khi flow cũ chưa đóng;
+- flow kéo dài quá ``active_timeout_s``; phần sau là flow tiếp nối cùng chiều.
 
-    assigner = FlowAssigner()
+    assigner = FlowAssigner(FlowSettings.from_config(load_config()))
     for rec in extract_packets("data/pcap/<file>.pcap"):
         flow, forward = assigner.add(rec)
-    for flow in assigner.flows():
-        print(flow.fwd_endpoint, flow.bwd_endpoint, flow.direction_basis)
+        for done in assigner.pop_finished():
+            print(done.fwd_endpoint, done.end_reason)
+    assigner.finish_all()
 """
 
 import argparse
 import csv
 import json
 import sys
-from collections import Counter
-from dataclasses import dataclass
+from collections import Counter, OrderedDict
+from dataclasses import dataclass, field
 from ipaddress import ip_address
 
 from .config import load_config
 from .packets import (
-    PORT_PROTOCOLS, PROTO_TCP, TCP_ACK, TCP_SYN, ParseStats, PacketRecord,
-    extract_packets,
+    PORT_PROTOCOLS, PROTO_TCP, TCP_ACK, TCP_FIN, TCP_RST, TCP_SYN, ParseStats,
+    PacketRecord, extract_packets,
 )
 
 # Cách xác định bên mở kết nối, theo thứ tự ưu tiên (docs/18, mục 3)
@@ -38,13 +42,35 @@ BASIS_SAME_ENDPOINT = "cung_dau_mut"  # hai đầu trùng nhau: mọi gói là f
 BASES = (BASIS_SYN, BASIS_SYN_ACK, BASIS_SERVICE_PORT, BASIS_FIRST_PACKET,
          BASIS_SAME_ENDPOINT)
 
+# Lý do kết thúc flow (docs/19, mục 2)
+END_FIN = "fin"                      # cả hai bên đã gửi FIN
+END_RST = "rst"                      # một bên đã gửi RST
+END_IDLE = "idle_timeout"            # không có gói mới trong idle_timeout_s
+END_ACTIVE = "active_timeout"        # flow dài quá active_timeout_s
+END_REUSE = "tai_su_dung"            # SYN mới trên cùng 5-tuple khi flow chưa đóng
+END_OF_INPUT = "het_du_lieu"         # hết file khi flow còn mở
+END_REASONS = (END_FIN, END_RST, END_IDLE, END_ACTIVE, END_REUSE, END_OF_INPUT)
+
 # Cổng dưới ngưỡng này coi là cổng dịch vụ (well-known ports, RFC 6335)
 SERVICE_PORT_LIMIT = 1024
 
-# Mảnh IP đầu tiên được nhớ trong khoảng này để gắn các mảnh sau vào cùng flow;
-# mặc định bằng thời gian chờ ghép mảnh của Linux (net.ipv4.ipfrag_time).
-# Giá trị dùng thật lấy từ flow.fragment_timeout_s trong config/default.yaml.
-FRAGMENT_TIMEOUT_S = 30
+# Khoảng thời gian (theo thời điểm gói) giữa hai lần dọn flow đã hết hạn.
+# Chỉ ảnh hưởng lúc flow được trả ra, không ảnh hưởng cách cắt flow.
+SWEEP_INTERVAL_NS = 10**9
+
+
+@dataclass(frozen=True)
+class FlowSettings:
+    """Tham số ghép flow; giá trị dùng thật nằm ở mục ``flow`` của config/default.yaml."""
+    idle_timeout_s: float = 60        # QĐ-006
+    active_timeout_s: float = 120     # QĐ-017, như CICFlowMeter của CIC-IDS2017
+    close_grace_s: float = 10         # QĐ-017: nhận gói cuối sau FIN/RST
+    direction_memory_s: float = 3600  # QĐ-017: nhớ chiều để flow sau tiếp nối
+    fragment_timeout_s: float = 30    # QĐ-016
+
+    @classmethod
+    def from_config(cls, cfg: dict) -> "FlowSettings":
+        return cls(**{name: cfg["flow"][name] for name in cls.__dataclass_fields__})
 
 
 @dataclass(frozen=True, order=True)
@@ -86,8 +112,8 @@ def make_key(ip_version, protocol, src, dst) -> FlowKey:
 class Flow:
     """Một flow hai chiều cùng chiều forward đã xác định.
 
-    Các bộ đếm ở đây chỉ để kiểm tra việc ghép và phân chiều; đặc trưng thật
-    (byte, thời lượng, thống kê) tính ở C04-T03 và C04-T04.
+    Các bộ đếm ở đây chỉ để kiểm tra việc ghép, phân chiều và kết thúc; đặc
+    trưng thật (byte, thời lượng, thống kê) tính ở C04-T03 và C04-T04.
     """
     key: FlowKey
     fwd_endpoint: tuple[str, int | None]   # bên mở kết nối (client)
@@ -96,13 +122,27 @@ class Flow:
     first_index: int                       # chỉ số packet đầu tiên trong file
     first_ts_ns: int | None
     last_ts_ns: int | None
+    continuation: bool = False             # chiều lấy từ flow trước của cùng 5-tuple
+    end_reason: str | None = None          # một trong END_REASONS khi flow đã kết thúc
     fwd_packets: int = 0
     bwd_packets: int = 0
     fragments_attached: int = 0            # mảnh IP không mang cổng được gắn vào flow này
+    # Trạng thái TCP dùng để kết thúc flow
+    fin_from: set = field(default_factory=set, repr=False)  # đầu mút đã gửi FIN
+    closed_ts_ns: int | None = field(default=None, repr=False)  # lúc đóng bằng FIN/RST
+    sent_non_syn: set = field(default_factory=set, repr=False)  # đầu mút đã gửi gói không SYN
+    # (đầu mút, "syn"/"syn_ack") -> số thứ tự TCP của gói bắt tay đầu tiên loại đó
+    handshake_seq: dict = field(default_factory=dict, repr=False)
+    finished: bool = field(default=False, repr=False)           # đã được trả ra
 
     @property
     def packets(self) -> int:
         return self.fwd_packets + self.bwd_packets
+
+    @property
+    def closed(self) -> bool:
+        """TCP đã đóng bằng FIN hai chiều hoặc RST (đang chờ gói cuối)."""
+        return self.end_reason in (END_FIN, END_RST)
 
     def is_forward(self, rec: PacketRecord, src_port=None) -> bool:
         """Gói có đi từ phía client không. ``src_port`` dùng cho mảnh không mang cổng."""
@@ -135,30 +175,71 @@ def initiator(rec: PacketRecord, src, dst) -> tuple[tuple, tuple, str]:
     return src, dst, BASIS_FIRST_PACKET
 
 
+def _is_syn(rec):
+    """SYN không có ACK: gói mở kết nối của client."""
+    return (rec.protocol == PROTO_TCP and rec.tcp_flags is not None
+            and rec.tcp_flags & TCP_SYN and not rec.tcp_flags & TCP_ACK)
+
+
+def _is_handshake(rec):
+    return rec.protocol == PROTO_TCP and rec.tcp_flags is not None and rec.tcp_flags & TCP_SYN
+
+
 class FlowAssigner:
-    """Gắn từng packet vào flow hai chiều theo thứ tự trong file.
+    """Gắn từng packet vào flow hai chiều theo thứ tự trong file và kết thúc flow.
+
+    Flow đã kết thúc được đưa vào hàng chờ, lấy ra bằng ``pop_finished()``; khi
+    hết dữ liệu gọi ``finish_all()``. Quyết định cắt flow chỉ dựa vào gói hiện
+    tại và các gói trước nó, nên đọc file hay bắt realtime cho cùng kết quả.
 
     Mảnh IP không phải mảnh đầu không có cổng. Nó được gắn vào flow của mảnh
     đầu cùng datagram (cùng IP nguồn, IP đích, giao thức, Identification) nếu
-    mảnh đầu đã thấy trong vòng ``fragment_timeout_s`` giây; nếu không thì vào
-    flow không cổng của cặp IP đó và được đếm trong ``orphan_fragments``.
+    mảnh đầu đã thấy trong vòng ``fragment_timeout_s`` giây và flow đó chưa được
+    trả ra; nếu không thì vào flow không cổng của cặp IP đó và được đếm trong
+    ``orphan_fragments``.
     """
 
-    def __init__(self, fragment_timeout_s: float = FRAGMENT_TIMEOUT_S):
-        self.fragment_timeout_ns = int(fragment_timeout_s * 10**9)
-        self._flows: dict[FlowKey, Flow] = {}
+    def __init__(self, settings: FlowSettings | None = None):
+        s = settings or FlowSettings()
+        self.settings = s
+        self.idle_ns = int(s.idle_timeout_s * 10**9)
+        self.active_ns = int(s.active_timeout_s * 10**9)
+        self.grace_ns = int(s.close_grace_s * 10**9)
+        self.memory_ns = int(s.direction_memory_s * 10**9)
+        self.fragment_timeout_ns = int(s.fragment_timeout_s * 10**9)
+        # Các bảng dưới đây xếp theo thời gian để expire() chỉ cần xem đầu bảng.
+        # Flow đang mở; flow vừa có gói nằm cuối bảng
+        self._active: OrderedDict[FlowKey, Flow] = OrderedDict()
+        # Flow đã đóng bằng FIN/RST, đang chờ gói cuối, theo lúc đóng
+        self._closing: OrderedDict[FlowKey, Flow] = OrderedDict()
+        self._finished: list[Flow] = []        # chờ pop_finished()
+        self._all_finished: list[Flow] = []    # giữ lại để flows() trả về đủ
+        # Chiều của flow trước trên cùng khóa: key -> (fwd, bwd, basis, ts kết thúc)
+        self._recent: OrderedDict[FlowKey, tuple] = OrderedDict()
         # (ip_version, src, dst, proto, frag_id) -> (flow, cổng nguồn, ts của mảnh đầu)
-        self._fragments: dict[tuple, tuple[Flow, int | None, int | None]] = {}
+        self._fragments: OrderedDict[tuple, tuple] = OrderedDict()
         self.orphan_fragments = 0
         self.out_of_order = 0   # số gói có thời điểm nhỏ hơn gói đứng trước trong file
+        self._now = None        # thời điểm lớn nhất đã thấy
         self._last_ts = None
+        self._next_sweep = None
+
+    # ---- nhận gói ----
 
     def add(self, rec: PacketRecord) -> tuple[Flow, bool]:
         """Gắn một packet vào flow; trả về (flow, gói có thuộc chiều forward không)."""
-        if rec.ts_ns is not None:
-            if self._last_ts is not None and rec.ts_ns < self._last_ts:
+        ts = rec.ts_ns
+        if ts is not None:
+            if self._last_ts is not None and ts < self._last_ts:
                 self.out_of_order += 1
-            self._last_ts = rec.ts_ns
+            self._last_ts = ts
+            if self._now is None or ts > self._now:
+                self._now = ts
+            if self._next_sweep is None:
+                self._next_sweep = ts + SWEEP_INTERVAL_NS
+            elif ts >= self._next_sweep:
+                self.expire(ts)
+                self._next_sweep = ts + SWEEP_INTERVAL_NS
 
         attached = self._attach_fragment(rec)
         if attached is not None:
@@ -166,21 +247,131 @@ class FlowAssigner:
             forward = flow.is_forward(rec, src_port)
             flow.fragments_attached += 1
         else:
-            flow = self._get_or_create(rec)
+            flow = self._flow_for(rec)
             forward = flow.is_forward(rec)
             if rec.is_fragment and rec.l4_offset is not None:
                 frag = (rec.ip_version, rec.src_ip, rec.dst_ip, rec.protocol, rec.frag_id)
-                self._fragments[frag] = (flow, rec.src_port, rec.ts_ns)
+                self._fragments[frag] = (flow, rec.src_port, ts)
 
         if forward:
             flow.fwd_packets += 1
         else:
             flow.bwd_packets += 1
-        if rec.ts_ns is not None:
+        if ts is not None:
             if flow.first_ts_ns is None:
-                flow.first_ts_ns = rec.ts_ns
-            flow.last_ts_ns = rec.ts_ns
+                flow.first_ts_ns = ts
+            flow.last_ts_ns = ts
+        if not flow.finished:
+            self._active.move_to_end(flow.key)
+        self._track_tcp(flow, rec, forward)
         return flow, forward
+
+    def _flow_for(self, rec):
+        """Flow đang mở của khóa này, sau khi đã kết thúc flow cũ nếu gói này mở flow mới."""
+        src = (rec.src_ip, rec.src_port)
+        dst = (rec.dst_ip, rec.dst_port)
+        key = make_key(rec.ip_version, rec.protocol, src, dst)
+        flow = self._active.get(key)
+        if flow is not None:
+            reason = self._end_reason_on_arrival(flow, rec)
+            if reason is not None:
+                self._finish(flow, reason)
+                flow = None
+        if flow is None:
+            flow = self._create(key, rec, src, dst)
+            self._active[key] = flow
+        return flow
+
+    def _end_reason_on_arrival(self, flow, rec):
+        """Lý do kết thúc flow khi gói ``rec`` tới; None nếu gói thuộc flow này.
+
+        Thứ tự kiểm tra (docs/19, mục 2): đã đóng, nhàn rỗi, SYN mới, quá dài.
+        """
+        ts = rec.ts_ns
+        gap = None if ts is None or flow.last_ts_ns is None else ts - flow.last_ts_ns
+        if flow.closed:
+            if _is_handshake(rec):
+                return flow.end_reason
+            if ts is not None and flow.closed_ts_ns is not None \
+                    and ts - flow.closed_ts_ns > self.grace_ns:
+                return flow.end_reason
+            if gap is not None and gap > self.idle_ns:
+                return flow.end_reason
+            return None
+        if gap is not None and gap > self.idle_ns:
+            return END_IDLE
+        if self._opens_new_connection(flow, rec):
+            return END_REUSE
+        if ts is not None and flow.first_ts_ns is not None \
+                and ts - flow.first_ts_ns > self.active_ns:
+            return END_ACTIVE
+        return None
+
+    @staticmethod
+    def _opens_new_connection(flow, rec):
+        """Gói SYN hoặc SYN+ACK này có mở kết nối mới trên flow chưa đóng không.
+
+        SYN từ phía server của flow luôn là kết nối mới (mở ngược chiều). Còn lại,
+        nếu bên gửi đã gửi gói cùng loại trước đó trong flow thì so số thứ tự TCP:
+        cùng số là gửi lại, khác số là kết nối mới. Không so được thì (docs/19,
+        mục 2):
+        - SYN+ACK đầu tiên của bên đó là trả lời bình thường; chỉ khi gói không
+          có số thứ tự mà bên đó đã gửi gói khác (đã qua bắt tay) thì là kết nối mới;
+        - SYN của client là kết nối mới nếu client đã gửi gói khác, hoặc flow
+          không mở bằng bắt tay (bắt giữa chừng).
+        """
+        if not _is_handshake(rec):
+            return False
+        sender = (rec.src_ip, rec.src_port)
+        kind = "syn" if _is_syn(rec) else "syn_ack"
+        if kind == "syn" and sender != flow.fwd_endpoint:
+            return True
+        previous = flow.handshake_seq.get((sender, kind))
+        if previous is not None and rec.tcp_seq is not None:
+            return rec.tcp_seq != previous
+        if kind == "syn_ack":
+            return rec.tcp_seq is None and sender in flow.sent_non_syn
+        return (sender in flow.sent_non_syn
+                or flow.direction_basis not in (BASIS_SYN, BASIS_SYN_ACK))
+
+    def _create(self, key, rec, src, dst):
+        recent = self._recent.pop(key, None)
+        if recent is not None and rec.ts_ns is not None \
+                and rec.ts_ns - recent[3] > self.memory_ns:
+            recent = None
+        if recent is not None and not _is_handshake(rec):
+            # Phần tiếp của cùng kết nối (sau timeout hoặc gói cuối sau khi đóng):
+            # giữ chiều của flow trước thay vì đoán lại từ gói giữa chừng.
+            fwd, bwd, basis = recent[0], recent[1], recent[2]
+            continuation = True
+        else:
+            fwd, bwd, basis = initiator(rec, src, dst)
+            continuation = False
+        return Flow(key, fwd, bwd, basis, rec.index, rec.ts_ns, rec.ts_ns,
+                    continuation=continuation)
+
+    def _track_tcp(self, flow, rec, forward):
+        if rec.protocol != PROTO_TCP or rec.tcp_flags is None:
+            return
+        flags = rec.tcp_flags
+        sender = (rec.src_ip, rec.src_port)
+        if flags & TCP_SYN:
+            kind = "syn_ack" if flags & TCP_ACK else "syn"
+            if rec.tcp_seq is not None:
+                flow.handshake_seq.setdefault((sender, kind), rec.tcp_seq)
+        else:
+            flow.sent_non_syn.add(sender)
+        if flow.closed:
+            return
+        if flags & TCP_RST:
+            flow.end_reason = END_RST
+        elif flags & TCP_FIN:
+            flow.fin_from.add((rec.src_ip, rec.src_port))
+            if len(flow.fin_from) == 2:
+                flow.end_reason = END_FIN
+        if flow.closed:
+            flow.closed_ts_ns = rec.ts_ns
+            self._closing[flow.key] = flow
 
     def _attach_fragment(self, rec):
         """Với mảnh không phải mảnh đầu, tìm flow của mảnh đầu; None nếu không áp dụng."""
@@ -190,7 +381,8 @@ class FlowAssigner:
         entry = self._fragments.get(frag)
         if entry is not None:
             flow, src_port, first_ts = entry
-            if (first_ts is None or rec.ts_ns is None
+            if not flow.finished and (
+                    first_ts is None or rec.ts_ns is None
                     or 0 <= rec.ts_ns - first_ts <= self.fragment_timeout_ns):
                 return flow, src_port
             del self._fragments[frag]
@@ -198,48 +390,102 @@ class FlowAssigner:
             self.orphan_fragments += 1
         return None
 
-    def _get_or_create(self, rec):
-        src = (rec.src_ip, rec.src_port)
-        dst = (rec.dst_ip, rec.dst_port)
-        key = make_key(rec.ip_version, rec.protocol, src, dst)
-        flow = self._flows.get(key)
-        if flow is None:
-            fwd, bwd, basis = initiator(rec, src, dst)
-            flow = Flow(key, fwd, bwd, basis, rec.index, rec.ts_ns, rec.ts_ns)
-            self._flows[key] = flow
-        return flow
+    # ---- kết thúc flow ----
+
+    def _finish(self, flow, reason):
+        if not flow.closed:
+            flow.end_reason = reason
+        flow.finished = True
+        del self._active[flow.key]
+        self._closing.pop(flow.key, None)
+        self._finished.append(flow)
+        self._all_finished.append(flow)
+        end_ts = flow.last_ts_ns if flow.last_ts_ns is not None else self._now
+        if end_ts is not None:
+            self._recent.pop(flow.key, None)
+            self._recent[flow.key] = (flow.fwd_endpoint, flow.bwd_endpoint,
+                                      flow.direction_basis, end_ts)
+
+    def expire(self, now_ns: int | None = None) -> None:
+        """Kết thúc các flow mà gói tới sau thời điểm ``now_ns`` chắc chắn không thuộc về.
+
+        Chỉ dùng nhàn rỗi và thời gian chờ sau khi đóng, là hai điều kiện không
+        phụ thuộc vào gói tới sau, nên kết quả giống như kiểm tra lúc gói tới.
+        Đồng thời dọn bộ nhớ mảnh IP và bộ nhớ chiều đã quá hạn.
+        """
+        now = self._now if now_ns is None else now_ns
+        if now is None:
+            return
+        while self._closing:
+            flow = next(iter(self._closing.values()))
+            if flow.closed_ts_ns is not None and now - flow.closed_ts_ns <= self.grace_ns:
+                break
+            self._finish(flow, flow.end_reason)
+        while self._active:
+            flow = next(iter(self._active.values()))
+            if flow.last_ts_ns is not None and now - flow.last_ts_ns <= self.idle_ns:
+                break
+            self._finish(flow, END_IDLE)
+        # Hai bảng nhớ chỉ cần dọn gần đúng: lúc dùng vẫn kiểm tra hạn lại.
+        while self._fragments:
+            first_ts = next(iter(self._fragments.values()))[2]
+            if first_ts is not None and now - first_ts <= self.fragment_timeout_ns:
+                break
+            self._fragments.popitem(last=False)
+        while self._recent:
+            if now - next(iter(self._recent.values()))[3] <= self.memory_ns:
+                break
+            self._recent.popitem(last=False)
+
+    def finish_all(self) -> None:
+        """Hết dữ liệu: flow còn mở kết thúc với lý do ``het_du_lieu``."""
+        for flow in list(self._active.values()):
+            self._finish(flow, END_OF_INPUT)
+
+    def pop_finished(self) -> list[Flow]:
+        """Lấy các flow đã kết thúc kể từ lần gọi trước."""
+        done, self._finished = self._finished, []
+        return done
+
+    # ---- kết quả ----
 
     def flows(self) -> list[Flow]:
-        """Các flow theo thứ tự xuất hiện của gói đầu tiên."""
-        return list(self._flows.values())
+        """Mọi flow (đã kết thúc và còn mở) theo thứ tự gói đầu tiên trong file."""
+        return sorted(self._all_finished + list(self._active.values()),
+                      key=lambda f: f.first_index)
 
     def summary(self) -> dict:
-        flows = self._flows.values()
+        flows = self.flows()
         return {
-            "so_flow": len(self._flows),
+            "so_flow": len(flows),
             "so_packet": sum(f.packets for f in flows),
             "flow_theo_co_so": dict(Counter(f.direction_basis for f in flows)),
             "flow_theo_giao_thuc": dict(Counter(f.key.protocol for f in flows)),
+            "flow_theo_ly_do_ket_thuc": dict(Counter(f.end_reason or "dang_mo" for f in flows)),
+            "flow_tiep_noi": sum(1 for f in flows if f.continuation),
             "flow_khong_co_cong": sum(1 for f in flows
                                       if f.key.protocol in PORT_PROTOCOLS
                                       and f.key.a_port is None),
             "manh_da_gan": sum(f.fragments_attached for f in flows),
             "manh_mo_coi": self.orphan_fragments,
             "goi_sai_thu_tu_thoi_gian": self.out_of_order,
+            "tham_so": self.settings.__dict__,
         }
 
 
-def assign_flows(records, fragment_timeout_s: float = FRAGMENT_TIMEOUT_S) -> FlowAssigner:
-    """Ghép mọi packet của một nguồn bản ghi; trả về FlowAssigner đã đầy."""
-    assigner = FlowAssigner(fragment_timeout_s)
+def assign_flows(records, settings: FlowSettings | None = None) -> FlowAssigner:
+    """Ghép mọi packet của một nguồn bản ghi rồi kết thúc mọi flow còn mở."""
+    assigner = FlowAssigner(settings)
     for rec in records:
         assigner.add(rec)
+    assigner.finish_all()
     return assigner
 
 
 CSV_COLUMNS = ("first_index", "first_ts", "last_ts", "ip_version", "protocol",
                "fwd_ip", "fwd_port", "bwd_ip", "bwd_port", "direction_basis",
-               "fwd_packets", "bwd_packets", "fragments_attached")
+               "continuation", "end_reason", "fwd_packets", "bwd_packets",
+               "fragments_attached")
 
 
 def _ts(ts_ns):
@@ -258,6 +504,8 @@ def csv_row(flow: Flow) -> dict:
         "bwd_ip": flow.bwd_endpoint[0],
         "bwd_port": flow.bwd_endpoint[1],
         "direction_basis": flow.direction_basis,
+        "continuation": int(flow.continuation),
+        "end_reason": flow.end_reason,
         "fwd_packets": flow.fwd_packets,
         "bwd_packets": flow.bwd_packets,
         "fragments_attached": flow.fragments_attached,
@@ -267,7 +515,7 @@ def csv_row(flow: Flow) -> dict:
 
 def main(argv=None):
     parser = argparse.ArgumentParser(
-        description="Ghép packet thành flow hai chiều và xác định chiều forward/backward."
+        description="Ghép packet thành flow hai chiều, xác định chiều và kết thúc flow."
     )
     parser.add_argument("file", help="đường dẫn file .pcap hoặc .pcapng")
     parser.add_argument("--csv", help="ghi bảng flow ra file CSV")
@@ -275,14 +523,16 @@ def main(argv=None):
     parser.add_argument("--config", help="file cấu hình, mặc định config/default.yaml")
     args = parser.parse_args(argv)
 
-    cfg = load_config(args.config)
+    settings = FlowSettings.from_config(load_config(args.config))
     stats = ParseStats()
-    assigner = assign_flows(extract_packets(args.file, stats),
-                            cfg["flow"]["fragment_timeout_s"])
+    assigner = assign_flows(extract_packets(args.file, stats), settings)
     summary = assigner.summary()
     print(f"{args.file}: {summary['so_packet']} packet IP, {summary['so_flow']} flow")
     print("  Cơ sở xác định chiều: " + ", ".join(
-        f"{k}={v}" for k, v in sorted(summary["flow_theo_co_so"].items())))
+        f"{k}={v}" for k, v in sorted(summary["flow_theo_co_so"].items()))
+        + f"; flow tiếp nối: {summary['flow_tiep_noi']}")
+    print("  Lý do kết thúc: " + ", ".join(
+        f"{k}={v}" for k, v in sorted(summary["flow_theo_ly_do_ket_thuc"].items())))
     print(f"  Mảnh IP đã gắn vào flow: {summary['manh_da_gan']}; "
           f"mảnh mồ côi: {summary['manh_mo_coi']}; "
           f"flow TCP/UDP/SCTP không có cổng: {summary['flow_khong_co_cong']}")

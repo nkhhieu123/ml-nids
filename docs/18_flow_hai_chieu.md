@@ -9,9 +9,10 @@ bảng packet của [12_trich_xuat_packet.md](12_trich_xuat_packet.md) và
 python -m nids.flows data/pcap/<file>.pcap --csv output/flows.csv --stats output/flows_stats.json
 ```
 
-Task này chỉ định nghĩa **flow là gì** và **chiều nào là forward**. Chưa cắt
-flow theo thời gian nhàn rỗi, FIN/RST hay khi 5-tuple được dùng lại; phần đó là
-C04-T02. Hiện mỗi khóa flow ứng một flow trong cả file.
+Tài liệu này định nghĩa **flow là gì** và **chiều nào là forward**. Việc cắt
+flow theo thời gian nhàn rỗi, FIN/RST và khi 5-tuple được dùng lại làm ở C04-T02,
+xem [19_ket_thuc_flow.md](19_ket_thuc_flow.md). Số liệu ở mục 7 đo lúc C04-T01,
+khi mỗi khóa flow còn ứng một flow trong cả file.
 
 ## 1. Flow hai chiều
 
@@ -77,7 +78,8 @@ Lý do của từng quy tắc:
   chiều sai với traffic tấn công cố ý dùng cổng nguồn thấp (ví dụ `nmap -g 53`)
   hoặc flood dùng cổng ngẫu nhiên.
 - Một gói SYN tới **sau** trên cùng 5-tuple không làm đổi chiều của flow đang
-  có. Gói đó báo hiệu một kết nối mới; C04-T02 sẽ tách nó thành flow mới.
+  có. Gói đó báo hiệu một kết nối mới và mở flow mới, có chiều riêng
+  ([19_ket_thuc_flow.md](19_ket_thuc_flow.md)).
 
 Mỗi gói được đánh dấu forward nếu (IP nguồn, cổng nguồn) của nó trùng đầu mút
 client của flow, ngược lại là backward.
@@ -146,8 +148,8 @@ lấy số `tcp.stream`/`udp.stream` của từng gói, rồi kiểm tra:
 Ba điều rút ra từ bảng:
 - **Flow ít hơn stream** ở donbot (26 flow chứa 2 stream) và Virut (291 flow chứa 3
   stream). Wireshark tách stream mới khi cùng 5-tuple được dùng lại sau khi kết
-  nối đóng; dự án chưa tách (đó là C04-T02). Bot Virut mở lại cùng cổng nguồn
-  tới cùng máy chủ nhiều lần.
+  nối đóng; lúc C04-T01 dự án chưa tách. Bot Virut mở lại cùng cổng nguồn
+  tới cùng máy chủ nhiều lần. Sau C04-T02 không còn flow nào chứa hai stream.
 - **Flow nhiều hơn stream** là các flow ICMP và giao thức khác mà Wireshark không
   đánh số stream.
 - **4 gói sai chiều** ở bản thu toàn mạng đều thuộc một flow BitTorrent
@@ -155,8 +157,8 @@ Ba điều rút ra từ bảng:
   chọn theo `goi_dau`: máy ngoài là client. Sau đó máy trong mạng gửi SYN mở một
   kết nối **mới** trên cùng 5-tuple; Wireshark coi đó là stream mới với client
   là máy trong mạng. Theo QĐ-016 chiều của flow đang có không đổi, nên 2 gói SYN
-  và 2 gói tiếp theo bị tính là backward. C04-T02 sẽ tách flow mới tại gói SYN
-  này, khi đó 4 gói sẽ đúng chiều. Bản thu này chạy mất 83 giây.
+  và 2 gói tiếp theo bị tính là backward. C04-T02 tách flow mới tại gói SYN
+  này nên 4 gói đã đúng chiều. Bản thu này chạy mất 83 giây.
 - Ở WSL có 6 mảnh IPv4 thật: 2 mảnh đầu, 4 mảnh sau được gắn đúng flow; không có
   mảnh mồ côi.
 
@@ -185,8 +187,6 @@ máy khác nhau; đếm gói sai thứ tự; dòng lệnh ghi CSV và JSON.
 
 ## 8. Giới hạn
 
-- Chưa có timeout và chưa tách khi 5-tuple được dùng lại: một kết nối dài hoặc
-  nhiều kết nối liên tiếp cùng cổng hiện là một flow (C04-T02).
 - `cong_dich_vu` có thể sai nếu cả client dùng cổng < 1024 (ví dụ `rsh`, một số
   dịch vụ cũ) và kết nối bị bắt giữa chừng; khi đó kết quả giống `goi_dau`.
 - Flow ICMP gộp mọi loại ICMP giữa hai máy (ping, báo lỗi), vì bảng packet chưa

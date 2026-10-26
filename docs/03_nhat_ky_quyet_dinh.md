@@ -124,7 +124,14 @@ Mẫu:
 - Trạng thái: Đã chốt
 - Bối cảnh: Đặc trưng fwd/bwd và tỷ lệ gửi/nhận cần biết gói nào đi từ client. CICFlowMeter lấy bên gửi gói đầu tiên làm forward, nên đảo chiều khi bắt giữa chừng kết nối hoặc khi lỡ mất gói SYN. Mảnh IP sau mảnh đầu không có cổng nên dễ rơi khỏi flow.
 - Quyết định: Flow hai chiều gồm các gói cùng phiên bản IP, giao thức và cặp đầu mút (IP, cổng; giao thức không có cổng thì chỉ IP), hai đầu xếp theo IP dạng số rồi cổng. Client được chọn một lần từ gói đầu tiên của flow, theo thứ tự: SYN (bên gửi), SYN+ACK (bên nhận), TCP giữa chừng có đúng một bên dùng cổng < 1024 (bên còn lại), còn lại là bên gửi gói đầu. Không đoán theo cổng với UDP. Mảnh sau được gắn vào flow và chiều của mảnh đầu cùng (IP nguồn, IP đích, giao thức, Identification) nếu mảnh đầu tới trước tối đa `flow.fragment_timeout_s` = 30 giây (xem `docs/18_flow_hai_chieu.md`).
-- Hệ quả: Bộ trích xuất packet thêm trường `frag_id`. Mỗi flow ghi `direction_basis` để biết chiều chắc chắn tới đâu. Chiều không bao giờ được sửa theo gói tới sau, nên huấn luyện và realtime giống nhau. Tách flow theo timeout, FIN/RST và 5-tuple dùng lại để cho C04-T02.
+- Hệ quả: Bộ trích xuất packet thêm trường `frag_id`. Mỗi flow ghi `direction_basis` để biết chiều chắc chắn tới đâu. Chiều không bao giờ được sửa theo gói tới sau, nên huấn luyện và realtime giống nhau. Tách flow theo timeout, FIN/RST và 5-tuple dùng lại để cho C04-T02 (QĐ-017).
+
+## QĐ-017 — Kết thúc flow: FIN/RST có thời gian chờ, SYN mới, timeout nhàn rỗi và active timeout
+- Ngày: 26/10/2026
+- Trạng thái: Tạm thời (giá trị thời gian chỉnh trên validation như QĐ-006)
+- Bối cảnh: Một 5-tuple có thể chứa nhiều kết nối liên tiếp (bot Virut mở lại cùng cổng nguồn tới cùng máy chủ) hoặc một kết nối rất dài. CICFlowMeter đóng flow ngay ở FIN đầu tiên, làm gói ACK cuối thành flow một gói. Đo trên CTU-13: khoảng 97% gói tới sau khi TCP đóng nằm trong 10 giây.
+- Quyết định: Flow kết thúc, theo thứ tự ưu tiên, khi: (1) TCP đã đóng bằng FIN hai chiều hoặc RST và gói mới có cờ SYN hoặc tới sau `close_grace_s` = 10 giây; (2) nhàn rỗi quá `idle_timeout_s` = 60 giây; (3) có gói bắt tay mới (SYN, SYN+ACK) trên flow chưa đóng, phân biệt với gói gửi lại bằng số thứ tự TCP (trường `tcp_seq` thêm vào bảng packet); (4) dài quá `active_timeout_s` = 120 giây, như CICFlowMeter. Flow mở lại bằng gói không phải SYN/SYN+ACK trong vòng `direction_memory_s` = 3600 giây sau flow trước cùng khóa thì giữ chiều của flow trước (`continuation`). Mọi thời gian tính theo thời điểm trong gói (xem `docs/19_ket_thuc_flow.md`).
+- Hệ quả: Bảng flow có thêm `end_reason` và `continuation`. Đặc trưng theo flow là của từng đoạn tối đa 120 giây. Realtime dùng `pop_finished()`/`expire()` và cho cùng kết quả với đọc file. Thống kê flow ghi kèm bộ tham số đã dùng.
 
 ## Thuật ngữ
 
@@ -147,6 +154,9 @@ Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
 | SYN, SYN+ACK | Gói mở kết nối TCP của client / gói trả lời đồng ý của server |
 | Identification, mảnh IP | Số chung của các mảnh thuộc cùng một gói IP lớn bị chia nhỏ |
 | CICFlowMeter | Công cụ tạo file flow CSV của CIC-IDS2017 |
+| FIN, RST | Cờ TCP báo đóng kết nối bình thường / hủy kết nối ngay |
+| Active timeout | Độ dài tối đa của một flow; kết nối dài hơn bị cắt thành nhiều flow nối tiếp |
+| Tái sử dụng 5-tuple | Mở kết nối mới với đúng IP và cổng của kết nối cũ |
 | Manifest | Bảng liệt kê mọi nguồn dữ liệu và cách dùng |
 | struct | Thư viện có sẵn của Python để đọc các con số nằm trong chuỗi byte |
 | Scapy, PyShark, dpkt | Ba thư viện Python đọc gói tin; dự án tự viết phần đọc thay vì dùng chúng (QĐ-013, QĐ-014) |

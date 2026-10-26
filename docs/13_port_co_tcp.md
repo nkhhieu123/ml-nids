@@ -9,6 +9,7 @@ Kiểm thử: `tests/test_packets.py`, lớp `PortFlagTest`.
 |---|---|
 | `src_port`, `dst_port` | Cổng nguồn và đích của TCP, UDP, SCTP. `None` khi giao thức không có cổng hoặc khi 4 byte đầu header tầng trên không có trong gói |
 | `tcp_flags` | 9 bit cờ TCP dạng số nguyên (FIN 0x001 … CWR 0x080, AE 0x100). `None` khi không phải TCP hoặc khi gói bị cắt trước byte cờ |
+| `tcp_seq` | Số thứ tự TCP (sequence number), thêm ở C04-T02 để phân biệt gói bắt tay gửi lại với kết nối mới ([19_ket_thuc_flow.md](19_ket_thuc_flow.md)). Chỉ có khi có `tcp_flags`, giống Wireshark; không có trong CSV |
 | `tcp_flag_names` | Thuộc tính: tên các cờ đang bật, theo thứ tự cố định `SYN,ACK,FIN,RST,PSH,URG,ECE,CWR,AE`; chuỗi rỗng nếu không có cờ |
 
 Các hằng `TCP_SYN`, `TCP_ACK`, ... dùng để kiểm tra cờ trong mã, ví dụ
@@ -97,3 +98,4 @@ Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
 | Bắt tay ba bước | Cách mở kết nối TCP: SYN → SYN+ACK → ACK |
 | Gói lỗi ICMP (port unreachable) | Gói ICMP báo cổng đích không mở; nó chép lại phần đầu của gói gốc |
 | snaplen | Số byte tối đa được lưu cho mỗi gói |
+| Số thứ tự TCP (sequence number) | Số trong header TCP đánh dấu vị trí byte dữ liệu; gói gửi lại giữ nguyên số này |

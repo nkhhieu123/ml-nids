@@ -24,6 +24,7 @@ def _validate(cfg, path):
             raise ValueError(
                 f"{path}: windows.{name} cần 0 < step_s <= size_s, nhận {win}"
             )
-    for name in ("idle_timeout_s", "fragment_timeout_s"):
+    for name in ("idle_timeout_s", "active_timeout_s", "close_grace_s",
+                 "direction_memory_s", "fragment_timeout_s"):
         if cfg["flow"][name] <= 0:
             raise ValueError(f"{path}: flow.{name} phải > 0")

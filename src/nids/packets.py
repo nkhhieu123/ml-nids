@@ -125,6 +125,7 @@ class PacketRecord:
     dst_port: int | None = None
     tcp_flags: int | None = None  # 9 bit cờ TCP (TCP_*); None nếu không phải TCP hoặc bị cắt
     frag_id: int | None = None    # Identification của datagram bị phân mảnh; None nếu không phân mảnh
+    tcp_seq: int | None = None    # số thứ tự TCP (sequence number); None nếu không phải TCP hoặc bị cắt
 
     @property
     def protocol_name(self) -> str:
@@ -323,11 +324,11 @@ def _parse(pkt):
     else:
         src, dst, proto, ip_len, l4_offset, frag_id = _parse_ipv6(pkt.data, pos, notes)
     is_fragment = frag_id is not None
-    src_port = dst_port = tcp_flags = None
+    src_port = dst_port = tcp_flags = tcp_seq = None
     if l4_offset is not None and proto in PORT_PROTOCOLS:
         # Chỉ đọc trong phạm vi gói IP để không lấy nhầm byte đệm của khung Ethernet.
         end = min(len(pkt.data), pos + ip_len)
-        src_port, dst_port, tcp_flags = _parse_l4(pkt.data, l4_offset, end, proto)
+        src_port, dst_port, tcp_flags, tcp_seq = _parse_l4(pkt.data, l4_offset, end, proto)
         if src_port is None or (proto == PROTO_TCP and tcp_flags is None):
             notes.append(NOTE_L4_TRUNCATED)
     if pkt.truncated:
@@ -340,7 +341,7 @@ def _parse(pkt):
         notes.append(NOTE_NO_TS)
     record = PacketRecord(pkt.index, pkt.ts_ns, src, dst, version, proto,
                           pkt.origlen, ip_len, pkt.caplen, l4_offset, is_fragment,
-                          src_port, dst_port, tcp_flags, frag_id)
+                          src_port, dst_port, tcp_flags, frag_id, tcp_seq)
     return record, tuple(notes)
 
 
@@ -408,14 +409,16 @@ def _parse_ipv6(data, pos, notes):
 
 
 def _parse_l4(data, pos, end, proto):
-    """Đọc cổng và cờ TCP; trường nào nằm ngoài phần đã bắt thì là None."""
+    """Đọc cổng, cờ TCP và số thứ tự TCP; trường nào nằm ngoài phần đã bắt thì là None."""
     if end < pos + 4:
-        return None, None, None
+        return None, None, None, None
     src_port, dst_port = struct.unpack_from("!HH", data, pos)
-    tcp_flags = None
+    tcp_flags = tcp_seq = None
     if proto == PROTO_TCP and end >= pos + 14:
+        # Như Wireshark: header TCP bị cắt trước byte cờ thì không lấy cả số thứ tự.
+        tcp_seq = struct.unpack_from("!I", data, pos + 4)[0]
         tcp_flags = struct.unpack_from("!H", data, pos + 12)[0] & TCP_FLAG_MASK
-    return src_port, dst_port, tcp_flags
+    return src_port, dst_port, tcp_flags, tcp_seq
 
 
 def tcp_flag_names(flags: int | None) -> str:
