@@ -28,8 +28,9 @@ from dataclasses import dataclass, field
 from ipaddress import ip_address
 
 from .config import load_config
+from .flow_features import BASIC_FEATURES, basic_features
 from .packets import (
-    PORT_PROTOCOLS, PROTO_TCP, TCP_ACK, TCP_FIN, TCP_RST, TCP_SYN, ParseStats,
+    PORT_PROTOCOLS, PROTO_TCP, PROTO_UDP, TCP_ACK, TCP_FIN, TCP_RST, TCP_SYN, ParseStats,
     PacketRecord, extract_packets,
 )
 
@@ -112,20 +113,25 @@ def make_key(ip_version, protocol, src, dst) -> FlowKey:
 class Flow:
     """Một flow hai chiều cùng chiều forward đã xác định.
 
-    Các bộ đếm ở đây chỉ để kiểm tra việc ghép, phân chiều và kết thúc; đặc
-    trưng thật (byte, thời lượng, thống kê) tính ở C04-T03 và C04-T04.
+    Các bộ đếm được cộng dần theo từng gói (dùng được khi chạy realtime); đặc
+    trưng suy ra từ chúng nằm ở flow_features.py (docs/20_dac_trung_flow_co_ban.md).
     """
     key: FlowKey
     fwd_endpoint: tuple[str, int | None]   # bên mở kết nối (client)
     bwd_endpoint: tuple[str, int | None]   # bên còn lại (server)
     direction_basis: str                   # một trong BASES
     first_index: int                       # chỉ số packet đầu tiên trong file
-    first_ts_ns: int | None
-    last_ts_ns: int | None
+    first_ts_ns: int | None                # thời điểm nhỏ nhất của các gói trong flow
+    last_ts_ns: int | None                 # thời điểm lớn nhất
     continuation: bool = False             # chiều lấy từ flow trước của cùng 5-tuple
     end_reason: str | None = None          # một trong END_REASONS khi flow đã kết thúc
     fwd_packets: int = 0
     bwd_packets: int = 0
+    fwd_bytes: int = 0                     # tổng ip_len các gói chiều forward
+    bwd_bytes: int = 0
+    fwd_payload_bytes: int = 0             # tổng payload_len (dữ liệu TCP/UDP) chiều forward
+    bwd_payload_bytes: int = 0
+    payload_unknown: int = 0               # gói TCP/UDP không tính được payload (header bị cắt)
     fragments_attached: int = 0            # mảnh IP không mang cổng được gắn vào flow này
     # Trạng thái TCP dùng để kết thúc flow
     fin_from: set = field(default_factory=set, repr=False)  # đầu mút đã gửi FIN
@@ -253,14 +259,26 @@ class FlowAssigner:
                 frag = (rec.ip_version, rec.src_ip, rec.dst_ip, rec.protocol, rec.frag_id)
                 self._fragments[frag] = (flow, rec.src_port, ts)
 
+        payload = rec.payload_len
+        if payload is None and rec.protocol in (PROTO_TCP, PROTO_UDP):
+            flow.payload_unknown += 1
+            payload = 0
+        elif payload is None:
+            payload = 0
         if forward:
             flow.fwd_packets += 1
+            flow.fwd_bytes += rec.ip_len
+            flow.fwd_payload_bytes += payload
         else:
             flow.bwd_packets += 1
+            flow.bwd_bytes += rec.ip_len
+            flow.bwd_payload_bytes += payload
         if ts is not None:
-            if flow.first_ts_ns is None:
+            # Lấy nhỏ nhất/lớn nhất để thời lượng không âm khi file sai thứ tự thời gian.
+            if flow.first_ts_ns is None or ts < flow.first_ts_ns:
                 flow.first_ts_ns = ts
-            flow.last_ts_ns = ts
+            if flow.last_ts_ns is None or ts > flow.last_ts_ns:
+                flow.last_ts_ns = ts
         if not flow.finished:
             self._active.move_to_end(flow.key)
         self._track_tcp(flow, rec, forward)
@@ -484,8 +502,8 @@ def assign_flows(records, settings: FlowSettings | None = None) -> FlowAssigner:
 
 CSV_COLUMNS = ("first_index", "first_ts", "last_ts", "ip_version", "protocol",
                "fwd_ip", "fwd_port", "bwd_ip", "bwd_port", "direction_basis",
-               "continuation", "end_reason", "fwd_packets", "bwd_packets",
-               "fragments_attached")
+               "continuation", "end_reason", "fragments_attached",
+               "payload_unknown") + tuple(BASIC_FEATURES)
 
 
 def _ts(ts_ns):
@@ -506,10 +524,10 @@ def csv_row(flow: Flow) -> dict:
         "direction_basis": flow.direction_basis,
         "continuation": int(flow.continuation),
         "end_reason": flow.end_reason,
-        "fwd_packets": flow.fwd_packets,
-        "bwd_packets": flow.bwd_packets,
         "fragments_attached": flow.fragments_attached,
+        "payload_unknown": flow.payload_unknown,
     }
+    row.update(basic_features(flow))
     return {k: "" if v is None else v for k, v in row.items()}
 
 

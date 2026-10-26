@@ -33,7 +33,8 @@ from decimal import Decimal
 from pathlib import Path
 
 from .packets import (
-    NOTE_IP_LEN_ZERO, PORT_PROTOCOLS, PROTO_ICMP, PROTO_ICMPV6, SKIP_IP_TRUNCATED, TCP_FLAG_MASK,
+    NOTE_IP_LEN_ZERO, PORT_PROTOCOLS, PROTO_ICMP, PROTO_ICMPV6, PROTO_UDP, SKIP_IP_TRUNCATED,
+    TCP_FLAG_MASK,
     inspect_packet,
 )
 from .pcap_reader import PcapReader
@@ -47,7 +48,7 @@ TSHARK_FIELDS = (
     "ipv6.fraghdr.offset", "ipv6.fraghdr.more",
     "tcp.srcport", "tcp.dstport", "tcp.flags",
     "udp.srcport", "udp.dstport", "sctp.srcport", "sctp.dstport",
-    "tcp.seq_raw",
+    "tcp.seq_raw", "tcp.len", "udp.length",
 )
 # Tắt ghép mảnh và ghép đoạn TCP để mỗi dòng ứng đúng một gói như trong file.
 TSHARK_PREFS = (
@@ -55,13 +56,15 @@ TSHARK_PREFS = (
 )
 WINDOWS_TSHARK = Path("C:/Program Files/Wireshark/tshark.exe")
 COMPARED = ("ts", "frame_len", "caplen", "src_ip", "dst_ip", "protocol", "ip_len",
-            "is_fragment", "src_port", "dst_port", "tcp_flags", "tcp_seq")
+            "is_fragment", "src_port", "dst_port", "tcp_flags", "tcp_seq",
+            "payload_len")
 
 # Khác biệt có chủ ý
 KNOWN_ICMP_QUOTE = "icmp_chep_header_goc"
 KNOWN_TSO = "ip_len_bang_0_tso"
 KNOWN_TUNNEL = "duong_ham_ip"
 KNOWN_IP_CUT = "header_ip_bi_cat_mat_dia_chi"
+KNOWN_UDP_LEN = "udp_length_khac_ip"
 
 
 def find_tshark(path=None) -> str:
@@ -137,6 +140,9 @@ def expected_from_tshark(line: str) -> dict:
     exp["ports"] = ports
     exp["tcp_flags"] = _int(_first(v["tcp.flags"]), 16)
     exp["tcp_seq"] = _int(_first(v["tcp.seq_raw"]))
+    exp["payload_len"] = _int(_first(v["tcp.len"]))
+    udp_length = _int(_first(v["udp.length"]))
+    exp["udp_payload_len"] = None if udp_length is None else udp_length - 8
     return exp
 
 
@@ -181,6 +187,16 @@ def compare_packet(result, exp) -> tuple[list[str], str | None]:
         diffs.append("tcp_flags")
     if rec.tcp_seq != exp["tcp_seq"] and known is None:
         diffs.append("tcp_seq")
+    # Mảnh IP không so: Wireshark (tắt ghép mảnh) báo độ dài UDP của cả datagram ở
+    # mảnh đầu và không có TCP/UDP ở các mảnh sau, còn dự án tính theo từng mảnh.
+    if known is None and not rec.is_fragment:
+        if rec.protocol == PROTO_UDP:
+            # Dự án lấy độ dài dữ liệu UDP theo header IP; trường Length của UDP
+            # khác đi là gói sai định dạng, đếm riêng. Header UDP bị cắt thì không so.
+            if exp["udp_payload_len"] is not None and rec.payload_len != exp["udp_payload_len"]:
+                known = KNOWN_UDP_LEN
+        elif rec.payload_len != exp["payload_len"]:
+            diffs.append("payload_len")
     return diffs, known
 
 

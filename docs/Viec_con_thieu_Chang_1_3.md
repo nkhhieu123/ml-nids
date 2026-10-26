@@ -84,7 +84,7 @@ khai mà không cần thêm gì.
 | Chu kỳ và độ biến thiên beaconing; số peer của kịch bản P2P | Chặn với thu lab | `config/default.yaml` |
 | Nguồn mẫu huấn luyện cho DoS kiểu SYN (CIC chỉ có DoS tầng HTTP) | Chặn với Chặng 7 | Nhật ký quyết định |
 | Các quyết định còn **tạm thời**: QĐ-004 tên nhãn (nhất là `none` của topology), QĐ-006 cửa sổ và timeout 60 giây, QĐ-009 tập con CIC, QĐ-010 cách chia CTU-13, QĐ-012 dữ liệu lab, QĐ-013 bộ đọc PCAP tự viết | Quan trọng | Thêm mục quyết định mới khi khóa |
-| Dùng `ip_len` hay `frame_len` cho đặc trưng byte (đề xuất `ip_len`) | Quan trọng | Chốt ở C04-T03 |
+| ~~Dùng `ip_len` hay `frame_len` cho đặc trưng byte~~ | Đã xong | Chốt `ip_len` kèm payload TCP/UDP ở C04-T03 (QĐ-018) |
 | Dung sai thời gian khi ghép dòng log với flow | Nên có | Chốt khi làm phần ghép log–flow |
 
 ## 5. Giới hạn của mã nguồn hiện có

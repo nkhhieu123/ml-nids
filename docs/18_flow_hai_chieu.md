@@ -121,7 +121,7 @@ Bảng CSV, mỗi dòng một flow, theo thứ tự gói đầu tiên:
 | `fwd_ip`, `fwd_port` | Đầu mút client |
 | `bwd_ip`, `bwd_port` | Đầu mút server |
 | `direction_basis` | Quy tắc đã dùng để chọn client (mục 3) |
-| `fwd_packets`, `bwd_packets` | Số gói mỗi chiều; chỉ để kiểm tra, đặc trưng thật tính ở C04-T03 |
+| `fwd_packets`, `bwd_packets` | Số gói mỗi chiều; từ C04-T03 là đặc trưng, cùng các cột byte và thời lượng ([20_dac_trung_flow_co_ban.md](20_dac_trung_flow_co_ban.md)) |
 | `fragments_attached` | Số mảnh không mang cổng đã gắn vào flow |
 
 Thống kê JSON có số flow theo `direction_basis` và theo giao thức, số mảnh đã

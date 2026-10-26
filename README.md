@@ -57,6 +57,7 @@ Báo cáo Chặng 3: [docs/Bao_cao_Chang_3.md](docs/Bao_cao_Chang_3.md)
 
 - [x] C04-T01: Định nghĩa flow hai chiều và quy tắc forward/backward — `src/nids/flows.py`, [docs/18_flow_hai_chieu.md](docs/18_flow_hai_chieu.md)
 - [x] C04-T02: Xử lý timeout, FIN/RST và tái sử dụng 5-tuple — `src/nids/flows.py`, [docs/19_ket_thuc_flow.md](docs/19_ket_thuc_flow.md)
+- [x] C04-T03: Tính packet, byte, thời lượng và tỷ lệ gửi/nhận — `src/nids/flow_features.py`, [docs/20_dac_trung_flow_co_ban.md](docs/20_dac_trung_flow_co_ban.md)
 
 Những gì còn thiếu sau Chặng 1–3 (dữ liệu, lab, tham số chưa chốt): [docs/Viec_con_thieu_Chang_1_3.md](docs/Viec_con_thieu_Chang_1_3.md)
 
@@ -78,6 +79,7 @@ src/nids/
   wireshark_compare.py  Đối chiếu kết quả đọc packet với tshark
   flows.py            Ghép packet thành flow hai chiều, xác định forward/backward,
                       kết thúc flow theo FIN/RST, timeout, 5-tuple dùng lại
+  flow_features.py    Đặc trưng flow: số gói, byte, payload, thời lượng, tỷ lệ gửi/nhận
   alerts.py           Schema cảnh báo, xuất terminal + CSV
 tests/                Kiểm thử
 scripts/              Script đọc PCAP, sinh traffic mô phỏng (chưa có)
@@ -129,7 +131,7 @@ python -m nids.packets data/pcap/<file>.pcap --csv output/packets.csv --stats ou
 # Đối chiếu từng packet với Wireshark (cần cài Wireshark/tshark)
 python -m nids.wireshark_compare data/pcap/<file>.pcap --report output/ws_compare.json
 
-# Ghép packet thành flow hai chiều: chiều client → server, lý do kết thúc flow
+# Ghép packet thành flow hai chiều và tính đặc trưng cơ bản (gói, byte, thời lượng, tỷ lệ)
 python -m nids.flows data/pcap/<file>.pcap --csv output/flows.csv --stats output/flows_stats.json
 
 # Đọc access log Nginx của một lần chạy, xuất bảng CSV rồi đối chiếu với file gốc
@@ -180,3 +182,4 @@ Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
 | Flow hai chiều | Mọi gói qua lại giữa hai đầu của một kết nối (cùng IP, cổng, giao thức), gộp chiều đi và chiều về |
 | Forward / backward | Chiều từ bên mở kết nối (client) sang server / chiều từ server về client |
 | Timeout | Khoảng thời gian không có gói mới (hoặc độ dài tối đa) sau đó flow được coi là kết thúc |
+| Đặc trưng (feature) | Con số mô tả một flow hay một host, là đầu vào của mô hình học máy |

@@ -133,6 +133,13 @@ Mẫu:
 - Quyết định: Flow kết thúc, theo thứ tự ưu tiên, khi: (1) TCP đã đóng bằng FIN hai chiều hoặc RST và gói mới có cờ SYN hoặc tới sau `close_grace_s` = 10 giây; (2) nhàn rỗi quá `idle_timeout_s` = 60 giây; (3) có gói bắt tay mới (SYN, SYN+ACK) trên flow chưa đóng, phân biệt với gói gửi lại bằng số thứ tự TCP (trường `tcp_seq` thêm vào bảng packet); (4) dài quá `active_timeout_s` = 120 giây, như CICFlowMeter. Flow mở lại bằng gói không phải SYN/SYN+ACK trong vòng `direction_memory_s` = 3600 giây sau flow trước cùng khóa thì giữ chiều của flow trước (`continuation`). Mọi thời gian tính theo thời điểm trong gói (xem `docs/19_ket_thuc_flow.md`).
 - Hệ quả: Bảng flow có thêm `end_reason` và `continuation`. Đặc trưng theo flow là của từng đoạn tối đa 120 giây. Realtime dùng `pop_finished()`/`expire()` và cho cùng kết quả với đọc file. Thống kê flow ghi kèm bộ tham số đã dùng.
 
+## QĐ-018 — Đặc trưng byte dùng ip_len kèm payload; tỷ lệ gửi/nhận là phần trong tổng
+- Ngày: 26/10/2026
+- Trạng thái: Đã chốt
+- Bối cảnh: CIC-IDS2017, CTU-13 và lab được bắt bằng cách khác nhau nên `frame_len` của cùng một gói khác nhau. CICFlowMeter tính độ dài theo payload. Tỷ lệ dạng bwd/fwd vô hạn khi một chiều không có gói (4 249 trong 4 588 flow donbot là SYN không trả lời).
+- Quyết định: `*_bytes` là tổng `ip_len`; `*_payload_bytes` là tổng dữ liệu TCP/UDP (`payload_len`, tính từ ip_len trừ các header, thêm vào bản ghi packet). Thời lượng là thời điểm lớn nhất trừ nhỏ nhất của các gói. Tỷ lệ gửi/nhận là `fwd_packet_share` và `fwd_byte_share` trong [0, 1]. Không tính tốc độ byte/giây ở bước này (xem `docs/20_dac_trung_flow_co_ban.md`).
+- Hệ quả: Không đặc trưng nào ở bước này có giá trị vô hạn. `payload_len` được đối chiếu với `tcp.len`/`udp.length` của Wireshark. Cột payload để trống với flow không phải TCP/UDP; C05 cần xử lý giá trị trống này.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
@@ -157,6 +164,8 @@ Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
 | FIN, RST | Cờ TCP báo đóng kết nối bình thường / hủy kết nối ngay |
 | Active timeout | Độ dài tối đa của một flow; kết nối dài hơn bị cắt thành nhiều flow nối tiếp |
 | Tái sử dụng 5-tuple | Mở kết nối mới với đúng IP và cổng của kết nối cũ |
+| Payload | Phần dữ liệu ứng dụng trong gói TCP/UDP, không tính các header |
+| Phần trong tổng (share) | Tỷ lệ của một chiều so với cả hai chiều, luôn từ 0 tới 1 |
 | Manifest | Bảng liệt kê mọi nguồn dữ liệu và cách dùng |
 | struct | Thư viện có sẵn của Python để đọc các con số nằm trong chuỗi byte |
 | Scapy, PyShark, dpkt | Ba thư viện Python đọc gói tin; dự án tự viết phần đọc thay vì dùng chúng (QĐ-013, QĐ-014) |

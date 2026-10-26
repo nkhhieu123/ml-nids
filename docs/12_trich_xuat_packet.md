@@ -30,8 +30,9 @@ Cổng và cờ TCP (C03-T03) mô tả ở [13_port_co_tcp.md](13_port_co_tcp.md
 **Chọn độ dài nào.** `frame_len` gồm header Ethernet và phần đệm của khung
 ngắn (khung Ethernet tối thiểu 60 byte), nên phụ thuộc kiểu tầng liên kết lúc
 bắt. `ip_len` không phụ thuộc vào cách bắt và không bị ảnh hưởng khi gói bị cắt
-bởi `snaplen`. Các đặc trưng về byte ở chặng 4 nên dùng `ip_len` để dữ liệu
-CIC-IDS2017, CTU-13 và lab so sánh được với nhau; chốt khi làm C04-T03.
+bởi `snaplen`. Đã chốt ở C04-T03 (QĐ-018): đặc trưng về byte dùng `ip_len`, kèm
+trường `payload_len` (dữ liệu TCP/UDP) thêm vào bản ghi packet; xem
+[20_dac_trung_flow_co_ban.md](20_dac_trung_flow_co_ban.md).
 
 ## 2. Phạm vi hỗ trợ
 

@@ -30,6 +30,7 @@ song đầu ra của `tshark` và bộ đọc PCAP của dự án, rồi so từ
 | `src_port`, `dst_port` | `tcp.*port`, `udp.*port`, `sctp.*port` |
 | `tcp_flags` | `tcp.flags` (bỏ 3 bit dự trữ) |
 | `tcp_seq` | `tcp.seq_raw` (thêm ở C04-T02) |
+| `payload_len` | `tcp.len`; với UDP là `udp.length − 8`; mảnh IP không so (thêm ở C04-T03) |
 | Gói bị bỏ qua | `tshark` cũng không thấy IPv4/IPv6; cột giao thức của `tshark` được ghi lại để biết đó là gì |
 
 `tshark` được chạy với ghép mảnh IP và ghép đoạn TCP **tắt**, để mỗi dòng đầu
@@ -44,6 +45,7 @@ song nên dùng được cho file nhiều GB. Lệnh trả mã thoát 1 nếu c�
 | `ip_len_bang_0_tso` | IPv4 Total Length bằng 0 do card mạng chia đoạn (TSO) | Giữ 0 | Lấy theo số byte đã bắt |
 | `duong_ham_ip` | IP bọc trong IP | Báo cổng của gói bên trong | Chỉ đọc header ngoài cùng |
 | `header_ip_bi_cat_mat_dia_chi` | Gói bị cắt khi bắt giữa header IP, mất địa chỉ đích | Hiện phần đọc được, ví dụ chỉ có địa chỉ nguồn | Bỏ gói (`header_ip_bi_cat`) vì không dùng được cho flow |
+| `udp_length_khac_ip` | Trường Length của UDP khác độ dài suy từ header IP (gói sai định dạng) | Lấy theo Length của UDP | Lấy theo header IP (thêm ở C04-T03) |
 
 ## 2. Dữ liệu đối chiếu
 
@@ -84,7 +86,9 @@ Theo giao thức, các gói IP khớp gồm:
 - Hai file tổng hợp: thêm IPv6 TCP/UDP/ICMPv6, SCTP, VLAN, phân mảnh IPv6.
 
 Ngày 26/10/2026 (C04-T02) công cụ được bổ sung trường `tcp_seq` và chạy lại trên
-mọi file ở bảng trên, gồm cả PCAP toàn mạng scenario 5: vẫn 0 lệch.
+mọi file ở bảng trên, gồm cả PCAP toàn mạng scenario 5: vẫn 0 lệch. Ở C04-T03
+thêm `payload_len`; chạy lại vẫn 0 lệch, có 1 gói UDP hỏng ở scenario 5 được đếm
+là `udp_length_khac_ip` (xem [20_dac_trung_flow_co_ban.md](20_dac_trung_flow_co_ban.md)).
 
 ## 4. Nhận xét
 

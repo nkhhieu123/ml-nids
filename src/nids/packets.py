@@ -126,6 +126,7 @@ class PacketRecord:
     tcp_flags: int | None = None  # 9 bit cờ TCP (TCP_*); None nếu không phải TCP hoặc bị cắt
     frag_id: int | None = None    # Identification của datagram bị phân mảnh; None nếu không phân mảnh
     tcp_seq: int | None = None    # số thứ tự TCP (sequence number); None nếu không phải TCP hoặc bị cắt
+    payload_len: int | None = None  # số byte dữ liệu TCP/UDP theo ip_len (không tính header); xem docs/20
 
     @property
     def protocol_name(self) -> str:
@@ -320,17 +321,20 @@ def _parse(pkt):
     pos, version = _network_offset(pkt.linktype, pkt.data)
     notes = []
     if version == 4:
-        src, dst, proto, ip_len, l4_offset, frag_id = _parse_ipv4(pkt.data, pos, notes)
+        src, dst, proto, ip_len, l4_offset, frag_id, hdr_end = _parse_ipv4(pkt.data, pos, notes)
     else:
-        src, dst, proto, ip_len, l4_offset, frag_id = _parse_ipv6(pkt.data, pos, notes)
+        src, dst, proto, ip_len, l4_offset, frag_id, hdr_end = _parse_ipv6(pkt.data, pos, notes)
     is_fragment = frag_id is not None
-    src_port = dst_port = tcp_flags = tcp_seq = None
+    src_port = dst_port = tcp_flags = tcp_seq = tcp_hdr_len = None
     if l4_offset is not None and proto in PORT_PROTOCOLS:
         # Chỉ đọc trong phạm vi gói IP để không lấy nhầm byte đệm của khung Ethernet.
         end = min(len(pkt.data), pos + ip_len)
-        src_port, dst_port, tcp_flags, tcp_seq = _parse_l4(pkt.data, l4_offset, end, proto)
+        src_port, dst_port, tcp_flags, tcp_seq, tcp_hdr_len = _parse_l4(
+            pkt.data, l4_offset, end, proto)
         if src_port is None or (proto == PROTO_TCP and tcp_flags is None):
             notes.append(NOTE_L4_TRUNCATED)
+    payload_len = _payload_len(proto, ip_len, None if hdr_end is None else hdr_end - pos,
+                               l4_offset is not None, tcp_hdr_len)
     if pkt.truncated:
         notes.append(NOTE_SNAPLEN)
     elif pos + ip_len > len(pkt.data):
@@ -341,8 +345,28 @@ def _parse(pkt):
         notes.append(NOTE_NO_TS)
     record = PacketRecord(pkt.index, pkt.ts_ns, src, dst, version, proto,
                           pkt.origlen, ip_len, pkt.caplen, l4_offset, is_fragment,
-                          src_port, dst_port, tcp_flags, frag_id, tcp_seq)
+                          src_port, dst_port, tcp_flags, frag_id, tcp_seq, payload_len)
     return record, tuple(notes)
+
+
+def _payload_len(proto, ip_len, ip_hdr_len, has_l4_header, tcp_hdr_len):
+    """Số byte dữ liệu TCP/UDP của gói, tính từ ip_len nên đúng cả khi gói bị cắt.
+
+    Mảnh IP không phải mảnh đầu chỉ chứa dữ liệu. TCP cần độ dài header (Data
+    Offset) nên trả None nếu header bị cắt trước byte đó; giao thức khác trả None.
+    """
+    if proto not in (PROTO_TCP, PROTO_UDP) or ip_hdr_len is None:
+        return None
+    if not has_l4_header:
+        l4_hdr_len = 0
+    elif proto == PROTO_UDP:
+        l4_hdr_len = 8
+    elif tcp_hdr_len is not None and tcp_hdr_len >= 20:
+        l4_hdr_len = tcp_hdr_len
+    else:
+        return None
+    payload = ip_len - ip_hdr_len - l4_hdr_len
+    return payload if payload >= 0 else None
 
 
 def _parse_ipv4(data, pos, notes):
@@ -369,7 +393,7 @@ def _parse_ipv4(data, pos, notes):
     dst = socket.inet_ntoa(data[pos + 16:pos + 20])
     l4_offset = pos + ihl if frag_offset == 0 else None
     frag_id = ident if more_fragments or frag_offset > 0 else None
-    return src, dst, proto, total_len, l4_offset, frag_id
+    return src, dst, proto, total_len, l4_offset, frag_id, pos + ihl
 
 
 def _parse_ipv6(data, pos, notes):
@@ -389,7 +413,7 @@ def _parse_ipv6(data, pos, notes):
         if len(data) < offset + 8:
             # Header mở rộng bị cắt: vẫn biết địa chỉ nhưng không biết giao thức.
             notes.append(NOTE_L4_TRUNCATED)
-            return src, dst, next_header, 40 + payload_len, None, frag_id
+            return src, dst, next_header, 40 + payload_len, None, frag_id, None
         nxt, hdr_len = data[offset], data[offset + 1]
         if next_header == IPV6_EXT_FRAGMENT:
             frag_offset, frag_id = struct.unpack_from("!HI", data, offset + 2)
@@ -405,20 +429,22 @@ def _parse_ipv6(data, pos, notes):
         if not first_fragment:
             break
     l4_offset = offset if first_fragment and next_header != IPV6_NO_NEXT else None
-    return src, dst, next_header, 40 + payload_len, l4_offset, frag_id
+    return src, dst, next_header, 40 + payload_len, l4_offset, frag_id, offset
 
 
 def _parse_l4(data, pos, end, proto):
-    """Đọc cổng, cờ TCP và số thứ tự TCP; trường nào nằm ngoài phần đã bắt thì là None."""
+    """Đọc cổng, cờ TCP, số thứ tự và độ dài header TCP; trường nằm ngoài phần đã bắt là None."""
     if end < pos + 4:
-        return None, None, None, None
+        return None, None, None, None, None
     src_port, dst_port = struct.unpack_from("!HH", data, pos)
-    tcp_flags = tcp_seq = None
+    tcp_flags = tcp_seq = tcp_hdr_len = None
     if proto == PROTO_TCP and end >= pos + 14:
         # Như Wireshark: header TCP bị cắt trước byte cờ thì không lấy cả số thứ tự.
         tcp_seq = struct.unpack_from("!I", data, pos + 4)[0]
-        tcp_flags = struct.unpack_from("!H", data, pos + 12)[0] & TCP_FLAG_MASK
-    return src_port, dst_port, tcp_flags, tcp_seq
+        off_flags = struct.unpack_from("!H", data, pos + 12)[0]
+        tcp_flags = off_flags & TCP_FLAG_MASK
+        tcp_hdr_len = (off_flags >> 12) * 4
+    return src_port, dst_port, tcp_flags, tcp_seq, tcp_hdr_len
 
 
 def tcp_flag_names(flags: int | None) -> str:

@@ -26,7 +26,7 @@ def tshark_line(**values):
 IPV4_TCP = dict(_ws__col__protocol="TCP", ip__src="192.168.50.20", ip__dst="192.168.50.30",
                 ip__proto="6", ip__len="40", ip__flags__mf="False", ip__frag_offset="0",
                 tcp__srcport="40000", tcp__dstport="80", tcp__flags="0x0002",
-                tcp__seq_raw="1")
+                tcp__seq_raw="1", tcp__len="0")
 
 
 class ParseLineTest(unittest.TestCase):
@@ -73,9 +73,9 @@ class ComparePacketTest(unittest.TestCase):
 
     def test_detects_wrong_fields(self):
         exp = expected_from_tshark(tshark_line(**dict(IPV4_TCP, tcp__dstport="81", ip__len="41",
-                                                     tcp__flags="0x0012", tcp__seq_raw="2")))
+                                                     tcp__flags="0x0012", tcp__seq_raw="2", tcp__len="1")))
         diffs, _ = compare_packet(inspect_packet(self.frame()), exp)
-        self.assertEqual(diffs, ["ip_len", "ports", "tcp_flags", "tcp_seq"])
+        self.assertEqual(diffs, ["ip_len", "ports", "tcp_flags", "tcp_seq", "payload_len"])
 
     def test_skip_must_agree(self):
         arp = inspect_packet(raw(ether(bytes(28), ethertype=0x0806)))

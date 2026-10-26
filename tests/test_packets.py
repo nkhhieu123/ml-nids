@@ -184,6 +184,48 @@ class PortFlagTest(unittest.TestCase):
         self.assertEqual((rec.src_port, rec.tcp_flags), (None, None))
 
 
+class PayloadTest(unittest.TestCase):
+    """payload_len: số byte dữ liệu TCP/UDP, tính theo ip_len (C04-T03)."""
+
+    def test_tcp_and_udp_payload(self):
+        self.assertEqual(parse_packet(raw(ether(ipv4(payload=tcp(data=b"abcde"))))).payload_len, 5)
+        self.assertEqual(parse_packet(raw(ether(ipv4(payload=tcp())))).payload_len, 0)
+        self.assertEqual(parse_packet(raw(ether(ipv4(17, udp(data=b"xyz"))))).payload_len, 3)
+
+    def test_tcp_options_use_data_offset(self):
+        seg = bytearray(tcp(data=bytes(12) + b"hi"))
+        seg[12] = (8 << 4) | (seg[12] & 0x0F)     # header 32 byte: 12 byte option
+        self.assertEqual(parse_packet(raw(ether(ipv4(payload=bytes(seg))))).payload_len, 2)
+
+    def test_snaplen_cut_still_uses_ip_len(self):
+        # Như PCAP toàn mạng của CTU-13: chỉ giữ header nhưng ip_len vẫn đúng.
+        frame = ether(ipv4(payload=tcp(data=bytes(1000))))
+        rec = parse_packet(raw(frame[:14 + 20 + 20], origlen=len(frame)))
+        self.assertEqual(rec.payload_len, 1000)
+        cut_before_flags = parse_packet(raw(frame[:14 + 20 + 8], origlen=len(frame)))
+        self.assertIsNone(cut_before_flags.payload_len)
+
+    def test_ethernet_padding_not_counted(self):
+        frame = ether(ipv4(17, udp(data=b"a"))) + bytes(20)
+        self.assertEqual(parse_packet(raw(frame)).payload_len, 1)
+
+    def test_fragments(self):
+        first = parse_packet(raw(ether(ipv4(17, udp(data=bytes(16)), flags_frag=0x2000))))
+        later = parse_packet(raw(ether(ipv4(17, bytes(24), flags_frag=3))))
+        self.assertEqual((first.payload_len, later.payload_len), (16, 24))
+
+    def test_ipv6_extension_header_not_counted(self):
+        hop_by_hop = bytes([6, 0]) + bytes(6)
+        rec = parse_packet(raw(ether(ipv6(0, hop_by_hop + tcp(data=b"abc")), ethertype=0x86DD)))
+        self.assertEqual(rec.payload_len, 3)
+
+    def test_other_protocols_and_bad_offset(self):
+        self.assertIsNone(parse_packet(raw(ether(ipv4(proto=1, payload=bytes(8))))).payload_len)
+        seg = bytearray(tcp())
+        seg[12] = (4 << 4) | (seg[12] & 0x0F)     # Data Offset < 5 là sai
+        self.assertIsNone(parse_packet(raw(ether(ipv4(payload=bytes(seg))))).payload_len)
+
+
 class SkipReasonTest(unittest.TestCase):
     def skip(self, pkt):
         result = inspect_packet(pkt)
