@@ -24,6 +24,7 @@ git.
 | `dung_luong` | Dung lượng file, nếu đã biết | |
 | `trang_thai` | Mức độ đã kiểm tra | Xem bên dưới |
 | `ghi_chu` | Điều cần lưu ý | |
+| `sha256` | Mã băm SHA-256 của file đã tải; trống nếu chưa tải. Thêm ngày 27/10/2026 | 64 ký tự hex thường |
 
 Cột `bai_toan`, `nhan_do_an` và `muc_dich` chứa được nhiều giá trị, ngăn cách
 bằng dấu chấm phẩy.
@@ -35,14 +36,26 @@ Giá trị của `trang_thai`:
 | `chua_tai` | Chưa tải. Tên file và nội dung chưa được đối chiếu |
 | `da_kiem_tra_may_chu` | Đã thấy file trên máy chủ và ghi dung lượng; chưa tải |
 | `da_tai_thu` | Đã tải và kiểm tra cột, nhãn |
+| `da_tai` | Đã tải đủ vào `data/`, đã khảo sát bằng `nids.pcap_survey`; bắt buộc có `sha256` |
 | `chua_thu` | Dữ liệu lab chưa thu |
 
 Trình đọc từ chối file khi thiếu cột bắt buộc, trùng `id`, hoặc khi `bai_toan`,
-`muc_dich`, `nhan_do_an`, `trang_thai` có giá trị ngoài danh sách.
+`muc_dich`, `nhan_do_an`, `trang_thai` có giá trị ngoài danh sách, khi `sha256`
+không đúng dạng, hoặc khi dòng `da_tai` thiếu `sha256`.
+
+**Kiểm tra file đã tải.** Lệnh dưới đây tìm từng file có `sha256` trong `data/`
+(theo tên file ở cột `file`, mọi thư mục con), tính lại mã băm và báo `khop`,
+`sai_ma_bam` hoặc `thieu_file`. Người mới clone dự án chạy lệnh này sau khi tải
+dữ liệu để chắc mình có đúng bản mà nhóm đã dùng.
+
+```bash
+python -m nids.manifest --verify
+```
 
 ## 2. Dữ liệu cho từng bài toán
 
-Manifest hiện có 30 dòng: 5 của CIC-IDS2017, 13 của CTU-13, 12 của lab.
+Manifest hiện có 30 dòng: 5 của CIC-IDS2017, 13 của CTU-13, 12 của lab. Ngày
+27/10/2026 hai dòng `cic17-mon-pcap`, `cic17-fri-pcap` chuyển sang `da_tai`.
 
 ### Phát hiện bất thường (`anomaly`)
 
@@ -120,6 +133,7 @@ Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
 
 | Thuật ngữ | Giải thích |
 |---|---|
+| Mã băm SHA-256 | Chuỗi 64 ký tự tính từ nội dung file; hai file cùng mã băm thì giống nhau từng byte, nên dùng để kiểm tra file tải về đúng bản gốc |
 | Manifest | Bảng liệt kê mọi nguồn dữ liệu: lấy từ đâu, file nào, nhãn gì, dùng làm gì |
 | CSV | File bảng dạng chữ, các cột cách nhau bằng dấu phẩy |
 | Bài toán | Việc mà dữ liệu phục vụ, ứng với một module: anomaly, attack_classification, botnet_topology, hoặc chỉ để đối chiếu |

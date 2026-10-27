@@ -140,6 +140,13 @@ Mẫu:
 - Quyết định: `*_bytes` là tổng `ip_len`; `*_payload_bytes` là tổng dữ liệu TCP/UDP (`payload_len`, tính từ ip_len trừ các header, thêm vào bản ghi packet). Thời lượng là thời điểm lớn nhất trừ nhỏ nhất của các gói. Tỷ lệ gửi/nhận là `fwd_packet_share` và `fwd_byte_share` trong [0, 1]. Không tính tốc độ byte/giây ở bước này (xem `docs/20_dac_trung_flow_co_ban.md`).
 - Hệ quả: Không đặc trưng nào ở bước này có giá trị vô hạn. `payload_len` được đối chiếu với `tcp.len`/`udp.length` của Wireshark. Cột payload để trống với flow không phải TCP/UDP; C05 cần xử lý giá trị trống này.
 
+## QĐ-019 — Dữ liệu tải về: nơi đặt, mã băm, múi giờ của CIC-IDS2017
+- Ngày: 27/10/2026
+- Trạng thái: Đã chốt
+- Bối cảnh: Đã tải PCAP CIC-IDS2017 thứ Hai và thứ Sáu (10,8 GB và 8,8 GB). GitHub không nhận file trên 100 MB và quy ước của dự án là không đưa dữ liệu lên git, nên người khác phải tự tải lại và cần cách kiểm tra có đúng bản. Lịch tấn công của CIC không ghi múi giờ.
+- Quyết định: File đặt ở `data/pcap/cic-ids2017/`, giữ nguyên tên gốc. Manifest có thêm cột `sha256` và trạng thái `da_tai` (bắt buộc có mã băm); `python -m nids.manifest --verify` so mã băm. Lịch tấn công của CIC được hiểu là giờ **UTC−3**, đã đo trên PCAP thứ Sáu và khớp tới từng phút. Bên tấn công trong PCAP là `172.16.0.1` (NAT), dùng cho cả port scan và DDoS, nên gán nhãn phải theo khung giờ (xem `docs/06_cic_ids2017.md`, mục 7).
+- Hệ quả: Khi tải thêm file (PCAP thứ Tư, CSV có nhãn, CTU-13) phải ghi mã băm vào manifest. Bước gán nhãn ở Chặng 5 đổi lịch sang UTC bằng cách cộng 3 giờ.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
@@ -165,6 +172,8 @@ Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
 | Active timeout | Độ dài tối đa của một flow; kết nối dài hơn bị cắt thành nhiều flow nối tiếp |
 | Tái sử dụng 5-tuple | Mở kết nối mới với đúng IP và cổng của kết nối cũ |
 | Payload | Phần dữ liệu ứng dụng trong gói TCP/UDP, không tính các header |
+| Mã băm SHA-256 | Chuỗi 64 ký tự tính từ nội dung file; cùng mã băm nghĩa là cùng nội dung |
+| UTC−3 | Giờ chậm hơn giờ quốc tế 3 tiếng; giờ mùa hè nơi CIC thu dữ liệu |
 | Phần trong tổng (share) | Tỷ lệ của một chiều so với cả hai chiều, luôn từ 0 tới 1 |
 | Manifest | Bảng liệt kê mọi nguồn dữ liệu và cách dùng |
 | struct | Thư viện có sẵn của Python để đọc các con số nằm trong chuỗi byte |

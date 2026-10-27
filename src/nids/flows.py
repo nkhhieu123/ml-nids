@@ -203,11 +203,17 @@ class FlowAssigner:
     mảnh đầu đã thấy trong vòng ``fragment_timeout_s`` giây và flow đó chưa được
     trả ra; nếu không thì vào flow không cổng của cặp IP đó và được đếm trong
     ``orphan_fragments``.
+
+    ``keep_finished=False`` không giữ lại flow đã trả ra bằng ``pop_finished()``,
+    để bộ nhớ không tăng theo độ dài bản thu (file rất lớn, chạy realtime); khi
+    đó ``flows()`` chỉ còn các flow chưa lấy ra, còn ``summary()`` vẫn đủ.
     """
 
-    def __init__(self, settings: FlowSettings | None = None):
+    def __init__(self, settings: FlowSettings | None = None, keep_finished: bool = True):
         s = settings or FlowSettings()
         self.settings = s
+        self.keep_finished = keep_finished
+        self._counts = Counter()          # thống kê cộng dồn của flow đã kết thúc
         self.idle_ns = int(s.idle_timeout_s * 10**9)
         self.active_ns = int(s.active_timeout_s * 10**9)
         self.grace_ns = int(s.close_grace_s * 10**9)
@@ -417,7 +423,9 @@ class FlowAssigner:
         del self._active[flow.key]
         self._closing.pop(flow.key, None)
         self._finished.append(flow)
-        self._all_finished.append(flow)
+        if self.keep_finished:
+            self._all_finished.append(flow)
+        self._count(flow, self._counts)
         end_ts = flow.last_ts_ns if flow.last_ts_ns is not None else self._now
         if end_ts is not None:
             self._recent.pop(flow.key, None)
@@ -468,27 +476,47 @@ class FlowAssigner:
     # ---- kết quả ----
 
     def flows(self) -> list[Flow]:
-        """Mọi flow (đã kết thúc và còn mở) theo thứ tự gói đầu tiên trong file."""
-        return sorted(self._all_finished + list(self._active.values()),
-                      key=lambda f: f.first_index)
+        """Mọi flow (đã kết thúc và còn mở) theo thứ tự gói đầu tiên trong file.
+
+        Với ``keep_finished=False`` chỉ gồm các flow chưa được ``pop_finished()``.
+        """
+        kept = self._all_finished if self.keep_finished else self._finished
+        return sorted(kept + list(self._active.values()), key=lambda f: f.first_index)
+
+    @staticmethod
+    def _count(flow, counts):
+        counts["so_flow"] += 1
+        counts["so_packet"] += flow.packets
+        counts["co_so:" + flow.direction_basis] += 1
+        counts[f"giao_thuc:{flow.key.protocol}"] += 1
+        counts["ket_thuc:" + (flow.end_reason or "dang_mo")] += 1
+        counts["flow_tiep_noi"] += flow.continuation
+        counts["flow_khong_co_cong"] += (flow.key.protocol in PORT_PROTOCOLS
+                                         and flow.key.a_port is None)
+        counts["manh_da_gan"] += flow.fragments_attached
 
     def summary(self) -> dict:
-        flows = self.flows()
+        counts = Counter(self._counts)
+        for flow in self._active.values():
+            self._count(flow, counts)
         return {
-            "so_flow": len(flows),
-            "so_packet": sum(f.packets for f in flows),
-            "flow_theo_co_so": dict(Counter(f.direction_basis for f in flows)),
-            "flow_theo_giao_thuc": dict(Counter(f.key.protocol for f in flows)),
-            "flow_theo_ly_do_ket_thuc": dict(Counter(f.end_reason or "dang_mo" for f in flows)),
-            "flow_tiep_noi": sum(1 for f in flows if f.continuation),
-            "flow_khong_co_cong": sum(1 for f in flows
-                                      if f.key.protocol in PORT_PROTOCOLS
-                                      and f.key.a_port is None),
-            "manh_da_gan": sum(f.fragments_attached for f in flows),
+            "so_flow": counts["so_flow"],
+            "so_packet": counts["so_packet"],
+            "flow_theo_co_so": _group(counts, "co_so:"),
+            "flow_theo_giao_thuc": _group(counts, "giao_thuc:", int),
+            "flow_theo_ly_do_ket_thuc": _group(counts, "ket_thuc:"),
+            "flow_tiep_noi": counts["flow_tiep_noi"],
+            "flow_khong_co_cong": counts["flow_khong_co_cong"],
+            "manh_da_gan": counts["manh_da_gan"],
             "manh_mo_coi": self.orphan_fragments,
             "goi_sai_thu_tu_thoi_gian": self.out_of_order,
             "tham_so": self.settings.__dict__,
         }
+
+
+def _group(counts, prefix, cast=str):
+    """Lấy các mục có tiền tố ``prefix`` của Counter thành dict, bỏ tiền tố."""
+    return {cast(k[len(prefix):]): v for k, v in counts.items() if k.startswith(prefix)}
 
 
 def assign_flows(records, settings: FlowSettings | None = None) -> FlowAssigner:

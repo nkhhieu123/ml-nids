@@ -70,7 +70,7 @@ docs/                 Yêu cầu, đầu ra module, nhật ký quyết định, 
 src/nids/
   scope.py            Tên module và tập nhãn
   config.py           Đọc cấu hình
-  manifest.py         Đọc và kiểm tra manifest dữ liệu
+  manifest.py         Đọc và kiểm tra manifest dữ liệu; so mã băm file đã tải
   pcap_reader.py      Đọc file PCAP/PCAPNG theo từng packet
   packets.py          Trích xuất timestamp, IP, giao thức, độ dài, port, cờ TCP;
                       thống kê gói bỏ qua
@@ -80,6 +80,7 @@ src/nids/
   flows.py            Ghép packet thành flow hai chiều, xác định forward/backward,
                       kết thúc flow theo FIN/RST, timeout, 5-tuple dùng lại
   flow_features.py    Đặc trưng flow: số gói, byte, payload, thời lượng, tỷ lệ gửi/nhận
+  pcap_survey.py      Khảo sát bản thu lớn: mã băm, thời gian, gói bỏ qua, flow, host
   alerts.py           Schema cảnh báo, xuất terminal + CSV
 tests/                Kiểm thử
 scripts/              Script đọc PCAP, sinh traffic mô phỏng (chưa có)
@@ -113,6 +114,29 @@ Thêm thư viện cho notebook: `pip install -e ".[notebook]"`.
 Nếu không dùng `pyproject.toml`, có thể cài bằng `pip install -r requirements.txt`
 rồi đặt `PYTHONPATH=src`.
 
+## Tải dữ liệu
+
+Dữ liệu không nằm trong git (file PCAP của CIC-IDS2017 khoảng 10 GB mỗi ngày;
+GitHub không nhận file trên 100 MB). Mỗi người tự tải từ nguồn chính thức rồi
+đặt vào `data/`, giữ nguyên tên file:
+
+| Nguồn | Lấy ở đâu | Đặt vào |
+|---|---|---|
+| CIC-IDS2017 (PCAP thứ Hai, thứ Tư, thứ Sáu) | https://www.unb.ca/cic/datasets/ids-2017.html, điền form đăng ký. Không dùng bản chép lại trên Kaggle | `data/pcap/cic-ids2017/` |
+| CTU-13 (file `.binetflow`) | https://www.stratosphereips.org/datasets-ctu13. Không tải file mẫu mã độc | `data/ctu13/` |
+
+Sau khi tải, kiểm tra file có đúng bản gốc không (so mã băm SHA-256 ghi trong
+`config/data_manifest.csv`):
+
+```bash
+python -m nids.manifest --verify
+```
+
+Mọi file phải báo `khop`. File báo `sai_ma_bam` là tải dở hoặc khác bản gốc,
+phải tải lại; `thieu_file` là chưa tải. Chi tiết từng file ở
+[docs/06_cic_ids2017.md](docs/06_cic_ids2017.md) và
+[docs/08_manifest_du_lieu.md](docs/08_manifest_du_lieu.md).
+
 ## Chạy thử
 
 ```bash
@@ -133,6 +157,9 @@ python -m nids.wireshark_compare data/pcap/<file>.pcap --report output/ws_compar
 
 # Ghép packet thành flow hai chiều và tính đặc trưng cơ bản (gói, byte, thời lượng, tỷ lệ)
 python -m nids.flows data/pcap/<file>.pcap --csv output/flows.csv --stats output/flows_stats.json
+
+# Khảo sát một bản thu lớn: mã băm, thời gian, gói bỏ qua, flow; theo dõi một cặp IP theo phút
+python -m nids.pcap_survey data/pcap/cic-ids2017/Friday-WorkingHours.pcap --pair 172.16.0.1:192.168.10.50 --report output/survey_friday.json
 
 # Đọc access log Nginx của một lần chạy, xuất bảng CSV rồi đối chiếu với file gốc
 python -m nids.service_log data/service_logs/<run_id>/access_nids.log --csv output/log.csv
@@ -182,4 +209,5 @@ Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
 | Flow hai chiều | Mọi gói qua lại giữa hai đầu của một kết nối (cùng IP, cổng, giao thức), gộp chiều đi và chiều về |
 | Forward / backward | Chiều từ bên mở kết nối (client) sang server / chiều từ server về client |
 | Timeout | Khoảng thời gian không có gói mới (hoặc độ dài tối đa) sau đó flow được coi là kết thúc |
+| Mã băm SHA-256 | Chuỗi 64 ký tự tính từ nội dung file; hai file cùng mã băm thì giống nhau từng byte |
 | Đặc trưng (feature) | Con số mô tả một flow hay một host, là đầu vào của mô hình học máy |

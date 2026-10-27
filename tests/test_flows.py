@@ -437,6 +437,22 @@ class StreamingTest(unittest.TestCase):
                            for f in a.flows()]
         self.assertEqual(shape(batch), shape(streaming))
 
+    def test_not_keeping_finished_flows(self):
+        # File rất lớn hoặc realtime: flow đã lấy ra không bị giữ, thống kê vẫn đủ.
+        packets = [rec(sport=40000 + i, flags=TCP_SYN, ts=i * 70, index=i) for i in range(5)]
+        keep, _ = feed(*packets)
+        lean = FlowAssigner(keep_finished=False)
+        taken = []
+        for r in packets:
+            lean.add(r)
+            taken += lean.pop_finished()
+        lean.finish_all()
+        taken += lean.pop_finished()
+        self.assertEqual(len(taken), 5)
+        self.assertEqual(lean.flows(), [])
+        drop = lambda d: {k: v for k, v in d.items() if k != "tham_so"}
+        self.assertEqual(drop(lean.summary()), drop(keep.summary()))
+
     def test_fragment_of_returned_flow_is_orphan(self):
         assigner = FlowAssigner()
         assigner.add(rec(proto=17, sport=5353, dport=53, fragment=True, frag_id=5, ts=0))

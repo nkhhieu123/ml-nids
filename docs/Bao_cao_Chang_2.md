@@ -19,8 +19,9 @@ danh sách dữ liệu phải tự thu trong lab. Cuối chặng có thêm tài 
 về dữ liệu, mô hình và dữ liệu chuẩn
 ([10_tong_quan_du_lieu_mo_hinh.md](10_tong_quan_du_lieu_mo_hinh.md)).
 
-Chưa có mô hình nào được huấn luyện, chưa có lần thu nào trong lab và **chưa
-tải được dữ liệu CIC-IDS2017** (cần điền form đăng ký). Báo cáo không chứa kết
+Chưa có mô hình nào được huấn luyện và chưa có lần thu nào trong lab. Lúc kết
+thúc chặng chưa tải được CIC-IDS2017; **ngày 27/10/2026 đã tải PCAP thứ Hai và
+thứ Sáu** và cập nhật các mục liên quan (thứ Tư đang tải). Báo cáo không chứa kết
 quả thực nghiệm hay chỉ số đánh giá.
 
 ## 2. Các task
@@ -29,7 +30,7 @@ quả thực nghiệm hay chỉ số đánh giá.
 |---|---|---|---|
 | C02-T01 | Mô tả Global Header, Packet Header, Packet Data của PCAP; phân biệt với PCAPNG | Xong | [04_dinh_dang_pcap.md](04_dinh_dang_pcap.md) |
 | C02-T02 | Chọn một loại log dịch vụ | Xong | [05_log_dich_vu.md](05_log_dich_vu.md) |
-| C02-T03 | Chọn tập con CIC-IDS2017 cho phân loại | Xong, số liệu chưa đối chiếu | [06_cic_ids2017.md](06_cic_ids2017.md) |
+| C02-T03 | Chọn tập con CIC-IDS2017 cho phân loại | Xong; lịch tấn công đã đối chiếu với PCAP thứ Sáu, số flow CSV chưa | [06_cic_ids2017.md](06_cic_ids2017.md) |
 | C02-T04 | Kiểm tra các scenario CTU-13, file khả dụng và ý nghĩa nhãn | Xong | [07_ctu13.md](07_ctu13.md) |
 | C02-T05 | Tạo manifest: nguồn, file, thời gian, nhãn, mục đích | Xong | `config/data_manifest.csv`, `src/nids/manifest.py`, [08_manifest_du_lieu.md](08_manifest_du_lieu.md) |
 | C02-T06 | Chốt dữ liệu còn phải tự thu trong lab | Xong | [09_du_lieu_lab.md](09_du_lieu_lab.md) |
@@ -90,8 +91,16 @@ trưng, và các nghiên cứu sau này đã chỉ ra lỗi nhãn trong CSV gố
 Train/validation/test tách theo khối thời gian vì mỗi lớp tấn công chỉ nằm
 trong một ngày.
 
-**Hạn chế:** chưa tải file nào. Lịch tấn công và địa chỉ IP lấy từ trang mô tả
-chính thức; tên file và số flow từng nhãn chưa được đối chiếu với file thật.
+**Cập nhật 27/10/2026:** đã tải và kiểm tra PCAP thứ Hai (10,8 GB, 11,7 triệu gói)
+và thứ Sáu (8,8 GB, 10,0 triệu gói); mã băm ghi trong manifest. Kiểm tra trên file
+thật cho thấy:
+- Giờ trong lịch tấn công là UTC−3, và lịch khớp dữ liệu tới từng phút.
+- Bên tấn công hiện là `172.16.0.1` (NAT). Port scan và DDoS cùng IP nên phải
+  tách theo khung giờ.
+- File có đuôi `.pcap` nhưng thực chất là PCAPNG.
+
+Chi tiết ở [06_cic_ids2017.md](06_cic_ids2017.md), mục 7. PCAP thứ Tư đang tải;
+hai file CSV có nhãn chưa tải nên số flow từng nhãn chưa đối chiếu.
 Nguồn tải chính thức là https://www.unb.ca/cic/datasets/ids-2017.html (qua form
 đăng ký ở `cicresearch.ca`); bộ nhãn đã sửa lỗi của nhóm KU Leuven ở
 https://intrusion-detection.distrinet-research.be/CNS2022/.
@@ -123,7 +132,7 @@ dung lượng và mức độ đã kiểm tra.
 
 | Nguồn | Số dòng | Trạng thái |
 |---|---|---|
-| CIC-IDS2017 | 5 | Chưa tải |
+| CIC-IDS2017 | 5 | 2 đã tải (PCAP thứ Hai, thứ Sáu, có mã băm), 3 chưa tải (cập nhật 27/10/2026) |
 | CTU-13 | 13 | 11 đã kiểm tra trên máy chủ, 2 đã tải thử |
 | Lab | 12 | Chưa thu |
 
@@ -181,8 +190,9 @@ Cuối chặng: 15/15 ca của dự án đạt (gồm 10 ca của Chặng 1).
    HTTP, lab dùng SYN. Lớp `dos` kiểu SYN phải lấy mẫu huấn luyện từ lab.
 2. **Topology ngang hàng thiếu dữ liệu công khai.** CTU-13 chỉ có scenario 12,
    nên đánh giá `p2p` chủ yếu dựa vào lab.
-3. **Số liệu CIC-IDS2017 chưa đối chiếu** vì chưa tải được file. Đến hết Chặng
-   3 vẫn chưa tải.
+3. **Số liệu CIC-IDS2017 mới đối chiếu một phần.** Lịch tấn công, múi giờ và địa
+   chỉ NAT đã kiểm tra trên PCAP thứ Sáu (27/10/2026); số flow của CSV có nhãn và
+   ngày thứ Tư chưa kiểm tra.
 4. **Cách chia train/test của CTU-13** đang theo bài báo gốc, trạng thái tạm thời.
 5. **Tham số chưa chốt:** tốc độ Nmap, ba mức tải DoS, chu kỳ beaconing, số
    peer. Phải ghi vào cấu hình trước lần thu đầu tiên.

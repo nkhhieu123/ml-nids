@@ -189,14 +189,19 @@ python -m nids.log_compare data/service_logs/<run_id>/access_nids.log output/log
 
 ## 7. Điểm cần lưu ý
 
-1. **Chưa chạy trên dữ liệu CIC-IDS2017 và lab.** CIC-IDS2017 vẫn chưa tải (cần
-   form đăng ký); lab chưa dựng. Mọi kiểm tra dùng bản thu CTU-13, bản tự bắt
-   Windows ↔ WSL, log Nginx cài tạm và dữ liệu tổng hợp. Phải chạy lại
-   `wireshark_compare` và `log_compare` khi có dữ liệu thật của đồ án.
+1. **Dữ liệu thật của đồ án mới có một phần.** Lúc kết thúc chặng chỉ có bản thu
+   CTU-13, bản tự bắt Windows ↔ WSL, log Nginx cài tạm và dữ liệu tổng hợp. Ngày
+   27/10/2026 đã chạy trên PCAP CIC-IDS2017 thứ Hai và thứ Sáu: đọc hết cả hai
+   file không lỗi, 1 triệu gói đầu mỗi file khớp Wireshark 0 lệch (docs/06, mục 7).
+   Lab chưa dựng; phải chạy lại `wireshark_compare` và `log_compare` khi có.
 2. **IPv6 thật rất ít** (1 gói đầy đủ và 2 gói bị cắt); phần IPv6 còn lại kiểm tra bằng dữ liệu tổng hợp.
 3. **TSO và đường hầm IP** chưa gặp trên dữ liệu thật, mới thử bằng kiểm thử.
-4. **Tốc độ.** Bộ đọc khoảng 300 000 packet/giây; một file CIC-IDS2017 10 GB sẽ
-   mất vài phút chỉ để đọc. Chưa đo trên file CIC thật.
+4. **Tốc độ.** Đo trên file nhỏ lúc làm chặng: bộ đọc khoảng 300 000 packet/giây.
+   Đo lại trên 2 triệu gói đầu của PCAP CIC thứ Sáu (27/10/2026, máy đang bận tải
+   file khác): đọc thô khoảng 100 000 gói/giây, trích xuất khoảng 24 000, trích
+   xuất kèm ghép flow khoảng 10 600. Khảo sát trọn một file 10 GB mất khoảng
+   26 phút. Đủ cho lab 7 máy, nhưng cần đo lại khi máy rảnh và trước khi chạy
+   realtime.
 5. Log Nginx được sinh trên Windows (xuống dòng CRLF, một worker); cần đọc lại
    log của máy chủ dịch vụ Linux khi lab dựng xong.
 
@@ -207,8 +212,9 @@ timeout và FIN/RST, tính packet/byte/thời lượng, thống kê kích thư�
 cách giữa gói, cửa sổ host, số đích và cổng đích, entropy, tỷ lệ kết nối không
 hoàn tất.
 
-Song song: tải CIC-IDS2017 và 11 file `.binetflow` còn lại của CTU-13; dựng mạng
-lab và cài Nginx với định dạng `nids`.
+Song song: tải phần còn lại của CIC-IDS2017 (PCAP thứ Tư, hai CSV có nhãn) và 11
+file `.binetflow` còn lại của CTU-13; dựng mạng lab và cài Nginx với định dạng
+`nids`.
 
 ## Thuật ngữ
 

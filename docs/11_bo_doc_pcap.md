@@ -95,6 +95,13 @@ C03-T07.
 triệu packet sẽ mất vài phút chỉ để đọc. Đây là số đo trên dữ liệu tổng hợp,
 chưa đo trên file CIC-IDS2017 thật.
 
+**Trên PCAP CIC-IDS2017 (27/10/2026).** Hai file `Monday-WorkingHours.pcap`
+(10,8 GB) và `Friday-WorkingHours.pcap` (8,8 GB) có đuôi `.pcap` nhưng thực chất là
+**PCAPNG**. Bộ đọc nhận định dạng theo 4 byte đầu file chứ không theo đuôi, nên
+đọc hết cả hai file (11 709 971 và 9 997 874 gói) không lỗi, không bị cắt, không
+bỏ block nào. 1 triệu gói đầu của mỗi file khớp Wireshark. Chi tiết ở
+[06_cic_ids2017.md](06_cic_ids2017.md), mục 7.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.

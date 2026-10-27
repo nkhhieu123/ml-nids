@@ -2,11 +2,13 @@
 
 Tài liệu gom mọi thứ **chưa có** hoặc **chưa kiểm chứng** trong phạm vi Chặng 1,
 2 và 3, rút từ các tài liệu task, báo cáo chặng và nhật ký quyết định. Tình trạng
-tính đến ngày 23/10/2026.
+tính đến ngày 23/10/2026, cập nhật ngày 27/10/2026 sau khi tải PCAP CIC-IDS2017
+thứ Hai và thứ Sáu.
 
-Bảy chặng đầu đã có mã hoặc tài liệu, nhưng **toàn bộ dữ liệu thật của đồ án
-(CIC-IDS2017, đủ 13 scenario CTU-13, dữ liệu lab) đều chưa có**. Mọi kết quả
-kiểm tra đến nay dùng dữ liệu thay thế: vài bản thu CTU-13 lưu tạm, bản tự bắt
+Bảy chặng đầu đã có mã hoặc tài liệu. Dữ liệu thật của đồ án mới có **một phần**:
+PCAP CIC-IDS2017 thứ Hai và thứ Sáu (đã kiểm tra, docs/06 mục 7). Còn thiếu PCAP
+thứ Tư (đang tải), CSV có nhãn của CIC, 11 scenario CTU-13 và toàn bộ dữ liệu lab.
+Các kiểm tra khác vẫn dùng dữ liệu thay thế: vài bản thu CTU-13 lưu tạm, bản tự bắt
 Windows ↔ WSL, Nginx cài tạm trên máy phát triển và dữ liệu tổng hợp.
 
 Cột "Ai làm": **Bạn** là việc cần bạn hoặc nhóm tự làm (điền form, dựng máy,
@@ -17,13 +19,14 @@ khai mà không cần thêm gì.
 
 | Mức | Nghĩa | Số mục |
 |---|---|---|
-| **Chặn** | Thiếu thì không làm được chặng sau | 11 |
-| **Quan trọng** | Làm tiếp được, nhưng kết quả chưa đáng tin cho tới khi bổ sung | 14 |
+| **Chặn** | Thiếu thì không làm được chặng sau | 10 |
+| **Quan trọng** | Làm tiếp được, nhưng kết quả chưa đáng tin cho tới khi bổ sung | 11 |
 | **Nên có** | Hoàn thiện, kiểm tra thêm | 10 |
 
-11 mục **chặn** gom lại thành 6 việc cần làm trước Chặng 4–5:
+Số mục tính đến 27/10/2026, không tính các mục đã gạch (đã xong). 10 mục **chặn**
+gom lại thành 6 việc cần làm trước Chặng 5:
 
-1. Tải CIC-IDS2017 (mục 2.1).
+1. Tải nốt CIC-IDS2017: PCAP thứ Tư và CSV có nhãn (mục 2.1).
 2. Tải 11 file `.binetflow` còn lại của CTU-13 (mục 2.2).
 3. Dựng mạng lab 7 node, kiểm tra mirror (mục 3).
 4. Chốt tham số kịch bản lab (mục 4).
@@ -32,17 +35,18 @@ khai mà không cần thêm gì.
 
 ## 2. Dữ liệu
 
-### 2.1. CIC-IDS2017 — chưa có gì
+### 2.1. CIC-IDS2017 — đã có thứ Hai và thứ Sáu
 
 | Thiếu | Mức | Ảnh hưởng | Ai làm | Cách bổ sung |
 |---|---|---|---|---|
-| Chưa tải file nào (cả 5 dòng manifest đều `chua_tai`) | Chặn | Không có dữ liệu huấn luyện cho module anomaly và phân loại tấn công | **Bạn** | Điền form tại https://www.unb.ca/cic/datasets/ids-2017.html (link tải ở `cicresearch.ca`); tải PCAP thứ Hai, thứ Tư, thứ Sáu (khoảng 30 GB) và `GeneratedLabelledFlows.zip` |
-| Tên file, số flow từng nhãn chỉ là số liệu thường được trích dẫn | Quan trọng | Bảng ở [06_cic_ids2017.md](06_cic_ids2017.md) có thể sai | Làm được ngay sau khi tải | Đếm lại trên file thật, sửa tài liệu và manifest |
-| Chưa có dung lượng và mã băm | Nên có | Không kiểm tra được file tải về có nguyên vẹn | Làm được ngay sau khi tải | Tính SHA-256, ghi vào manifest |
-| Chưa xác định độ lệch giữa giờ trong lịch tấn công và timestamp trong PCAP; trang mô tả không ghi múi giờ | Chặn với việc gán nhãn | Gán nhãn theo khung giờ sẽ lệch | Làm được ngay sau khi tải | So thời điểm flow tấn công đầu tiên của mỗi khung giờ |
-| Chưa kiểm tra địa chỉ bên tấn công thật trong PCAP (`205.174.165.73` hay `172.16.0.1` do NAT) | Quan trọng | Quy tắc gán nhãn theo IP có thể sai | Làm được ngay sau khi tải | Xem IP nguồn của các flow trong khung giờ tấn công |
+| Chưa có PCAP thứ Tư (đang tải) | Chặn | Không có mẫu `dos` của CIC | **Bạn** tải; kiểm tra làm được ngay sau khi tải | Đặt vào `data/pcap/cic-ids2017/`, chạy `nids.pcap_survey` với cặp `172.16.0.1:192.168.10.50`, ghi mã băm vào manifest |
+| Chưa tải `GeneratedLabelledFlows.zip` | Quan trọng | Số flow từng nhãn ở [06_cic_ids2017.md](06_cic_ids2017.md) mục 3 chưa đối chiếu; chưa đối chiếu được quy tắc gán nhãn | **Bạn** | Tải cùng nơi với PCAP, lấy hai file CSV ở mục 3 của docs/06 |
+| ~~Chưa tải PCAP thứ Hai, thứ Sáu~~ | Đã xong 27/10/2026 | | | Ở `data/pcap/cic-ids2017/`; `python -m nids.manifest --verify` báo khớp |
+| ~~Chưa có dung lượng và mã băm~~ | Đã xong 27/10/2026 | | | SHA-256 và MD5 trong manifest và docs/06 mục 7.1 (thứ Tư thêm khi tải xong) |
+| ~~Chưa xác định độ lệch giờ của lịch tấn công~~ | Đã xong 27/10/2026 | | | Lịch là giờ UTC−3, khớp dữ liệu tới từng phút (docs/06 mục 7.3) |
+| ~~Chưa kiểm tra địa chỉ bên tấn công thật~~ | Đã xong 27/10/2026 | | | Là `172.16.0.1` (NAT). Port scan và DDoS cùng IP nên phải tách theo giờ |
 | Chưa tải bộ nhãn đã sửa lỗi của KU Leuven | Nên có | Thiếu nguồn đối chiếu nhãn tốt hơn CSV gốc | Làm được ngay | https://intrusion-detection.distrinet-research.be/CNS2022/ |
-| Bộ đọc PCAP chưa chạy trên file CIC thật (10 GB/ngày) | Quan trọng | Chưa biết tốc độ thật và gói lạ trong mạng CIC | Làm được ngay sau khi tải | Chạy `nids.packets --stats` và `nids.wireshark_compare` trên 3 file |
+| Bộ đọc PCAP mới so 1 triệu gói đầu mỗi file CIC với Wireshark (0 lệch), chưa so hết | Nên có | Phần sau của file chưa đối chiếu từng gói (đã đọc hết không lỗi) | Làm được ngay | `nids.wireshark_compare` không `--limit`, mất vài giờ mỗi file |
 
 ### 2.2. CTU-13 — mới có một phần
 
@@ -107,14 +111,15 @@ chỉ số (Chặng 11), dashboard (tùy chọn T06).
 
 ## 6. Thứ tự nên làm
 
-1. **Bạn:** điền form CIC-IDS2017 và bắt đầu tải (lâu nhất, khoảng 30 GB).
+1. ~~**Bạn:** điền form CIC-IDS2017 và bắt đầu tải.~~ Đã tải thứ Hai và thứ Sáu;
+   còn PCAP thứ Tư (đang tải) và `GeneratedLabelledFlows.zip`.
 2. **Làm được ngay:** tải 11 file `.binetflow`, đếm nhãn, xác định thời điểm bị
    nhiễm và múi giờ; đưa các bản thu CTU-13 đã dùng vào manifest.
 3. **Bạn:** dựng lab, kiểm tra mirror hai chiều, cài Nginx `nids`, đồng bộ đồng
    hồ, cài dự án trên Kali; chốt tham số ở mục 4.
 4. **Làm được ngay:** viết script sinh traffic và ghi nhật ký lần chạy.
-5. Khi CIC tải xong: đối chiếu số liệu, xác định độ lệch giờ và địa chỉ NAT,
-   chạy bộ đọc và đối chiếu Wireshark trên 3 file.
+5. Khi CIC tải xong: ~~xác định độ lệch giờ và địa chỉ NAT~~ (đã xong trên thứ
+   Sáu); khảo sát và đối chiếu Wireshark file thứ Tư; đối chiếu số flow CSV.
 6. Thu lab theo thứ tự ở [09_du_lieu_lab.md](09_du_lieu_lab.md); các lần `test`
    chỉ thu sau khi mô hình đã khóa.
 
