@@ -2,12 +2,12 @@
 
 Tài liệu gom mọi thứ **chưa có** hoặc **chưa kiểm chứng** trong phạm vi Chặng 1,
 2 và 3, rút từ các tài liệu task, báo cáo chặng và nhật ký quyết định. Tình trạng
-tính đến ngày 23/10/2026, cập nhật ngày 27/10/2026 sau khi tải PCAP CIC-IDS2017
-thứ Hai và thứ Sáu.
+tính đến ngày 23/10/2026, cập nhật ngày 27/10/2026 và 29/10/2026 sau khi tải
+đủ dữ liệu CIC-IDS2017.
 
 Bảy chặng đầu đã có mã hoặc tài liệu. Dữ liệu thật của đồ án mới có **một phần**:
-PCAP CIC-IDS2017 thứ Hai và thứ Sáu (đã kiểm tra, docs/06 mục 7). Còn thiếu PCAP
-thứ Tư (đang tải), CSV có nhãn của CIC, 11 scenario CTU-13 và toàn bộ dữ liệu lab.
+**CIC-IDS2017 đã đủ** (PCAP thứ Hai, thứ Tư, thứ Sáu và CSV có nhãn, đã kiểm tra,
+docs/06 mục 7). Còn thiếu 11 scenario CTU-13 và toàn bộ dữ liệu lab.
 Các kiểm tra khác vẫn dùng dữ liệu thay thế: vài bản thu CTU-13 lưu tạm, bản tự bắt
 Windows ↔ WSL, Nginx cài tạm trên máy phát triển và dữ liệu tổng hợp.
 
@@ -19,14 +19,14 @@ khai mà không cần thêm gì.
 
 | Mức | Nghĩa | Số mục |
 |---|---|---|
-| **Chặn** | Thiếu thì không làm được chặng sau | 10 |
-| **Quan trọng** | Làm tiếp được, nhưng kết quả chưa đáng tin cho tới khi bổ sung | 11 |
+| **Chặn** | Thiếu thì không làm được chặng sau | 9 |
+| **Quan trọng** | Làm tiếp được, nhưng kết quả chưa đáng tin cho tới khi bổ sung | 10 |
 | **Nên có** | Hoàn thiện, kiểm tra thêm | 10 |
 
-Số mục tính đến 27/10/2026, không tính các mục đã gạch (đã xong). 10 mục **chặn**
-gom lại thành 6 việc cần làm trước Chặng 5:
+Số mục tính đến 29/10/2026, không tính các mục đã gạch (đã xong). 9 mục **chặn**
+gom lại thành 5 việc cần làm trước Chặng 5 (việc tải CIC-IDS2017 đã xong):
 
-1. Tải nốt CIC-IDS2017: PCAP thứ Tư và CSV có nhãn (mục 2.1).
+1. ~~Tải nốt CIC-IDS2017: PCAP thứ Tư và CSV có nhãn (mục 2.1).~~ Xong 29/10/2026.
 2. Tải 11 file `.binetflow` còn lại của CTU-13 (mục 2.2).
 3. Dựng mạng lab 7 node, kiểm tra mirror (mục 3).
 4. Chốt tham số kịch bản lab (mục 4).
@@ -35,12 +35,12 @@ gom lại thành 6 việc cần làm trước Chặng 5:
 
 ## 2. Dữ liệu
 
-### 2.1. CIC-IDS2017 — đã có thứ Hai và thứ Sáu
+### 2.1. CIC-IDS2017 — đã đủ
 
 | Thiếu | Mức | Ảnh hưởng | Ai làm | Cách bổ sung |
 |---|---|---|---|---|
-| Chưa có PCAP thứ Tư (đang tải) | Chặn | Không có mẫu `dos` của CIC | **Bạn** tải; kiểm tra làm được ngay sau khi tải | Đặt vào `data/pcap/cic-ids2017/`, chạy `nids.pcap_survey` với cặp `172.16.0.1:192.168.10.50`, ghi mã băm vào manifest |
-| Chưa tải `GeneratedLabelledFlows.zip` | Quan trọng | Số flow từng nhãn ở [06_cic_ids2017.md](06_cic_ids2017.md) mục 3 chưa đối chiếu; chưa đối chiếu được quy tắc gán nhãn | **Bạn** | Tải cùng nơi với PCAP, lấy hai file CSV ở mục 3 của docs/06 |
+| ~~Chưa có PCAP thứ Tư~~ | Đã xong 29/10/2026 | | | Lịch DoS khớp UTC−3 (docs/06 mục 7.3); mã băm trong manifest |
+| ~~Chưa tải `GeneratedLabelledFlows.zip`~~ | Đã xong 29/10/2026 | | | Số flow từng nhãn khớp; cột `Timestamp` kiểu 12 giờ mất SA/CH (docs/06 mục 7.5) |
 | ~~Chưa tải PCAP thứ Hai, thứ Sáu~~ | Đã xong 27/10/2026 | | | Ở `data/pcap/cic-ids2017/`; `python -m nids.manifest --verify` báo khớp |
 | ~~Chưa có dung lượng và mã băm~~ | Đã xong 27/10/2026 | | | SHA-256 và MD5 trong manifest và docs/06 mục 7.1 (thứ Tư thêm khi tải xong) |
 | ~~Chưa xác định độ lệch giờ của lịch tấn công~~ | Đã xong 27/10/2026 | | | Lịch là giờ UTC−3, khớp dữ liệu tới từng phút (docs/06 mục 7.3) |
@@ -111,15 +111,14 @@ chỉ số (Chặng 11), dashboard (tùy chọn T06).
 
 ## 6. Thứ tự nên làm
 
-1. ~~**Bạn:** điền form CIC-IDS2017 và bắt đầu tải.~~ Đã tải thứ Hai và thứ Sáu;
-   còn PCAP thứ Tư (đang tải) và `GeneratedLabelledFlows.zip`.
+1. ~~**Bạn:** điền form CIC-IDS2017 và tải.~~ Đã tải đủ (27 và 29/10/2026).
 2. **Làm được ngay:** tải 11 file `.binetflow`, đếm nhãn, xác định thời điểm bị
    nhiễm và múi giờ; đưa các bản thu CTU-13 đã dùng vào manifest.
 3. **Bạn:** dựng lab, kiểm tra mirror hai chiều, cài Nginx `nids`, đồng bộ đồng
    hồ, cài dự án trên Kali; chốt tham số ở mục 4.
 4. **Làm được ngay:** viết script sinh traffic và ghi nhật ký lần chạy.
-5. Khi CIC tải xong: ~~xác định độ lệch giờ và địa chỉ NAT~~ (đã xong trên thứ
-   Sáu); khảo sát và đối chiếu Wireshark file thứ Tư; đối chiếu số flow CSV.
+5. ~~Khi CIC tải xong: xác định độ lệch giờ và địa chỉ NAT, khảo sát và đối chiếu
+   Wireshark file thứ Tư, đối chiếu số flow CSV.~~ Xong 29/10/2026.
 6. Thu lab theo thứ tự ở [09_du_lieu_lab.md](09_du_lieu_lab.md); các lần `test`
    chỉ thu sau khi mô hình đã khóa.
 

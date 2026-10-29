@@ -51,9 +51,9 @@ Chi tiết: [02_dau_ra_module.md](02_dau_ra_module.md), `src/nids/scope.py`.
   trong lab.
 - CTU-13 chỉ có một scenario ngang hàng (scenario 12), nên đánh giá `p2p` chủ
   yếu dựa vào dữ liệu lab.
-- CIC-IDS2017: đã tải PCAP thứ Hai và thứ Sáu (27/10/2026), đã xác nhận múi giờ
-  UTC−3, địa chỉ NAT và khung giờ port scan (docs/06, mục 7). PCAP thứ Tư đang
-  tải; hai file CSV có nhãn chưa tải nên số flow từng nhãn chưa đối chiếu.
+- CIC-IDS2017: đã tải đủ PCAP thứ Hai, thứ Tư, thứ Sáu và CSV có nhãn (27 và
+  29/10/2026); đã xác nhận múi giờ UTC−3, địa chỉ NAT, khung giờ DoS và port scan,
+  và số flow từng nhãn (docs/06, mục 7).
 - Mô hình cho module botnet và cách nhận diện topology chốt ở Chặng 8.
 
 ## Thuật ngữ

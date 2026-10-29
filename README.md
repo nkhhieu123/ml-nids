@@ -127,6 +127,7 @@ GitHub không nhận file trên 100 MB). Mỗi người tự tải từ nguồn 
 | Nguồn | Lấy ở đâu | Đặt vào |
 |---|---|---|
 | CIC-IDS2017 (PCAP thứ Hai, thứ Tư, thứ Sáu) | https://www.unb.ca/cic/datasets/ids-2017.html, điền form đăng ký. Không dùng bản chép lại trên Kaggle | `data/pcap/cic-ids2017/` |
+| CIC-IDS2017 (`GeneratedLabelledFlows.zip`) | Cùng nơi tải PCAP | `data/cic-ids2017/`, giải nén vào `data/cic-ids2017/TrafficLabelling/` |
 | CTU-13 (file `.binetflow`) | https://www.stratosphereips.org/datasets-ctu13. Không tải file mẫu mã độc | `data/ctu13/` |
 
 Sau khi tải, kiểm tra file có đúng bản gốc không (so mã băm SHA-256 ghi trong
