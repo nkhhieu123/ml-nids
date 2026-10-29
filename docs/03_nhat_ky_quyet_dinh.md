@@ -161,6 +161,13 @@ Mẫu:
 - Quyết định: Host là một địa chỉ IP; mỗi gói tính cho máy gửi (ra) và máy nhận (vào). Cửa sổ `[start, start + size)` với `start` là bội số của `step` tính từ epoch. Thời gian trôi theo thời điểm của gói: cửa sổ đóng khi đã thấy gói có thời điểm ≥ `end`. Gói sai thứ tự thuộc cửa sổ đã đóng không được cộng lại vào cửa sổ đó mà được đếm là gói trễ. Có thể giới hạn host theo dải mạng (xem `docs/22_cua_so_host.md`).
 - Hệ quả: Host im lặng không có dòng. Đặc trưng cửa sổ ở C04-T06, T07 dùng lại `HostWindower` qua `window_factory`. Với CIC phải chạy kèm `--net 192.168.10.0/24`.
 
+## QĐ-022 — Đặc trưng cửa sổ host tính theo vai client/server của flow
+- Ngày: 29/10/2026
+- Trạng thái: Đã chốt
+- Bối cảnh: Số đích, số cổng đích và entropy cổng phân biệt quét cổng với hành vi bình thường. Nếu đếm mọi gói host gửi đi thì server trả lời nhiều client (tới cổng tạm khác nhau) trông giống máy quét.
+- Quyết định: Chỉ gói host gửi theo chiều forward (host là client của flow) được tính vào `dst_hosts`, `dst_ports`, `dst_host_ports` và entropy cổng đích; gói forward host nhận tính vào `src_hosts`. Entropy Shannon (log2) theo số gói tới từng cổng. Kết nối mới là gói đầu của flow không phải phần tiếp nối, tính cho client (`new_conn_out`) và server (`new_conn_in`). Entropy để trống khi không có gói TCP/UDP trong vai client (xem `docs/23_dac_trung_cua_so.md`).
+- Hệ quả: Đặc trưng cửa sổ phụ thuộc chiều của C04-T01, nên phải chạy cùng bộ ghép flow (`WindowPipeline`).
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
@@ -188,6 +195,7 @@ Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
 | Payload | Phần dữ liệu ứng dụng trong gói TCP/UDP, không tính các header |
 | Mã băm SHA-256 | Chuỗi 64 ký tự tính từ nội dung file; cùng mã băm nghĩa là cùng nội dung |
 | Cửa sổ host | Khoảng thời gian cố định để gom gói của một máy và tính đặc trưng |
+| Entropy cổng | Độ đa dạng của các cổng đích, tính bằng bit; cao khi gói chia đều cho nhiều cổng |
 | UTC−3 | Giờ chậm hơn giờ quốc tế 3 tiếng; giờ mùa hè nơi CIC thu dữ liệu |
 | Phần trong tổng (share) | Tỷ lệ của một chiều so với cả hai chiều, luôn từ 0 tới 1 |
 | Manifest | Bảng liệt kê mọi nguồn dữ liệu và cách dùng |
