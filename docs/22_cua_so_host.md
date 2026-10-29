@@ -54,6 +54,7 @@ trừ gói sai thứ tự (mục 3).
 |---|---|
 | Host không có gói nào trong một cửa sổ | Không có dòng cho host đó trong cửa sổ đó (bảng không có dòng toàn số 0) |
 | Gói sai thứ tự thời gian, thuộc cửa sổ **đã đóng** | Không cộng vào cửa sổ đã đóng; vẫn cộng vào các cửa sổ chứa nó còn mở; đếm ở `goi_tre` |
+| Gói sai thứ tự sau khoảng lặng, khi có thời gian chờ (`emit_delay_s`, C04-T07) | Có thể tạo cửa sổ nằm trước cửa sổ đang mở; bảng cửa sổ được sắp lại để vẫn trả ra theo thứ tự |
 | Gói không có thời điểm | Không vào cửa sổ nào; đếm ở `goi_khong_co_thoi_diem` |
 | Khoảng lặng dài (không có gói) | Không sinh cửa sổ rỗng |
 | Bước không chia hết kích thước | Vẫn đúng; mỗi gói thuộc ⌈size/step⌉ hoặc ⌊size/step⌋ cửa sổ |
@@ -81,7 +82,8 @@ Trong mỗi cửa sổ, các host được xếp theo thứ tự chữ. Các c�
 `window_start` tăng dần.
 
 `HostWindower` nhận tham số `window_factory`, để C04-T06 và C04-T07 dùng lớp cửa sổ
-có thêm đặc trưng mà không phải viết lại cơ chế.
+có thêm đặc trưng mà không phải viết lại cơ chế. Tham số `emit_delay_s` (thêm ở
+C04-T07) cho cửa sổ chờ thêm một khoảng sau `end` mới trả ra; mặc định 0.
 
 ## 5. Kiểm tra
 

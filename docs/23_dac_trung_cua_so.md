@@ -63,7 +63,7 @@ của server sẽ cao như máy quét cổng. Vì vậy:
   theo đầu mút forward/backward của flow, không theo IP của gói đầu. Flow mở bằng
   SYN+ACK vẫn tính cho đúng client.
 - Lần thử kết nối TCP bị từ chối (SYN rồi RST) vẫn là một kết nối mới. Việc nó không
-  hoàn tất là đặc trưng của C04-T07.
+  hoàn tất là đặc trưng của C04-T07 ([24_ket_noi_khong_hoan_tat.md](24_ket_noi_khong_hoan_tat.md)).
 
 ## 4. Trường hợp biên
 

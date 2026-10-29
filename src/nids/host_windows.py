@@ -62,12 +62,15 @@ class HostWindower:
     ``networks``: chỉ lập cửa sổ cho host thuộc các dải mạng này (ví dụ mạng nội
     bộ); None là mọi host. Gói vẫn được tính cho host trong dải dù đầu bên kia ở
     ngoài. ``window_factory`` cho phép task sau dùng lớp cửa sổ có thêm đặc trưng.
+    ``emit_delay_s``: chờ thêm sau ``end`` rồi mới trả cửa sổ, để đặc trưng cần
+    quan sát tiếp sau cửa sổ (C04-T07) có đủ dữ liệu.
     """
 
     def __init__(self, size_s: float = 10, step_s: float = 2, networks=None,
-                 window_factory=HostWindow):
+                 window_factory=HostWindow, emit_delay_s: float = 0):
         self.size_ns = round(size_s * NS)
         self.step_ns = round(step_s * NS)
+        self.delay_ns = round(emit_delay_s * NS)
         if not 0 < self.step_ns <= self.size_ns:
             raise ValueError(f"cần 0 < step <= size, nhận size={size_s}, step={step_s}")
         self.networks = None if networks is None else [ip_network(n) for n in networks]
@@ -116,12 +119,14 @@ class HostWindower:
             if self._closed_before is not None and start < self._closed_before:
                 late = True
                 continue
-            # Gói sai thứ tự không tạo được cửa sổ mới nằm trước cửa sổ đang mở: mọi
-            # cửa sổ có start từ _closed_before tới _now đều chứa gói mới nhất nên đã
-            # có sẵn. Vì vậy khóa của _open luôn tăng dần.
             hosts = self._open.get(start)
             if hosts is None:
+                # Gói sai thứ tự sau một khoảng lặng có thể tạo cửa sổ nằm trước cửa
+                # sổ đang mở (khi có emit_delay_s); sắp lại để khóa luôn tăng dần.
+                out_of_order = bool(self._open) and start < next(reversed(self._open))
                 hosts = self._open[start] = {}
+                if out_of_order:
+                    self._open = OrderedDict(sorted(self._open.items()))
             for host, outgoing in sides:
                 w = hosts.get(host)
                 if w is None:
@@ -131,13 +136,14 @@ class HostWindower:
             self.late_packets += 1
 
     def _close_until(self, now_ns):
-        """Đóng mọi cửa sổ có end <= now_ns."""
+        """Đóng mọi cửa sổ có end + emit_delay <= now_ns."""
+        limit = now_ns - self.delay_ns
         while self._open:
             start = next(iter(self._open))
-            if start + self.size_ns > now_ns:
+            if start + self.size_ns > limit:
                 break
             self._emit(start)
-        closed = now_ns - self.size_ns + 1     # cửa sổ có start < closed đã kết thúc
+        closed = limit - self.size_ns + 1      # cửa sổ có start < closed đã trả ra
         closed = -(-closed // self.step_ns) * self.step_ns
         if self._closed_before is None or closed > self._closed_before:
             self._closed_before = closed
@@ -161,6 +167,7 @@ class HostWindower:
         return {
             "kich_thuoc_cua_so_s": self.size_ns / NS,
             "buoc_s": self.step_ns / NS,
+            "cho_truoc_khi_tra_s": self.delay_ns / NS,
             "dai_mang": None if self.networks is None else [str(n) for n in self.networks],
             "so_goi": self.packets,
             "goi_tre": self.late_packets,

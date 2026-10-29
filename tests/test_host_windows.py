@@ -120,6 +120,24 @@ class StreamingTest(unittest.TestCase):
         self.assertEqual(counts[4], 2)        # cửa sổ [4, 14): gói 5 s và 13 s
         self.assertEqual(counts[0], 1)        # cửa sổ [0, 10) đóng trước khi gói 5 s tới
 
+    def test_emit_delay(self):
+        w = HostWindower(10, 10, emit_delay_s=3)
+        w.add(pkt(ts=1))
+        w.add(pkt(ts=12, index=1))            # end = 10, nhưng còn chờ tới 13
+        self.assertEqual(w.pop_finished(), [])
+        w.add(pkt(ts=13, index=2))
+        self.assertEqual({x.start_ns // S for x in w.pop_finished()}, {0})
+
+    def test_late_packet_after_gap_keeps_order(self):
+        # Có thời gian chờ, gói trễ sau khoảng lặng tạo cửa sổ nằm trước cửa sổ đang mở.
+        w = HostWindower(10, 2, emit_delay_s=3)
+        w.add(pkt(ts=5))
+        w.add(pkt(ts=20, index=1))
+        w.add(pkt(ts=17, index=2))
+        w.finish_all()
+        starts = [x.start_ns for x in w.pop_finished() if x.host == A]
+        self.assertEqual(starts, sorted(starts))
+
     def test_streaming_equals_batch(self):
         packets = [pkt(A if i % 3 else B, B if i % 3 else A, ts=i * 0.7, index=i) for i in range(60)]
         _, batch = run(packets, size_s=10, step_s=2)

@@ -29,8 +29,8 @@ def pkt(src, dst, sport, dport, flags=TCP_SYN, ts=1.0, proto=6, index=0):
                         flags if proto == 6 else None)
 
 
-def windows(packets, size=10, step=10, settings=None):
-    pipe = WindowPipeline(settings or FlowSettings(), size, step)
+def windows(packets, size=10, step=10, settings=None, observe=3):
+    pipe = WindowPipeline(settings or FlowSettings(), size, step, observe_s=observe)
     out = []
     for i, p in enumerate(packets):
         out += pipe.add(replace(p, index=i))
@@ -117,6 +117,71 @@ class WindowFeatureTest(unittest.TestCase):
         for name, (unit, text) in WINDOW_FEATURES.items():
             self.assertTrue(unit and text, name)
             self.assertIn(name, CSV_COLUMNS)
+
+class IncompleteTest(unittest.TestCase):
+    """Tỷ lệ kết nối không hoàn tất sau thời gian quan sát (C04-T07)."""
+
+    def attempt(self, sport, dport, replies, t0=1.0):
+        """Một lần thử SYN từ SCANNER tới VICTIM, kèm các gói trả lời (cờ, độ trễ, từ client?)."""
+        out = [pkt(SCANNER, VICTIM, sport, dport, TCP_SYN, ts=t0)]
+        for flags, delay, from_client in replies:
+            if from_client:
+                out.append(pkt(SCANNER, VICTIM, sport, dport, flags, ts=t0 + delay))
+            else:
+                out.append(pkt(VICTIM, SCANNER, dport, sport, flags, ts=t0 + delay))
+        return out
+
+    def run_attempts(self, *attempts, observe=3):
+        packets = [p for a in attempts for p in a]
+        packets.sort(key=lambda p: p.ts_ns)
+        return windows(packets, observe=observe)
+
+    def test_four_outcomes(self):
+        f = self.run_attempts(
+            self.attempt(40001, 80, [(TCP_SYN | TCP_ACK, 0.01, False), (TCP_ACK, 0.02, True)]),
+            self.attempt(40002, 443, [(TCP_SYN | TCP_ACK, 0.01, False), (TCP_RST, 0.02, True)]),
+            self.attempt(40003, 23, [(TCP_RST | TCP_ACK, 0.01, False)]),
+            self.attempt(40004, 25, []),
+        )
+        scan, victim = f[(SCANNER, 0)], f[(VICTIM, 0)]
+        self.assertEqual((scan["tcp_attempts_out"], scan["incomplete_out"]), (4, 3))
+        self.assertEqual((scan["half_open_out"], scan["rejected_out"], scan["no_reply_out"]), (1, 1, 1))
+        self.assertEqual(scan["incomplete_ratio_out"], 0.75)
+        self.assertEqual((victim["tcp_attempts_in"], victim["incomplete_in"],
+                          victim["incomplete_ratio_in"]), (4, 3, 0.75))
+
+    def test_reply_after_observation_time_is_ignored(self):
+        f = self.run_attempts(
+            self.attempt(40001, 80, [(TCP_SYN | TCP_ACK, 3.5, False), (TCP_ACK, 3.6, True)]))
+        self.assertEqual(f[(SCANNER, 0)]["no_reply_out"], 1)
+        f = self.run_attempts(
+            self.attempt(40001, 80, [(TCP_SYN | TCP_ACK, 3.5, False), (TCP_ACK, 3.6, True)]),
+            observe=5)
+        self.assertEqual(f[(SCANNER, 0)]["incomplete_out"], 0)
+
+    def test_ack_after_deadline_is_half_open(self):
+        f = self.run_attempts(
+            self.attempt(40001, 80, [(TCP_SYN | TCP_ACK, 1, False), (TCP_ACK, 3.5, True)]))
+        self.assertEqual(f[(SCANNER, 0)]["half_open_out"], 1)
+
+    def test_no_attempts_gives_empty_ratio(self):
+        f = windows([pkt(SCANNER, VICTIM, 5353, 53, None, ts=1, proto=17)])[(SCANNER, 0)]
+        self.assertEqual((f["tcp_attempts_out"], f["incomplete_ratio_out"]), (0, None))
+
+    def test_mid_stream_and_continuation_are_not_attempts(self):
+        settings = FlowSettings(active_timeout_s=5)
+        packets = [pkt(SCANNER, VICTIM, 40001, 80, TCP_ACK, ts=1),          # bắt giữa chừng
+                   pkt(SCANNER, VICTIM, 40002, 80, TCP_SYN, ts=1)]
+        packets += [pkt(SCANNER, VICTIM, 40002, 80, TCP_ACK, ts=t) for t in (3, 5, 7)]
+        f = windows(packets, settings=settings)[(SCANNER, 0)]
+        self.assertEqual(f["tcp_attempts_out"], 1)
+
+    def test_window_waits_for_observation_time(self):
+        pipe = WindowPipeline(FlowSettings(), 10, 10, observe_s=3)
+        pipe.add(pkt(SCANNER, VICTIM, 40001, 80, TCP_SYN, ts=9.5, index=0))
+        self.assertEqual(pipe.add(pkt(SCANNER, VICTIM, 40002, 81, TCP_SYN, ts=12, index=1)), [])
+        done = pipe.add(pkt(SCANNER, VICTIM, 40003, 82, TCP_SYN, ts=13, index=2))
+        self.assertEqual({w.start_ns // S for w in done}, {0})
 
 
 class CliTest(unittest.TestCase):

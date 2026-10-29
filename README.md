@@ -61,6 +61,7 @@ Báo cáo Chặng 3: [docs/Bao_cao_Chang_3.md](docs/Bao_cao_Chang_3.md)
 - [x] C04-T04: Tính thống kê kích thước, inter-arrival time và cờ TCP — `src/nids/flow_features.py`, [docs/21_thong_ke_flow.md](docs/21_thong_ke_flow.md)
 - [x] C04-T05: Xây dựng cửa sổ host theo thời gian packet — `src/nids/host_windows.py`, [docs/22_cua_so_host.md](docs/22_cua_so_host.md)
 - [x] C04-T06: Tính số đích, cổng đích, kết nối mới và entropy cổng — `src/nids/window_features.py`, [docs/23_dac_trung_cua_so.md](docs/23_dac_trung_cua_so.md)
+- [x] C04-T07: Tính tỷ lệ kết nối không hoàn tất sau thời gian quan sát quy định — `src/nids/window_features.py`, [docs/24_ket_noi_khong_hoan_tat.md](docs/24_ket_noi_khong_hoan_tat.md)
 
 Những gì còn thiếu sau Chặng 1–3 (dữ liệu, lab, tham số chưa chốt): [docs/Viec_con_thieu_Chang_1_3.md](docs/Viec_con_thieu_Chang_1_3.md)
 
@@ -86,7 +87,8 @@ src/nids/
                       thống kê kích thước, inter-arrival time, cờ TCP
   pcap_survey.py      Khảo sát bản thu lớn: mã băm, thời gian, gói bỏ qua, flow, host
   host_windows.py     Cửa sổ thời gian theo host (10 giây, bước 2 giây) theo thời điểm gói
-  window_features.py  Đặc trưng cửa sổ host: số đích, cổng đích, kết nối mới, entropy cổng
+  window_features.py  Đặc trưng cửa sổ host: số đích, cổng đích, kết nối mới, entropy cổng,
+                      tỷ lệ kết nối TCP không hoàn tất
   alerts.py           Schema cảnh báo, xuất terminal + CSV
 tests/                Kiểm thử
 scripts/              Script đọc PCAP, sinh traffic mô phỏng (chưa có)

@@ -1,7 +1,10 @@
-"""Đặc trưng trên cửa sổ host: số đích, cổng đích, kết nối mới, entropy cổng (C04-T06).
+"""Đặc trưng trên cửa sổ host.
+
+- C04-T06: số đích, cổng đích, kết nối mới, entropy cổng; docs/23, QĐ-022.
+- C04-T07: tỷ lệ kết nối TCP không hoàn tất sau thời gian quan sát; docs/24, QĐ-023.
 
 Dùng cơ chế cửa sổ của host_windows.py (C04-T05) và flow của flows.py để biết gói
-nào host gửi trong vai client. Công thức ở docs/23_dac_trung_cua_so.md (QĐ-022).
+nào host gửi trong vai client.
 
     python -m nids.window_features data/pcap/<file>.pcap --net 192.168.10.0/24 --csv output/windows.csv
 """
@@ -16,7 +19,8 @@ from collections import Counter
 from .config import load_config
 from .flows import FlowAssigner, FlowSettings
 from .host_windows import CSV_COLUMNS as BASE_COLUMNS, HostWindow, HostWindower, csv_row as base_row
-from .packets import PORT_PROTOCOLS, ParseStats, extract_packets
+from .flows import BASIS_SYN
+from .packets import PORT_PROTOCOLS, PROTO_TCP, ParseStats, extract_packets
 
 ENTROPY_DIGITS = 6
 
@@ -30,7 +34,44 @@ WINDOW_FEATURES = {
     "new_conn_in": ("kết nối", "Số flow mới mở tới host (host là server), gói đầu nằm trong cửa sổ"),
     "dst_port_entropy": ("bit", "Entropy Shannon của cổng đích trên các gói host gửi trong vai client; "
                                 "trống nếu không có gói TCP/UDP nào"),
+    "tcp_attempts_out": ("lần thử", "Số lần thử kết nối TCP (flow mới mở bằng SYN) host mở"),
+    "incomplete_out": ("lần thử", "Số lần thử host mở không hoàn tất bắt tay trong thời gian quan sát"),
+    "no_reply_out": ("lần thử", "Số lần thử host mở không có trả lời"),
+    "rejected_out": ("lần thử", "Số lần thử host mở bị server trả RST"),
+    "half_open_out": ("lần thử", "Số lần thử có SYN+ACK nhưng host không gửi ACK hoàn tất"),
+    "incomplete_ratio_out": ("tỷ lệ 0–1", "incomplete_out / tcp_attempts_out; trống nếu không có lần thử"),
+    "tcp_attempts_in": ("lần thử", "Số lần thử kết nối TCP tới host"),
+    "incomplete_in": ("lần thử", "Số lần thử tới host không hoàn tất trong thời gian quan sát"),
+    "incomplete_ratio_in": ("tỷ lệ 0–1", "incomplete_in / tcp_attempts_in; trống nếu không có lần thử"),
 }
+
+RATIO_DIGITS = 6
+
+# Kết quả của một lần thử kết nối TCP sau thời gian quan sát
+OUTCOME_COMPLETE = "hoan_tat"        # SYN+ACK rồi ACK của client
+OUTCOME_HALF_OPEN = "do_dang"        # có SYN+ACK, client không ACK (ví dụ nmap -sS gửi RST)
+OUTCOME_REJECTED = "bi_tu_choi"      # server trả RST
+OUTCOME_NO_REPLY = "khong_phan_hoi"  # không có trả lời
+
+
+def is_tcp_attempt(flow) -> bool:
+    """Flow TCP mở bằng SYN của client và không phải phần tiếp nối."""
+    return flow.key.protocol == PROTO_TCP and flow.direction_basis == BASIS_SYN \
+        and not flow.continuation
+
+
+def attempt_outcome(flow, observe_ns: int) -> str:
+    """Kết quả bắt tay chỉ xét các bước xảy ra trong ``observe_ns`` kể từ gói đầu.
+
+    Không phụ thuộc gói tới sau thời hạn, nên giống nhau khi đọc file và realtime.
+    """
+    deadline = flow.first_ts_ns + observe_ns
+    within = lambda ts: ts is not None and ts <= deadline
+    if within(flow.synack_ts_ns):
+        return OUTCOME_COMPLETE if within(flow.client_ack_ts_ns) else OUTCOME_HALF_OPEN
+    if within(flow.server_rst_ts_ns):
+        return OUTCOME_REJECTED
+    return OUTCOME_NO_REPLY
 
 
 def shannon_entropy(counts) -> float | None:
@@ -45,8 +86,11 @@ def shannon_entropy(counts) -> float | None:
 class HostWindowFeatures(HostWindow):
     """Cửa sổ host có thêm các tập đích, cổng và bộ đếm kết nối mới."""
 
-    def __init__(self, host, start_ns, end_ns):
+    def __init__(self, host, start_ns, end_ns, observe_ns=3 * 10**9):
         super().__init__(host, start_ns, end_ns)
+        self.observe_ns = observe_ns
+        self.attempts_out = []                # flow của các lần thử TCP host mở
+        self.attempts_in = []
         self.dst_ips = set()
         self.dst_port_counts = Counter()      # cổng đích -> số gói (vai client)
         self.dst_pairs = set()
@@ -68,10 +112,15 @@ class HostWindowFeatures(HostWindow):
             # Host nhận gói forward: host là server của flow này.
             self.src_ips.add(rec.src_ip)
         if new_conn:
+            attempt = is_tcp_attempt(flow)
             if flow.fwd_endpoint[0] == self.host:
                 self.new_conn_out += 1
+                if attempt:
+                    self.attempts_out.append(flow)
             if flow.bwd_endpoint[0] == self.host:
                 self.new_conn_in += 1
+                if attempt:
+                    self.attempts_in.append(flow)
 
     def features(self) -> dict:
         h = shannon_entropy(self.dst_port_counts.values())
@@ -83,6 +132,25 @@ class HostWindowFeatures(HostWindow):
             "src_hosts": len(self.src_ips),
             "new_conn_in": self.new_conn_in,
             "dst_port_entropy": None if h is None else round(h, ENTROPY_DIGITS),
+            **self._attempt_features(),
+        }
+
+    def _attempt_features(self):
+        out = [attempt_outcome(f, self.observe_ns) for f in self.attempts_out]
+        inc_out = sum(o != OUTCOME_COMPLETE for o in out)
+        inc_in = sum(attempt_outcome(f, self.observe_ns) != OUTCOME_COMPLETE
+                     for f in self.attempts_in)
+        ratio = lambda part, total: round(part / total, RATIO_DIGITS) if total else None
+        return {
+            "tcp_attempts_out": len(out),
+            "incomplete_out": inc_out,
+            "no_reply_out": out.count(OUTCOME_NO_REPLY),
+            "rejected_out": out.count(OUTCOME_REJECTED),
+            "half_open_out": out.count(OUTCOME_HALF_OPEN),
+            "incomplete_ratio_out": ratio(inc_out, len(out)),
+            "tcp_attempts_in": len(self.attempts_in),
+            "incomplete_in": inc_in,
+            "incomplete_ratio_in": ratio(inc_in, len(self.attempts_in)),
         }
 
 
@@ -95,9 +163,15 @@ class WindowPipeline:
     """Ghép flow và lập cửa sổ host trong cùng một lượt đọc gói."""
 
     def __init__(self, settings: FlowSettings, size_s, step_s, networks=None,
-                 window_factory=HostWindowFeatures):
+                 observe_s: float = 3):
+        observe_ns = round(observe_s * 10**9)
         self.flows = FlowAssigner(settings, keep_finished=False)
-        self.windows = HostWindower(size_s, step_s, networks, window_factory)
+        # Cửa sổ chờ thêm observe_s sau khi kết thúc: lần thử ở cuối cửa sổ cần
+        # đủ thời gian quan sát trước khi tính tỷ lệ không hoàn tất.
+        self.windows = HostWindower(
+            size_s, step_s, networks,
+            lambda host, start, end: HostWindowFeatures(host, start, end, observe_ns),
+            emit_delay_s=observe_s)
 
     def add(self, rec):
         flow, forward = self.flows.add(rec)
@@ -133,7 +207,8 @@ def main(argv=None):
 
     cfg = load_config(args.config)
     win = cfg["windows"]["flow"]
-    pipe = WindowPipeline(FlowSettings.from_config(cfg), win["size_s"], win["step_s"], args.net)
+    pipe = WindowPipeline(FlowSettings.from_config(cfg), win["size_s"], win["step_s"], args.net,
+                          cfg["flow"]["handshake_observe_s"])
     stats = ParseStats()
     out = open(args.csv, "w", newline="", encoding="utf-8") if args.csv else None
     writer = csv.DictWriter(out, fieldnames=CSV_COLUMNS) if out else None

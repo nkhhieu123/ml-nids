@@ -168,6 +168,13 @@ Mẫu:
 - Quyết định: Chỉ gói host gửi theo chiều forward (host là client của flow) được tính vào `dst_hosts`, `dst_ports`, `dst_host_ports` và entropy cổng đích; gói forward host nhận tính vào `src_hosts`. Entropy Shannon (log2) theo số gói tới từng cổng. Kết nối mới là gói đầu của flow không phải phần tiếp nối, tính cho client (`new_conn_out`) và server (`new_conn_in`). Entropy để trống khi không có gói TCP/UDP trong vai client (xem `docs/23_dac_trung_cua_so.md`).
 - Hệ quả: Đặc trưng cửa sổ phụ thuộc chiều của C04-T01, nên phải chạy cùng bộ ghép flow (`WindowPipeline`).
 
+## QĐ-023 — Kết nối không hoàn tất xét sau 3 giây quan sát; cửa sổ chờ thêm 3 giây
+- Ngày: 29/10/2026
+- Trạng thái: Tạm thời (giá trị 3 giây chỉnh trên validation như QĐ-006)
+- Bối cảnh: Quét cổng và SYN flood để lại nhiều lần thử TCP không hoàn tất. Muốn biết một lần thử có hoàn tất không phải chờ trả lời, nhưng không được dùng gói tới quá xa (dữ liệu tương lai). Nghiệm thu Chặng 4 yêu cầu SYN thiếu phản hồi chỉ là dấu hiệu nghi vấn.
+- Quyết định: Lần thử là flow TCP mở bằng SYN của client, không phải phần tiếp nối. Chỉ xét các gói trong `flow.handshake_observe_s` = 3 giây sau SYN để xếp loại: `hoan_tat` (SYN+ACK rồi ACK của client), `do_dang`, `bi_tu_choi`, `khong_phan_hoi`. Tỷ lệ không hoàn tất tính cho host ra (client) và vào (server); trống khi không có lần thử. Cửa sổ host chờ thêm 3 giây sau `end` mới trả ra (xem `docs/24_ket_noi_khong_hoan_tat.md`).
+- Hệ quả: Flow ghi thêm thời điểm SYN+ACK, ACK của client, RST của server. Các cột này là đặc trưng, không dùng để gán nhãn. Cảnh báo realtime theo cửa sổ chậm thêm 3 giây.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
@@ -196,6 +203,7 @@ Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
 | Mã băm SHA-256 | Chuỗi 64 ký tự tính từ nội dung file; cùng mã băm nghĩa là cùng nội dung |
 | Cửa sổ host | Khoảng thời gian cố định để gom gói của một máy và tính đặc trưng |
 | Entropy cổng | Độ đa dạng của các cổng đích, tính bằng bit; cao khi gói chia đều cho nhiều cổng |
+| Kết nối không hoàn tất | Lần thử TCP không đi hết bắt tay ba bước trong thời gian quan sát |
 | UTC−3 | Giờ chậm hơn giờ quốc tế 3 tiếng; giờ mùa hè nơi CIC thu dữ liệu |
 | Phần trong tổng (share) | Tỷ lệ của một chiều so với cả hai chiều, luôn từ 0 tới 1 |
 | Manifest | Bảng liệt kê mọi nguồn dữ liệu và cách dùng |

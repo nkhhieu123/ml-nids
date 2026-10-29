@@ -137,6 +137,10 @@ class Flow:
     fragments_attached: int = 0            # mảnh IP không mang cổng được gắn vào flow này
     # Thống kê kích thước, inter-arrival time, cờ TCP (C04-T04)
     pkt_stats: PacketStats = field(default_factory=PacketStats, repr=False)
+    # Thời điểm đầu tiên của các bước bắt tay TCP (C04-T07)
+    synack_ts_ns: int | None = field(default=None, repr=False)      # server gửi SYN+ACK
+    client_ack_ts_ns: int | None = field(default=None, repr=False)  # client gửi gói không SYN sau đó
+    server_rst_ts_ns: int | None = field(default=None, repr=False)  # server gửi RST
     # Trạng thái TCP dùng để kết thúc flow
     fin_from: set = field(default_factory=set, repr=False)  # đầu mút đã gửi FIN
     closed_ts_ns: int | None = field(default=None, repr=False)  # lúc đóng bằng FIN/RST
@@ -384,6 +388,16 @@ class FlowAssigner:
             return
         flags = rec.tcp_flags
         sender = (rec.src_ip, rec.src_port)
+        ts = rec.ts_ns
+        if ts is not None:
+            if not forward:
+                if flags & TCP_SYN and flags & TCP_ACK and flow.synack_ts_ns is None:
+                    flow.synack_ts_ns = ts
+                if flags & TCP_RST and flow.server_rst_ts_ns is None:
+                    flow.server_rst_ts_ns = ts
+            elif (flow.synack_ts_ns is not None and flow.client_ack_ts_ns is None
+                  and flags & TCP_ACK and not flags & (TCP_SYN | TCP_RST)):
+                flow.client_ack_ts_ns = ts
         if flags & TCP_SYN:
             kind = "syn_ack" if flags & TCP_ACK else "syn"
             if rec.tcp_seq is not None:
