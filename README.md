@@ -59,6 +59,7 @@ Báo cáo Chặng 3: [docs/Bao_cao_Chang_3.md](docs/Bao_cao_Chang_3.md)
 - [x] C04-T02: Xử lý timeout, FIN/RST và tái sử dụng 5-tuple — `src/nids/flows.py`, [docs/19_ket_thuc_flow.md](docs/19_ket_thuc_flow.md)
 - [x] C04-T03: Tính packet, byte, thời lượng và tỷ lệ gửi/nhận — `src/nids/flow_features.py`, [docs/20_dac_trung_flow_co_ban.md](docs/20_dac_trung_flow_co_ban.md)
 - [x] C04-T04: Tính thống kê kích thước, inter-arrival time và cờ TCP — `src/nids/flow_features.py`, [docs/21_thong_ke_flow.md](docs/21_thong_ke_flow.md)
+- [x] C04-T05: Xây dựng cửa sổ host theo thời gian packet — `src/nids/host_windows.py`, [docs/22_cua_so_host.md](docs/22_cua_so_host.md)
 
 Những gì còn thiếu sau Chặng 1–3 (dữ liệu, lab, tham số chưa chốt): [docs/Viec_con_thieu_Chang_1_3.md](docs/Viec_con_thieu_Chang_1_3.md)
 
@@ -83,6 +84,7 @@ src/nids/
   flow_features.py    Đặc trưng flow: số gói, byte, payload, thời lượng, tỷ lệ gửi/nhận;
                       thống kê kích thước, inter-arrival time, cờ TCP
   pcap_survey.py      Khảo sát bản thu lớn: mã băm, thời gian, gói bỏ qua, flow, host
+  host_windows.py     Cửa sổ thời gian theo host (10 giây, bước 2 giây) theo thời điểm gói
   alerts.py           Schema cảnh báo, xuất terminal + CSV
 tests/                Kiểm thử
 scripts/              Script đọc PCAP, sinh traffic mô phỏng (chưa có)
@@ -162,6 +164,9 @@ python -m nids.flows data/pcap/<file>.pcap --csv output/flows.csv --stats output
 
 # Khảo sát một bản thu lớn: mã băm, thời gian, gói bỏ qua, flow; theo dõi một cặp IP theo phút
 python -m nids.pcap_survey data/pcap/cic-ids2017/Friday-WorkingHours.pcap --pair 172.16.0.1:192.168.10.50 --report output/survey_friday.json
+
+# Cửa sổ host 10 giây bước 2 giây, chỉ cho host trong mạng nội bộ
+python -m nids.host_windows data/pcap/<file>.pcap --net 192.168.10.0/24 --csv output/host_windows.csv
 
 # Đọc access log Nginx của một lần chạy, xuất bảng CSV rồi đối chiếu với file gốc
 python -m nids.service_log data/service_logs/<run_id>/access_nids.log --csv output/log.csv

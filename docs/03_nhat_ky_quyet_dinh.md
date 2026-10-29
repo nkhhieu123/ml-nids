@@ -154,6 +154,13 @@ Mẫu:
 - Quyết định: Min/max/trung bình/độ lệch chuẩn tổng thể (chia n) của `ip_len` và của khoảng cách giữa hai gói liên tiếp (cả flow và theo từng chiều), tính dần bằng Welford; khoảng âm do sai thứ tự thời gian tính là 0. Đếm số gói có từng cờ trong 8 cờ TCP. Cột không có dữ liệu (dưới 2 gói, một chiều trống) để **trống**, không ghi 0 (xem `docs/21_thong_ke_flow.md`).
 - Hệ quả: Bảng flow thêm 32 cột. Chặng 5 phải xử lý ô trống khi tiền xử lý. Không so trực tiếp được với cột CIC tương ứng vì CIC dùng payload, micro giây, độ lệch chuẩn mẫu và ghi 0.
 
+## QĐ-021 — Cửa sổ host theo thời gian gói, lưới cửa sổ cố định theo epoch
+- Ngày: 29/10/2026
+- Trạng thái: Đã chốt (kích thước và bước vẫn theo QĐ-006, tạm thời)
+- Bối cảnh: Đặc trưng theo host (B02) cần cửa sổ 10 giây bước 2 giây. Cửa sổ phải giống nhau khi đọc file và khi chạy realtime, và không được dùng gói tới sau khi cửa sổ đã kết thúc.
+- Quyết định: Host là một địa chỉ IP; mỗi gói tính cho máy gửi (ra) và máy nhận (vào). Cửa sổ `[start, start + size)` với `start` là bội số của `step` tính từ epoch. Thời gian trôi theo thời điểm của gói: cửa sổ đóng khi đã thấy gói có thời điểm ≥ `end`. Gói sai thứ tự thuộc cửa sổ đã đóng không được cộng lại vào cửa sổ đó mà được đếm là gói trễ. Có thể giới hạn host theo dải mạng (xem `docs/22_cua_so_host.md`).
+- Hệ quả: Host im lặng không có dòng. Đặc trưng cửa sổ ở C04-T06, T07 dùng lại `HostWindower` qua `window_factory`. Với CIC phải chạy kèm `--net 192.168.10.0/24`.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
@@ -180,6 +187,7 @@ Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
 | Tái sử dụng 5-tuple | Mở kết nối mới với đúng IP và cổng của kết nối cũ |
 | Payload | Phần dữ liệu ứng dụng trong gói TCP/UDP, không tính các header |
 | Mã băm SHA-256 | Chuỗi 64 ký tự tính từ nội dung file; cùng mã băm nghĩa là cùng nội dung |
+| Cửa sổ host | Khoảng thời gian cố định để gom gói của một máy và tính đặc trưng |
 | UTC−3 | Giờ chậm hơn giờ quốc tế 3 tiếng; giờ mùa hè nơi CIC thu dữ liệu |
 | Phần trong tổng (share) | Tỷ lệ của một chiều so với cả hai chiều, luôn từ 0 tới 1 |
 | Manifest | Bảng liệt kê mọi nguồn dữ liệu và cách dùng |
