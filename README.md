@@ -66,6 +66,10 @@ Báo cáo Chặng 3: [docs/Bao_cao_Chang_3.md](docs/Bao_cao_Chang_3.md)
 
 Báo cáo Chặng 4: [docs/Bao_cao_Chang_4.md](docs/Bao_cao_Chang_4.md)
 
+### Chặng 5 — Gán nhãn, EDA và chia dữ liệu
+
+- [x] C05-T01: Ghép nhãn từ nguồn và metadata phù hợp — `src/nids/labeling.py`, `config/label_schedule.csv`, [docs/26_gan_nhan.md](docs/26_gan_nhan.md)
+
 Những gì còn thiếu sau Chặng 1–3 (dữ liệu, lab, tham số chưa chốt): [docs/Viec_con_thieu_Chang_1_3.md](docs/Viec_con_thieu_Chang_1_3.md)
 
 ## Cấu trúc
@@ -73,6 +77,7 @@ Những gì còn thiếu sau Chặng 1–3 (dữ liệu, lab, tham số chưa ch
 ```
 config/default.yaml   Cấu hình chung: cửa sổ, timeout, địa chỉ lab, đường dẫn
 config/data_manifest.csv  Manifest dữ liệu: nguồn, file, nhãn, mục đích
+config/label_schedule.csv Lịch tấn công: nguồn nhãn (giờ, IP, cổng, nhãn)
 docs/                 Yêu cầu, đầu ra module, nhật ký quyết định, báo cáo
 src/nids/
   scope.py            Tên module và tập nhãn
@@ -93,6 +98,7 @@ src/nids/
   window_features.py  Đặc trưng cửa sổ host: số đích, cổng đích, kết nối mới, entropy cổng,
                       tỷ lệ kết nối TCP không hoàn tất
   feature_export.py   Xuất bảng đặc trưng flow và cửa sổ kèm schema, metadata; đọc lại bảng
+  labeling.py         Gán nhãn flow và cửa sổ host theo lịch tấn công
   alerts.py           Schema cảnh báo, xuất terminal + CSV
 tests/                Kiểm thử
 scripts/              Script đọc PCAP, sinh traffic mô phỏng (chưa có)
@@ -182,6 +188,9 @@ python -m nids.window_features data/pcap/<file>.pcap --net 192.168.10.0/24 --csv
 
 # Xuất bảng đặc trưng (flow + cửa sổ host) kèm schema và metadata, đầu vào của Chặng 5
 python -m nids.feature_export data/pcap/<file>.pcap --net 192.168.10.0/24 --out output/features
+
+# Gán nhãn theo lịch tấn công (ghi <tên>.flows.labels.csv và <tên>.windows.labels.csv)
+python -m nids.labeling output/features/cic17_wednesday.flows.csv
 
 # Đọc access log Nginx của một lần chạy, xuất bảng CSV rồi đối chiếu với file gốc
 python -m nids.service_log data/service_logs/<run_id>/access_nids.log --csv output/log.csv

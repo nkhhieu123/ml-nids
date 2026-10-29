@@ -22,6 +22,20 @@ flow:
   fragment_timeout_s: 30     # nhớ mảnh IP đầu để gắn các mảnh sau vào flow, xem QĐ-016
   handshake_observe_s: 3     # chờ trả lời bắt tay TCP trước khi coi là không hoàn tất; QĐ-023, tạm thời
 
+labeling:
+  schedule: config/label_schedule.csv   # lịch tấn công: nguồn nhãn (QĐ-025)
+  tolerance_s: 60            # nới khung giờ tấn công mỗi đầu; lịch CIC khớp dữ liệu tới phút
+  window_min_attack_share: 0.2  # cửa sổ có phần flow tấn công thấp hơn mức này là mơ hồ (QĐ-026)
+
+split:                       # chia theo thời gian trong từng khối tấn công và khoảng bình thường (QĐ-027)
+  train: 0.6
+  validation: 0.2
+  test: 0.2
+  embargo_s: 10              # bỏ mẫu cách ranh giới giữa hai tập dưới khoảng này (bằng độ dài cửa sổ)
+
+preprocess:                  # chỉ fit và cân bằng trên train (QĐ-028)
+  balance_max_ratio: 10      # giảm mẫu mỗi lớp xuống tối đa 10 lần lớp ít nhất
+
 lab:
   subnet: 192.168.50.0/24
   hosts:

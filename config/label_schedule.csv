@@ -1,0 +1,10 @@
+id,nguon,ngay,bat_dau,ket_thuc,utc_offset_h,nhan_goc,nhan_attack,ben_tan_cong,nan_nhan,cong_nan_nhan,khoi,ghi_chu
+cic17-wed-slowloris,CIC-IDS2017,2017-07-05,09:47,10:10,-3,DoS slowloris,dos,172.16.0.1,192.168.10.50,80,wed-dos-1,Giờ theo lịch CIC; bên tấn công hiện là 172.16.0.1 do NAT (docs/06 mục 7.3)
+cic17-wed-slowhttptest,CIC-IDS2017,2017-07-05,10:14,10:35,-3,DoS Slowhttptest,dos,172.16.0.1,192.168.10.50,80,wed-dos-2,
+cic17-wed-hulk,CIC-IDS2017,2017-07-05,10:43,11:00,-3,DoS Hulk,dos,172.16.0.1,192.168.10.50,80,wed-dos-3,
+cic17-wed-goldeneye,CIC-IDS2017,2017-07-05,11:10,11:23,-3,DoS GoldenEye,dos,172.16.0.1,192.168.10.50,80,wed-dos-4,
+cic17-wed-heartbleed,CIC-IDS2017,2017-07-05,15:12,15:32,-3,Heartbleed,loai,172.16.0.1,192.168.10.51,444,,Loại khỏi phân loại (QĐ-009); vẫn là anomaly. Chỉ cổng 444: .51 còn gọi HTTPS tới 172.16.0.1 cả ngày (bình thường)
+cic17-fri-bot-ares,CIC-IDS2017,2017-07-07,00:00,23:59,-3,Bot,loai,205.174.165.73,192.168.10.5;192.168.10.8;192.168.10.9;192.168.10.14;192.168.10.15,,,Botnet ARES: bot gọi về máy điều khiển cả buổi sáng tới khoảng 13:00 nên áp cả ngày cho cặp IP này; IP lấy từ CSV có nhãn
+cic17-fri-portscan-fw,CIC-IDS2017,2017-07-07,13:55,14:35,-3,PortScan,port_scan,172.16.0.1,192.168.10.50,,fri-scan-1,Tường lửa bật: phần lớn gói bị chặn
+cic17-fri-portscan,CIC-IDS2017,2017-07-07,14:51,15:29,-3,PortScan,port_scan,172.16.0.1,192.168.10.50,,fri-scan-2,Tường lửa tắt; 15 lượt Nmap
+cic17-fri-ddos,CIC-IDS2017,2017-07-07,15:56,16:16,-3,DDoS,loai,172.16.0.1,192.168.10.50,80,,Loại khỏi phân loại (DDoS LOIT nhiều nguồn); vẫn là anomaly
