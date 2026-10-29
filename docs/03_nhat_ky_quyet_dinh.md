@@ -189,6 +189,13 @@ Mẫu:
 - Quyết định: Lịch ở `config/label_schedule.csv` (khung giờ địa phương, múi giờ, IP bên tấn công và nạn nhân như thấy trong PCAP, cổng nạn nhân, nhãn, khối). Mẫu khớp khi hai đầu là cặp tấn công (đúng cổng nếu có) và thời gian chạm khung giờ nới `labeling.tolerance_s` = 60 giây. Bốn trạng thái: `khop`, `loai` (tấn công ngoài ba lớp: chỉ dùng cho anomaly), `mo_ho` (cặp tấn công ngoài khung giờ cùng ngày, hoặc chạm hai đợt khác nhãn: không gán nhãn), `khong_khop` (benign/normal) (xem `docs/26_gan_nhan.md`).
 - Hệ quả: Nhãn ghi ra file riêng, nối với bảng đặc trưng bằng khóa. Đợt bị loại vẫn phải có trong lịch để không thành benign. Mẫu `mo_ho` bị bỏ khỏi huấn luyện và đánh giá, có báo số lượng.
 
+## QĐ-026 — Nhãn cửa sổ theo phần flow tấn công; dưới 20% là mơ hồ
+- Ngày: 29/10/2026
+- Trạng thái: Tạm thời (ngưỡng 0,2 chỉnh trên validation)
+- Bối cảnh: Cửa sổ 10 giây của nạn nhân hay bên tấn công thường lẫn flow tấn công và bình thường (81% cửa sổ tấn công của CIC thứ Tư). Quét cổng là flow một gói nên không thể đo theo thời gian.
+- Quyết định: Đếm flow của host chồng lên cửa sổ theo nhãn flow. Có flow bị loại thì cửa sổ là `loai`; một lớp tấn công với phần flow tấn công ≥ `labeling.window_min_attack_share` = 0,2 thì nhận lớp đó; dưới ngưỡng hoặc hai lớp thì `mo_ho` (vẫn `anomaly`); chỉ có flow mơ hồ thì `mo_ho`; còn lại benign (xem `docs/28_nhan_cua_so.md`).
+- Hệ quả: Cột `attack_share`, `n_flows`, `n_attack_flows` được giữ để thử ngưỡng khác mà không gán nhãn lại.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
@@ -220,6 +227,7 @@ Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
 | Kết nối không hoàn tất | Lần thử TCP không đi hết bắt tay ba bước trong thời gian quan sát |
 | Schema, metadata | Mô tả cấu trúc bảng / thông tin bảng được tạo từ đâu, bằng tham số và mã nào |
 | Lịch tấn công | Danh sách đợt tấn công (giờ, IP, cổng, nhãn) dùng làm nguồn nhãn |
+| `attack_share` | Phần số flow tấn công trong số flow của một cửa sổ host |
 | UTC−3 | Giờ chậm hơn giờ quốc tế 3 tiếng; giờ mùa hè nơi CIC thu dữ liệu |
 | Phần trong tổng (share) | Tỷ lệ của một chiều so với cả hai chiều, luôn từ 0 tới 1 |
 | Manifest | Bảng liệt kê mọi nguồn dữ liệu và cách dùng |

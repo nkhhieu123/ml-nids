@@ -69,6 +69,7 @@ Báo cáo Chặng 4: [docs/Bao_cao_Chang_4.md](docs/Bao_cao_Chang_4.md)
 ### Chặng 5 — Gán nhãn, EDA và chia dữ liệu
 
 - [x] C05-T01: Ghép nhãn từ nguồn và metadata phù hợp — `src/nids/labeling.py`, `config/label_schedule.csv`, [docs/26_gan_nhan.md](docs/26_gan_nhan.md)
+- [x] C05-T03: Định nghĩa nhãn cho cửa sổ chứa nhiều hành vi — `src/nids/labeling.py`, [docs/28_nhan_cua_so.md](docs/28_nhan_cua_so.md)
 
 Những gì còn thiếu sau Chặng 1–3 (dữ liệu, lab, tham số chưa chốt): [docs/Viec_con_thieu_Chang_1_3.md](docs/Viec_con_thieu_Chang_1_3.md)
 
