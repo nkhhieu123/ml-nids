@@ -58,6 +58,7 @@ Báo cáo Chặng 3: [docs/Bao_cao_Chang_3.md](docs/Bao_cao_Chang_3.md)
 - [x] C04-T01: Định nghĩa flow hai chiều và quy tắc forward/backward — `src/nids/flows.py`, [docs/18_flow_hai_chieu.md](docs/18_flow_hai_chieu.md)
 - [x] C04-T02: Xử lý timeout, FIN/RST và tái sử dụng 5-tuple — `src/nids/flows.py`, [docs/19_ket_thuc_flow.md](docs/19_ket_thuc_flow.md)
 - [x] C04-T03: Tính packet, byte, thời lượng và tỷ lệ gửi/nhận — `src/nids/flow_features.py`, [docs/20_dac_trung_flow_co_ban.md](docs/20_dac_trung_flow_co_ban.md)
+- [x] C04-T04: Tính thống kê kích thước, inter-arrival time và cờ TCP — `src/nids/flow_features.py`, [docs/21_thong_ke_flow.md](docs/21_thong_ke_flow.md)
 
 Những gì còn thiếu sau Chặng 1–3 (dữ liệu, lab, tham số chưa chốt): [docs/Viec_con_thieu_Chang_1_3.md](docs/Viec_con_thieu_Chang_1_3.md)
 
@@ -79,7 +80,8 @@ src/nids/
   wireshark_compare.py  Đối chiếu kết quả đọc packet với tshark
   flows.py            Ghép packet thành flow hai chiều, xác định forward/backward,
                       kết thúc flow theo FIN/RST, timeout, 5-tuple dùng lại
-  flow_features.py    Đặc trưng flow: số gói, byte, payload, thời lượng, tỷ lệ gửi/nhận
+  flow_features.py    Đặc trưng flow: số gói, byte, payload, thời lượng, tỷ lệ gửi/nhận;
+                      thống kê kích thước, inter-arrival time, cờ TCP
   pcap_survey.py      Khảo sát bản thu lớn: mã băm, thời gian, gói bỏ qua, flow, host
   alerts.py           Schema cảnh báo, xuất terminal + CSV
 tests/                Kiểm thử
@@ -210,4 +212,5 @@ Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
 | Forward / backward | Chiều từ bên mở kết nối (client) sang server / chiều từ server về client |
 | Timeout | Khoảng thời gian không có gói mới (hoặc độ dài tối đa) sau đó flow được coi là kết thúc |
 | Mã băm SHA-256 | Chuỗi 64 ký tự tính từ nội dung file; hai file cùng mã băm thì giống nhau từng byte |
+| Inter-arrival time | Khoảng thời gian giữa hai gói tới liên tiếp |
 | Đặc trưng (feature) | Con số mô tả một flow hay một host, là đầu vào của mô hình học máy |

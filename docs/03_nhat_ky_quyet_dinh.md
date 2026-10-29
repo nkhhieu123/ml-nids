@@ -147,6 +147,13 @@ Mẫu:
 - Quyết định: File đặt ở `data/pcap/cic-ids2017/`, giữ nguyên tên gốc. Manifest có thêm cột `sha256` và trạng thái `da_tai` (bắt buộc có mã băm); `python -m nids.manifest --verify` so mã băm. Lịch tấn công của CIC được hiểu là giờ **UTC−3**, đã đo trên PCAP thứ Sáu và khớp tới từng phút. Bên tấn công trong PCAP là `172.16.0.1` (NAT), dùng cho cả port scan và DDoS, nên gán nhãn phải theo khung giờ (xem `docs/06_cic_ids2017.md`, mục 7).
 - Hệ quả: Khi tải thêm file (PCAP thứ Tư, CSV có nhãn, CTU-13) phải ghi mã băm vào manifest. Bước gán nhãn ở Chặng 5 đổi lịch sang UTC bằng cách cộng 3 giờ.
 
+## QĐ-020 — Thống kê theo gói: ip_len, độ lệch chuẩn tổng thể, ô trống khi không có dữ liệu
+- Ngày: 29/10/2026
+- Trạng thái: Đã chốt
+- Bối cảnh: C04-T04 cần thống kê kích thước, khoảng cách giữa các gói và cờ TCP. Flow một gói (SYN quét không trả lời) rất nhiều nên phải quyết định giá trị khi không có khoảng cách nào; realtime cần tính mà không giữ danh sách gói.
+- Quyết định: Min/max/trung bình/độ lệch chuẩn tổng thể (chia n) của `ip_len` và của khoảng cách giữa hai gói liên tiếp (cả flow và theo từng chiều), tính dần bằng Welford; khoảng âm do sai thứ tự thời gian tính là 0. Đếm số gói có từng cờ trong 8 cờ TCP. Cột không có dữ liệu (dưới 2 gói, một chiều trống) để **trống**, không ghi 0 (xem `docs/21_thong_ke_flow.md`).
+- Hệ quả: Bảng flow thêm 32 cột. Chặng 5 phải xử lý ô trống khi tiền xử lý. Không so trực tiếp được với cột CIC tương ứng vì CIC dùng payload, micro giây, độ lệch chuẩn mẫu và ghi 0.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.

@@ -11,7 +11,8 @@ theo [18_flow_hai_chieu.md](18_flow_hai_chieu.md) và
 python -m nids.flows data/pcap/<file>.pcap --csv output/flows.csv
 ```
 
-Bảng CSV của lệnh trên có thêm các cột ở mục 2.
+Bảng CSV của lệnh trên có thêm các cột ở mục 2. Thống kê kích thước, khoảng cách
+giữa các gói và cờ TCP (C04-T04) ở [21_thong_ke_flow.md](21_thong_ke_flow.md).
 
 ## 1. Đo độ dài bằng gì
 

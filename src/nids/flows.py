@@ -28,7 +28,9 @@ from dataclasses import dataclass, field
 from ipaddress import ip_address
 
 from .config import load_config
-from .flow_features import BASIC_FEATURES, basic_features
+from .flow_features import (
+    BASIC_FEATURES, STAT_FEATURES, PacketStats, basic_features, stat_features,
+)
 from .packets import (
     PORT_PROTOCOLS, PROTO_TCP, PROTO_UDP, TCP_ACK, TCP_FIN, TCP_RST, TCP_SYN, ParseStats,
     PacketRecord, extract_packets,
@@ -133,6 +135,8 @@ class Flow:
     bwd_payload_bytes: int = 0
     payload_unknown: int = 0               # gói TCP/UDP không tính được payload (header bị cắt)
     fragments_attached: int = 0            # mảnh IP không mang cổng được gắn vào flow này
+    # Thống kê kích thước, inter-arrival time, cờ TCP (C04-T04)
+    pkt_stats: PacketStats = field(default_factory=PacketStats, repr=False)
     # Trạng thái TCP dùng để kết thúc flow
     fin_from: set = field(default_factory=set, repr=False)  # đầu mút đã gửi FIN
     closed_ts_ns: int | None = field(default=None, repr=False)  # lúc đóng bằng FIN/RST
@@ -285,6 +289,7 @@ class FlowAssigner:
                 flow.first_ts_ns = ts
             if flow.last_ts_ns is None or ts > flow.last_ts_ns:
                 flow.last_ts_ns = ts
+        flow.pkt_stats.add(rec.ip_len, ts, forward, rec.tcp_flags)
         if not flow.finished:
             self._active.move_to_end(flow.key)
         self._track_tcp(flow, rec, forward)
@@ -531,7 +536,7 @@ def assign_flows(records, settings: FlowSettings | None = None) -> FlowAssigner:
 CSV_COLUMNS = ("first_index", "first_ts", "last_ts", "ip_version", "protocol",
                "fwd_ip", "fwd_port", "bwd_ip", "bwd_port", "direction_basis",
                "continuation", "end_reason", "fragments_attached",
-               "payload_unknown") + tuple(BASIC_FEATURES)
+               "payload_unknown") + tuple(BASIC_FEATURES) + tuple(STAT_FEATURES)
 
 
 def _ts(ts_ns):
@@ -556,6 +561,7 @@ def csv_row(flow: Flow) -> dict:
         "payload_unknown": flow.payload_unknown,
     }
     row.update(basic_features(flow))
+    row.update(stat_features(flow))
     return {k: "" if v is None else v for k, v in row.items()}
 
 
