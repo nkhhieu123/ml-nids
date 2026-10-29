@@ -64,6 +64,8 @@ Báo cáo Chặng 3: [docs/Bao_cao_Chang_3.md](docs/Bao_cao_Chang_3.md)
 - [x] C04-T07: Tính tỷ lệ kết nối không hoàn tất sau thời gian quan sát quy định — `src/nids/window_features.py`, [docs/24_ket_noi_khong_hoan_tat.md](docs/24_ket_noi_khong_hoan_tat.md)
 - [x] C04-T08: Xuất bảng đặc trưng cùng schema và metadata — `src/nids/feature_export.py`, [docs/25_xuat_bang_dac_trung.md](docs/25_xuat_bang_dac_trung.md)
 
+Báo cáo Chặng 4: [docs/Bao_cao_Chang_4.md](docs/Bao_cao_Chang_4.md)
+
 Những gì còn thiếu sau Chặng 1–3 (dữ liệu, lab, tham số chưa chốt): [docs/Viec_con_thieu_Chang_1_3.md](docs/Viec_con_thieu_Chang_1_3.md)
 
 ## Cấu trúc
