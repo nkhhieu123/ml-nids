@@ -196,6 +196,13 @@ Mẫu:
 - Quyết định: Đếm flow của host chồng lên cửa sổ theo nhãn flow. Có flow bị loại thì cửa sổ là `loai`; một lớp tấn công với phần flow tấn công ≥ `labeling.window_min_attack_share` = 0,2 thì nhận lớp đó; dưới ngưỡng hoặc hai lớp thì `mo_ho` (vẫn `anomaly`); chỉ có flow mơ hồ thì `mo_ho`; còn lại benign (xem `docs/28_nhan_cua_so.md`).
 - Hệ quả: Cột `attack_share`, `n_flows`, `n_attack_flows` được giữ để thử ngưỡng khác mà không gán nhãn lại.
 
+## QĐ-027 — Chia dữ liệu theo thời gian trong từng khối tấn công, 60/20/20, vùng đệm 10 giây
+- Ngày: 29/10/2026
+- Trạng thái: Đã chốt (thay cách gán nguyên khối dự kiến ở docs/06 mục 5)
+- Bối cảnh: Cửa sổ chồng nhau và mẫu của cùng một đợt rất giống nhau, nên chia ngẫu nhiên gây rò rỉ (B11). `port_scan` chỉ có 2 khối (một khối gần như rỗng), nên gán nguyên khối vào một tập làm thiếu lớp.
+- Quyết định: Trong mỗi phiên, mỗi khối tấn công (cột `khoi` của lịch) và mỗi khoảng giữa các khối được cắt theo thời gian 60% train, 20% validation, 20% test. Mẫu phải nằm trọn trong một đoạn và cách ranh giới hai tập khác nhau ít nhất `split.embargo_s` = 10 giây; còn lại là `bo` (xem `docs/29_chia_du_lieu.md`).
+- Hệ quả: Test luôn sau train trong cùng khối; hai tập không chung gói. Khả năng gặp công cụ chưa thấy được đánh giá riêng ở Chặng 7.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
@@ -228,6 +235,7 @@ Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
 | Schema, metadata | Mô tả cấu trúc bảng / thông tin bảng được tạo từ đâu, bằng tham số và mã nào |
 | Lịch tấn công | Danh sách đợt tấn công (giờ, IP, cổng, nhãn) dùng làm nguồn nhãn |
 | `attack_share` | Phần số flow tấn công trong số flow của một cửa sổ host |
+| Vùng đệm (embargo) | Khoảng bỏ trống ở ranh giới giữa hai tập dữ liệu |
 | UTC−3 | Giờ chậm hơn giờ quốc tế 3 tiếng; giờ mùa hè nơi CIC thu dữ liệu |
 | Phần trong tổng (share) | Tỷ lệ của một chiều so với cả hai chiều, luôn từ 0 tới 1 |
 | Manifest | Bảng liệt kê mọi nguồn dữ liệu và cách dùng |
