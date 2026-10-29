@@ -62,6 +62,7 @@ Báo cáo Chặng 3: [docs/Bao_cao_Chang_3.md](docs/Bao_cao_Chang_3.md)
 - [x] C04-T05: Xây dựng cửa sổ host theo thời gian packet — `src/nids/host_windows.py`, [docs/22_cua_so_host.md](docs/22_cua_so_host.md)
 - [x] C04-T06: Tính số đích, cổng đích, kết nối mới và entropy cổng — `src/nids/window_features.py`, [docs/23_dac_trung_cua_so.md](docs/23_dac_trung_cua_so.md)
 - [x] C04-T07: Tính tỷ lệ kết nối không hoàn tất sau thời gian quan sát quy định — `src/nids/window_features.py`, [docs/24_ket_noi_khong_hoan_tat.md](docs/24_ket_noi_khong_hoan_tat.md)
+- [x] C04-T08: Xuất bảng đặc trưng cùng schema và metadata — `src/nids/feature_export.py`, [docs/25_xuat_bang_dac_trung.md](docs/25_xuat_bang_dac_trung.md)
 
 Những gì còn thiếu sau Chặng 1–3 (dữ liệu, lab, tham số chưa chốt): [docs/Viec_con_thieu_Chang_1_3.md](docs/Viec_con_thieu_Chang_1_3.md)
 
@@ -89,6 +90,7 @@ src/nids/
   host_windows.py     Cửa sổ thời gian theo host (10 giây, bước 2 giây) theo thời điểm gói
   window_features.py  Đặc trưng cửa sổ host: số đích, cổng đích, kết nối mới, entropy cổng,
                       tỷ lệ kết nối TCP không hoàn tất
+  feature_export.py   Xuất bảng đặc trưng flow và cửa sổ kèm schema, metadata; đọc lại bảng
   alerts.py           Schema cảnh báo, xuất terminal + CSV
 tests/                Kiểm thử
 scripts/              Script đọc PCAP, sinh traffic mô phỏng (chưa có)
@@ -176,6 +178,9 @@ python -m nids.host_windows data/pcap/<file>.pcap --net 192.168.10.0/24 --csv ou
 # Đặc trưng cửa sổ host (ghép flow cùng lúc để biết vai client/server)
 python -m nids.window_features data/pcap/<file>.pcap --net 192.168.10.0/24 --csv output/windows.csv
 
+# Xuất bảng đặc trưng (flow + cửa sổ host) kèm schema và metadata, đầu vào của Chặng 5
+python -m nids.feature_export data/pcap/<file>.pcap --net 192.168.10.0/24 --out output/features
+
 # Đọc access log Nginx của một lần chạy, xuất bảng CSV rồi đối chiếu với file gốc
 python -m nids.service_log data/service_logs/<run_id>/access_nids.log --csv output/log.csv
 python -m nids.log_compare data/service_logs/<run_id>/access_nids.log output/log.csv -k 20
@@ -227,4 +232,5 @@ Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
 | Mã băm SHA-256 | Chuỗi 64 ký tự tính từ nội dung file; hai file cùng mã băm thì giống nhau từng byte |
 | Inter-arrival time | Khoảng thời gian giữa hai gói tới liên tiếp |
 | Entropy | Độ đa dạng của một phân bố; ví dụ entropy cổng cao nghĩa là gói gửi tới rất nhiều cổng khác nhau |
+| Schema, metadata | Mô tả các cột của bảng / thông tin bảng được tạo từ file nào, tham số nào, mã nào |
 | Đặc trưng (feature) | Con số mô tả một flow hay một host, là đầu vào của mô hình học máy |

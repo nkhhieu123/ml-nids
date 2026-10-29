@@ -175,6 +175,13 @@ Mẫu:
 - Quyết định: Lần thử là flow TCP mở bằng SYN của client, không phải phần tiếp nối. Chỉ xét các gói trong `flow.handshake_observe_s` = 3 giây sau SYN để xếp loại: `hoan_tat` (SYN+ACK rồi ACK của client), `do_dang`, `bi_tu_choi`, `khong_phan_hoi`. Tỷ lệ không hoàn tất tính cho host ra (client) và vào (server); trống khi không có lần thử. Cửa sổ host chờ thêm 3 giây sau `end` mới trả ra (xem `docs/24_ket_noi_khong_hoan_tat.md`).
 - Hệ quả: Flow ghi thêm thời điểm SYN+ACK, ACK của client, RST của server. Các cột này là đặc trưng, không dùng để gán nhãn. Cảnh báo realtime theo cửa sổ chậm thêm 3 giây.
 
+## QĐ-024 — Bảng đặc trưng: hai bảng CSV, schema có vai trò cột, metadata truy vết
+- Ngày: 29/10/2026
+- Trạng thái: Đã chốt
+- Bối cảnh: Chặng 5 cần bảng đặc trưng đọc được đúng kiểu, biết cột nào là đặc trưng, cột nào là định danh (IP, cổng, thời điểm: đưa vào mô hình sẽ học thuộc địa chỉ), và truy được bảng tạo từ file nào, tham số nào, phiên bản mã nào.
+- Quyết định: `python -m nids.feature_export` đọc PCAP một lượt, ghi `<tên>.flows.csv`, `<tên>.windows.csv`, `<tên>.schema.json` (kiểu, đơn vị, vai trò `dac_trung`/`dinh_danh`/`ngu_canh`/`kiem_tra`, có thể trống, mô tả; phiên bản 1.0) và `<tên>.meta.json` (mã băm nguồn, commit git, tham số, thống kê). `read_table` đọc lại và từ chối bảng lệch schema (xem `docs/25_xuat_bang_dac_trung.md`).
+- Hệ quả: Chặng 5 chỉ dùng cột `dac_trung` cho mô hình; cột `dinh_danh` để gán nhãn và chia dữ liệu. Đổi cột thì phải tăng phiên bản schema. Bảng tạo từ mã chưa commit không dùng cho kết quả cuối.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
@@ -204,6 +211,7 @@ Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
 | Cửa sổ host | Khoảng thời gian cố định để gom gói của một máy và tính đặc trưng |
 | Entropy cổng | Độ đa dạng của các cổng đích, tính bằng bit; cao khi gói chia đều cho nhiều cổng |
 | Kết nối không hoàn tất | Lần thử TCP không đi hết bắt tay ba bước trong thời gian quan sát |
+| Schema, metadata | Mô tả cấu trúc bảng / thông tin bảng được tạo từ đâu, bằng tham số và mã nào |
 | UTC−3 | Giờ chậm hơn giờ quốc tế 3 tiếng; giờ mùa hè nơi CIC thu dữ liệu |
 | Phần trong tổng (share) | Tỷ lệ của một chiều so với cả hai chiều, luôn từ 0 tới 1 |
 | Manifest | Bảng liệt kê mọi nguồn dữ liệu và cách dùng |

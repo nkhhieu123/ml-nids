@@ -160,11 +160,16 @@ def is_new_connection(flow, rec) -> bool:
 
 
 class WindowPipeline:
-    """Ghép flow và lập cửa sổ host trong cùng một lượt đọc gói."""
+    """Ghép flow và lập cửa sổ host trong cùng một lượt đọc gói.
+
+    ``flow_sink``: hàm nhận từng flow đã kết thúc (ví dụ để ghi bảng flow, C04-T08);
+    None thì bỏ flow đi sau khi dùng.
+    """
 
     def __init__(self, settings: FlowSettings, size_s, step_s, networks=None,
-                 observe_s: float = 3):
+                 observe_s: float = 3, flow_sink=None):
         observe_ns = round(observe_s * 10**9)
+        self.flow_sink = flow_sink
         self.flows = FlowAssigner(settings, keep_finished=False)
         # Cửa sổ chờ thêm observe_s sau khi kết thúc: lần thử ở cuối cửa sổ cần
         # đủ thời gian quan sát trước khi tính tỷ lệ không hoàn tất.
@@ -173,15 +178,20 @@ class WindowPipeline:
             lambda host, start, end: HostWindowFeatures(host, start, end, observe_ns),
             emit_delay_s=observe_s)
 
+    def _drain_flows(self):
+        for flow in self.flows.pop_finished():
+            if self.flow_sink is not None:
+                self.flow_sink(flow)
+
     def add(self, rec):
         flow, forward = self.flows.add(rec)
-        self.flows.pop_finished()
+        self._drain_flows()
         self.windows.add(rec, flow=flow, forward=forward, new_conn=is_new_connection(flow, rec))
         return self.windows.pop_finished()
 
     def finish(self):
         self.flows.finish_all()
-        self.flows.pop_finished()
+        self._drain_flows()
         self.windows.finish_all()
         return self.windows.pop_finished()
 
