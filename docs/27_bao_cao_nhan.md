@@ -85,9 +85,9 @@ Bảng chéo (hàng: nhãn CSV, cột: nhãn dự án), chỉ các ô khác đư
 - **Flow CSV không ghép được** (vài trăm mỗi file, hầu hết `BENIGN`): CICFlowMeter tạo
   flow từ gói mà bộ đọc của dự án bỏ qua hoặc ghép khác (ví dụ dòng CSV có giao thức 0).
 
-CSV có nhiều flow hơn dự án (thứ Hai: 529 442 dòng so với 381 707 flow) vì CICFlowMeter
-cắt flow ngay ở FIN và không gom gói trễ (QĐ-017), nên một kết nối của dự án có thể ứng
-nhiều dòng CSV.
+CSV có nhiều flow hơn dự án (thứ Hai: 529 442 dòng so với 381 707 flow): hai bên cắt flow
+khác nhau, nên một flow của dự án có thể ứng với nhiều dòng CSV. Một phần là do
+CICFlowMeter kết thúc flow ngay ở FIN (QĐ-017); chưa đo riêng từng nguyên nhân.
 
 **Kết luận.** Hai nguồn nhãn độc lập đồng ý 99–100% ở mọi file dùng cho phân loại. Chỗ
 lệch còn lại có nguyên nhân rõ, phần lớn do lỗi đã biết của CSV gốc. Vì vậy nhãn của dự
