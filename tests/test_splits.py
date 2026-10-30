@@ -38,6 +38,19 @@ class SegmentTest(unittest.TestCase):
         self.assertIn((200, 320, "train"), segs)               # khối gộp thành 200–400
         self.assertEqual(sum(1 for s in segs if s[0] >= 400), 3)  # 400–1000 là một khoảng thường
 
+    def test_cut_by_sample_quantiles(self):
+        # 100 mẫu dồn vào đầu khoảng: chia theo số mẫu, không theo thời gian.
+        times = np.sort(np.concatenate([np.linspace(0, 10, 90), np.linspace(50, 100, 10)]))
+        segs = build_segments(0, 100, [], (0.6, 0.2, 0.2), times)
+        counts = [((times >= a) & (times < b)).sum() for a, b, _ in segs]
+        self.assertEqual([n for *_, n in segs], ["train", "validation", "test"])
+        self.assertTrue(abs(counts[0] - 60) <= 1 and abs(counts[1] - 20) <= 1, counts)
+        self.assertEqual(segs[-1][1], 100)
+
+    def test_few_samples_fall_back_to_time(self):
+        segs = build_segments(0, 100, [], (0.6, 0.2, 0.2), np.array([1.0, 2.0, 3.0]))
+        self.assertEqual([round(a) for a, *_ in segs], [0, 60, 80])
+
     def test_block_outside_session_ignored(self):
         segs = build_segments(0, 100, [rule(500, 600)], (0.6, 0.2, 0.2))
         self.assertEqual(len(segs), 3)

@@ -1,9 +1,10 @@
 """Chia train/validation/test theo thời gian trong từng phiên và khối tấn công (C05-T04).
 
 Mỗi phiên (một file PCAP, ví dụ một ngày CIC) được cắt thành các đoạn liền nhau:
-- mỗi khối tấn công (cột ``khoi`` của lịch nhãn) cắt theo thời gian 60/20/20 thành
-  train, validation, test;
-- mỗi khoảng không có khối tấn công cũng cắt 60/20/20.
+- mỗi khối tấn công (cột ``khoi`` của lịch nhãn) cắt thành train, validation, test
+  sao cho mỗi phần có 60/20/20 số flow bắt đầu trong khối (ranh giới ở phân vị của
+  thời điểm bắt đầu flow), theo đúng thứ tự thời gian;
+- mỗi khoảng không có khối tấn công cũng cắt như vậy.
 Mẫu (flow hoặc cửa sổ) phải nằm trọn trong một đoạn, cách ranh giới ít nhất
 ``embargo_s``; mẫu vắt qua ranh giới hoặc nằm trong vùng đệm bị bỏ (``bo``).
 Chi tiết ở docs/29_chia_du_lieu.md (QĐ-027).
@@ -24,10 +25,16 @@ from .labeling import labels_path, load_schedule
 
 SPLITS = ("train", "validation", "test")
 DROPPED = "bo"
+MIN_SAMPLES_FOR_QUANTILE = 20   # khoảng có ít flow hơn thì cắt theo thời gian
 
 
-def build_segments(t_min, t_max, rules, ratios) -> list[tuple[float, float, str]]:
-    """Các đoạn (đầu, cuối, tập) phủ [t_min, t_max] của một phiên, theo thứ tự thời gian."""
+def build_segments(t_min, t_max, rules, ratios, sample_times=None) -> list[tuple[float, float, str]]:
+    """Các đoạn (đầu, cuối, tập) phủ [t_min, t_max] của một phiên, theo thứ tự thời gian.
+
+    ``sample_times``: thời điểm bắt đầu các mẫu (đã sắp xếp). Có thì ranh giới trong mỗi
+    khoảng đặt ở phân vị của chúng để số mẫu theo đúng tỷ lệ; không có (hoặc khoảng có
+    quá ít mẫu) thì chia theo thời gian.
+    """
     blocks = {}
     for r in rules:
         if r.block and r.end_s > t_min and r.start_s < t_max:
@@ -48,8 +55,14 @@ def build_segments(t_min, t_max, rules, ratios) -> list[tuple[float, float, str]
     for s, e in spans:
         if e <= s:
             continue
-        for name, a, b in zip(SPLITS, bounds[:-1], bounds[1:]):
-            segments.append((s + a * (e - s), s + b * (e - s), name))
+        cuts = [s + a * (e - s) for a in bounds]
+        if sample_times is not None:
+            lo, hi = np.searchsorted(sample_times, [s, e], "left")
+            inside = sample_times[lo:hi]
+            if len(inside) >= MIN_SAMPLES_FOR_QUANTILE:
+                cuts = [s] + [float(np.quantile(inside, a)) for a in bounds[1:-1]] + [e]
+        for name, a, b in zip(SPLITS, cuts[:-1], cuts[1:]):
+            segments.append((a, b, name))
     return segments
 
 
@@ -79,7 +92,7 @@ def split_tables(flows_path, rules, ratios, embargo_s) -> dict:
     if windows is not None:
         t_min = min(t_min, windows["window_start"].min())
         t_max = max(t_max, windows["window_end"].max())
-    segments = build_segments(t_min, t_max, rules, ratios)
+    segments = build_segments(t_min, t_max, rules, ratios, np.sort(flows["first_ts"].to_numpy()))
     summary = {"doan": [{"tu": s, "den": e, "tap": n} for s, e, n in segments]}
 
     flows["split"] = assign(flows["first_ts"], flows["last_ts"], segments, embargo_s)

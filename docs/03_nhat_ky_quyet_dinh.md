@@ -200,8 +200,8 @@ Mẫu:
 - Ngày: 29/10/2026
 - Trạng thái: Đã chốt (thay cách gán nguyên khối dự kiến ở docs/06 mục 5)
 - Bối cảnh: Cửa sổ chồng nhau và mẫu của cùng một đợt rất giống nhau, nên chia ngẫu nhiên gây rò rỉ (B11). `port_scan` chỉ có 2 khối (một khối gần như rỗng), nên gán nguyên khối vào một tập làm thiếu lớp.
-- Quyết định: Trong mỗi phiên, mỗi khối tấn công (cột `khoi` của lịch) và mỗi khoảng giữa các khối được cắt theo thời gian 60% train, 20% validation, 20% test. Mẫu phải nằm trọn trong một đoạn và cách ranh giới hai tập khác nhau ít nhất `split.embargo_s` = 10 giây; còn lại là `bo` (xem `docs/29_chia_du_lieu.md`).
-- Hệ quả: Test luôn sau train trong cùng khối; hai tập không chung gói. Khả năng gặp công cụ chưa thấy được đánh giá riêng ở Chặng 7.
+- Quyết định: Trong mỗi phiên, mỗi khối tấn công (cột `khoi` của lịch) và mỗi khoảng giữa các khối được cắt theo thứ tự thời gian thành train, validation, test với 60%, 20%, 20% số flow (ranh giới ở phân vị thời điểm bắt đầu flow; khoảng dưới 20 flow chia theo thời gian). Mẫu phải nằm trọn trong một đoạn và cách ranh giới hai tập khác nhau ít nhất `split.embargo_s` = 10 giây; còn lại là `bo` (xem `docs/29_chia_du_lieu.md`).
+- Hệ quả: Test luôn sau train trong cùng khối; hai tập không chung gói. Khả năng gặp công cụ chưa thấy được đánh giá riêng ở Chặng 7. Validation của `port_scan` ở bảng cửa sổ mỏng (50 mẫu) vì quét diễn ra theo từng đợt ngắn.
 
 ## Thuật ngữ
 

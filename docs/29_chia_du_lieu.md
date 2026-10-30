@@ -30,8 +30,13 @@ gian được tách thành các **khoảng**:
 - mỗi **khối tấn công** (`khoi` trong lịch; các đợt cùng khối được gộp);
 - mỗi **khoảng không có khối** giữa chúng, kể cả đầu và cuối phiên.
 
-Mỗi khoảng được cắt theo thời gian: **60% đầu train, 20% kế validation, 20% cuối test**
-(`split.train`, `split.validation`, `split.test`).
+Mỗi khoảng được cắt theo thứ tự thời gian: **phần đầu là train, kế là validation, cuối là
+test**, sao cho mỗi phần có 60%, 20%, 20% **số flow bắt đầu trong khoảng** (`split.train`,
+`split.validation`, `split.test`). Ranh giới đặt ở phân vị 60% và 80% của thời điểm bắt đầu
+flow. Khoảng có dưới 20 flow thì chia theo thời gian.
+
+Lần đầu thử chia theo thời gian (60% thời lượng), nhưng traffic buổi sáng dày hơn hẳn: train
+thứ Sáu chiếm tới 82% số flow. Chia theo số flow thì tỷ lệ đúng trên cả ba ngày.
 
 Một mẫu (flow `[first_ts, last_ts]` hoặc cửa sổ `[start, end)`) được gán vào tập của đoạn
 chứa trọn nó. Mẫu bị **bỏ** (`bo`) khi:
@@ -52,29 +57,49 @@ Chặng 7, không dùng làm cách chia chính.
 **Phiên không có tấn công** (thứ Hai CIC): cả phiên là một khoảng, cắt 60/20/20. Gaussian
 học trên train của phiên này; ngưỡng chọn trên validation.
 
-## 3. Kết quả trên CIC thứ Tư
+## 3. Kết quả
 
-27 đoạn (giờ địa phương UTC−3; mỗi đợt DoS là một khối):
+Đoạn thời gian của thứ Tư (27 đoạn, giờ địa phương UTC−3; mỗi đợt DoS là một khối):
 
 | Khoảng | Train | Validation | Test |
 |---|---|---|---|
-| Đầu ngày 08:42–09:47 (bình thường) | 08:42–09:21 | 09:21–09:34 | 09:34–09:47 |
-| slowloris 09:47–10:11 | 09:47–10:01 | 10:01–10:06 | 10:06–10:11 |
-| Slowhttptest 10:14–10:36 | 10:14–10:27 | 10:27–10:31 | 10:31–10:36 |
+| Đầu ngày 08:42–09:47 (bình thường) | 08:42–09:22 | 09:22–09:34 | 09:34–09:47 |
+| slowloris 09:47–10:11 | 09:47–10:01 | 10:01–10:05 | 10:05–10:11 |
+| Slowhttptest 10:14–10:36 | 10:14–10:26 | 10:26–10:29 | 10:29–10:36 |
 | Hulk 10:43–11:01 | 10:43–10:53 | 10:53–10:57 | 10:57–11:01 |
-| GoldenEye 11:10–11:24 | 11:10–11:18 | 11:18–11:21 | 11:21–11:24 |
-| Cuối ngày 11:24–17:10 (có Heartbleed, đã loại) | 11:24–14:51 | 14:51–16:01 | 16:01–17:10 |
+| GoldenEye 11:10–11:24 | 11:10–11:17 | 11:17–11:19 | 11:19–11:24 |
+| Cuối ngày 11:24–17:10 (có Heartbleed, đã loại) | 11:24–15:02 | 15:02–15:46 | 15:46–17:10 |
 | (và ba khoảng ngắn giữa các đợt) | | | |
 
-| Bảng | Train | Validation | Test | Bỏ |
-|---|---|---|---|---|
-| Flow | 290 292 | 105 496 | 88 868 | 21 507 (4,2%) |
-| — trong đó `dos` | 106 098 | 31 675 | 32 613 | 10 382 |
-| Cửa sổ | 96 159 | 32 872 | 29 814 | 4 586 (2,8%) |
-| — trong đó `dos` | 2 374 | 692 | 638 | 274 |
+Đoạn thời gian của thứ Sáu (15 đoạn; hai khối quét):
 
-Số liệu thứ Sáu và thứ Hai, và phân bố lớp đầy đủ theo tập, ở
-[30_kiem_tra_du_lieu.md](30_kiem_tra_du_lieu.md).
+| Khoảng | Train | Validation | Test |
+|---|---|---|---|
+| Sáng 08:59–13:55 (bình thường, có bot đã loại) | 08:59–11:17 | 11:17–12:14 | 12:14–13:55 |
+| Quét, tường lửa bật 13:55–14:36 | 13:55–14:19 | 14:19–14:26 | 14:26–14:36 |
+| Quét, tường lửa tắt 14:51–15:30 | 14:51–14:55 | 14:55–15:08 | 15:08–15:30 |
+| Cuối ngày 15:30–17:02 (có DDoS, đã loại) | 15:30–16:09 | 16:09–16:14 | 16:14–17:02 |
+
+Số mẫu:
+
+| Bảng, phiên | Train | Validation | Test | Bỏ |
+|---|---|---|---|---|
+| Flow thứ Tư | 296 642 | 88 688 | 96 815 | 24 018 (4,7%) |
+| — trong đó `dos` | 108 004 | 30 768 | 33 320 | 8 676 |
+| Cửa sổ thứ Tư | 100 039 | 23 199 | 35 664 | 4 529 (2,8%) |
+| — trong đó `dos` | 2 270 | 648 | 727 | 333 |
+| Flow thứ Sáu | 319 110 | 98 139 | 107 559 | 30 216 (5,4%) |
+| — trong đó `port_scan` | 104 614 | 22 054 | 18 553 | 16 047 |
+| Cửa sổ thứ Sáu | 71 299 | 26 481 | 49 345 | 2 324 (1,6%) |
+| — trong đó `port_scan` | 671 | **50** | 462 | 76 |
+
+**Điểm yếu: validation của `port_scan` ở bảng cửa sổ chỉ có 50 mẫu.** Quét cổng diễn ra theo
+từng đợt bùng phát ngắn: 60% flow của khối tường lửa tắt nằm trong 4 phút đầu, nên train
+chỉ gồm các lượt Nmap đầu, còn các lượt sau nằm ở test. Cách nào cắt theo thời gian cũng gặp
+đặc điểm này. Hệ quả: khi chọn ngưỡng ở Chặng 7, kết quả validation của `port_scan` dao
+động nhiều hơn; test lại khó hơn vì có các kiểu quét chưa có trong train.
+
+Thứ Hai và phân bố lớp đầy đủ theo tập ở [30_kiem_tra_du_lieu.md](30_kiem_tra_du_lieu.md).
 
 ## 4. Rò rỉ còn lại và cách xử lý
 
@@ -89,9 +114,9 @@ Số liệu thứ Sáu và thứ Hai, và phân bố lớp đầy đủ theo t�
 
 ## 5. Kiểm thử
 
-Kiểm thử tự động (7 ca): đoạn của một khối và hai khoảng bình thường; phiên không có tấn
-công; các đợt cùng khối gộp lại, đợt không có khối bị bỏ qua; khối ngoài phiên bị bỏ
-qua; gán mẫu trong đoạn, vắt qua ranh giới, trong vùng đệm, ở cuối phiên; không có vùng
+Kiểm thử tự động (9 ca): đoạn của một khối và hai khoảng bình thường; phiên không có tấn
+công; các đợt cùng khối gộp lại, đợt không có khối bị bỏ qua; cắt theo phân vị số mẫu,
+quay về cắt theo thời gian khi quá ít mẫu; khối ngoài phiên bị bỏ qua; gán mẫu trong đoạn, vắt qua ranh giới, trong vùng đệm, ở cuối phiên; không có vùng
 đệm; dòng lệnh ghi hai file chia.
 
 ## Thuật ngữ
@@ -107,4 +132,5 @@ Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
 | Vùng đệm (embargo) | Khoảng bỏ trống ở ranh giới giữa hai tập để mẫu hai bên không dính nhau |
 | Mẫu vắt qua ranh giới | Mẫu có thời gian nằm ở cả hai đoạn |
 | Công cụ chưa từng thấy | Đánh giá trên loại tấn công mà mô hình không được học, để xem khả năng tổng quát |
+| Phân vị | Mốc chia dữ liệu đã sắp xếp theo tỷ lệ, ví dụ phân vị 60% là mốc mà 60% giá trị nằm trước nó |
 | B11 | Yêu cầu tách dữ liệu theo lần thu, không để mẫu chồng lấn ở cả train và test (docs/01) |
