@@ -69,6 +69,7 @@ Báo cáo Chặng 4: [docs/Bao_cao_Chang_4.md](docs/Bao_cao_Chang_4.md)
 ### Chặng 5 — Gán nhãn, EDA và chia dữ liệu
 
 - [x] C05-T01: Ghép nhãn từ nguồn và metadata phù hợp — `src/nids/labeling.py`, `config/label_schedule.csv`, [docs/26_gan_nhan.md](docs/26_gan_nhan.md)
+- [x] C05-T02: Báo cáo mẫu khớp, không khớp và mơ hồ — `src/nids/label_report.py`, [docs/27_bao_cao_nhan.md](docs/27_bao_cao_nhan.md)
 - [x] C05-T03: Định nghĩa nhãn cho cửa sổ chứa nhiều hành vi — `src/nids/labeling.py`, [docs/28_nhan_cua_so.md](docs/28_nhan_cua_so.md)
 - [x] C05-T04: Chia train/validation/test theo phiên hoặc scenario — `src/nids/splits.py`, [docs/29_chia_du_lieu.md](docs/29_chia_du_lieu.md)
 
@@ -101,6 +102,7 @@ src/nids/
                       tỷ lệ kết nối TCP không hoàn tất
   feature_export.py   Xuất bảng đặc trưng flow và cửa sổ kèm schema, metadata; đọc lại bảng
   labeling.py         Gán nhãn flow và cửa sổ host theo lịch tấn công
+  label_report.py     Báo cáo nhãn; đối chiếu với CSV có nhãn của CIC
   splits.py           Chia train/validation/test theo thời gian trong từng khối tấn công
   alerts.py           Schema cảnh báo, xuất terminal + CSV
 tests/                Kiểm thử
@@ -194,6 +196,9 @@ python -m nids.feature_export data/pcap/<file>.pcap --net 192.168.10.0/24 --out 
 
 # Gán nhãn theo lịch tấn công (ghi <tên>.flows.labels.csv và <tên>.windows.labels.csv)
 python -m nids.labeling output/features/cic17_wednesday.flows.csv
+
+# Báo cáo nhãn: khớp, không khớp, mơ hồ; đối chiếu với CSV có nhãn của CIC
+python -m nids.label_report output/features/cic17_wednesday.flows.csv --cic-csv data/cic-ids2017/TrafficLabelling/Wednesday-workingHours.pcap_ISCX.csv
 
 # Chia train/validation/test theo thời gian (ghi <tên>.flows.split.csv, <tên>.windows.split.csv)
 python -m nids.splits output/features/cic17_wednesday.flows.csv

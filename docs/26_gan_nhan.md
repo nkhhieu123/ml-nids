@@ -76,8 +76,8 @@ giá, và báo số lượng (C05-T02).
 
 ## 3. Kết quả trên CIC-IDS2017
 
-Bảng flow thứ Tư (xuất từ commit `84640e3`, ngày 29/10/2026; thứ Sáu và thứ Hai bổ sung
-ở [27_bao_cao_nhan.md](27_bao_cao_nhan.md)):
+Bảng flow thứ Tư (xuất từ commit `84640e3`, ngày 29/10/2026; cả ba ngày ở
+[27_bao_cao_nhan.md](27_bao_cao_nhan.md)):
 
 | `label_status` | Flow | Gói |
 |---|---|---|
