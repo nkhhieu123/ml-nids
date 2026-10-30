@@ -34,7 +34,12 @@ split:                       # chia theo thời gian trong từng khối tấn c
   embargo_s: 10              # bỏ mẫu cách ranh giới giữa hai tập dưới khoảng này (bằng độ dài cửa sổ)
 
 preprocess:                  # chỉ fit và cân bằng trên train (QĐ-028)
+  drop_train_duplicates: true  # module phân loại: bỏ mẫu train trùng hệt đặc trưng và nhãn (docs/30 mục 5)
   balance_max_ratio: 10      # giảm mẫu mỗi lớp xuống tối đa 10 lần lớp ít nhất
+  sessions:                  # phiên dùng cho từng module (QĐ-009, docs/08)
+    attack_classification: [cic17_wednesday, cic17_friday]
+    anomaly: [cic17_monday, cic17_wednesday, cic17_friday]
+  anomaly_fit_sessions: [cic17_monday]   # Gaussian chỉ học trên phiên bình thường này
 
 lab:
   subnet: 192.168.50.0/24

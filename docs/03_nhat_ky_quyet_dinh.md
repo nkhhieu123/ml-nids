@@ -203,6 +203,13 @@ Mẫu:
 - Quyết định: Trong mỗi phiên, mỗi khối tấn công (cột `khoi` của lịch) và mỗi khoảng giữa các khối được cắt theo thứ tự thời gian thành train, validation, test với 60%, 20%, 20% số flow (ranh giới ở phân vị thời điểm bắt đầu flow; khoảng dưới 20 flow chia theo thời gian). Mẫu phải nằm trọn trong một đoạn và cách ranh giới hai tập khác nhau ít nhất `split.embargo_s` = 10 giây; còn lại là `bo` (xem `docs/29_chia_du_lieu.md`).
 - Hệ quả: Test luôn sau train trong cùng khối; hai tập không chung gói. Khả năng gặp công cụ chưa thấy được đánh giá riêng ở Chặng 7. Validation của `port_scan` ở bảng cửa sổ mỏng (50 mẫu) vì quét diễn ra theo từng đợt ngắn.
 
+## QĐ-028 — Tiền xử lý chỉ fit trên train; bỏ trùng và cân bằng chỉ trên train; Gaussian học trên thứ Hai
+- Ngày: 30/10/2026
+- Trạng thái: Đã chốt (tỷ lệ cân bằng 10 chỉnh được ở Chặng 7)
+- Bối cảnh: Đặc trưng lệch phải mạnh, nhiều ô trống có ý nghĩa, lớp mất cân bằng nặng (benign gấp 374 lần port_scan ở bảng cửa sổ), 98,9% flow port_scan trùng nhau. Tham số tiền xử lý và việc cân bằng không được dùng dữ liệu đánh giá.
+- Quyết định: `log(1 + x)` cho đặc trưng đếm, byte, giây; điền trung vị của train kèm cột đánh dấu ô trống; chuẩn hóa theo train. Module phân loại dùng thứ Tư và thứ Sáu, bỏ mẫu train trùng hệt, giảm mẫu mỗi lớp xuống tối đa 10 lần lớp ít nhất, kèm trọng số lớp. Module anomaly fit trên mẫu normal của train thứ Hai, không bỏ trùng vì tần suất là thông tin của phân bố. Validation và test giữ phân bố thật (xem `docs/32_tien_xu_ly.md`).
+- Hệ quả: Bộ tiền xử lý lưu ở `models/`, chương trình realtime nạp lại đúng phép biến đổi này (B12). Không dùng SMOTE.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
@@ -236,6 +243,8 @@ Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
 | Lịch tấn công | Danh sách đợt tấn công (giờ, IP, cổng, nhãn) dùng làm nguồn nhãn |
 | `attack_share` | Phần số flow tấn công trong số flow của một cửa sổ host |
 | Vùng đệm (embargo) | Khoảng bỏ trống ở ranh giới giữa hai tập dữ liệu |
+| Fit | Tính tham số từ dữ liệu, ví dụ trung bình để chuẩn hóa |
+| Giảm mẫu, trọng số lớp | Bỏ bớt mẫu của lớp đông / phạt nặng hơn khi đoán sai lớp ít mẫu |
 | UTC−3 | Giờ chậm hơn giờ quốc tế 3 tiếng; giờ mùa hè nơi CIC thu dữ liệu |
 | Phần trong tổng (share) | Tỷ lệ của một chiều so với cả hai chiều, luôn từ 0 tới 1 |
 | Manifest | Bảng liệt kê mọi nguồn dữ liệu và cách dùng |

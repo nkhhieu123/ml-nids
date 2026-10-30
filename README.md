@@ -74,6 +74,7 @@ Báo cáo Chặng 4: [docs/Bao_cao_Chang_4.md](docs/Bao_cao_Chang_4.md)
 - [x] C05-T04: Chia train/validation/test theo phiên hoặc scenario — `src/nids/splits.py`, [docs/29_chia_du_lieu.md](docs/29_chia_du_lieu.md)
 - [x] C05-T05: Kiểm tra thiếu, vô hạn, trùng và phân bố lớp — `src/nids/data_quality.py`, `src/nids/dataset.py`, [docs/30_kiem_tra_du_lieu.md](docs/30_kiem_tra_du_lieu.md)
 - [x] C05-T06: Vẽ EDA cho các đặc trưng chính — `src/nids/eda.py`, [docs/31_eda.md](docs/31_eda.md)
+- [x] C05-T07: Xây dựng tiền xử lý; chỉ fit và cân bằng lớp trên train — `src/nids/preprocessing.py`, [docs/32_tien_xu_ly.md](docs/32_tien_xu_ly.md)
 
 Những gì còn thiếu sau Chặng 1–3 (dữ liệu, lab, tham số chưa chốt): [docs/Viec_con_thieu_Chang_1_3.md](docs/Viec_con_thieu_Chang_1_3.md)
 
@@ -109,6 +110,7 @@ src/nids/
   dataset.py          Đọc bảng đặc trưng kèm nhãn và tập vào pandas
   data_quality.py     Kiểm tra thiếu, vô hạn, trùng, phân bố lớp
   eda.py              Vẽ EDA trên tập train
+  preprocessing.py    Tiền xử lý: chỉ fit và cân bằng lớp trên train
   alerts.py           Schema cảnh báo, xuất terminal + CSV
 tests/                Kiểm thử
 scripts/              Script đọc PCAP, sinh traffic mô phỏng (chưa có)
@@ -213,6 +215,9 @@ python -m nids.data_quality output/features/cic17_monday output/features/cic17_w
 
 # Vẽ EDA trên tập train (cần pip install -e ".[notebook]")
 python -m nids.eda output/features/cic17_monday output/features/cic17_wednesday output/features/cic17_friday --out docs/hinh
+
+# Fit tiền xử lý trên train, lưu vào models/ (--table flows|windows, --module attack_classification|anomaly)
+python -m nids.preprocessing --table windows --module attack_classification output/features/cic17_monday output/features/cic17_wednesday output/features/cic17_friday
 
 # Đọc access log Nginx của một lần chạy, xuất bảng CSV rồi đối chiếu với file gốc
 python -m nids.service_log data/service_logs/<run_id>/access_nids.log --csv output/log.csv
