@@ -1,0 +1,101 @@
+{
+  "hinh": {
+    "phan_bo_lop": "..\\docs\\hinh\\eda_phan_bo_lop.png",
+    "flow_theo_lop": "..\\docs\\hinh\\eda_flow_theo_lop.png",
+    "cua_so_theo_lop": "..\\docs\\hinh\\eda_cua_so_theo_lop.png",
+    "cua_so_anomaly": "..\\docs\\hinh\\eda_cua_so_anomaly.png",
+    "tuong_quan": "..\\docs\\hinh\\eda_tuong_quan_cua_so.png",
+    "dong_thoi_gian": "..\\docs\\hinh\\eda_dong_thoi_gian_thu_tu.png"
+  },
+  "trung_vi_flow_train": {
+    "benign": {
+      "duration_s": 0.061467,
+      "packets": 4.0,
+      "bytes": 436.0,
+      "pkt_len_mean": 110.0,
+      "iat_mean": 0.024452,
+      "fwd_byte_share": 0.360248,
+      "syn_count": 0.0,
+      "rst_count": 0.0
+    },
+    "dos": {
+      "duration_s": 0.163948,
+      "packets": 14.0,
+      "bytes": 12674.0,
+      "pkt_len_mean": 903.285714,
+      "iat_mean": 0.013,
+      "fwd_byte_share": 0.059515,
+      "syn_count": 2.0,
+      "rst_count": 1.0
+    },
+    "port_scan": {
+      "duration_s": 4.7e-05,
+      "packets": 2.0,
+      "bytes": 84.0,
+      "pkt_len_mean": 42.0,
+      "iat_mean": 4.7e-05,
+      "fwd_byte_share": 0.52381,
+      "syn_count": 1.0,
+      "rst_count": 1.0
+    }
+  },
+  "trung_vi_cua_so_train": {
+    "benign": {
+      "packets_in": 20.0,
+      "new_conn_out": 0.0,
+      "new_conn_in": 0.0,
+      "dst_ports": 2.0,
+      "dst_port_entropy": 0.629249,
+      "src_hosts": 0.0,
+      "incomplete_ratio_out": 0.0,
+      "incomplete_ratio_in": 0.0
+    },
+    "dos": {
+      "packets_in": 284.0,
+      "new_conn_out": 0.0,
+      "new_conn_in": 2.5,
+      "dst_ports": 1.0,
+      "dst_port_entropy": 0.0,
+      "src_hosts": 1.0,
+      "incomplete_ratio_out": 0.045431,
+      "incomplete_ratio_in": 0.0
+    },
+    "port_scan": {
+      "packets_in": 28.0,
+      "new_conn_out": 4.0,
+      "new_conn_in": 5.0,
+      "dst_ports": 3.0,
+      "dst_port_entropy": 1.588376,
+      "src_hosts": 1.0,
+      "incomplete_ratio_out": 0.994985,
+      "incomplete_ratio_in": 0.625
+    }
+  },
+  "cap_tuong_quan_cao_cua_so": [
+    [
+      "packets_out",
+      "bytes_out",
+      0.957
+    ],
+    [
+      "packets_in",
+      "bytes_in",
+      0.951
+    ],
+    [
+      "dst_hosts",
+      "dst_host_ports",
+      0.986
+    ],
+    [
+      "incomplete_out",
+      "incomplete_ratio_out",
+      0.997
+    ],
+    [
+      "incomplete_in",
+      "incomplete_ratio_in",
+      0.999
+    ]
+  ]
+}

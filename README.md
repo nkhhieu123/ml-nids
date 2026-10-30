@@ -73,6 +73,7 @@ Báo cáo Chặng 4: [docs/Bao_cao_Chang_4.md](docs/Bao_cao_Chang_4.md)
 - [x] C05-T03: Định nghĩa nhãn cho cửa sổ chứa nhiều hành vi — `src/nids/labeling.py`, [docs/28_nhan_cua_so.md](docs/28_nhan_cua_so.md)
 - [x] C05-T04: Chia train/validation/test theo phiên hoặc scenario — `src/nids/splits.py`, [docs/29_chia_du_lieu.md](docs/29_chia_du_lieu.md)
 - [x] C05-T05: Kiểm tra thiếu, vô hạn, trùng và phân bố lớp — `src/nids/data_quality.py`, `src/nids/dataset.py`, [docs/30_kiem_tra_du_lieu.md](docs/30_kiem_tra_du_lieu.md)
+- [x] C05-T06: Vẽ EDA cho các đặc trưng chính — `src/nids/eda.py`, [docs/31_eda.md](docs/31_eda.md)
 
 Những gì còn thiếu sau Chặng 1–3 (dữ liệu, lab, tham số chưa chốt): [docs/Viec_con_thieu_Chang_1_3.md](docs/Viec_con_thieu_Chang_1_3.md)
 
@@ -107,6 +108,7 @@ src/nids/
   splits.py           Chia train/validation/test theo thời gian trong từng khối tấn công
   dataset.py          Đọc bảng đặc trưng kèm nhãn và tập vào pandas
   data_quality.py     Kiểm tra thiếu, vô hạn, trùng, phân bố lớp
+  eda.py              Vẽ EDA trên tập train
   alerts.py           Schema cảnh báo, xuất terminal + CSV
 tests/                Kiểm thử
 scripts/              Script đọc PCAP, sinh traffic mô phỏng (chưa có)
@@ -208,6 +210,9 @@ python -m nids.splits output/features/cic17_wednesday.flows.csv
 
 # Kiểm tra dữ liệu trước khi huấn luyện
 python -m nids.data_quality output/features/cic17_monday output/features/cic17_wednesday output/features/cic17_friday --out output/quality.json
+
+# Vẽ EDA trên tập train (cần pip install -e ".[notebook]")
+python -m nids.eda output/features/cic17_monday output/features/cic17_wednesday output/features/cic17_friday --out docs/hinh
 
 # Đọc access log Nginx của một lần chạy, xuất bảng CSV rồi đối chiếu với file gốc
 python -m nids.service_log data/service_logs/<run_id>/access_nids.log --csv output/log.csv
