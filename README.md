@@ -87,6 +87,8 @@ Báo cáo Chặng 5: [docs/Bao_cao_Chang_5.md](docs/Bao_cao_Chang_5.md)
 - [x] C06-T05: Đánh giá Precision, Recall, F1 và false positive rate — `src/nids/gaussian.py`, [docs/37_gaussian_danh_gia.md](docs/37_gaussian_danh_gia.md)
 - [x] C06-T06: Lưu mô hình, ngưỡng, tiền xử lý và notebook — `src/nids/gaussian.py`, `notebooks/06_gaussian.ipynb`, [docs/38_gaussian_luu_mo_hinh.md](docs/38_gaussian_luu_mo_hinh.md)
 
+Báo cáo Chặng 6: [docs/Bao_cao_Chang_6.md](docs/Bao_cao_Chang_6.md)
+
 Những gì còn thiếu sau Chặng 1–3 (dữ liệu, lab, tham số chưa chốt): [docs/Viec_con_thieu_Chang_1_3.md](docs/Viec_con_thieu_Chang_1_3.md)
 
 ## Cấu trúc
