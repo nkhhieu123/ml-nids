@@ -62,7 +62,8 @@ khoảng buổi chiều, DDoS bị cắt lệch, nên module anomaly không có 
 các khoảng bình thường.
 
 **Phiên không có tấn công** (thứ Hai CIC): cả phiên là một khoảng, cắt 60/20/20. Gaussian
-học trên train của phiên này; ngưỡng chọn trên validation.
+học trên mẫu normal của train (ban đầu dự kiến chỉ thứ Hai; Chặng 6 chọn cả ba ngày theo
+validation, QĐ-032); ngưỡng chọn trên validation.
 
 ## 3. Kết quả
 

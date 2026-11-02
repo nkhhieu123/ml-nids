@@ -165,7 +165,7 @@ ra.
 | QĐ-025 | Nhãn theo lịch tấn công, cặp IP và cổng nạn nhân; bốn trạng thái nhãn | Đã chốt (nới 60 giây tạm thời) |
 | QĐ-026 | Nhãn cửa sổ theo phần flow tấn công; dưới 20% là mơ hồ | Tạm thời |
 | QĐ-027 | Chia theo thời gian trong từng khối, 60/20/20 số flow, vùng đệm 10 giây | Đã chốt |
-| QĐ-028 | Tiền xử lý chỉ fit trên train; bỏ trùng và cân bằng chỉ trên train; Gaussian học trên thứ Hai | Đã chốt |
+| QĐ-028 | Tiền xử lý chỉ fit trên train; bỏ trùng và cân bằng chỉ trên train; Gaussian học trên thứ Hai | Đã chốt (phần Gaussian thay bởi QĐ-032 ở Chặng 6) |
 
 Tham số mới trong `config/default.yaml`: mục `labeling` (nới 60 giây, ngưỡng cửa sổ 0,2), `split`
 (60/20/20, vùng đệm 10 giây), `preprocess` (bỏ trùng, tỷ lệ cân bằng 10, phiên của từng module).

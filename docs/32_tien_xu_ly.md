@@ -24,8 +24,9 @@ trên train.**
 | `attack_classification` | Thứ Tư, thứ Sáu (QĐ-009) | Trạng thái `khop` hoặc `khong_khop`, trong ba lớp | `label_attack` |
 | `anomaly` | Thứ Hai, thứ Tư, thứ Sáu | Có nhãn `normal` hoặc `anomaly` | `label_anomaly` |
 
-Với `anomaly`, bộ tiền xử lý (và Gaussian ở Chặng 6) **chỉ fit trên mẫu `normal` của train thứ
-Hai** (`preprocess.anomaly_fit_sessions`, docs/08). Validation và test gồm cả ba phiên, có cả
+Với `anomaly`, bộ tiền xử lý **chỉ fit trên mẫu `normal` của train thứ Hai**
+(`preprocess.anomaly_fit_sessions`, docs/08). Gaussian ở Chặng 6 dùng phép biến đổi riêng và
+cuối cùng fit trên normal của train cả ba ngày, chọn trên validation (QĐ-032, docs/36). Validation và test gồm cả ba phiên, có cả
 `anomaly`. Mẫu `mo_ho`, `bo` không dùng; mẫu `loai` chỉ dùng cho `anomaly`.
 
 Chỉ lấy cột có vai trò `dac_trung` trong schema (QĐ-024): 44 cột ở bảng flow, 20 cột ở bảng

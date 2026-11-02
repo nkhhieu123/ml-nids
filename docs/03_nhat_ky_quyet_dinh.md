@@ -206,7 +206,7 @@ Mẫu:
 
 ## QĐ-028 — Tiền xử lý chỉ fit trên train; bỏ trùng và cân bằng chỉ trên train; Gaussian học trên thứ Hai
 - Ngày: 30/10/2026
-- Trạng thái: Đã chốt (tỷ lệ cân bằng 10 chỉnh được ở Chặng 7)
+- Trạng thái: Đã chốt (tỷ lệ cân bằng 10 chỉnh được ở Chặng 7); phần "Gaussian học trên thứ Hai" thay bởi QĐ-032
 - Bối cảnh: Đặc trưng lệch phải mạnh, nhiều ô trống có ý nghĩa, lớp mất cân bằng nặng (benign gấp 376 lần port_scan ở bảng cửa sổ), 98,9% flow port_scan trùng nhau. Tham số tiền xử lý và việc cân bằng không được dùng dữ liệu đánh giá.
 - Quyết định: `log(1 + x)` cho đặc trưng đếm, byte, giây; điền trung vị của train kèm cột đánh dấu ô trống; chuẩn hóa theo train. Module phân loại dùng thứ Tư và thứ Sáu, bỏ mẫu train trùng hệt, giảm mẫu mỗi lớp xuống tối đa 10 lần lớp ít nhất, kèm trọng số lớp. Module anomaly fit trên mẫu normal của train thứ Hai, không bỏ trùng vì tần suất là thông tin của phân bố. Validation và test giữ phân bố thật (xem `docs/32_tien_xu_ly.md`).
 - Hệ quả: Bộ tiền xử lý lưu ở `models/`, chương trình realtime nạp lại đúng phép biến đổi này (B12). Không dùng SMOTE.
