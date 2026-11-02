@@ -4,6 +4,14 @@
   (docs/33_gaussian_dac_trung.md, QĐ-029).
 - C06-T02: biến đổi để phân bố gần dạng chuông: Yeo-Johnson cho cột liên tục, log(1 + x)
   cho cột gần như toàn 0 (docs/34_gaussian_phan_bo.md, QĐ-030).
+- C06-T03: Gaussian đa biến, hiệp phương sai Ledoit-Wolf và sàn trị riêng (docs/35, QĐ-031).
+- C06-T04: điểm d², chọn phiên fit và ngưỡng trên validation (docs/36, QĐ-032).
+- C06-T05: đánh giá trên test, phân tích giả định Gaussian (docs/37).
+- C06-T06: lưu và nạp lại mô hình kèm biến đổi và ngưỡng (docs/38).
+
+    python -m nids.gaussian huan-luyen <tiền tố phiên>...      # fit, chọn ngưỡng, lưu models/
+    python -m nids.gaussian danh-gia <tiền tố>... --model models/gaussian_windows.joblib --out docs/hinh
+    python -m nids.gaussian du-doan --model models/gaussian_windows.joblib <tiền tố>... --out output/x.csv
 
 Mọi bước học (chọn đặc trưng, biến đổi, trung bình, hiệp phương sai) chỉ dùng mẫu
 ``normal`` của tập train; validation dùng để chọn ngưỡng, test chỉ để đánh giá.
@@ -299,6 +307,20 @@ class GaussianDetector:
         if self.threshold is None:
             raise ValueError("chưa đặt ngưỡng: chạy chọn ngưỡng trên validation trước (C06-T04)")
         return np.where(self.score(df) > self.threshold, "anomaly", "normal")
+
+    def predict_frame(self, df) -> pd.DataFrame:
+        """Bảng dự đoán cho từng cửa sổ: khóa (host, window_start), d² và nhãn dự đoán."""
+        if self.threshold is None:
+            raise ValueError("chưa đặt ngưỡng: chạy chọn ngưỡng trên validation trước (C06-T04)")
+        missing = [f for f in self.features if f not in df]
+        if missing:
+            raise ValueError(f"bảng thiếu cột đặc trưng: {missing}")
+        d2 = self.score(df)
+        keys = [c for c in ("session", "host", "window_start", "window_end") if c in df]
+        out = df[keys].copy()
+        out["d2"] = d2
+        out["du_doan"] = np.where(d2 > self.threshold, "anomaly", "normal")
+        return out
 
 
 # ---- C06-T04: điểm bất thường và ngưỡng ----
@@ -642,6 +664,101 @@ def cmd_evaluate(args):
     print(f"Đã ghi: {out / 'gauss_test.json'}")
 
 
+# ---- C06-T06: lưu và nạp lại ----
+
+MODEL_FILE = "gaussian_windows.joblib"
+
+
+def model_metadata(model, cfg=None) -> dict:
+    """Thông tin đi kèm mô hình: đủ để biết nó học từ đâu và dùng thế nào."""
+    import datetime
+    import platform
+
+    import sklearn
+    import scipy
+
+    from .feature_export import _git_version
+
+    t = model.transform_
+    return {
+        "mo_hinh": "Gaussian đa biến trên cửa sổ host (Chặng 6)",
+        "bang": TABLE,
+        "dac_trung": model.features,
+        "bien_doi": {"yeo_johnson": t.yj_features, "log1p": t.log_features, "lambda": t.lambdas,
+                     "dien_0_khi_trong": [f for f in EMPTY_MEANS_ZERO if f in model.features],
+                     "chuan_hoa_trung_binh": [round(float(v), 6) for v in t.scaler.mean_],
+                     "chuan_hoa_do_lech": [round(float(v), 6) for v in t.scaler.scale_]},
+        "diem": "d² Mahalanobis; anomaly khi d² > nguong",
+        "nguong": model.threshold,
+        "cau_hinh": cfg,
+        **{k: v for k, v in model.info.items() if k not in ("cot_yeo_johnson", "cot_log")},
+        "ma_nguon": _git_version(),
+        "phien_ban": {"python": platform.python_version(), "numpy": np.__version__,
+                      "pandas": pd.__version__, "scikit-learn": sklearn.__version__,
+                      "scipy": scipy.__version__},
+        "thoi_diem_tao": datetime.datetime.now().astimezone().isoformat(timespec="seconds"),
+    }
+
+
+def save_model(model, path, cfg=None) -> Path:
+    """Lưu mô hình (gồm biến đổi, trung bình, hiệp phương sai, ngưỡng) ra joblib, kèm file .json."""
+    import joblib
+
+    if model.threshold is None:
+        raise ValueError("mô hình chưa có ngưỡng; không lưu")
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    joblib.dump(model, path)
+    path.with_suffix(".json").write_text(
+        json.dumps(model_metadata(model, cfg), ensure_ascii=False, indent=2, default=str), encoding="utf-8")
+    return path
+
+
+def load_model(path) -> GaussianDetector:
+    import joblib
+
+    model = joblib.load(path)
+    if not isinstance(model, GaussianDetector):
+        raise TypeError(f"{path} không phải mô hình Gaussian của dự án")
+    return model
+
+
+def cmd_train(args):
+    from .config import PROJECT_ROOT, load_config
+
+    full = load_config(args.config)
+    cfg = gaussian_config(full)
+    model, report, _, _ = select_model(load_windows(args.prefixes), cfg)
+    out = Path(args.out or PROJECT_ROOT / full.get("paths", {}).get("model_dir", "models") / MODEL_FILE)
+    save_model(model, out, cfg)
+    v = model.info["validation"]
+    print(f"Fit trên {model.info['phien_fit']} ({model.info['so_mau_fit']} cửa sổ normal), "
+          f"{len(model.features)} đặc trưng, ngưỡng d² = {model.threshold:.2f}")
+    print(f"Validation: P {v['precision']}, R {v['recall']}, F1 {v['f1']}, FPR {v['fpr']}")
+    print(f"Đã lưu: {out} và {out.with_suffix('.json').name}")
+
+
+def cmd_predict(args):
+    model = load_model(args.model)
+    windows = load_table(args.prefixes, TABLE) if not args.khong_nhan else _load_features_only(args.prefixes)
+    pred = model.predict_frame(windows)
+    out = Path(args.out)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    pred.to_csv(out, index=False)
+    n = int((pred["du_doan"] == "anomaly").sum())
+    print(f"{len(pred)} cửa sổ, {n} bị báo anomaly ({n / max(len(pred), 1):.2%}). Đã ghi: {out}")
+
+
+def _load_features_only(prefixes) -> pd.DataFrame:
+    """Đọc bảng cửa sổ chưa gán nhãn, chưa chia tập (ví dụ một bản thu mới)."""
+    parts = []
+    for prefix in prefixes:
+        df = pd.read_csv(f"{prefix}.{TABLE}.csv", dtype={"host": str})
+        df.insert(0, "session", Path(prefix).name)
+        parts.append(df)
+    return pd.concat(parts, ignore_index=True)
+
+
 def cfg_fit_sessions(model):
     """Phiên mà mô hình đã fit (để dựng lại đúng mẫu train khi so sánh)."""
     return model.info.get("phien_fit")
@@ -667,6 +784,17 @@ def main(argv=None):
     p.add_argument("--so-sanh", action="store_true", help="so với Gaussian đường chéo và hỗn hợp 8 Gaussian")
     p.add_argument("--config", help="file cấu hình, mặc định config/default.yaml")
     p.set_defaults(func=cmd_evaluate)
+    p = sub.add_parser("huan-luyen", help="fit, chọn ngưỡng trên validation và lưu mô hình (C06-T06)")
+    p.add_argument("prefixes", nargs="+")
+    p.add_argument("--out", help=f"file joblib, mặc định models/{MODEL_FILE}")
+    p.add_argument("--config", help="file cấu hình, mặc định config/default.yaml")
+    p.set_defaults(func=cmd_train)
+    p = sub.add_parser("du-doan", help="nạp mô hình đã lưu và dự đoán bảng cửa sổ (C06-T06)")
+    p.add_argument("prefixes", nargs="+")
+    p.add_argument("--model", required=True)
+    p.add_argument("--out", required=True, help="file CSV kết quả")
+    p.add_argument("--khong-nhan", action="store_true", help="bảng chưa gán nhãn, chưa chia tập")
+    p.set_defaults(func=cmd_predict)
     args = parser.parse_args(argv)
     args.func(args)
     return 0

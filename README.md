@@ -85,6 +85,7 @@ Báo cáo Chặng 5: [docs/Bao_cao_Chang_5.md](docs/Bao_cao_Chang_5.md)
 - [x] C06-T03: Huấn luyện Gaussian, xử lý covariance suy biến — `src/nids/gaussian.py`, [docs/35_gaussian_huan_luyen.md](docs/35_gaussian_huan_luyen.md)
 - [x] C06-T04: Tính điểm bất thường và chọn ngưỡng trên validation — `src/nids/gaussian.py`, [docs/36_gaussian_nguong.md](docs/36_gaussian_nguong.md)
 - [x] C06-T05: Đánh giá Precision, Recall, F1 và false positive rate — `src/nids/gaussian.py`, [docs/37_gaussian_danh_gia.md](docs/37_gaussian_danh_gia.md)
+- [x] C06-T06: Lưu mô hình, ngưỡng, tiền xử lý và notebook — `src/nids/gaussian.py`, `notebooks/06_gaussian.ipynb`, [docs/38_gaussian_luu_mo_hinh.md](docs/38_gaussian_luu_mo_hinh.md)
 
 Những gì còn thiếu sau Chặng 1–3 (dữ liệu, lab, tham số chưa chốt): [docs/Viec_con_thieu_Chang_1_3.md](docs/Viec_con_thieu_Chang_1_3.md)
 
@@ -125,7 +126,7 @@ src/nids/
   alerts.py           Schema cảnh báo, xuất terminal + CSV
 tests/                Kiểm thử
 scripts/              Script đọc PCAP, sinh traffic mô phỏng (chưa có)
-notebooks/            Notebook huấn luyện và đánh giá (chưa có)
+notebooks/            Notebook huấn luyện và đánh giá (06_gaussian.ipynb)
 data/                 Dataset, PCAP, nhật ký lần chạy (không đưa lên git)
 models/               Mô hình đã huấn luyện (không đưa lên git)
 output/               File cảnh báo và kết quả chạy (không đưa lên git)
@@ -229,6 +230,13 @@ python -m nids.eda output/features/cic17_monday output/features/cic17_wednesday 
 
 # Fit tiền xử lý trên train, lưu vào models/ (--table flows|windows, --module attack_classification|anomaly)
 python -m nids.preprocessing --table windows --module attack_classification output/features/cic17_monday output/features/cic17_wednesday output/features/cic17_friday
+
+# Gaussian (chạy trong src/): kiểm tra phân bố, chọn ngưỡng, huấn luyện và lưu, đánh giá, dự đoán
+python -m nids.gaussian phan-bo ../output/features/cic17_monday --fit-session cic17_monday --out ../docs/hinh
+python -m nids.gaussian nguong ../output/features/cic17_monday ../output/features/cic17_wednesday ../output/features/cic17_friday --out ../docs/hinh
+python -m nids.gaussian huan-luyen ../output/features/cic17_monday ../output/features/cic17_wednesday ../output/features/cic17_friday
+python -m nids.gaussian danh-gia ../output/features/cic17_monday ../output/features/cic17_wednesday ../output/features/cic17_friday --model ../models/gaussian_windows.joblib --out ../docs/hinh --so-sanh
+python -m nids.gaussian du-doan ../output/features/cic17_monday --khong-nhan --model ../models/gaussian_windows.joblib --out ../output/du_doan.csv
 
 # Đọc access log Nginx của một lần chạy, xuất bảng CSV rồi đối chiếu với file gốc
 python -m nids.service_log data/service_logs/<run_id>/access_nids.log --csv output/log.csv

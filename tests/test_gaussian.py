@@ -1,4 +1,8 @@
+import json
+import os
+import subprocess
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -9,7 +13,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from nids.gaussian import (GaussianDetector, GaussianTransform, alert_episodes, assumption_checks,
                            attack_groups, binary_metrics, choose_threshold, compare_transforms,
-                           evaluate, fill_empty, fit_covariance, normal_train, select_features)
+                           evaluate, fill_empty, fit_covariance, load_model, normal_train,
+                           save_model, select_features)
 from nids.labeling import Rule
 
 
@@ -245,6 +250,70 @@ class EvaluateTest(unittest.TestCase):
         self.assertEqual(set(r), {"gaussian_day_du", "gaussian_duong_cheo", "hon_hop_8_gaussian"})
         for v in r.values():
             self.assertGreater(v["auc_test"], 0.9)
+
+
+
+class SaveLoadTest(unittest.TestCase):
+    """C06-T06: lưu, nạp lại và dự đoán; file do dòng lệnh lưu nạp được ở tiến trình khác."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.dir = Path(self.tmp.name)
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def model(self):
+        rng = np.random.default_rng(7)
+        train = pd.DataFrame({"x": rng.lognormal(2, 0.5, 500), "y": rng.lognormal(1, 0.5, 500)})
+        m = GaussianDetector(["x", "y"]).fit(train)
+        m.threshold = 12.5
+        return m, train
+
+    def test_round_trip(self):
+        m, train = self.model()
+        path = save_model(m, self.dir / "g.joblib")
+        info = json.loads(path.with_suffix(".json").read_text(encoding="utf-8"))
+        self.assertEqual(info["nguong"], 12.5)
+        self.assertEqual(info["dac_trung"], ["x", "y"])
+        self.assertIn("lambda", info["bien_doi"])
+        m2 = load_model(path)
+        np.testing.assert_allclose(m2.score(train), m.score(train))
+        self.assertEqual(list(m2.predict(train)), list(m.predict(train)))
+        frame = m2.predict_frame(train.assign(host="h", window_start=0.0))
+        self.assertEqual(list(frame.columns), ["host", "window_start", "d2", "du_doan"])
+
+    def test_refuse_without_threshold_or_columns(self):
+        m, train = self.model()
+        with self.assertRaises(ValueError):
+            m.predict_frame(train[["x"]])
+        m.threshold = None
+        with self.assertRaises(ValueError):
+            save_model(m, self.dir / "g.joblib")
+
+    def test_command_line_saved_model_loads_elsewhere(self):
+        import yaml
+        from session_fixture import make_session
+        from nids.config import DEFAULT_CONFIG
+
+        prefixes = [make_session(self.dir, "s1", 300, 1), make_session(self.dir, "s2", 300, 2)]
+        cfg = yaml.safe_load(DEFAULT_CONFIG.read_text(encoding="utf-8"))
+        cfg["gaussian"]["fit_session_candidates"] = [["s1"], None]
+        cfg_path = self.dir / "cfg.yaml"
+        cfg_path.write_text(yaml.safe_dump(cfg, allow_unicode=True), encoding="utf-8")
+        src = str(Path(__file__).resolve().parents[1] / "src")
+        env = {**os.environ, "PYTHONPATH": src, "PYTHONIOENCODING": "utf-8"}
+        out = self.dir / "g.joblib"
+        subprocess.run([sys.executable, "-m", "nids.gaussian", "huan-luyen", *prefixes, "--out", str(out),
+                        "--config", str(cfg_path)], check=True, env=env, capture_output=True)
+        code = (f"from nids.gaussian import load_model; m = load_model(r'{out}'); "
+                f"print(type(m).__module__, m.threshold is not None)")
+        res = subprocess.run([sys.executable, "-c", code], check=True, env=env, capture_output=True, text=True)
+        self.assertEqual(res.stdout.strip(), "nids.gaussian True")
+        pred = self.dir / "p.csv"
+        subprocess.run([sys.executable, "-m", "nids.gaussian", "du-doan", prefixes[0], "--model", str(out),
+                        "--out", str(pred)], check=True, env=env, capture_output=True)
+        self.assertEqual(len(pd.read_csv(pred)), 300)
 
 
 if __name__ == "__main__":
