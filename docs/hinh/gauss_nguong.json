@@ -17,6 +17,17 @@
       "fp": 1242,
       "fn": 1062,
       "tn": 83716,
+      "so_sanh_f1_lon_nhat": {
+        "nguong": 57.62,
+        "precision": 0.6457,
+        "recall": 0.7364,
+        "f1": 0.6881,
+        "fpr": 0.01675,
+        "tp": 2593,
+        "fp": 1423,
+        "fn": 928,
+        "tn": 83535
+      },
       "recall_theo_dot": {
         "Bot": {
           "so_mau": 2355,
@@ -50,17 +61,6 @@
           "so_mau": 50,
           "recall": 0.68
         }
-      },
-      "so_sanh_f1_lon_nhat": {
-        "nguong": 57.62,
-        "precision": 0.6457,
-        "recall": 0.7364,
-        "f1": 0.6881,
-        "fpr": 0.01675,
-        "tp": 2593,
-        "fp": 1423,
-        "fn": 928,
-        "tn": 83535
       }
     },
     {
@@ -75,6 +75,17 @@
       "fp": 1267,
       "fn": 941,
       "tn": 83691,
+      "so_sanh_f1_lon_nhat": {
+        "nguong": 145.597,
+        "precision": 0.8031,
+        "recall": 0.6348,
+        "f1": 0.7091,
+        "fpr": 0.00645,
+        "tp": 2235,
+        "fp": 548,
+        "fn": 1286,
+        "tn": 84410
+      },
       "recall_theo_dot": {
         "Bot": {
           "so_mau": 2355,
@@ -108,17 +119,6 @@
           "so_mau": 50,
           "recall": 0.68
         }
-      },
-      "so_sanh_f1_lon_nhat": {
-        "nguong": 145.597,
-        "precision": 0.8031,
-        "recall": 0.6348,
-        "f1": 0.7091,
-        "fpr": 0.00645,
-        "tp": 2235,
-        "fp": 548,
-        "fn": 1286,
-        "tn": 84410
       }
     }
   ],

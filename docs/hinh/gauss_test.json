@@ -1,0 +1,167 @@
+{
+  "nguong": 64.65075143770032,
+  "so_mau": 105361,
+  "so_anomaly": 5373,
+  "tong": {
+    "precision": 0.7334,
+    "recall": 0.727,
+    "f1": 0.7302,
+    "fpr": 0.0142,
+    "tp": 3906,
+    "fp": 1420,
+    "fn": 1467,
+    "tn": 98568
+  },
+  "auc": 0.9765,
+  "ap": 0.7363,
+  "theo_phien": {
+    "cic17_friday": {
+      "so_mau": 41646,
+      "so_anomaly": 4226,
+      "precision": 0.8911,
+      "recall": 0.8093,
+      "f1": 0.8482,
+      "fpr": 0.01117,
+      "tp": 3420,
+      "fp": 418,
+      "fn": 806,
+      "tn": 37002,
+      "gio": 4.81,
+      "dot_bao_dong_gia": 80,
+      "dot_bao_dong_gia_moi_gio": 16.6
+    },
+    "cic17_monday": {
+      "so_mau": 32275,
+      "so_anomaly": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "fpr": 0.01283,
+      "tp": 0,
+      "fp": 414,
+      "fn": 0,
+      "tn": 31861,
+      "gio": 1.76,
+      "dot_bao_dong_gia": 74,
+      "dot_bao_dong_gia_moi_gio": 42.1
+    },
+    "cic17_wednesday": {
+      "so_mau": 31440,
+      "so_anomaly": 1147,
+      "precision": 0.4525,
+      "recall": 0.4237,
+      "f1": 0.4376,
+      "fpr": 0.01941,
+      "tp": 486,
+      "fp": 588,
+      "fn": 661,
+      "tn": 29705,
+      "gio": 7.6,
+      "dot_bao_dong_gia": 94,
+      "dot_bao_dong_gia_moi_gio": 12.4
+    }
+  },
+  "recall_theo_dot": {
+    "Bot": {
+      "so_mau": 3554,
+      "recall": 0.8633
+    },
+    "DDoS": {
+      "so_mau": 206,
+      "recall": 0.4951
+    },
+    "DoS GoldenEye": {
+      "so_mau": 24,
+      "recall": 0.125
+    },
+    "DoS Hulk": {
+      "so_mau": 190,
+      "recall": 0.7053
+    },
+    "DoS Slowhttptest": {
+      "so_mau": 213,
+      "recall": 0.277
+    },
+    "DoS slowloris": {
+      "so_mau": 318,
+      "recall": 0.9119
+    },
+    "Heartbleed": {
+      "so_mau": 402,
+      "recall": 0.0
+    },
+    "PortScan": {
+      "so_mau": 466,
+      "recall": 0.5365
+    }
+  },
+  "neu_dung_nguong_chi2_0.99": {
+    "nguong": 29.14,
+    "precision": 0.5145,
+    "recall": 0.8405,
+    "f1": 0.6383,
+    "fpr": 0.04263,
+    "tp": 4516,
+    "fp": 4262,
+    "fn": 857,
+    "tn": 95726
+  },
+  "neu_dung_nguong_chi2_0.999": {
+    "nguong": 36.12,
+    "precision": 0.6101,
+    "recall": 0.8003,
+    "f1": 0.6924,
+    "fpr": 0.02748,
+    "tp": 4300,
+    "fp": 2748,
+    "fn": 1073,
+    "tn": 97240
+  },
+  "kiem_tra_gia_dinh": {
+    "gaussian_day_du": {
+      "f1_validation": 0.7003,
+      "test": {
+        "precision": 0.7334,
+        "recall": 0.727,
+        "f1": 0.7302,
+        "fpr": 0.0142,
+        "tp": 3906,
+        "fp": 1420,
+        "fn": 1467,
+        "tn": 98568
+      },
+      "auc_test": 0.9765,
+      "ap_test": 0.7363
+    },
+    "gaussian_duong_cheo": {
+      "f1_validation": 0.6851,
+      "test": {
+        "precision": 0.7349,
+        "recall": 0.695,
+        "f1": 0.7144,
+        "fpr": 0.01347,
+        "tp": 3734,
+        "fp": 1347,
+        "fn": 1639,
+        "tn": 98641
+      },
+      "auc_test": 0.9249,
+      "ap_test": 0.6817
+    },
+    "hon_hop_8_gaussian": {
+      "f1_validation": 0.7424,
+      "test": {
+        "precision": 0.9007,
+        "recall": 0.6838,
+        "f1": 0.7774,
+        "fpr": 0.00405,
+        "tp": 3674,
+        "fp": 405,
+        "fn": 1699,
+        "tn": 99583
+      },
+      "auc_test": 0.9782,
+      "ap_test": 0.8294
+    }
+  }
+}

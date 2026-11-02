@@ -7,9 +7,9 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from nids.gaussian import (GaussianDetector, GaussianTransform, attack_groups, binary_metrics,
-                           choose_threshold, compare_transforms, fill_empty, fit_covariance,
-                           normal_train, select_features)
+from nids.gaussian import (GaussianDetector, GaussianTransform, alert_episodes, assumption_checks,
+                           attack_groups, binary_metrics, choose_threshold, compare_transforms,
+                           evaluate, fill_empty, fit_covariance, normal_train, select_features)
 from nids.labeling import Rule
 
 
@@ -199,6 +199,52 @@ class ThresholdTest(unittest.TestCase):
         g = attack_groups(df, rules)
         # 9.9.9.9 dính cả bot (cả ngày) và Heartbleed: lấy đợt ngắn hơn
         self.assertEqual(list(g), ["Bot", "Heartbleed", "Heartbleed", "khác", "normal"])
+
+
+
+class EvaluateTest(unittest.TestCase):
+    """C06-T05: đánh giá trên test."""
+
+    def windows(self, n_normal=400, n_attack=40, seed=5, session="s"):
+        rng = np.random.default_rng(seed)
+        n = n_normal + n_attack
+        x = np.r_[rng.lognormal(2, 0.5, n_normal), rng.lognormal(6, 0.3, n_attack)]
+        y = np.r_[rng.lognormal(1, 0.5, n_normal), rng.lognormal(1, 0.5, n_attack)]
+        return pd.DataFrame({
+            "x": x, "y": y, "session": session,
+            "host": np.where(np.arange(n) % 2 == 0, "10.0.0.1", "10.0.0.2"),
+            "window_start": np.arange(n) * 2.0, "window_end": np.arange(n) * 2.0 + 10,
+            "label_anomaly": ["normal"] * n_normal + ["anomaly"] * n_attack,
+        })
+
+    def test_alert_episodes(self):
+        df = pd.DataFrame({"host": ["a", "a", "a", "b", "a"], "window_start": [0, 2, 100, 2, 4],
+                           "window_end": [10, 12, 110, 12, 14]})
+        flagged = np.array([True, True, True, True, False])
+        # host a: 0 và 2 liền nhau là một đợt, 100 là đợt khác; host b một đợt
+        self.assertEqual(alert_episodes(df, flagged), 3)
+        self.assertEqual(alert_episodes(df, np.zeros(5, bool)), 0)
+
+    def test_evaluate(self):
+        train = self.windows(n_attack=0, seed=1)
+        test = pd.concat([self.windows(seed=2, session="a"), self.windows(n_attack=0, seed=3, session="b")])
+        m = GaussianDetector(["x", "y"]).fit(train)
+        m.threshold = 15.0
+        r = evaluate(m, test)
+        self.assertEqual(r["so_anomaly"], 40)
+        self.assertGreater(r["tong"]["recall"], 0.95)
+        self.assertLess(r["tong"]["fpr"], 0.05)
+        self.assertEqual(set(r["theo_phien"]), {"a", "b"})
+        self.assertEqual(r["theo_phien"]["b"]["so_anomaly"], 0)
+        self.assertIn("neu_dung_nguong_chi2_0.99", r)
+
+    def test_assumption_checks(self):
+        train = self.windows(n_attack=0, seed=1)
+        m = GaussianDetector(["x", "y"]).fit(train)
+        r = assumption_checks(m, train, self.windows(seed=2), self.windows(seed=3))
+        self.assertEqual(set(r), {"gaussian_day_du", "gaussian_duong_cheo", "hon_hop_8_gaussian"})
+        for v in r.values():
+            self.assertGreater(v["auc_test"], 0.9)
 
 
 if __name__ == "__main__":

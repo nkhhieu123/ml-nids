@@ -449,50 +449,202 @@ def gaussian_config(cfg) -> dict:
     return g
 
 
-def cmd_threshold(args):
-    from .config import load_config
-    from .labeling import load_schedule
+def select_model(windows, cfg, rules=None):
+    """Fit từng cách lấy mẫu normal, chọn ngưỡng trên validation, giữ cách có F1 validation cao nhất.
 
-    cfg = gaussian_config(load_config(args.config))
-    windows = load_windows(args.prefixes)
+    Trả về (mô hình đã đặt ngưỡng, báo cáo, điểm validation, nhãn validation). Không đọc test.
+    """
     val = labeled(windows)
     val = val[val["split"] == "validation"]
     y = (val["label_anomaly"] == "anomaly").to_numpy()
-    groups = attack_groups(val, load_schedule())
+    groups = attack_groups(val, rules) if rules is not None else None
     report = {"so_mau_validation": len(val), "so_anomaly_validation": int(y.sum()),
               "cach_chon_nguong": cfg["threshold"], "ung_vien": []}
     best = None
     for fs in cfg["fit_session_candidates"]:
         train = normal_train(windows, fs)
-        feats, _ = select_features(train)
+        feats, dropped = select_features(train)
         model = GaussianDetector(feats, cfg["covariance"]).fit(train)
-        s = model.score(val)
-        t = choose_threshold(s, y, cfg["threshold"], cfg["target_fpr"], cfg["threshold_band"])
-        t_max = choose_threshold(s, y, "f1")
+        sc = model.score(val)
+        t = choose_threshold(sc, y, cfg["threshold"], cfg["target_fpr"], cfg["threshold_band"])
+        t_max = choose_threshold(sc, y, "f1")
         res = {"phien_fit": fs or "tất cả", "so_mau_fit": len(train), "nguong": round(t, 3),
-               **binary_metrics(y, s > t), "recall_theo_dot": group_recall(groups, s > t),
-               "so_sanh_f1_lon_nhat": {"nguong": round(t_max, 3), **binary_metrics(y, s > t_max)}}
+               **binary_metrics(y, sc > t),
+               "so_sanh_f1_lon_nhat": {"nguong": round(t_max, 3), **binary_metrics(y, sc > t_max)}}
+        if groups is not None:
+            res["recall_theo_dot"] = group_recall(groups, sc > t)
         report["ung_vien"].append(res)
-        print(f"fit {res['phien_fit']}: ngưỡng {t:.1f}, P {res['precision']}, R {res['recall']}, "
-              f"F1 {res['f1']}, FPR {res['fpr']}")
-        if best is None or res["f1"] > best[0]["f1"]:  # so theo F1 validation tại ngưỡng đã chọn
-            best = (res, s, t)
-    res, s, t = best
+        if best is None or res["f1"] > best[1]["f1"]:  # so theo F1 validation tại ngưỡng đã chọn
+            model.threshold = float(t)
+            model.info.update({"phien_fit": sorted(train["session"].unique()), "cot_bo": dropped,
+                               "cach_chon_nguong": cfg["threshold"], "nguong": float(t),
+                               "validation": binary_metrics(y, sc > t)})
+            best = (model, res, sc)
+    model, res, sc = best
     report["chon"] = res["phien_fit"]
     report["nguong"] = res["nguong"]
+    return model, report, sc, y
+
+
+def cmd_threshold(args):
+    from .config import load_config
+    from .labeling import load_schedule
+
+    cfg = gaussian_config(load_config(args.config))
+    model, report, s, y = select_model(load_windows(args.prefixes), cfg, load_schedule())
+    for r in report["ung_vien"]:
+        print(f"fit {r['phien_fit']}: ngưỡng {r['nguong']:.1f}, P {r['precision']}, R {r['recall']}, "
+              f"F1 {r['f1']}, FPR {r['fpr']}")
+    res = next(r for r in report["ung_vien"] if r["phien_fit"] == report["chon"])
     curve = threshold_curve(s, y)
     near = curve[(curve["f1"] >= res["f1"] - 0.02)]
     report["khoang_nguong_f1_trong_0_02"] = [round(float(near["nguong"].min()), 1),
                                             round(float(near["nguong"].max()), 1)]
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
-    plot_threshold(curve, t, out / "gauss_nguong.png",
+    plot_threshold(curve, model.threshold, out / "gauss_nguong.png",
                    f"Validation: chọn ngưỡng (fit trên {res['phien_fit']})")
     (out / "gauss_nguong.json").write_text(json.dumps(report, ensure_ascii=False, indent=2),
                                            encoding="utf-8")
-    print(f"Chọn fit trên {res['phien_fit']}, ngưỡng {t:.2f}. Đã ghi: {out / 'gauss_nguong.json'}")
+    print(f"Chọn fit trên {res['phien_fit']}, ngưỡng {model.threshold:.2f}. "
+          f"Đã ghi: {out / 'gauss_nguong.json'}")
     for g, v in res["recall_theo_dot"].items():
         print(f"  {g}: {v['so_mau']} cửa sổ, recall {v['recall']}")
+
+
+# ---- C06-T05: đánh giá trên test ----
+
+def alert_episodes(df, flagged, gap_s=10.0) -> int:
+    """Số đợt báo động: các cửa sổ bị báo liên tiếp của cùng host (cách nhau ≤ gap_s) gộp làm một."""
+    d = df.loc[flagged, ["host", "window_start", "window_end"]].sort_values(["host", "window_start"])
+    if d.empty:
+        return 0
+    new_host = d["host"].ne(d["host"].shift())
+    gap = d["window_start"] - d["window_end"].shift()
+    return int((new_host | (gap > gap_s)).sum())
+
+
+def evaluate(model, test, rules=None) -> dict:
+    """Kết quả trên test với ngưỡng đã chọn: tổng, theo phiên, theo đợt tấn công, báo động giả."""
+    y = (test["label_anomaly"] == "anomaly").to_numpy()
+    sc = model.score(test)
+    pred = sc > model.threshold
+    from sklearn.metrics import average_precision_score, roc_auc_score
+    out = {"nguong": model.threshold, "so_mau": len(test), "so_anomaly": int(y.sum()),
+           "tong": binary_metrics(y, pred),
+           "auc": round(float(roc_auc_score(y, sc)), 4) if 0 < y.sum() < len(y) else None,
+           "ap": round(float(average_precision_score(y, sc)), 4) if y.any() else None,
+           "theo_phien": {}}
+    for sess, idx in test.groupby("session").indices.items():
+        m = np.zeros(len(test), bool)
+        m[idx] = True
+        normal = m & ~y
+        part = test.iloc[idx]
+        hours = (part["window_end"].max() - part["window_start"].min()) / 3600
+        out["theo_phien"][sess] = {
+            "so_mau": int(m.sum()), "so_anomaly": int(y[m].sum()), **binary_metrics(y[m], pred[m]),
+            "gio": round(float(hours), 2),
+            "dot_bao_dong_gia": alert_episodes(test, normal & pred),
+            "dot_bao_dong_gia_moi_gio": round(alert_episodes(test, normal & pred) / hours, 1) if hours else None,
+        }
+    if rules is not None:
+        out["recall_theo_dot"] = group_recall(attack_groups(test, rules), pred)
+    for q in (0.99, 0.999):
+        tc = float(stats.chi2.ppf(q, len(model.features)))
+        out[f"neu_dung_nguong_chi2_{q}"] = {"nguong": round(tc, 2), **binary_metrics(y, sc > tc)}
+    return out
+
+
+def assumption_checks(model, train, val, test) -> dict:
+    """So Gaussian đầy đủ với hai biến thể để đo giới hạn của giả định Gaussian.
+
+    - Đường chéo: bỏ tương quan giữa các cột (giả định các cột độc lập).
+    - Hỗn hợp 8 Gaussian: bỏ giả định "một đỉnh".
+    Cùng biến đổi, cùng mẫu fit, ngưỡng chọn cùng cách trên validation.
+    """
+    from sklearn.metrics import average_precision_score, roc_auc_score
+    from sklearn.mixture import GaussianMixture
+
+    yv = (val["label_anomaly"] == "anomaly").to_numpy()
+    yt = (test["label_anomaly"] == "anomaly").to_numpy()
+    tf = model.transform_
+    Z = tf.transform(train)
+    mu, var = Z.mean(axis=0), Z.var(axis=0)
+    gm = GaussianMixture(8, covariance_type="full", reg_covar=1e-4, random_state=42).fit(Z)
+    variants = {
+        "gaussian_day_du": lambda df: model.score(df),
+        "gaussian_duong_cheo": lambda df: (((tf.transform(df) - mu) ** 2) / var).sum(axis=1),
+        "hon_hop_8_gaussian": lambda df: -gm.score_samples(tf.transform(df)),
+    }
+    out = {}
+    for name, f in variants.items():
+        sv, st = f(val), f(test)
+        t = choose_threshold(sv, yv, "f1_on_dinh")
+        out[name] = {"f1_validation": binary_metrics(yv, sv > t)["f1"],
+                     "test": binary_metrics(yt, st > t),
+                     "auc_test": round(float(roc_auc_score(yt, st)), 4),
+                     "ap_test": round(float(average_precision_score(yt, st)), 4)}
+    return out
+
+
+def plot_test_scores(model, test, rules, path):
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    sc = model.score(test)
+    groups = attack_groups(test, rules)
+    names = ["normal"] + sorted(set(groups) - {"normal"})
+    data = [np.log10(np.maximum(sc[groups == g], 1e-3)) for g in names]
+    fig, ax = plt.subplots(figsize=(9, 4.8))
+    ax.boxplot(data, vert=False, labels=[f"{g} ({len(d)})" for g, d in zip(names, data)],
+               showfliers=False, whis=(5, 95))
+    ax.axvline(np.log10(model.threshold), color="#C44E52", lw=1.2, label=f"ngưỡng d² = {model.threshold:.1f}")
+    ax.set_xlabel("log10(d²)  (hộp: 25–75%, râu: 5–95%)")
+    ax.set_title("Test: điểm bất thường theo đợt tấn công", fontsize=10)
+    ax.legend(fontsize=8)
+    fig.tight_layout()
+    fig.savefig(path, dpi=110)
+    plt.close(fig)
+
+
+def cmd_evaluate(args):
+    import joblib
+
+    from .config import load_config
+    from .labeling import load_schedule
+
+    cfg = gaussian_config(load_config(args.config))
+    windows = load_windows(args.prefixes)
+    rules = load_schedule()
+    if args.model:
+        model = joblib.load(args.model)
+        print(f"Nạp mô hình: {args.model}")
+    else:
+        model = select_model(windows, cfg)[0]
+    data = labeled(windows)
+    test = data[data["split"] == "test"]
+    report = evaluate(model, test, rules)
+    if args.so_sanh:
+        val = data[data["split"] == "validation"]
+        train = normal_train(windows, cfg_fit_sessions(model))
+        report["kiem_tra_gia_dinh"] = assumption_checks(model, train, val, test)
+    out = Path(args.out)
+    out.mkdir(parents=True, exist_ok=True)
+    plot_test_scores(model, test, rules, out / "gauss_test_theo_dot.png")
+    (out / "gauss_test.json").write_text(json.dumps(report, ensure_ascii=False, indent=2),
+                                         encoding="utf-8")
+    t = report["tong"]
+    print(f"Test: P {t['precision']}, R {t['recall']}, F1 {t['f1']}, FPR {t['fpr']}, "
+          f"AUC {report['auc']}, AP {report['ap']}")
+    for g, v in report.get("recall_theo_dot", {}).items():
+        print(f"  {g}: {v['so_mau']} cửa sổ, recall {v['recall']}")
+    print(f"Đã ghi: {out / 'gauss_test.json'}")
+
+
+def cfg_fit_sessions(model):
+    """Phiên mà mô hình đã fit (để dựng lại đúng mẫu train khi so sánh)."""
+    return model.info.get("phien_fit")
 
 
 def main(argv=None):
@@ -508,6 +660,13 @@ def main(argv=None):
     p.add_argument("--out", required=True, help="thư mục ghi hình và JSON")
     p.add_argument("--config", help="file cấu hình, mặc định config/default.yaml")
     p.set_defaults(func=cmd_threshold)
+    p = sub.add_parser("danh-gia", help="đánh giá trên test với ngưỡng chọn trên validation (C06-T05)")
+    p.add_argument("prefixes", nargs="+")
+    p.add_argument("--out", required=True, help="thư mục ghi hình và JSON")
+    p.add_argument("--model", help="file joblib đã lưu; không có thì fit lại theo cấu hình")
+    p.add_argument("--so-sanh", action="store_true", help="so với Gaussian đường chéo và hỗn hợp 8 Gaussian")
+    p.add_argument("--config", help="file cấu hình, mặc định config/default.yaml")
+    p.set_defaults(func=cmd_evaluate)
     args = parser.parse_args(argv)
     args.func(args)
     return 0
