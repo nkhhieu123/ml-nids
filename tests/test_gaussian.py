@@ -7,7 +7,8 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from nids.gaussian import GaussianTransform, compare_transforms, fill_empty, normal_train, select_features
+from nids.gaussian import (GaussianDetector, GaussianTransform, compare_transforms, fill_empty,
+                           fit_covariance, normal_train, select_features)
 
 
 class FeatureSelectionTest(unittest.TestCase):
@@ -97,6 +98,47 @@ class TransformTest(unittest.TestCase):
         self.assertLess(r["yeo_johnson_va_log"]["skew_tri_tuyet_doi_trung_vi"],
                         r["giu_nguyen"]["skew_tri_tuyet_doi_trung_vi"])
         self.assertEqual(set(r["yeo_johnson_va_log"]["d2_phan_vi"]), {"0.5", "0.9", "0.99", "0.999"})
+
+
+class DetectorTest(unittest.TestCase):
+    """C06-T03: huấn luyện Gaussian, xử lý hiệp phương sai suy biến."""
+
+    def normal(self, n=3000, seed=2):
+        rng = np.random.default_rng(seed)
+        a = rng.normal(0, 1, n)
+        return pd.DataFrame({"x": np.exp(a + 3), "y": np.exp(0.6 * a + rng.normal(0, 0.8, n) + 2),
+                             "z": rng.lognormal(1, 0.5, n)})
+
+    def test_singular_covariance_is_invertible(self):
+        rng = np.random.default_rng(3)
+        Z = rng.normal(size=(500, 3))
+        Z = np.column_stack([Z, Z[:, 0] + Z[:, 1]])          # cột 4 là tổng: suy biến
+        self.assertLess(np.linalg.eigvalsh(np.cov(Z, rowvar=False)).min(), 1e-10)
+        for method in ("empirical", "ledoit_wolf"):
+            cov, info = fit_covariance(Z, method)
+            self.assertTrue(np.isfinite(np.linalg.inv(cov)).all())
+            self.assertLessEqual(info["chi_so_dieu_kien"], 1e6 * 1.0001)
+        self.assertEqual(fit_covariance(Z, "empirical")[1]["so_tri_rieng_nang"], 1)
+        self.assertGreater(fit_covariance(Z, "ledoit_wolf")[1]["he_so_co"], 0)
+
+    def test_scores_outlier_higher(self):
+        train = self.normal()
+        m = GaussianDetector(["x", "y", "z"], "ledoit_wolf").fit(train)
+        test = pd.DataFrame({"x": [np.exp(3), np.exp(3)], "y": [np.exp(2), np.exp(9)], "z": [np.e, np.e]})
+        s = m.score(test)
+        self.assertLess(s[0], 3)                               # gần trung tâm
+        self.assertGreater(s[1], 25)                           # lệch xa quan hệ x-y
+        # log mật độ xếp hạng ngược với d²
+        self.assertGreater(m.log_density(test)[0], m.log_density(test)[1])
+        # d² trung bình trên train xấp xỉ số chiều
+        self.assertAlmostEqual(m.score(train).mean(), 3, delta=0.3)
+
+    def test_predict_needs_threshold(self):
+        m = GaussianDetector(["x", "y", "z"]).fit(self.normal())
+        with self.assertRaises(ValueError):
+            m.predict(self.normal(10))
+        m.threshold = 10.0
+        self.assertEqual(set(m.predict(self.normal(50))) <= {"normal", "anomaly"}, True)
 
 
 if __name__ == "__main__":

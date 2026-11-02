@@ -224,6 +224,13 @@ Mẫu:
 - Quyết định: Yeo-Johnson (λ học trên train) cho cột có dưới 90% giá trị 0; log(1 + x) cho cột còn lại; chuẩn hóa theo train. Ngưỡng điểm bất thường chọn trên validation, không lấy từ phân bố χ² lý thuyết.
 - Hệ quả: |skew| trung vị còn 1,04, chỉ số điều kiện từ 2 390 xuống 63. Đuôi d² vẫn dày hơn χ²(14) rất nhiều (phân vị 99%: 98 so với 29), nên giả định Gaussian chỉ đúng gần đúng ở phần giữa phân bố (docs/34).
 
+## QĐ-031 — Điểm bất thường là d² Mahalanobis; hiệp phương sai Ledoit-Wolf kèm sàn trị riêng
+- Ngày: 02/11/2026
+- Trạng thái: Đã chốt
+- Bối cảnh: Σ⁻¹ phải tồn tại cả khi dữ liệu mới (lab) có cột trùng thông tin mà quy tắc chọn đặc trưng chưa lường trước.
+- Quyết định: Gaussian đa biến đầy đủ (không giả định các cột độc lập). Điểm là d² = (z − μ)ᵀΣ⁻¹(z − μ). Σ ước lượng bằng Ledoit-Wolf (`gaussian.covariance`), sau đó trị riêng < 10⁻⁶ × lớn nhất được nâng lên mức đó.
+- Hệ quả: Trên CIC, hệ số co chỉ 0,006 nên kết quả gần như hiệp phương sai mẫu. Trường hợp suy biến thật (đủ 20 cột) cho chỉ số điều kiện 748 thay vì 10⁶ (docs/35).
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
@@ -261,6 +268,7 @@ Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
 | Giảm mẫu, trọng số lớp | Bỏ bớt mẫu của lớp đông / phạt nặng hơn khi đoán sai lớp ít mẫu |
 | Gaussian đa biến | Mô hình mô tả dữ liệu bình thường bằng trung bình và ma trận hiệp phương sai |
 | Yeo-Johnson | Phép biến đổi lũy thừa làm phân bố gần dạng chuông, có tham số học từ dữ liệu |
+| Ledoit-Wolf | Cách co hiệp phương sai về ma trận đường chéo để luôn nghịch đảo được |
 | UTC−3 | Giờ chậm hơn giờ quốc tế 3 tiếng; giờ mùa hè nơi CIC thu dữ liệu |
 | Phần trong tổng (share) | Tỷ lệ của một chiều so với cả hai chiều, luôn từ 0 tới 1 |
 | Manifest | Bảng liệt kê mọi nguồn dữ liệu và cách dùng |

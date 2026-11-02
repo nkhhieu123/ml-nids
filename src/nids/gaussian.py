@@ -218,6 +218,89 @@ def plot_distribution(train, features, out_dir) -> list:
     return [f1, f2]
 
 
+# ---- C06-T03: mô hình Gaussian ----
+
+# Trị riêng nhỏ hơn mức này lần trị riêng lớn nhất bị nâng lên mức đó (chỉ số điều kiện ≤ 1e6)
+EIG_FLOOR_REL = 1e-6
+
+
+def fit_covariance(Z, method="empirical", floor_rel=EIG_FLOOR_REL) -> tuple[np.ndarray, dict]:
+    """Ma trận hiệp phương sai của Z (đã chuẩn hóa) và thông tin xử lý suy biến.
+
+    ``empirical``: hiệp phương sai mẫu. ``ledoit_wolf``: co về ma trận đường chéo, hệ số co
+    chọn tự động (Ledoit-Wolf 2004). Sau đó mọi trị riêng < ``floor_rel`` × trị riêng lớn nhất
+    được nâng lên mức đó, nên ma trận luôn nghịch đảo được.
+    """
+    info = {"phuong_phap": method}
+    if method == "ledoit_wolf":
+        from sklearn.covariance import LedoitWolf
+        lw = LedoitWolf(assume_centered=False).fit(Z)
+        cov = lw.covariance_
+        info["he_so_co"] = round(float(lw.shrinkage_), 6)
+    elif method == "empirical":
+        cov = np.cov(Z, rowvar=False)
+    else:
+        raise ValueError(f"phương pháp hiệp phương sai chưa hỗ trợ: {method}")
+    cov = np.atleast_2d((cov + cov.T) / 2)
+    ev, vec = np.linalg.eigh(cov)
+    floor = max(float(ev.max()), 1e-12) * floor_rel
+    raised = int((ev < floor).sum())
+    info.update({"tri_rieng_nho_nhat_truoc": float(ev.min()), "so_tri_rieng_nang": raised,
+                 "nguong_tri_rieng": floor})
+    if raised:
+        ev = np.maximum(ev, floor)
+        cov = (vec * ev) @ vec.T
+    info["chi_so_dieu_kien"] = float(ev.max() / ev.min())
+    return cov, info
+
+
+class GaussianDetector:
+    """Gaussian đa biến trên cửa sổ host; điểm bất thường là khoảng cách Mahalanobis² (d²).
+
+    Học (biến đổi, trung bình, hiệp phương sai) chỉ trên mẫu normal của train. ``threshold``
+    đặt sau, trên validation (C06-T04). Dự đoán ``anomaly`` khi d² > ngưỡng.
+    """
+
+    def __init__(self, features, covariance="empirical"):
+        self.features = list(features)
+        self.covariance = covariance
+        self.transform_ = None
+        self.mean_ = None
+        self.cov_ = None
+        self.precision_ = None
+        self.logdet_ = None
+        self.threshold = None
+        self.info = {}
+
+    def fit(self, train):
+        self.transform_ = GaussianTransform(self.features).fit(train)
+        Z = self.transform_.transform(train)
+        self.mean_ = Z.mean(axis=0)
+        self.cov_, cov_info = fit_covariance(Z, self.covariance)
+        self.precision_ = np.linalg.inv(self.cov_)
+        self.logdet_ = float(np.linalg.slogdet(self.cov_)[1])
+        self.info.update({"so_mau_fit": len(train), "so_dac_trung": len(self.features),
+                          "hiep_phuong_sai": cov_info,
+                          "cot_yeo_johnson": self.transform_.yj_features,
+                          "cot_log": self.transform_.log_features})
+        return self
+
+    def score(self, df) -> np.ndarray:
+        """d² của từng mẫu; càng lớn càng bất thường."""
+        D = self.transform_.transform(df) - self.mean_
+        return np.einsum("ij,jk,ik->i", D, self.precision_, D)
+
+    def log_density(self, df) -> np.ndarray:
+        """log mật độ Gaussian; xếp hạng ngược hẳn với d² (cùng một mô hình)."""
+        k = len(self.features)
+        return -0.5 * (self.score(df) + self.logdet_ + k * np.log(2 * np.pi))
+
+    def predict(self, df) -> np.ndarray:
+        if self.threshold is None:
+            raise ValueError("chưa đặt ngưỡng: chạy chọn ngưỡng trên validation trước (C06-T04)")
+        return np.where(self.score(df) > self.threshold, "anomaly", "normal")
+
+
 def cmd_distribution(args):
     train = normal_train(load_windows(args.prefixes), args.fit_session)
     feats, dropped = select_features(train)
