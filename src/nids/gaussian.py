@@ -301,6 +301,87 @@ class GaussianDetector:
         return np.where(self.score(df) > self.threshold, "anomaly", "normal")
 
 
+# ---- C06-T04: điểm bất thường và ngưỡng ----
+
+def attack_groups(df, rules, tolerance_s=60.0) -> np.ndarray:
+    """Tên đợt tấn công (cột ``nhan_goc`` của lịch) của từng cửa sổ ``anomaly``; ``normal`` nếu không.
+
+    Cửa sổ khớp đợt khi host là bên tấn công hoặc nạn nhân và cửa sổ chạm khung giờ (nới
+    ``tolerance_s``). Nhiều đợt khớp thì lấy đợt ngắn nhất (bot kéo dài cả ngày bị ưu tiên sau).
+    Chỉ dùng để báo cáo Recall theo loại tấn công, không dùng khi học hay chọn ngưỡng.
+    """
+    out = np.full(len(df), "normal", dtype=object)
+    anomaly = (df["label_anomaly"] == "anomaly").to_numpy()
+    out[anomaly] = "khác"
+    host = df["host"].astype(str).to_numpy()
+    start = df["window_start"].to_numpy(float)
+    end = df["window_end"].to_numpy(float)
+    for r in sorted(rules, key=lambda r: r.end_s - r.start_s, reverse=True):
+        hit = anomaly & np.isin(host, list(r.attackers | r.victims)) & \
+            (end > r.start_s - tolerance_s) & (start < r.end_s + tolerance_s)
+        out[hit] = r.original
+    return out
+
+
+def binary_metrics(y_true, y_pred) -> dict:
+    """Precision, Recall, F1, tỷ lệ báo động giả cho lớp ``anomaly`` (y là mảng bool)."""
+    y_true = np.asarray(y_true, bool)
+    y_pred = np.asarray(y_pred, bool)
+    tp = int((y_pred & y_true).sum())
+    fp = int((y_pred & ~y_true).sum())
+    fn = int((~y_pred & y_true).sum())
+    tn = int((~y_pred & ~y_true).sum())
+    precision = tp / (tp + fp) if tp + fp else 0.0
+    recall = tp / (tp + fn) if tp + fn else 0.0
+    f1 = 2 * precision * recall / (precision + recall) if precision + recall else 0.0
+    return {"precision": round(precision, 4), "recall": round(recall, 4), "f1": round(f1, 4),
+            "fpr": round(fp / (fp + tn), 5) if fp + tn else 0.0,
+            "tp": tp, "fp": fp, "fn": fn, "tn": tn}
+
+
+def choose_threshold(scores, y, method="f1", target_fpr=0.01, band=1.2) -> float:
+    """Ngưỡng d² chọn trên validation; dự đoán ``anomaly`` khi d² > ngưỡng.
+
+    ``f1``: ngưỡng cho F1 lớn nhất (bằng nhau thì lấy ngưỡng cao hơn, ít báo động giả hơn).
+    ``f1_on_dinh``: ngưỡng có F1 *xấu nhất* trong khoảng [t / band, t × band] lớn nhất, để
+    ngưỡng không nằm sát một "vách" mà lệch nhẹ là F1 sụp (docs/36 mục 3).
+    ``fpr``: ngưỡng để tỷ lệ báo động giả trên mẫu normal không vượt ``target_fpr``.
+    """
+    scores = np.asarray(scores, float)
+    y = np.asarray(y, bool)
+    if method == "fpr":
+        return float(np.quantile(scores[~y], 1 - target_fpr, method="higher"))
+    if method == "f1_on_dinh":
+        curve = threshold_curve(scores, y, n=400)
+        t, f1 = curve["nguong"].to_numpy(), curve["f1"].to_numpy()
+        worst = np.array([f1[(t >= v / band) & (t <= v * band)].min() for v in t])
+        return float(t[np.flatnonzero(worst == worst.max())[-1]])
+    if method != "f1":
+        raise ValueError(f"cách chọn ngưỡng chưa hỗ trợ: {method}")
+    order = np.argsort(-scores, kind="stable")
+    s, t = scores[order], y[order]
+    tp = np.cumsum(t)
+    fp = np.cumsum(~t)
+    last = np.r_[s[1:] != s[:-1], True]          # chỉ xét điểm cắt giữa hai giá trị khác nhau
+    tp, fp, s_cut = tp[last], fp[last], s[last]
+    f1 = 2 * tp / (tp + fp + t.sum())
+    best = np.flatnonzero(f1 == f1.max())[0]      # điểm cắt sớm nhất = ngưỡng cao nhất
+    nxt = scores[scores < s_cut[best]]
+    # đặt ngưỡng giữa giá trị cuối được báo và giá trị kế tiếp
+    return float((s_cut[best] + nxt.max()) / 2) if len(nxt) else float(s_cut[best] - 1e-9)
+
+
+def threshold_curve(scores, y, n=200) -> pd.DataFrame:
+    """Precision, Recall, F1, FPR theo ngưỡng (lưới log) để vẽ và báo cáo độ nhạy."""
+    scores = np.asarray(scores, float)
+    lo = max(np.quantile(scores, 0.5), 1e-3)
+    hi = np.quantile(scores, 0.9999)
+    rows = []
+    for t in np.geomspace(lo, hi, n):
+        rows.append({"nguong": t, **binary_metrics(y, scores > t)})
+    return pd.DataFrame(rows)
+
+
 def cmd_distribution(args):
     train = normal_train(load_windows(args.prefixes), args.fit_session)
     feats, dropped = select_features(train)
@@ -318,6 +399,102 @@ def cmd_distribution(args):
               f"{r['d2_phan_vi']['0.99']} (χ² {r['chi2_phan_vi']['0.99']})")
 
 
+def labeled(df) -> pd.DataFrame:
+    """Mẫu có nhãn normal/anomaly (bỏ ``mo_ho`` không xác định)."""
+    data, _ = select_samples(df, MODULE_ANOMALY)
+    return data
+
+
+def plot_threshold(curve, threshold, path, title):
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    fig, ax = plt.subplots(figsize=(7, 4.5))
+    for col, name, color in (("precision", "Precision", "#4C72B0"), ("recall", "Recall", "#DD8452"),
+                             ("f1", "F1", "#55A868")):
+        ax.semilogx(curve["nguong"], curve[col], label=name, color=color)
+    ax2 = ax.twinx()
+    ax2.semilogx(curve["nguong"], curve["fpr"] * 100, "--", color="#8C8C8C", label="FPR (%)")
+    ax2.set_ylabel("Tỷ lệ báo động giả (%)")
+    ax.axvline(threshold, color="black", lw=1)
+    ax.text(threshold, 0.02, f" ngưỡng {threshold:.1f}", fontsize=8)
+    ax.set_xlabel("Ngưỡng d²")
+    ax.set_ylim(0, 1)
+    ax.set_title(title, fontsize=10)
+    h1, l1 = ax.get_legend_handles_labels()
+    h2, l2 = ax2.get_legend_handles_labels()
+    ax.legend(h1 + h2, l1 + l2, loc="center left", fontsize=8)
+    fig.tight_layout()
+    fig.savefig(path, dpi=110)
+    plt.close(fig)
+
+
+def group_recall(groups, pred) -> dict:
+    out = {}
+    for g in sorted(set(groups) - {"normal"}):
+        m = groups == g
+        out[g] = {"so_mau": int(m.sum()), "recall": round(float(pred[m].mean()), 4)}
+    return out
+
+
+def gaussian_config(cfg) -> dict:
+    g = dict(cfg.get("gaussian") or {})
+    g.setdefault("covariance", "ledoit_wolf")
+    g.setdefault("threshold", "f1_on_dinh")
+    g.setdefault("threshold_band", 1.2)
+    g.setdefault("target_fpr", 0.01)
+    g.setdefault("fit_sessions", None)
+    g.setdefault("fit_session_candidates", [["cic17_monday"], None])
+    return g
+
+
+def cmd_threshold(args):
+    from .config import load_config
+    from .labeling import load_schedule
+
+    cfg = gaussian_config(load_config(args.config))
+    windows = load_windows(args.prefixes)
+    val = labeled(windows)
+    val = val[val["split"] == "validation"]
+    y = (val["label_anomaly"] == "anomaly").to_numpy()
+    groups = attack_groups(val, load_schedule())
+    report = {"so_mau_validation": len(val), "so_anomaly_validation": int(y.sum()),
+              "cach_chon_nguong": cfg["threshold"], "ung_vien": []}
+    best = None
+    for fs in cfg["fit_session_candidates"]:
+        train = normal_train(windows, fs)
+        feats, _ = select_features(train)
+        model = GaussianDetector(feats, cfg["covariance"]).fit(train)
+        s = model.score(val)
+        t = choose_threshold(s, y, cfg["threshold"], cfg["target_fpr"], cfg["threshold_band"])
+        t_max = choose_threshold(s, y, "f1")
+        res = {"phien_fit": fs or "tất cả", "so_mau_fit": len(train), "nguong": round(t, 3),
+               **binary_metrics(y, s > t), "recall_theo_dot": group_recall(groups, s > t),
+               "so_sanh_f1_lon_nhat": {"nguong": round(t_max, 3), **binary_metrics(y, s > t_max)}}
+        report["ung_vien"].append(res)
+        print(f"fit {res['phien_fit']}: ngưỡng {t:.1f}, P {res['precision']}, R {res['recall']}, "
+              f"F1 {res['f1']}, FPR {res['fpr']}")
+        if best is None or res["f1"] > best[0]["f1"]:  # so theo F1 validation tại ngưỡng đã chọn
+            best = (res, s, t)
+    res, s, t = best
+    report["chon"] = res["phien_fit"]
+    report["nguong"] = res["nguong"]
+    curve = threshold_curve(s, y)
+    near = curve[(curve["f1"] >= res["f1"] - 0.02)]
+    report["khoang_nguong_f1_trong_0_02"] = [round(float(near["nguong"].min()), 1),
+                                            round(float(near["nguong"].max()), 1)]
+    out = Path(args.out)
+    out.mkdir(parents=True, exist_ok=True)
+    plot_threshold(curve, t, out / "gauss_nguong.png",
+                   f"Validation: chọn ngưỡng (fit trên {res['phien_fit']})")
+    (out / "gauss_nguong.json").write_text(json.dumps(report, ensure_ascii=False, indent=2),
+                                           encoding="utf-8")
+    print(f"Chọn fit trên {res['phien_fit']}, ngưỡng {t:.2f}. Đã ghi: {out / 'gauss_nguong.json'}")
+    for g, v in res["recall_theo_dot"].items():
+        print(f"  {g}: {v['so_mau']} cửa sổ, recall {v['recall']}")
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Gaussian phát hiện bất thường trên cửa sổ host.")
     sub = parser.add_subparsers(dest="lenh", required=True)
@@ -326,6 +503,11 @@ def main(argv=None):
     p.add_argument("--fit-session", action="append", help="chỉ dùng train của phiên này")
     p.add_argument("--out", required=True, help="thư mục ghi hình và JSON")
     p.set_defaults(func=cmd_distribution)
+    p = sub.add_parser("nguong", help="chọn phiên fit và ngưỡng trên validation (C06-T04)")
+    p.add_argument("prefixes", nargs="+")
+    p.add_argument("--out", required=True, help="thư mục ghi hình và JSON")
+    p.add_argument("--config", help="file cấu hình, mặc định config/default.yaml")
+    p.set_defaults(func=cmd_threshold)
     args = parser.parse_args(argv)
     args.func(args)
     return 0

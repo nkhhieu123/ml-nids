@@ -1,0 +1,131 @@
+{
+  "so_mau_validation": 88479,
+  "so_anomaly_validation": 3521,
+  "cach_chon_nguong": "f1_on_dinh",
+  "ung_vien": [
+    {
+      "phien_fit": [
+        "cic17_monday"
+      ],
+      "so_mau_fit": 88929,
+      "nguong": 69.473,
+      "precision": 0.6644,
+      "recall": 0.6984,
+      "f1": 0.681,
+      "fpr": 0.01462,
+      "tp": 2459,
+      "fp": 1242,
+      "fn": 1062,
+      "tn": 83716,
+      "recall_theo_dot": {
+        "Bot": {
+          "so_mau": 2355,
+          "recall": 0.7894
+        },
+        "DDoS": {
+          "so_mau": 214,
+          "recall": 0.5
+        },
+        "DoS GoldenEye": {
+          "so_mau": 78,
+          "recall": 0.9359
+        },
+        "DoS Hulk": {
+          "so_mau": 172,
+          "recall": 0.7442
+        },
+        "DoS Slowhttptest": {
+          "so_mau": 192,
+          "recall": 0.2708
+        },
+        "DoS slowloris": {
+          "so_mau": 206,
+          "recall": 1.0
+        },
+        "Heartbleed": {
+          "so_mau": 254,
+          "recall": 0.0
+        },
+        "PortScan": {
+          "so_mau": 50,
+          "recall": 0.68
+        }
+      },
+      "so_sanh_f1_lon_nhat": {
+        "nguong": 57.62,
+        "precision": 0.6457,
+        "recall": 0.7364,
+        "f1": 0.6881,
+        "fpr": 0.01675,
+        "tp": 2593,
+        "fp": 1423,
+        "fn": 928,
+        "tn": 83535
+      }
+    },
+    {
+      "phien_fit": "tất cả",
+      "so_mau_fit": 252221,
+      "nguong": 64.651,
+      "precision": 0.6707,
+      "recall": 0.7327,
+      "f1": 0.7003,
+      "fpr": 0.01491,
+      "tp": 2580,
+      "fp": 1267,
+      "fn": 941,
+      "tn": 83691,
+      "recall_theo_dot": {
+        "Bot": {
+          "so_mau": 2355,
+          "recall": 0.8395
+        },
+        "DDoS": {
+          "so_mau": 214,
+          "recall": 0.5
+        },
+        "DoS GoldenEye": {
+          "so_mau": 78,
+          "recall": 0.9359
+        },
+        "DoS Hulk": {
+          "so_mau": 172,
+          "recall": 0.75
+        },
+        "DoS Slowhttptest": {
+          "so_mau": 192,
+          "recall": 0.2812
+        },
+        "DoS slowloris": {
+          "so_mau": 206,
+          "recall": 1.0
+        },
+        "Heartbleed": {
+          "so_mau": 254,
+          "recall": 0.0
+        },
+        "PortScan": {
+          "so_mau": 50,
+          "recall": 0.68
+        }
+      },
+      "so_sanh_f1_lon_nhat": {
+        "nguong": 145.597,
+        "precision": 0.8031,
+        "recall": 0.6348,
+        "f1": 0.7091,
+        "fpr": 0.00645,
+        "tp": 2235,
+        "fp": 548,
+        "fn": 1286,
+        "tn": 84410
+      }
+    }
+  ],
+  "chon": "tất cả",
+  "nguong": 64.651,
+  "khoang_nguong_f1_trong_0_02": [
+    51.5,
+    139.5
+  ]
+}

@@ -83,6 +83,7 @@ Báo cáo Chặng 5: [docs/Bao_cao_Chang_5.md](docs/Bao_cao_Chang_5.md)
 - [x] C06-T01: Chọn đặc trưng và lấy mẫu bình thường trong train — `src/nids/gaussian.py`, [docs/33_gaussian_dac_trung.md](docs/33_gaussian_dac_trung.md)
 - [x] C06-T02: Kiểm tra phân bố và xác định phép biến đổi cần thiết — `src/nids/gaussian.py`, [docs/34_gaussian_phan_bo.md](docs/34_gaussian_phan_bo.md)
 - [x] C06-T03: Huấn luyện Gaussian, xử lý covariance suy biến — `src/nids/gaussian.py`, [docs/35_gaussian_huan_luyen.md](docs/35_gaussian_huan_luyen.md)
+- [x] C06-T04: Tính điểm bất thường và chọn ngưỡng trên validation — `src/nids/gaussian.py`, [docs/36_gaussian_nguong.md](docs/36_gaussian_nguong.md)
 
 Những gì còn thiếu sau Chặng 1–3 (dữ liệu, lab, tham số chưa chốt): [docs/Viec_con_thieu_Chang_1_3.md](docs/Viec_con_thieu_Chang_1_3.md)
 

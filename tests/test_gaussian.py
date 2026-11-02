@@ -7,8 +7,10 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from nids.gaussian import (GaussianDetector, GaussianTransform, compare_transforms, fill_empty,
-                           fit_covariance, normal_train, select_features)
+from nids.gaussian import (GaussianDetector, GaussianTransform, attack_groups, binary_metrics,
+                           choose_threshold, compare_transforms, fill_empty, fit_covariance,
+                           normal_train, select_features)
+from nids.labeling import Rule
 
 
 class FeatureSelectionTest(unittest.TestCase):
@@ -139,6 +141,64 @@ class DetectorTest(unittest.TestCase):
             m.predict(self.normal(10))
         m.threshold = 10.0
         self.assertEqual(set(m.predict(self.normal(50))) <= {"normal", "anomaly"}, True)
+
+
+
+class ThresholdTest(unittest.TestCase):
+    """C06-T04: điểm, chỉ số và chọn ngưỡng trên validation."""
+
+    def test_binary_metrics(self):
+        y = np.array([1, 1, 1, 0, 0, 0, 0, 0], bool)
+        p = np.array([1, 1, 0, 1, 0, 0, 0, 0], bool)
+        m = binary_metrics(y, p)
+        self.assertEqual((m["tp"], m["fp"], m["fn"], m["tn"]), (2, 1, 1, 4))
+        self.assertAlmostEqual(m["precision"], 2 / 3, places=4)
+        self.assertAlmostEqual(m["recall"], 2 / 3, places=4)
+        self.assertAlmostEqual(m["fpr"], 0.2, places=4)
+
+    def test_f1_threshold_separates(self):
+        s = np.array([1, 2, 3, 4, 10, 11, 12], float)
+        y = np.array([0, 0, 0, 0, 1, 1, 1], bool)
+        t = choose_threshold(s, y, "f1")
+        self.assertTrue(4 <= t < 10)
+        self.assertEqual(binary_metrics(y, s > t)["f1"], 1.0)
+
+    def test_fpr_threshold(self):
+        rng = np.random.default_rng(0)
+        s = np.r_[rng.normal(0, 1, 10000), rng.normal(5, 1, 100)]
+        y = np.r_[np.zeros(10000, bool), np.ones(100, bool)]
+        t = choose_threshold(s, y, "fpr", target_fpr=0.01)
+        self.assertLessEqual(binary_metrics(y, s > t)["fpr"], 0.01)
+        self.assertGreater(binary_metrics(y, s > t)["fpr"], 0.008)
+
+    def test_stable_threshold_avoids_cliff(self):
+        # 1000 normal quanh 10; 300 anomaly tụ sát ngay trên 100 (vách) và 300 ở xa (1000)
+        rng = np.random.default_rng(1)
+        normal = rng.lognormal(np.log(10), 0.6, 1000)
+        cliff = rng.uniform(100, 103, 300)
+        far = rng.uniform(900, 1100, 300)
+        s = np.r_[normal, cliff, far]
+        y = np.r_[np.zeros(1000, bool), np.ones(600, bool)]
+        t_max = choose_threshold(s, y, "f1")
+        t_stable = choose_threshold(s, y, "f1_on_dinh", band=1.2)
+        self.assertLess(t_stable, 90)                        # lùi xa vách (lưới ngưỡng rời rạc)
+        self.assertGreater(binary_metrics(y, s > t_stable)["f1"], 0.9)
+        self.assertLessEqual(t_stable, t_max)
+
+    def test_attack_groups(self):
+        rule = lambda id_, s, e, att, vic, orig: Rule(id_, s, e, 0, 86400, frozenset(att), frozenset(vic),
+                                                     "loai", orig, "")
+        rules = [rule("bot", 0, 86400, ["10.0.0.5"], ["9.9.9.9"], "Bot"),
+                 rule("hb", 1000, 2000, ["9.9.9.9"], ["10.0.0.51"], "Heartbleed")]
+        df = pd.DataFrame({
+            "host": ["10.0.0.5", "9.9.9.9", "10.0.0.51", "10.0.0.51", "10.0.0.7"],
+            "window_start": [500, 1500, 1500, 5000, 1500],
+            "window_end": [510, 1510, 1510, 5010, 1510],
+            "label_anomaly": ["anomaly", "anomaly", "anomaly", "anomaly", "normal"],
+        })
+        g = attack_groups(df, rules)
+        # 9.9.9.9 dính cả bot (cả ngày) và Heartbleed: lấy đợt ngắn hơn
+        self.assertEqual(list(g), ["Bot", "Heartbleed", "Heartbleed", "khác", "normal"])
 
 
 if __name__ == "__main__":

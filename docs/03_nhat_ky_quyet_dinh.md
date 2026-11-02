@@ -232,6 +232,13 @@ Mẫu:
 - Quyết định: Gaussian đa biến đầy đủ (không giả định các cột độc lập). Điểm là d² = (z − μ)ᵀΣ⁻¹(z − μ). Σ ước lượng bằng Ledoit-Wolf (`gaussian.covariance`), sau đó trị riêng < 10⁻⁶ × lớn nhất được nâng lên mức đó.
 - Hệ quả: Trên CIC, hệ số co chỉ 0,006 nên kết quả gần như hiệp phương sai mẫu. Trường hợp suy biến thật (đủ 20 cột) cho chỉ số điều kiện 748 thay vì 10⁶ (docs/35).
 
+## QĐ-032 — Gaussian fit trên normal của train cả ba ngày; ngưỡng F1 ổn định chọn trên validation
+- Ngày: 02/11/2026
+- Trạng thái: Đã chốt (thay phần "Gaussian học trên thứ Hai" của QĐ-028)
+- Bối cảnh: Trên validation, ngưỡng F1 lớn nhất (d² = 145,6) nằm sát một vách: cụm cửa sổ bot có d² quanh 125–150, ngưỡng tăng nhẹ là F1 rơi từ 0,71 xuống 0,27.
+- Quyết định: Fit trên mẫu normal của train mọi phiên (F1 validation 0,700 so với 0,681 khi chỉ thứ Hai). Ngưỡng chọn bằng `f1_on_dinh`: lấy ngưỡng có F1 xấu nhất trong khoảng lệch ±20% lớn nhất. Ngưỡng đạt được: d² = 64,65.
+- Hệ quả: Ngưỡng nằm trong vùng F1 phẳng (51,5–139,5), đổi lấy FPR 1,49% thay vì 0,65%. Heartbleed không bắt được (recall 0), DDoS và Slowhttptest thấp; phân tích ở docs/36 và C06-T05.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
@@ -270,6 +277,7 @@ Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
 | Gaussian đa biến | Mô hình mô tả dữ liệu bình thường bằng trung bình và ma trận hiệp phương sai |
 | Yeo-Johnson | Phép biến đổi lũy thừa làm phân bố gần dạng chuông, có tham số học từ dữ liệu |
 | Ledoit-Wolf | Cách co hiệp phương sai về ma trận đường chéo để luôn nghịch đảo được |
+| Ngưỡng F1 ổn định | Ngưỡng có F1 tốt nhất khi ngưỡng lệch ±20%, tránh đặt sát chỗ F1 đổi đột ngột |
 | UTC−3 | Giờ chậm hơn giờ quốc tế 3 tiếng; giờ mùa hè nơi CIC thu dữ liệu |
 | Phần trong tổng (share) | Tỷ lệ của một chiều so với cả hai chiều, luôn từ 0 tới 1 |
 | Manifest | Bảng liệt kê mọi nguồn dữ liệu và cách dùng |

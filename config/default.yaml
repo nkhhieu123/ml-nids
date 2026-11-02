@@ -43,6 +43,12 @@ preprocess:                  # chỉ fit và cân bằng trên train (QĐ-028)
 
 gaussian:                    # Gaussian phát hiện bất thường trên cửa sổ host (Chặng 6)
   covariance: ledoit_wolf    # co hiệp phương sai về đường chéo; luôn nghịch đảo được (QĐ-031)
+  fit_session_candidates:    # các cách lấy normal của train để fit; chọn theo F1 trên validation (QĐ-032)
+    - [cic17_monday]         # chỉ phiên không có tấn công
+    - null                   # normal của train mọi phiên
+  threshold: f1_on_dinh      # F1 tốt nhất khi ngưỡng lệch ±20% (QĐ-032); f1: F1 lớn nhất; fpr: báo động giả <= target_fpr
+  threshold_band: 1.2
+  target_fpr: 0.01
 
 lab:
   subnet: 192.168.50.0/24
