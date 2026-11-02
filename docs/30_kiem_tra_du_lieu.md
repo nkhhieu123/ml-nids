@@ -15,14 +15,14 @@ Kết quả dưới đây là của cả ba ngày CIC-IDS2017, chia theo
 
 | Bảng | Mẫu | Dùng (có tập) | Bỏ ở ranh giới | Đặc trưng |
 |---|---|---|---|---|
-| Flow | 1 442 894 | 1 387 400 | 55 494 (3,8%) | 44 |
-| Cửa sổ host | 465 393 | 458 240 | 7 153 (1,5%) | 20 |
+| Flow | 1 442 894 | 1 380 528 | 62 366 (4,3%) | 44 |
+| Cửa sổ host | 465 393 | 456 259 | 9 134 (2,0%) | 20 |
 
 | Phiên | Flow train / validation / test | Cửa sổ train / validation / test |
 |---|---|---|
 | Thứ Hai | 228 512 / 75 703 / 76 232 | 88 929 / 31 009 / 32 275 |
-| Thứ Tư | 296 642 / 88 688 / 96 815 | 100 039 / 23 199 / 35 664 |
-| Thứ Sáu | 319 110 / 98 139 / 107 559 | 71 299 / 26 481 / 49 345 |
+| Thứ Tư | 295 193 / 87 779 / 94 200 | 99 647 / 26 695 / 31 522 |
+| Thứ Sáu | 318 455 / 97 330 / 107 124 | 73 607 / 30 855 / 41 720 |
 
 ## 2. Phân bố lớp
 
@@ -30,19 +30,19 @@ Kết quả dưới đây là của cả ba ngày CIC-IDS2017, chia theo
 
 | Lớp | Flow train | Flow validation | Flow test | Cửa sổ train | Cửa sổ validation | Cửa sổ test |
 |---|---|---|---|---|---|---|
-| `benign` | 567 545 | 185 906 | 220 000 | 251 154 | 76 515 | 111 352 |
+| `benign` | 570 817 | 188 855 | 206 992 | 252 221 | 84 958 | 99 988 |
 | `dos` | 108 004 | 30 768 | 33 320 | 2 270 | 648 | 727 |
 | `port_scan` | 104 614 | 22 054 | 18 553 | 671 | 50 | 462 |
-| Không có nhãn (`loai`, `mo_ho`) | 64 101 | 23 802 | 8 733 | 6 172 | 3 476 | 4 743 |
+| Không có nhãn (`loai`, `mo_ho`) | 58 725 | 19 135 | 18 691 | 7 021 | 2 903 | 4 340 |
 
 `label_anomaly` (module anomaly):
 
 | Lớp | Flow train | Flow validation | Flow test | Cửa sổ train | Cửa sổ validation | Cửa sổ test |
 |---|---|---|---|---|---|---|
-| `normal` | 567 545 | 185 906 | 220 000 | 251 154 | 76 515 | 111 352 |
-| `anomaly` | 276 435 | 76 614 | 60 600 | 8 963 | 4 094 | 5 858 |
+| `normal` | 570 817 | 188 855 | 206 992 | 252 221 | 84 958 | 99 988 |
+| `anomaly` | 271 065 | 71 948 | 70 551 | 9 894 | 3 521 | 5 373 |
 
-**Mất cân bằng nặng ở bảng cửa sổ:** trong train, `benign` gấp 111 lần `dos` và 374 lần
+**Mất cân bằng nặng ở bảng cửa sổ:** trong train, `benign` gấp 111 lần `dos` và 376 lần
 `port_scan`. Xử lý ở C05-T07 (chỉ trên train). Validation và test giữ nguyên tỷ lệ thật,
 nên khi đánh giá phải dùng Precision, Recall, F1 theo lớp, không dùng Accuracy.
 
@@ -78,10 +78,10 @@ trùng mẫu train làm kết quả đẹp hơn thực tế, nên phải đo.
 
 | Bảng, lớp | Trùng trong train | Mẫu test trùng một mẫu train |
 |---|---|---|
-| Flow `benign` | 7,2% | 10,6% |
+| Flow `benign` | 7,3% | 10,8% |
 | Flow `dos` | 2,3% | 1,7% |
 | Flow **`port_scan`** | **98,9%** | **98,3%** |
-| Cửa sổ `benign` | 46,1% | 36,9% |
+| Cửa sổ `benign` | 46,5% | 36,1% |
 | Cửa sổ `dos` | 4,6% | 1,4% |
 | Cửa sổ `port_scan` | 33,7% | 0,2% |
 
@@ -112,7 +112,7 @@ ra một mức sai không thể tránh. Cả 3 vector ở bảng flow đều là
 |---|---|---|---|
 | `loai` (DDoS, Heartbleed, bot) | 100 540 | 14 305 | Chỉ anomaly |
 | `mo_ho` | 300 | 353 | Không dùng (cửa sổ có flow tấn công vẫn là `anomaly`) |
-| `bo` (ranh giới tập) | 55 494 | 7 153 | Không dùng |
+| `bo` (ranh giới tập) | 62 366 | 9 134 | Không dùng |
 
 ## 7. Kiểm thử
 

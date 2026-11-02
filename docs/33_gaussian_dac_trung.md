@@ -24,7 +24,7 @@ train`); không mẫu tấn công, mơ hồ hay của validation/test nào đư�
 | Lựa chọn | Mẫu | Ghi chú |
 |---|---|---|
 | Chỉ thứ Hai (QĐ-028, mặc định) | 88 929 | Ngày không có tấn công nên chắc chắn sạch |
-| Normal của train cả ba ngày | 251 154 | Thêm phần bình thường của thứ Tư, thứ Sáu |
+| Normal của train cả ba ngày | 252 221 | Thêm phần bình thường của thứ Tư, thứ Sáu |
 
 Cả hai đều không rò rỉ: chỉ lấy train. Dùng thêm hai ngày có thể giúp mô hình hiểu dao động
 bình thường giữa các ngày, nhưng nhãn `normal` của hai ngày đó phụ thuộc lịch tấn công. Lựa
@@ -65,8 +65,8 @@ Trên 88 929 cửa sổ normal của train thứ Hai:
 `new_conn_out`, `src_hosts`, `new_conn_in`, `dst_port_entropy`, `tcp_attempts_out`,
 `no_reply_out`, `rejected_out`, `half_open_out`, `tcp_attempts_in`, `incomplete_in`.
 
-Fit trên normal của train cả ba ngày (251 154 mẫu) cho **đúng cùng 14 đặc trưng**, với hệ số
-tương quan gần như cũ (0,956; 0,950; 0,989), nên cách chọn ổn định.
+Fit trên normal của train cả ba ngày (252 221 mẫu) cho **đúng cùng 14 đặc trưng**, với hệ số
+tương quan gần như cũ (0,957; 0,952; 0,988), nên cách chọn ổn định.
 
 **Đặc điểm cần chú ý cho các task sau** (đo trên train thứ Hai):
 

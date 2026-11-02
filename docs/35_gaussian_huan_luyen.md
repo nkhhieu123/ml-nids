@@ -54,16 +54,17 @@ kết quả cuối ở C06-T04, T05.
 
 | Fit trên | Hiệp phương sai | Mẫu fit | Chỉ số điều kiện | α | AUC (validation) | AP (validation) |
 |---|---|---|---|---|---|---|
-| Train thứ Hai | Mẫu | 88 929 | 62,7 | — | 0,9619 | 0,574 |
-| Train thứ Hai | Ledoit-Wolf | 88 929 | 58,3 | 0,0058 | 0,9623 | 0,576 |
-| Normal của train cả ba ngày | Mẫu | 251 154 | 59,5 | — | 0,9673 | 0,624 |
-| Normal của train cả ba ngày | Ledoit-Wolf | 251 154 | 55,6 | 0,0055 | 0,9674 | 0,624 |
+| Train thứ Hai | Mẫu | 88 929 | 62,7 | — | 0,9740 | 0,626 |
+| Train thứ Hai | Ledoit-Wolf | 88 929 | 58,3 | 0,0058 | 0,9741 | 0,627 |
+| Normal của train cả ba ngày | Mẫu | 252 221 | 57,7 | — | 0,9777 | 0,680 |
+| Normal của train cả ba ngày | Ledoit-Wolf | 252 221 | 54,0 | 0,0055 | 0,9777 | 0,680 |
 
-Validation có 80 609 cửa sổ, trong đó 4 094 `anomaly` (5,1%). Huấn luyện mất khoảng 1–2,5 giây.
+Validation có 88 479 cửa sổ, trong đó 3 521 `anomaly` (4,0%). Số liệu tính sau khi sửa khối
+Heartbleed, DDoS (docs/29 mục 2). Huấn luyện mất khoảng 1–2,5 giây.
 
 Nhận xét:
 - Hai cách tính hiệp phương sai cho kết quả gần như nhau, vì Σ đã ổn định từ C06-T01, T02.
-- Fit trên normal cả ba ngày tốt hơn rõ (AP 0,624 so với 0,574), vì mô hình thấy được dao động
+- Fit trên normal cả ba ngày tốt hơn rõ (AP 0,680 so với 0,627), vì mô hình thấy được dao động
   bình thường của thứ Tư, thứ Sáu. Cách nào được dùng sẽ chốt ở C06-T04 theo validation.
 
 ## 4. Kiểm thử

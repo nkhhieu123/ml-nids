@@ -74,15 +74,15 @@ vi mạng có thật, và lớp ít nhất đã đủ vài trăm mẫu.
 
 | Bộ | Fit trên | Train trước → sau bỏ trùng | Train sau cân bằng | Validation | Test |
 |---|---|---|---|---|---|
-| Cửa sổ, phân loại | Thứ Tư, thứ Sáu | 165 166 → 86 396 | benign 4 450, dos 2 165, port_scan 445 | benign 45 506, dos 648, port_scan 50 | benign 79 077, dos 727, port_scan 462 |
-| Flow, phân loại | Thứ Tư, thứ Sáu | 551 651 → 424 214 | benign 11 610, dos 11 610, port_scan 1 161 | benign 110 203, dos 30 768, port_scan 22 054 | benign 143 768, dos 33 320, port_scan 18 553 |
-| Cửa sổ, anomaly | Thứ Hai (normal) | 88 929 (không bỏ trùng) | normal 88 929 | normal 76 515, anomaly 4 094 | normal 111 352, anomaly 5 858 |
-| Flow, anomaly | Thứ Hai (normal) | 228 512 (không bỏ trùng) | normal 228 512 | normal 185 906, anomaly 76 614 | normal 220 000, anomaly 60 600 |
+| Cửa sổ, phân loại | Thứ Tư, thứ Sáu | 166 233 → 85 956 | benign 4 450, dos 2 165, port_scan 445 | benign 53 949, dos 648, port_scan 50 | benign 67 713, dos 727, port_scan 462 |
+| Flow, phân loại | Thứ Tư, thứ Sáu | 554 923 → 426 266 | benign 11 610, dos 11 610, port_scan 1 161 | benign 113 152, dos 30 768, port_scan 22 054 | benign 130 760, dos 33 320, port_scan 18 553 |
+| Cửa sổ, anomaly | Thứ Hai (normal) | 88 929 (không bỏ trùng) | normal 88 929 | normal 84 958, anomaly 3 521 | normal 99 988, anomaly 5 373 |
+| Flow, anomaly | Thứ Hai (normal) | 228 512 (không bỏ trùng) | normal 228 512 | normal 188 855, anomaly 71 948 | normal 206 992, anomaly 70 551 |
 
 Trọng số lớp sau cân bằng: bảng cửa sổ benign 0,53, dos 1,09, port_scan 5,29; bảng flow benign
 0,70, dos 0,70, port_scan 7,00.
 
-Giảm mẫu bỏ nhiều benign: bảng cửa sổ còn 4 450 / 83 786 mẫu benign khác nhau. Tỷ lệ 10 chỉnh
+Giảm mẫu bỏ nhiều benign: bảng cửa sổ còn 4 450 / 83 346 mẫu benign khác nhau. Tỷ lệ 10 chỉnh
 được trong cấu hình; Chặng 7 sẽ kiểm tra có cần giữ nhiều hơn không.
 
 ## 3. Cách tránh rò rỉ giữa các tập

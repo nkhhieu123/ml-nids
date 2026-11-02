@@ -27,7 +27,7 @@ ngày 29–30/10/2026.
 | | Flow | Cửa sổ host |
 |---|---|---|
 | Tổng | 1 442 894 | 465 393 |
-| Dùng được (có tập) | 1 387 400 | 458 240 |
+| Dùng được (có tập) | 1 380 528 | 456 259 |
 
 **Tiêu chí nghiệm thu: dữ liệu sẵn sàng huấn luyện, có giải thích cách tránh rò rỉ giữa các
 tập.**
@@ -104,10 +104,12 @@ ra.
 
 - Mỗi khối tấn công và mỗi khoảng bình thường được cắt **theo thứ tự thời gian**: 60% số flow
   đầu là train, 20% kế là validation, 20% cuối là test.
-- Mẫu vắt qua ranh giới, hoặc cách ranh giới hai tập dưới 10 giây, bị bỏ (1,5–3,8%).
+- Mẫu vắt qua ranh giới, hoặc cách ranh giới hai tập dưới 10 giây, bị bỏ (2,0% số cửa sổ, 4,3% số flow).
 - Ban đầu chia theo thời lượng, nhưng traffic buổi sáng dày nên train thứ Sáu chiếm 82% số
   flow; chuyển sang chia theo số flow thì đúng tỷ lệ.
 - Không gán nguyên khối vào một tập, vì `port_scan` chỉ có 2 khối và một khối gần như rỗng.
+- Heartbleed và DDoS cũng là khối riêng, để module anomaly có chúng ở cả ba tập (sửa ngày
+  02/11/2026; bản đầu để Heartbleed nằm trọn trong validation).
 
 ### 3.5. C05-T05 — Kiểm tra dữ liệu
 
@@ -116,7 +118,7 @@ ra.
   theo chiều), tỷ lệ kết nối không hoàn tất trống khi không có lần thử (74–94%).
 - **98,9% flow `port_scan` có vector đặc trưng trùng nhau**, và 98,3% mẫu test trùng một mẫu
   train. Ở bảng cửa sổ chỉ 0,2%. Vì vậy đề xuất **lấy bảng cửa sổ làm đơn vị đánh giá chính**.
-- **Mất cân bằng nặng ở bảng cửa sổ:** trong train, benign gấp 111 lần `dos` và 374 lần
+- **Mất cân bằng nặng ở bảng cửa sổ:** trong train, benign gấp 111 lần `dos` và 376 lần
   `port_scan`.
 - Có 3 vector ở bảng flow mang cùng đặc trưng nhưng khác nhãn: đều là flow một gói (SYN đơn
   lẻ, hoặc RST+ACK đơn lẻ). Đây là mức sai không thể tránh.
@@ -144,10 +146,10 @@ ra.
 
 | Bộ | Train sau cân bằng | Test |
 |---|---|---|
-| Cửa sổ, phân loại | benign 4 450, dos 2 165, port_scan 445 | benign 79 077, dos 727, port_scan 462 |
-| Flow, phân loại | benign 11 610, dos 11 610, port_scan 1 161 | benign 143 768, dos 33 320, port_scan 18 553 |
-| Cửa sổ, anomaly | normal 88 929 (thứ Hai) | normal 111 352, anomaly 5 858 |
-| Flow, anomaly | normal 228 512 (thứ Hai) | normal 220 000, anomaly 60 600 |
+| Cửa sổ, phân loại | benign 4 450, dos 2 165, port_scan 445 | benign 67 713, dos 727, port_scan 462 |
+| Flow, phân loại | benign 11 610, dos 11 610, port_scan 1 161 | benign 130 760, dos 33 320, port_scan 18 553 |
+| Cửa sổ, anomaly | normal 88 929 (thứ Hai) | normal 99 988, anomaly 5 373 |
+| Flow, anomaly | normal 228 512 (thứ Hai) | normal 206 992, anomaly 70 551 |
 
 **Kiểm chứng chống rò rỉ trên dữ liệu thật:**
 - Trên cả ba ngày, **0 cặp mẫu** ở hai tập khác nhau chồng thời gian; khoảng cách nhỏ nhất là

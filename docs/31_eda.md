@@ -93,8 +93,8 @@ Cột `new_conn_in` của `172.16.0.1` khác 0 vì `192.168.10.51` (và `.3`) ch
 ![Đặc trưng cửa sổ: normal và anomaly](hinh/eda_cua_so_anomaly.png)
 
 Lớp `anomaly` gồm cả các đợt bị loại khỏi phân loại (DDoS, Heartbleed, bot). **58% cửa sổ
-`anomaly` của train (5 226 / 8 963) là của 5 máy bot**, với rất ít gói (trung vị 8–53 gói
-vào mỗi cửa sổ, so với 20 của `normal`). Hai phân bố chồng nhau nhiều ở hầu hết đặc trưng,
+`anomaly` của train (5 707 / 9 894) là của 5 máy bot**, với rất ít gói (trung vị 7–50 gói
+vào mỗi cửa sổ, so với 19 của `normal`). Hai phân bố chồng nhau nhiều ở hầu hết đặc trưng,
 trừ `new_conn_in`, `incomplete_ratio_out`, `incomplete_ratio_in`.
 
 Dự đoán cần kiểm chứng ở Chặng 6: Gaussian sẽ khó bắt các cửa sổ bot, vì chúng trông gần

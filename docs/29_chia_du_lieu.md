@@ -54,12 +54,19 @@ không rò rỉ nhờ thứ tự thời gian và vùng đệm. Đánh giá khả
 thấy** (ví dụ huấn luyện không có GoldenEye rồi thử GoldenEye) là một thí nghiệm riêng ở
 Chặng 7, không dùng làm cách chia chính.
 
+**Đợt bị loại khỏi phân loại cũng là một khối** (Heartbleed, DDoS), vì module anomaly dùng
+chúng. Bản đầu để trống cột `khoi` của hai đợt này: Heartbleed rơi trọn vào validation của
+khoảng buổi chiều, DDoS bị cắt lệch, nên module anomaly không có Heartbleed ở train và test.
+Đã sửa ngày 02/11/2026 khi làm Chặng 6 (số liệu dưới đây là sau khi sửa; số mẫu `dos`,
+`port_scan` không đổi). Bot thứ Sáu kéo dài cả ngày nên không có khối riêng; nó được chia cùng
+các khoảng bình thường.
+
 **Phiên không có tấn công** (thứ Hai CIC): cả phiên là một khoảng, cắt 60/20/20. Gaussian
 học trên train của phiên này; ngưỡng chọn trên validation.
 
 ## 3. Kết quả
 
-Đoạn thời gian của thứ Tư (27 đoạn, giờ địa phương UTC−3; mỗi đợt DoS là một khối):
+Đoạn thời gian của thứ Tư (33 đoạn, giờ địa phương UTC−3; mỗi đợt DoS và Heartbleed là một khối):
 
 | Khoảng | Train | Validation | Test |
 |---|---|---|---|
@@ -68,29 +75,33 @@ học trên train của phiên này; ngưỡng chọn trên validation.
 | Slowhttptest 10:14–10:36 | 10:14–10:26 | 10:26–10:29 | 10:29–10:36 |
 | Hulk 10:43–11:01 | 10:43–10:53 | 10:53–10:57 | 10:57–11:01 |
 | GoldenEye 11:10–11:24 | 11:10–11:17 | 11:17–11:19 | 11:19–11:24 |
-| Cuối ngày 11:24–17:10 (có Heartbleed, đã loại) | 11:24–15:02 | 15:02–15:46 | 15:46–17:10 |
-| (và ba khoảng ngắn giữa các đợt) | | | |
+| Chiều 11:24–15:12 (bình thường) | 11:24–14:07 | 14:07–14:35 | 14:35–15:12 |
+| Heartbleed 15:12–15:33 (loại khỏi phân loại, dùng cho anomaly) | 15:12–15:21 | 15:21–15:25 | 15:25–15:33 |
+| Cuối ngày 15:33–17:10 (bình thường) | 15:33–16:27 | 16:27–16:47 | 16:47–17:10 |
+| (và bốn khoảng ngắn giữa các đợt) | | | |
 
-Đoạn thời gian của thứ Sáu (15 đoạn; hai khối quét):
+Đoạn thời gian của thứ Sáu (21 đoạn; hai khối quét và một khối DDoS):
 
 | Khoảng | Train | Validation | Test |
 |---|---|---|---|
 | Sáng 08:59–13:55 (bình thường, có bot đã loại) | 08:59–11:17 | 11:17–12:14 | 12:14–13:55 |
 | Quét, tường lửa bật 13:55–14:36 | 13:55–14:19 | 14:19–14:26 | 14:26–14:36 |
 | Quét, tường lửa tắt 14:51–15:30 | 14:51–14:55 | 14:55–15:08 | 15:08–15:30 |
-| Cuối ngày 15:30–17:02 (có DDoS, đã loại) | 15:30–16:09 | 16:09–16:14 | 16:14–17:02 |
+| Giữa 15:30–15:56 (bình thường, có bot) | 15:30–15:40 | 15:40–15:48 | 15:48–15:56 |
+| DDoS 15:56–16:17 (loại khỏi phân loại, dùng cho anomaly) | 15:56–16:08 | 16:08–16:12 | 16:12–16:17 |
+| Cuối ngày 16:17–17:02 (bình thường, có bot) | 16:17–16:43 | 16:43–16:53 | 16:53–17:02 |
 
 Số mẫu:
 
 | Bảng, phiên | Train | Validation | Test | Bỏ |
 |---|---|---|---|---|
-| Flow thứ Tư | 296 642 | 88 688 | 96 815 | 24 018 (4,7%) |
+| Flow thứ Tư | 295 193 | 87 779 | 94 200 | 28 991 (5,7%) |
 | — trong đó `dos` | 108 004 | 30 768 | 33 320 | 8 676 |
-| Cửa sổ thứ Tư | 100 039 | 23 199 | 35 664 | 4 529 (2,8%) |
+| Cửa sổ thứ Tư | 99 647 | 26 695 | 31 522 | 5 567 (3,4%) |
 | — trong đó `dos` | 2 270 | 648 | 727 | 333 |
-| Flow thứ Sáu | 319 110 | 98 139 | 107 559 | 30 216 (5,4%) |
+| Flow thứ Sáu | 318 455 | 97 330 | 107 124 | 32 115 (5,8%) |
 | — trong đó `port_scan` | 104 614 | 22 054 | 18 553 | 16 047 |
-| Cửa sổ thứ Sáu | 71 299 | 26 481 | 49 345 | 2 324 (1,6%) |
+| Cửa sổ thứ Sáu | 73 607 | 30 855 | 41 720 | 3 267 (2,2%) |
 | — trong đó `port_scan` | 671 | **50** | 462 | 76 |
 
 **Điểm yếu: validation của `port_scan` ở bảng cửa sổ chỉ có 50 mẫu.** Quét cổng diễn ra theo

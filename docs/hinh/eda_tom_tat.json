@@ -9,12 +9,12 @@
   },
   "trung_vi_flow_train": {
     "benign": {
-      "duration_s": 0.061467,
+      "duration_s": 0.061515,
       "packets": 4.0,
       "bytes": 436.0,
       "pkt_len_mean": 110.0,
-      "iat_mean": 0.024452,
-      "fwd_byte_share": 0.360248,
+      "iat_mean": 0.024114,
+      "fwd_byte_share": 0.36,
       "syn_count": 0.0,
       "rst_count": 0.0
     },
@@ -41,11 +41,11 @@
   },
   "trung_vi_cua_so_train": {
     "benign": {
-      "packets_in": 20.0,
+      "packets_in": 19.0,
       "new_conn_out": 0.0,
       "new_conn_in": 0.0,
       "dst_ports": 2.0,
-      "dst_port_entropy": 0.629249,
+      "dst_port_entropy": 0.623086,
       "src_hosts": 0.0,
       "incomplete_ratio_out": 0.0,
       "incomplete_ratio_in": 0.0
@@ -75,17 +75,17 @@
     [
       "packets_out",
       "bytes_out",
-      0.957
+      0.958
     ],
     [
       "packets_in",
       "bytes_in",
-      0.951
+      0.953
     ],
     [
       "dst_hosts",
       "dst_host_ports",
-      0.986
+      0.985
     ],
     [
       "incomplete_out",

@@ -27,7 +27,7 @@ lấy cột nhãn của CSV CIC (CSV có lỗi nhãn, docs/06 mục 6 và 7.5). 
 | `nhan_attack` | Nhãn đồ án: `dos`, `port_scan`, hoặc `loai` (tấn công bị loại khỏi phân loại) |
 | `ben_tan_cong`, `nan_nhan` | IP **như thấy trong PCAP** (sau NAT), nhiều IP cách nhau bằng `;` |
 | `cong_nan_nhan` | Cổng dịch vụ bị tấn công phía nạn nhân (trống: mọi cổng) |
-| `khoi` | Khối thời gian dùng khi chia dữ liệu (C05-T04); trống với đợt bị loại |
+| `khoi` | Khối thời gian dùng khi chia dữ liệu (C05-T04); trống với bot thứ Sáu (kéo dài cả ngày nên không cắt thành khối được) |
 
 Lịch CIC-IDS2017 (9 dòng, giờ UTC−3, docs/06 mục 7.3):
 
