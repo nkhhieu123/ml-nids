@@ -60,6 +60,16 @@ classifier:                  # phân loại tấn công đa lớp trên cửa s�
     min_samples_leaf: 1
     max_features: sqrt
     class_weight: balanced_subsample
+  search:                    # C07-T04, theo macro-F1 validation (QĐ-035)
+    balance_max_ratio: [10, 100, null]   # bước 1: tỷ lệ giảm mẫu train × class_weight; null: không giảm
+    logistic_regression:
+      class_weight: [balanced, null]
+      C: [0.01, 0.1, 1.0, 10.0, 100.0]   # bước 2
+    random_forest:
+      class_weight: [balanced_subsample, null]
+      max_depth: [null, 20, 10]          # bước 2
+      min_samples_leaf: [1, 3, 10]
+      max_features: [sqrt, 0.5]
 
 lab:
   subnet: 192.168.50.0/24

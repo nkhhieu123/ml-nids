@@ -4,10 +4,12 @@
   (docs/39_phan_loai_nhan.md, QĐ-033).
 - C07-T02: Logistic Regression làm mô hình đối chiếu (docs/40_phan_loai_lr.md, QĐ-034).
 - C07-T03: Random Forest (docs/41_phan_loai_rf.md).
+- C07-T04: chọn tham số và mô hình theo macro-F1 validation (docs/42_phan_loai_chon.md, QĐ-035).
 
     python -m nids.classifier nhan <tiền tố phiên>... --out docs/hinh
     python -m nids.classifier thu logistic_regression <tiền tố phiên>... --out docs/hinh
     python -m nids.classifier thu random_forest <tiền tố phiên>... --out docs/hinh
+    python -m nids.classifier chon <tiền tố phiên>... --out docs/hinh
 
 Mọi bước học chỉ dùng tập train; validation để chọn tham số và mô hình; test chỉ để đánh giá.
 """
@@ -56,6 +58,7 @@ def classifier_config(cfg) -> dict:
     c.setdefault("logistic_regression", {"C": 1.0, "class_weight": "balanced"})
     c.setdefault("random_forest", {"n_estimators": 300, "max_features": "sqrt",
                                    "class_weight": "balanced_subsample"})
+    c.setdefault("search", {})
     return c
 
 
@@ -76,6 +79,21 @@ def host_roles(df, rules) -> np.ndarray:
     return out
 
 
+def class_groups(df, rules) -> np.ndarray:
+    """Đợt tấn công (``nhan_goc``) của từng mẫu tấn công, chỉ xét các đợt cùng lớp với nhãn của mẫu.
+
+    ``benign`` cho mẫu benign; ``khác`` nếu không khớp đợt nào của lớp đó (sát ranh giới).
+    """
+    y = df[LABEL_COL].to_numpy()
+    out = np.where(y == "benign", "benign", "khác").astype(object)
+    for c in set(y) - {"benign"}:
+        m = y == c
+        same = [r for r in rules if r.label == c]
+        g = attack_groups(df[m].assign(label_anomaly="anomaly"), same)
+        out[m] = g
+    return out
+
+
 def _counts(series) -> dict:
     return {str(k): int(v) for k, v in series.value_counts().sort_index().items()}
 
@@ -84,7 +102,7 @@ def class_report(df, rules) -> dict:
     """Số mẫu từng lớp theo tập, theo đợt tấn công và vai trò host; mẫu bị loại và lý do."""
     data, label_col = select_samples(df, MODULE_ATTACK)
     data = data[data["split"].isin(SPLITS)]
-    groups = attack_groups(data, rules)
+    groups = class_groups(data, rules)
     roles = host_roles(data, rules)
     out = {"lop": list(ATTACK_LABELS), "phien": sorted(df["session"].unique()),
            "theo_tap": {}, "theo_dot": {}, "theo_vai_tro": {}, "canh_bao": []}
@@ -149,7 +167,7 @@ def make_estimator(kind, params, seed=42):
         return LogisticRegression(random_state=seed, **params)
     if kind == "random_forest":
         from sklearn.ensemble import RandomForestClassifier
-        params.setdefault("n_jobs", 2)
+        params.setdefault("n_jobs", 4)
         return RandomForestClassifier(random_state=seed, **params)
     raise ValueError(f"mô hình chưa hỗ trợ: {kind}")
 
@@ -255,6 +273,129 @@ def cmd_try(args):
     print(f"Đã ghi: {path}")
 
 
+# ---- C07-T04: chọn tham số và mô hình trên validation ----
+
+def _grid(space) -> list[dict]:
+    import itertools
+
+    keys = list(space)
+    return [dict(zip(keys, vals)) for vals in itertools.product(*(space[k] for k in keys))]
+
+
+def _row(kind, ratio, params, res, seconds) -> dict:
+    v = res["validation"]
+    return {"mo_hinh": kind, "ty_le_can_bang": ratio, "tham_so": params,
+            "macro_f1_validation": v["macro_f1"], "macro_f1_train": res["train"]["macro_f1"],
+            **{f"f1_{c}": v["theo_lop"][c]["f1"] for c in ATTACK_LABELS},
+            **{f"precision_{c}": v["theo_lop"][c]["precision"] for c in ATTACK_LABELS if c != "benign"},
+            **{f"recall_{c}": v["theo_lop"][c]["recall"] for c in ATTACK_LABELS if c != "benign"},
+            "giay": round(seconds, 1)}
+
+
+def search(kind, df, cfg, log=print) -> dict:
+    """Hai bước, đều theo macro-F1 validation (không đọc test).
+
+    1. Tỷ lệ giảm mẫu train × ``class_weight``, các tham số khác để mặc định của cấu hình.
+    2. Các tham số còn lại của lưới, giữ tỷ lệ và ``class_weight`` tốt nhất ở bước 1.
+    """
+    import time
+
+    space = dict((cfg["search"].get(kind) or {}))
+    ratios = cfg["search"].get("balance_max_ratio", [cfg["balance_max_ratio"]])
+    base = dict(cfg.get(kind) or {})
+    weights = space.pop("class_weight", [base.get("class_weight")])
+    datasets = {}
+
+    def run(ratio, params):
+        key = ratio if ratio is not None else "none"
+        if key not in datasets:
+            datasets[key] = prepare_data(df, ratio, cfg["random_seed"], cfg["drop_train_duplicates"])
+        t = time.perf_counter()
+        _, res = fit_and_score(kind, params, datasets[key], cfg["random_seed"])
+        row = _row(kind, ratio, params, res, time.perf_counter() - t)
+        log(f"  {kind} tỷ lệ {ratio} {params}: macro-F1 validation {row['macro_f1_validation']}")
+        return row
+
+    rows = []
+    for ratio in ratios:
+        for w in weights:
+            rows.append(dict(run(ratio, {**base, "class_weight": w}), buoc=1))
+    best1 = max(rows, key=lambda r: r["macro_f1_validation"])
+    for extra in _grid(space):
+        params = {**best1["tham_so"], **extra}
+        if params == best1["tham_so"] or any(r["tham_so"] == params and r["ty_le_can_bang"] == best1["ty_le_can_bang"]
+                                             for r in rows):
+            continue
+        rows.append(dict(run(best1["ty_le_can_bang"], params), buoc=2))
+    best = max(rows, key=lambda r: r["macro_f1_validation"])
+    return {"tot_nhat": best, "cac_lan_thu": rows}
+
+
+def _macro_f1_fast(t, p, k) -> float:
+    cm = np.bincount(t * k + p, minlength=k * k).reshape(k, k)
+    tp = np.diag(cm).astype(float)
+    denom = cm.sum(0) + cm.sum(1)
+    return float(np.mean(np.divide(2 * tp, denom, out=np.zeros(k), where=denom > 0)))
+
+
+def paired_bootstrap(y, pred_a, pred_b, n=1000, seed=42) -> dict:
+    """Lấy lại mẫu validation có hoàn lại; tỷ lệ lần B hơn A và khoảng 95% của hiệu macro-F1 (B − A).
+
+    Mẫu cửa sổ liền nhau không độc lập, nên khoảng này hẹp hơn thực tế; chỉ để thấy chênh lệch có
+    vượt nhiễu lấy mẫu hay không.
+    """
+    labels = list(ATTACK_LABELS)
+    idx = {c: i for i, c in enumerate(labels)}
+    t = np.array([idx[v] for v in y])
+    a = np.array([idx[v] for v in pred_a])
+    b = np.array([idx[v] for v in pred_b])
+    rng = np.random.default_rng(seed)
+    diffs = np.empty(n)
+    for i in range(n):
+        s = rng.integers(0, len(t), len(t))
+        diffs[i] = _macro_f1_fast(t[s], b[s], 3) - _macro_f1_fast(t[s], a[s], 3)
+    return {"so_lan": n, "ty_le_b_hon_a": round(float((diffs > 0).mean()), 4),
+            "hieu_trung_binh": round(float(diffs.mean()), 4),
+            "khoang_95": [round(float(np.percentile(diffs, 2.5)), 4), round(float(np.percentile(diffs, 97.5)), 4)]}
+
+
+def select_models(df, cfg, kinds=("logistic_regression", "random_forest"), log=print) -> dict:
+    """Mỗi loại mô hình chọn tham số trên validation; mô hình cuối là loại có macro-F1 validation cao hơn."""
+    out = {"mo_hinh": {}, "chi_so": "macro-F1 trên validation"}
+    preds = {}
+    for kind in kinds:
+        log(f"{kind}:")
+        res = search(kind, df, cfg, log)
+        best = res["tot_nhat"]
+        data = prepare_data(df, best["ty_le_can_bang"], cfg["random_seed"], cfg["drop_train_duplicates"])
+        model, scores = fit_and_score(kind, best["tham_so"], data, cfg["random_seed"])
+        preds[kind] = model.predict(data["validation"])
+        out["mo_hinh"][kind] = {**res, "validation": scores["validation"]}
+        y_val = data["validation"][LABEL_COL].to_numpy()        # như nhau với mọi tỷ lệ giảm mẫu
+    chosen = max(kinds, key=lambda k: out["mo_hinh"][k]["tot_nhat"]["macro_f1_validation"])
+    out["chon"] = chosen
+    if len(kinds) == 2:
+        out["bootstrap"] = {"a": kinds[0], "b": kinds[1], **paired_bootstrap(y_val, preds[kinds[0]], preds[kinds[1]])}
+    return out
+
+
+def cmd_select(args):
+    from .config import load_config
+
+    cfg = classifier_config(load_config(args.config))
+    df = load_data(args.prefixes, cfg["sessions"])
+    res = select_models(df, cfg)
+    out = Path(args.out)
+    out.mkdir(parents=True, exist_ok=True)
+    path = out / "phan_loai_chon.json"
+    path.write_text(json.dumps(res, ensure_ascii=False, indent=2, default=str), encoding="utf-8")
+    for kind, r in res["mo_hinh"].items():
+        b = r["tot_nhat"]
+        print(f"{kind}: tỷ lệ {b['ty_le_can_bang']}, {b['tham_so']}, macro-F1 validation {b['macro_f1_validation']}")
+    print("Chọn:", res["chon"], "| bootstrap:", res.get("bootstrap"))
+    print(f"Đã ghi: {path}")
+
+
 def cmd_labels(args):
     from .config import load_config
 
@@ -287,6 +428,11 @@ def main(argv=None):
     p.add_argument("--out", required=True, help="thư mục ghi JSON")
     p.add_argument("--config", help="file cấu hình, mặc định config/default.yaml")
     p.set_defaults(func=cmd_try)
+    p = sub.add_parser("chon", help="chọn tham số và mô hình theo macro-F1 validation (C07-T04)")
+    p.add_argument("prefixes", nargs="+")
+    p.add_argument("--out", required=True, help="thư mục ghi JSON")
+    p.add_argument("--config", help="file cấu hình, mặc định config/default.yaml")
+    p.set_defaults(func=cmd_select)
     args = parser.parse_args(argv)
     args.func(args)
     return 0

@@ -206,7 +206,7 @@ Mẫu:
 
 ## QĐ-028 — Tiền xử lý chỉ fit trên train; bỏ trùng và cân bằng chỉ trên train; Gaussian học trên thứ Hai
 - Ngày: 30/10/2026
-- Trạng thái: Đã chốt (tỷ lệ cân bằng 10 chỉnh được ở Chặng 7); phần "Gaussian học trên thứ Hai" thay bởi QĐ-032
+- Trạng thái: Đã chốt (tỷ lệ cân bằng 10 thay bởi QĐ-035 cho Chặng 7); phần "Gaussian học trên thứ Hai" thay bởi QĐ-032
 - Bối cảnh: Đặc trưng lệch phải mạnh, nhiều ô trống có ý nghĩa, lớp mất cân bằng nặng (benign gấp 376 lần port_scan ở bảng cửa sổ), 98,9% flow port_scan trùng nhau. Tham số tiền xử lý và việc cân bằng không được dùng dữ liệu đánh giá.
 - Quyết định: `log(1 + x)` cho đặc trưng đếm, byte, giây; điền trung vị của train kèm cột đánh dấu ô trống; chuẩn hóa theo train. Module phân loại dùng thứ Tư và thứ Sáu, bỏ mẫu train trùng hệt, giảm mẫu mỗi lớp xuống tối đa 10 lần lớp ít nhất, kèm trọng số lớp. Module anomaly fit trên mẫu normal của train thứ Hai, không bỏ trùng vì tần suất là thông tin của phân bố. Validation và test giữ phân bố thật (xem `docs/32_tien_xu_ly.md`).
 - Hệ quả: Bộ tiền xử lý lưu ở `models/`, chương trình realtime nạp lại đúng phép biến đổi này (B12). Không dùng SMOTE.
@@ -252,6 +252,13 @@ Mẫu:
 - Bối cảnh: Với cân bằng của QĐ-028 (tối đa 10 lần) và `class_weight = balanced`, LR đạt macro-F1 validation 0,418: 13% cửa sổ benign bị báo tấn công vì train có 37% tấn công còn thực tế khoảng 1,3%. Không cân bằng thì macro-F1 0,883.
 - Quyết định: LR (C = 1, balanced) là mức chuẩn của C07-T02, dùng chung tiền xử lý với Random Forest. Tỷ lệ giảm mẫu train (10, 100, không giảm) và `class_weight` thành tham số chọn theo macro-F1 validation ở C07-T04, thay cho mức 10 cố định.
 - Hệ quả: Phần "tỷ lệ cân bằng 10" của QĐ-028 không còn cố định cho Chặng 7. Chi tiết ở docs/40.
+
+## QĐ-035 — Chọn Random Forest cho phân loại tấn công; không cân bằng lớp
+- Ngày: 02/11/2026
+- Trạng thái: Đã chốt cho CIC-IDS2017
+- Bối cảnh: C07-T04 chọn theo macro-F1 validation, hai bước (tỷ lệ giảm mẫu × class_weight, rồi tham số còn lại). Không giảm mẫu, không trọng số tốt nhất cho cả hai mô hình.
+- Quyết định: Random Forest 300 cây, max_depth 20, min_samples_leaf 3, max_features sqrt, train giữ nguyên phân bố lớp (macro-F1 validation 0,913). LR (C = 1, không cân bằng, 0,883) giữ làm mức chuẩn.
+- Hệ quả: RF hơn LR ở 99,7% lần bootstrap ghép cặp trên validation (hiệu +0,029), chủ yếu nhờ recall dos. Tham số cây gần như không ảnh hưởng (0,89–0,913). Thay phần cân bằng 10 lần của QĐ-028 cho Chặng 7. Chi tiết ở docs/42.
 
 ## Thuật ngữ
 

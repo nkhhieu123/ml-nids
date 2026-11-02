@@ -10,7 +10,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from nids.classifier import (class_report, fit_and_score, host_roles, load_data, lr_coefficients,
-                             make_estimator, multiclass_metrics, prepare_data)
+                             make_estimator, multiclass_metrics, paired_bootstrap, prepare_data,
+                             search, select_models)
 from nids.dataset import feature_columns
 from nids.labeling import Rule
 from session_fixture import make_session
@@ -134,6 +135,47 @@ class ModelTest(SessionCase):
     def test_unknown_model(self):
         with self.assertRaises(ValueError):
             make_estimator("svm", {})
+
+
+class SelectTest(SessionCase):
+    """C07-T04: chọn trên validation, hai bước; so sánh bằng bootstrap."""
+
+    CFG = {"random_seed": 0, "drop_train_duplicates": True, "balance_max_ratio": 10,
+           "logistic_regression": {"C": 1.0}, "random_forest": {"n_estimators": 10},
+           "search": {"balance_max_ratio": [1, None],
+                      "logistic_regression": {"class_weight": ["balanced", None], "C": [0.1, 1.0]},
+                      "random_forest": {"class_weight": [None], "max_depth": [None, 2]}}}
+
+    def test_two_steps(self):
+        df = separable(load_data(self.prefixes))
+        res = search("logistic_regression", df, self.CFG, log=lambda *_: None)
+        step1 = [r for r in res["cac_lan_thu"] if r["buoc"] == 1]
+        step2 = [r for r in res["cac_lan_thu"] if r["buoc"] == 2]
+        self.assertEqual(len(step1), 4)                       # 2 tỷ lệ × 2 trọng số
+        best1 = max(step1, key=lambda r: r["macro_f1_validation"])
+        self.assertTrue(all(r["ty_le_can_bang"] == best1["ty_le_can_bang"] for r in step2))
+        self.assertEqual({r["tham_so"]["C"] for r in step2} | {1.0}, {0.1, 1.0})   # không thử lại C = 1
+        self.assertEqual(res["tot_nhat"]["macro_f1_validation"],
+                         max(r["macro_f1_validation"] for r in res["cac_lan_thu"]))
+
+    def test_select_and_bootstrap(self):
+        df = separable(load_data(self.prefixes))
+        res = select_models(df, self.CFG, log=lambda *_: None)
+        self.assertIn(res["chon"], ("logistic_regression", "random_forest"))
+        self.assertEqual(set(res["mo_hinh"]), {"logistic_regression", "random_forest"})
+        b = res["bootstrap"]
+        self.assertLessEqual(b["khoang_95"][0], b["khoang_95"][1])
+
+    def test_bootstrap_detects_difference(self):
+        y = np.array(["benign"] * 80 + ["dos"] * 10 + ["port_scan"] * 10)
+        good = y.copy()
+        bad = y.copy()
+        bad[80:] = "benign"
+        b = paired_bootstrap(y, bad, good, n=200)
+        self.assertEqual(b["ty_le_b_hon_a"], 1.0)
+        self.assertGreater(b["khoang_95"][0], 0)
+        same = paired_bootstrap(y, good, good, n=50)
+        self.assertEqual(same["hieu_trung_binh"], 0.0)
 
 
 if __name__ == "__main__":
