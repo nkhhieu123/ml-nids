@@ -210,6 +210,13 @@ Mẫu:
 - Quyết định: `log(1 + x)` cho đặc trưng đếm, byte, giây; điền trung vị của train kèm cột đánh dấu ô trống; chuẩn hóa theo train. Module phân loại dùng thứ Tư và thứ Sáu, bỏ mẫu train trùng hệt, giảm mẫu mỗi lớp xuống tối đa 10 lần lớp ít nhất, kèm trọng số lớp. Module anomaly fit trên mẫu normal của train thứ Hai, không bỏ trùng vì tần suất là thông tin của phân bố. Validation và test giữ phân bố thật (xem `docs/32_tien_xu_ly.md`).
 - Hệ quả: Bộ tiền xử lý lưu ở `models/`, chương trình realtime nạp lại đúng phép biến đổi này (B12). Không dùng SMOTE.
 
+## QĐ-029 — Gaussian dùng cửa sổ host, chọn đặc trưng theo quy tắc trên train
+- Ngày: 02/11/2026
+- Trạng thái: Đã chốt (tập phiên để fit chọn trên validation ở C06-T04)
+- Bối cảnh: Gaussian cần mọi cột có giá trị và ma trận hiệp phương sai nghịch đảo được. Bảng cửa sổ có cột trống nhiều (tỷ lệ không hoàn tất), cột là tổng của cột khác và các cặp gần trùng thông tin.
+- Quyết định: Dùng bảng cửa sổ host. Học trên mẫu `normal` của train. Chọn đặc trưng bằng quy tắc chạy trên train: bỏ cột trống quá 50% (trừ `dst_port_entropy`, trống nghĩa là 0), bỏ `incomplete_out` (tổng ba cột thành phần), bỏ cột hằng số, bỏ cột sau trong mỗi cặp Spearman |r| ≥ 0,95. Trên CIC được 14 đặc trưng (xem `docs/33_gaussian_dac_trung.md`).
+- Hệ quả: Danh sách đặc trưng được lưu cùng mô hình. Các cột về kết nối không hoàn tất gần như luôn 0 khi bình thường, nên phân bố lệch mạnh và hiệp phương sai gần suy biến; xử lý ở C06-T02, T03.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
@@ -245,6 +252,7 @@ Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
 | Vùng đệm (embargo) | Khoảng bỏ trống ở ranh giới giữa hai tập dữ liệu |
 | Fit | Tính tham số từ dữ liệu, ví dụ trung bình để chuẩn hóa |
 | Giảm mẫu, trọng số lớp | Bỏ bớt mẫu của lớp đông / phạt nặng hơn khi đoán sai lớp ít mẫu |
+| Gaussian đa biến | Mô hình mô tả dữ liệu bình thường bằng trung bình và ma trận hiệp phương sai |
 | UTC−3 | Giờ chậm hơn giờ quốc tế 3 tiếng; giờ mùa hè nơi CIC thu dữ liệu |
 | Phần trong tổng (share) | Tỷ lệ của một chiều so với cả hai chiều, luôn từ 0 tới 1 |
 | Manifest | Bảng liệt kê mọi nguồn dữ liệu và cách dùng |

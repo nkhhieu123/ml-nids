@@ -78,6 +78,10 @@ Báo cáo Chặng 4: [docs/Bao_cao_Chang_4.md](docs/Bao_cao_Chang_4.md)
 
 Báo cáo Chặng 5: [docs/Bao_cao_Chang_5.md](docs/Bao_cao_Chang_5.md)
 
+### Chặng 6 — Gaussian anomaly detection
+
+- [x] C06-T01: Chọn đặc trưng và lấy mẫu bình thường trong train — `src/nids/gaussian.py`, [docs/33_gaussian_dac_trung.md](docs/33_gaussian_dac_trung.md)
+
 Những gì còn thiếu sau Chặng 1–3 (dữ liệu, lab, tham số chưa chốt): [docs/Viec_con_thieu_Chang_1_3.md](docs/Viec_con_thieu_Chang_1_3.md)
 
 ## Cấu trúc
@@ -113,6 +117,7 @@ src/nids/
   data_quality.py     Kiểm tra thiếu, vô hạn, trùng, phân bố lớp
   eda.py              Vẽ EDA trên tập train
   preprocessing.py    Tiền xử lý: chỉ fit và cân bằng lớp trên train
+  gaussian.py         Gaussian đa biến phát hiện bất thường trên cửa sổ host
   alerts.py           Schema cảnh báo, xuất terminal + CSV
 tests/                Kiểm thử
 scripts/              Script đọc PCAP, sinh traffic mô phỏng (chưa có)
