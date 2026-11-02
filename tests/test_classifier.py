@@ -121,6 +121,16 @@ class ModelTest(SessionCase):
         # bộ tiền xử lý fit trên train sau bỏ trùng, không phải validation
         self.assertEqual(model.preprocessor.info["so_mau_fit"], len(data["train_full"]))
 
+    def test_fit_random_forest(self):
+        data = prepare_data(separable(load_data(self.prefixes)), max_ratio=10)
+        model, res = fit_and_score("random_forest", {"n_estimators": 20}, data)
+        self.assertGreater(res["validation"]["macro_f1"], 0.9)
+        self.assertEqual(len(model.estimator.feature_importances_), len(model.preprocessor.output_names))
+        # cùng seed thì cùng kết quả
+        again, _ = fit_and_score("random_forest", {"n_estimators": 20}, data)
+        np.testing.assert_array_equal(model.predict_proba(data["validation"]),
+                                      again.predict_proba(data["validation"]))
+
     def test_unknown_model(self):
         with self.assertRaises(ValueError):
             make_estimator("svm", {})

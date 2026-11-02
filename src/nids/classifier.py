@@ -3,9 +3,11 @@
 - C07-T01: chốt nhãn thực tế: lớp nào, mẫu nào, đợt tấn công nào bị loại và vì sao
   (docs/39_phan_loai_nhan.md, QĐ-033).
 - C07-T02: Logistic Regression làm mô hình đối chiếu (docs/40_phan_loai_lr.md, QĐ-034).
+- C07-T03: Random Forest (docs/41_phan_loai_rf.md).
 
     python -m nids.classifier nhan <tiền tố phiên>... --out docs/hinh
     python -m nids.classifier thu logistic_regression <tiền tố phiên>... --out docs/hinh
+    python -m nids.classifier thu random_forest <tiền tố phiên>... --out docs/hinh
 
 Mọi bước học chỉ dùng tập train; validation để chọn tham số và mô hình; test chỉ để đánh giá.
 """
@@ -52,6 +54,8 @@ def classifier_config(cfg) -> dict:
     c.setdefault("balance_max_ratio", p.get("balance_max_ratio", 10))
     c.setdefault("random_seed", (cfg or {}).get("random_seed", 42))
     c.setdefault("logistic_regression", {"C": 1.0, "class_weight": "balanced"})
+    c.setdefault("random_forest", {"n_estimators": 300, "max_features": "sqrt",
+                                   "class_weight": "balanced_subsample"})
     return c
 
 

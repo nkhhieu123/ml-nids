@@ -93,6 +93,7 @@ Báo cáo Chặng 6: [docs/Bao_cao_Chang_6.md](docs/Bao_cao_Chang_6.md)
 
 - [x] C07-T01: Chốt nhãn thực tế: Benign, PortScan, DoS — `src/nids/classifier.py`, [docs/39_phan_loai_nhan.md](docs/39_phan_loai_nhan.md)
 - [x] C07-T02: Logistic Regression làm mô hình đối chiếu — `src/nids/classifier.py`, [docs/40_phan_loai_lr.md](docs/40_phan_loai_lr.md)
+- [x] C07-T03: Random Forest — `src/nids/classifier.py`, [docs/41_phan_loai_rf.md](docs/41_phan_loai_rf.md)
 
 Những gì còn thiếu sau Chặng 1–6 (việc đang dở, dữ liệu, lab, tham số chưa chốt): [docs/Viec_con_thieu.md](docs/Viec_con_thieu.md)
 
