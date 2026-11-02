@@ -7,7 +7,7 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from nids.gaussian import fill_empty, normal_train, select_features
+from nids.gaussian import GaussianTransform, compare_transforms, fill_empty, normal_train, select_features
 
 
 class FeatureSelectionTest(unittest.TestCase):
@@ -58,6 +58,45 @@ class FeatureSelectionTest(unittest.TestCase):
         })
         self.assertEqual(normal_train(df).index.tolist(), [0, 3])
         self.assertEqual(normal_train(df, ["mon"]).index.tolist(), [0])
+
+
+class TransformTest(unittest.TestCase):
+    """C06-T02: biến đổi, tham số chỉ học từ train."""
+
+    def frame(self, n=2000, seed=1):
+        rng = np.random.default_rng(seed)
+        return pd.DataFrame({
+            "skewed": rng.lognormal(2, 1.2, n),
+            "zero_heavy": np.where(rng.random(n) < 0.97, 0.0, rng.poisson(3, n) + 1.0),
+            "dst_port_entropy": np.where(rng.random(n) < 0.2, np.nan, rng.random(n) * 3),
+        })
+
+    def test_split_columns_and_reduce_skew(self):
+        df = self.frame()
+        t = GaussianTransform(list(df.columns)).fit(df)
+        self.assertEqual(t.log_features, ["zero_heavy"])
+        self.assertEqual(t.yj_features, ["skewed", "dst_port_entropy"])
+        Z = t.transform(df)
+        self.assertFalse(np.isnan(Z).any())
+        np.testing.assert_allclose(Z.mean(axis=0), 0, atol=1e-9)
+        from scipy import stats
+        self.assertLess(abs(stats.skew(Z[:, 0])), abs(stats.skew(df["skewed"])) / 5)
+
+    def test_parameters_from_train_only(self):
+        df = self.frame()
+        a = GaussianTransform(list(df.columns)).fit(df)
+        other = df * 100                                     # dữ liệu khác hẳn, chỉ transform
+        a.transform(other)
+        b = GaussianTransform(list(df.columns)).fit(df)
+        self.assertEqual(a.lambdas, b.lambdas)
+        np.testing.assert_allclose(a.scaler.mean_, b.scaler.mean_)
+
+    def test_compare_transforms_report(self):
+        df = self.frame()
+        r = compare_transforms(df, list(df.columns))
+        self.assertLess(r["yeo_johnson_va_log"]["skew_tri_tuyet_doi_trung_vi"],
+                        r["giu_nguyen"]["skew_tri_tuyet_doi_trung_vi"])
+        self.assertEqual(set(r["yeo_johnson_va_log"]["d2_phan_vi"]), {"0.5", "0.9", "0.99", "0.999"})
 
 
 if __name__ == "__main__":

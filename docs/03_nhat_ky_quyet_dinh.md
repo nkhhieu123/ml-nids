@@ -217,6 +217,13 @@ Mẫu:
 - Quyết định: Dùng bảng cửa sổ host. Học trên mẫu `normal` của train. Chọn đặc trưng bằng quy tắc chạy trên train: bỏ cột trống quá 50% (trừ `dst_port_entropy`, trống nghĩa là 0), bỏ `incomplete_out` (tổng ba cột thành phần), bỏ cột hằng số, bỏ cột sau trong mỗi cặp Spearman |r| ≥ 0,95. Trên CIC được 14 đặc trưng (xem `docs/33_gaussian_dac_trung.md`).
 - Hệ quả: Danh sách đặc trưng được lưu cùng mô hình. Các cột về kết nối không hoàn tất gần như luôn 0 khi bình thường, nên phân bố lệch mạnh và hiệp phương sai gần suy biến; xử lý ở C06-T02, T03.
 
+## QĐ-030 — Biến đổi trước Gaussian: Yeo-Johnson và log(1 + x); ngưỡng không theo χ²
+- Ngày: 02/11/2026
+- Trạng thái: Đã chốt
+- Bối cảnh: Các đặc trưng cửa sổ lệch phải rất mạnh (|skew| trung vị 10,5). Năm cột gần như luôn bằng 0.
+- Quyết định: Yeo-Johnson (λ học trên train) cho cột có dưới 90% giá trị 0; log(1 + x) cho cột còn lại; chuẩn hóa theo train. Ngưỡng điểm bất thường chọn trên validation, không lấy từ phân bố χ² lý thuyết.
+- Hệ quả: |skew| trung vị còn 1,04, chỉ số điều kiện từ 2 390 xuống 63. Đuôi d² vẫn dày hơn χ²(14) rất nhiều (phân vị 99%: 98 so với 29), nên giả định Gaussian chỉ đúng gần đúng ở phần giữa phân bố (docs/34).
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
@@ -253,6 +260,7 @@ Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
 | Fit | Tính tham số từ dữ liệu, ví dụ trung bình để chuẩn hóa |
 | Giảm mẫu, trọng số lớp | Bỏ bớt mẫu của lớp đông / phạt nặng hơn khi đoán sai lớp ít mẫu |
 | Gaussian đa biến | Mô hình mô tả dữ liệu bình thường bằng trung bình và ma trận hiệp phương sai |
+| Yeo-Johnson | Phép biến đổi lũy thừa làm phân bố gần dạng chuông, có tham số học từ dữ liệu |
 | UTC−3 | Giờ chậm hơn giờ quốc tế 3 tiếng; giờ mùa hè nơi CIC thu dữ liệu |
 | Phần trong tổng (share) | Tỷ lệ của một chiều so với cả hai chiều, luôn từ 0 tới 1 |
 | Manifest | Bảng liệt kê mọi nguồn dữ liệu và cách dùng |

@@ -81,6 +81,7 @@ Báo cáo Chặng 5: [docs/Bao_cao_Chang_5.md](docs/Bao_cao_Chang_5.md)
 ### Chặng 6 — Gaussian anomaly detection
 
 - [x] C06-T01: Chọn đặc trưng và lấy mẫu bình thường trong train — `src/nids/gaussian.py`, [docs/33_gaussian_dac_trung.md](docs/33_gaussian_dac_trung.md)
+- [x] C06-T02: Kiểm tra phân bố và xác định phép biến đổi cần thiết — `src/nids/gaussian.py`, [docs/34_gaussian_phan_bo.md](docs/34_gaussian_phan_bo.md)
 
 Những gì còn thiếu sau Chặng 1–3 (dữ liệu, lab, tham số chưa chốt): [docs/Viec_con_thieu_Chang_1_3.md](docs/Viec_con_thieu_Chang_1_3.md)
 

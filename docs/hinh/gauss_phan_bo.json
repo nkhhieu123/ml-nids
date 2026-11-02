@@ -1,0 +1,281 @@
+{
+  "so_mau": 88929,
+  "dac_trung": [
+    "packets_out",
+    "packets_in",
+    "dst_hosts",
+    "dst_ports",
+    "new_conn_out",
+    "src_hosts",
+    "new_conn_in",
+    "dst_port_entropy",
+    "tcp_attempts_out",
+    "no_reply_out",
+    "rejected_out",
+    "half_open_out",
+    "tcp_attempts_in",
+    "incomplete_in"
+  ],
+  "cot_bo": {
+    "incomplete_out": "bằng tổng no_reply_out + rejected_out + half_open_out",
+    "incomplete_ratio_out": "trống 70.4% trong train",
+    "incomplete_ratio_in": "trống 95.1% trong train",
+    "bytes_out": "tương quan Spearman 0.965 với packets_out",
+    "bytes_in": "tương quan Spearman 0.958 với packets_in",
+    "dst_host_ports": "tương quan Spearman 0.991 với dst_hosts"
+  },
+  "giu_nguyen": {
+    "theo_cot": {
+      "packets_out": {
+        "skew": 11.931,
+        "kurtosis_du": 154.292
+      },
+      "packets_in": {
+        "skew": 11.912,
+        "kurtosis_du": 149.644
+      },
+      "dst_hosts": {
+        "skew": 3.346,
+        "kurtosis_du": 15.35
+      },
+      "dst_ports": {
+        "skew": 0.909,
+        "kurtosis_du": 2.279
+      },
+      "new_conn_out": {
+        "skew": 8.174,
+        "kurtosis_du": 95.424
+      },
+      "src_hosts": {
+        "skew": 3.04,
+        "kurtosis_du": 9.962
+      },
+      "new_conn_in": {
+        "skew": 10.147,
+        "kurtosis_du": 136.558
+      },
+      "dst_port_entropy": {
+        "skew": 0.674,
+        "kurtosis_du": -0.383
+      },
+      "tcp_attempts_out": {
+        "skew": 6.839,
+        "kurtosis_du": 60.573
+      },
+      "no_reply_out": {
+        "skew": 15.106,
+        "kurtosis_du": 299.054
+      },
+      "rejected_out": {
+        "skew": 35.532,
+        "kurtosis_du": 1611.128
+      },
+      "half_open_out": {
+        "skew": 47.866,
+        "kurtosis_du": 3227.97
+      },
+      "tcp_attempts_in": {
+        "skew": 10.894,
+        "kurtosis_du": 183.924
+      },
+      "incomplete_in": {
+        "skew": 94.286,
+        "kurtosis_du": 8887.9
+      }
+    },
+    "skew_tri_tuyet_doi_trung_vi": 10.521,
+    "tri_rieng_nho_nhat": 0.0013756777502637266,
+    "chi_so_dieu_kien": 2389.7767491741943,
+    "d2_phan_vi": {
+      "0.5": 2.48,
+      "0.9": 18.95,
+      "0.99": 175.81,
+      "0.999": 917.96
+    },
+    "chi2_phan_vi": {
+      "0.5": 13.34,
+      "0.9": 21.06,
+      "0.99": 29.14,
+      "0.999": 36.12
+    }
+  },
+  "log1p": {
+    "theo_cot": {
+      "packets_out": {
+        "skew": 0.492,
+        "kurtosis_du": 0.232
+      },
+      "packets_in": {
+        "skew": 0.648,
+        "kurtosis_du": 0.544
+      },
+      "dst_hosts": {
+        "skew": 0.524,
+        "kurtosis_du": -0.634
+      },
+      "dst_ports": {
+        "skew": -0.487,
+        "kurtosis_du": -0.183
+      },
+      "new_conn_out": {
+        "skew": 1.701,
+        "kurtosis_du": 2.117
+      },
+      "src_hosts": {
+        "skew": 1.843,
+        "kurtosis_du": 2.55
+      },
+      "new_conn_in": {
+        "skew": 3.112,
+        "kurtosis_du": 9.476
+      },
+      "dst_port_entropy": {
+        "skew": 0.28,
+        "kurtosis_du": -1.364
+      },
+      "tcp_attempts_out": {
+        "skew": 2.091,
+        "kurtosis_du": 3.64
+      },
+      "no_reply_out": {
+        "skew": 10.635,
+        "kurtosis_du": 122.932
+      },
+      "rejected_out": {
+        "skew": 20.322,
+        "kurtosis_du": 446.219
+      },
+      "half_open_out": {
+        "skew": 21.005,
+        "kurtosis_du": 564.128
+      },
+      "tcp_attempts_in": {
+        "skew": 5.207,
+        "kurtosis_du": 29.688
+      },
+      "incomplete_in": {
+        "skew": 94.286,
+        "kurtosis_du": 8887.9
+      }
+    },
+    "skew_tri_tuyet_doi_trung_vi": 1.967,
+    "tri_rieng_nho_nhat": 0.05276194432378537,
+    "chi_so_dieu_kien": 88.20386466292447,
+    "d2_phan_vi": {
+      "0.5": 6.36,
+      "0.9": 22.85,
+      "0.99": 102.32,
+      "0.999": 529.83
+    },
+    "chi2_phan_vi": {
+      "0.5": 13.34,
+      "0.9": 21.06,
+      "0.99": 29.14,
+      "0.999": 36.12
+    }
+  },
+  "yeo_johnson_va_log": {
+    "theo_cot": {
+      "packets_out": {
+        "skew": 0.025,
+        "kurtosis_du": -0.46
+      },
+      "packets_in": {
+        "skew": 0.039,
+        "kurtosis_du": -0.557
+      },
+      "dst_hosts": {
+        "skew": 0.095,
+        "kurtosis_du": -0.985
+      },
+      "dst_ports": {
+        "skew": -0.015,
+        "kurtosis_du": -0.09
+      },
+      "new_conn_out": {
+        "skew": 0.749,
+        "kurtosis_du": -1.215
+      },
+      "src_hosts": {
+        "skew": 1.056,
+        "kurtosis_du": -0.86
+      },
+      "new_conn_in": {
+        "skew": 1.784,
+        "kurtosis_du": 1.227
+      },
+      "dst_port_entropy": {
+        "skew": 0.12,
+        "kurtosis_du": -1.61
+      },
+      "tcp_attempts_out": {
+        "skew": 1.027,
+        "kurtosis_du": -0.791
+      },
+      "no_reply_out": {
+        "skew": 10.635,
+        "kurtosis_du": 122.932
+      },
+      "rejected_out": {
+        "skew": 20.322,
+        "kurtosis_du": 446.219
+      },
+      "half_open_out": {
+        "skew": 21.005,
+        "kurtosis_du": 564.128
+      },
+      "tcp_attempts_in": {
+        "skew": 5.207,
+        "kurtosis_du": 29.688
+      },
+      "incomplete_in": {
+        "skew": 94.286,
+        "kurtosis_du": 8887.9
+      }
+    },
+    "skew_tri_tuyet_doi_trung_vi": 1.041,
+    "tri_rieng_nho_nhat": 0.07539381066304977,
+    "chi_so_dieu_kien": 62.69222983547774,
+    "d2_phan_vi": {
+      "0.5": 6.93,
+      "0.9": 22.49,
+      "0.99": 97.89,
+      "0.999": 533.02
+    },
+    "chi2_phan_vi": {
+      "0.5": 13.34,
+      "0.9": 21.06,
+      "0.99": 29.14,
+      "0.999": 36.12
+    }
+  },
+  "cot_yeo_johnson": [
+    "packets_out",
+    "packets_in",
+    "dst_hosts",
+    "dst_ports",
+    "new_conn_out",
+    "src_hosts",
+    "new_conn_in",
+    "dst_port_entropy",
+    "tcp_attempts_out"
+  ],
+  "cot_log": [
+    "no_reply_out",
+    "rejected_out",
+    "half_open_out",
+    "tcp_attempts_in",
+    "incomplete_in"
+  ],
+  "lambda": {
+    "packets_out": -0.0973,
+    "packets_in": -0.1285,
+    "dst_hosts": -0.2379,
+    "dst_ports": 0.3864,
+    "new_conn_out": -0.8843,
+    "src_hosts": -2.9817,
+    "new_conn_in": -2.405,
+    "dst_port_entropy": -0.6399,
+    "tcp_attempts_out": -1.3465
+  }
+}
