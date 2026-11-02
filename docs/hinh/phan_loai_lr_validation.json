@@ -1,0 +1,162 @@
+{
+  "mo_hinh": "logistic_regression",
+  "tham_so": {
+    "C": 1.0,
+    "class_weight": "balanced",
+    "dual": false,
+    "fit_intercept": true,
+    "intercept_scaling": 1,
+    "l1_ratio": 0.0,
+    "max_iter": 3000,
+    "n_jobs": null,
+    "penalty": "deprecated",
+    "random_state": 42,
+    "solver": "lbfgs",
+    "tol": 0.0001,
+    "verbose": 0,
+    "warm_start": false
+  },
+  "du_lieu": {
+    "so_mau_train_truoc_bo_trung": 166233,
+    "so_mau_train_sau_bo_trung": 85956,
+    "ty_le_can_bang": 10,
+    "seed": 42,
+    "lop_train": {
+      "benign": 4450,
+      "dos": 2165,
+      "port_scan": 445
+    },
+    "lop_validation": {
+      "benign": 53949,
+      "dos": 648,
+      "port_scan": 50
+    },
+    "lop_test": {
+      "benign": 67713,
+      "dos": 727,
+      "port_scan": 462
+    }
+  },
+  "train": {
+    "macro_f1": 0.8974,
+    "accuracy": 0.9385,
+    "theo_lop": {
+      "benign": {
+        "precision": 0.9835,
+        "recall": 0.9351,
+        "f1": 0.9586,
+        "so_mau": 4450
+      },
+      "port_scan": {
+        "precision": 0.6977,
+        "recall": 0.9438,
+        "f1": 0.8023,
+        "so_mau": 445
+      },
+      "dos": {
+        "precision": 0.9183,
+        "recall": 0.9446,
+        "f1": 0.9312,
+        "so_mau": 2165
+      }
+    },
+    "confusion": {
+      "nhan": [
+        "benign",
+        "port_scan",
+        "dos"
+      ],
+      "ma_tran": [
+        [
+          4161,
+          118,
+          171
+        ],
+        [
+          14,
+          420,
+          11
+        ],
+        [
+          56,
+          64,
+          2045
+        ]
+      ]
+    }
+  },
+  "validation": {
+    "macro_f1": 0.4181,
+    "accuracy": 0.8697,
+    "theo_lop": {
+      "benign": {
+        "precision": 0.9994,
+        "recall": 0.8689,
+        "f1": 0.9296,
+        "so_mau": 53949
+      },
+      "port_scan": {
+        "precision": 0.0075,
+        "recall": 0.66,
+        "f1": 0.0148,
+        "so_mau": 50
+      },
+      "dos": {
+        "precision": 0.1853,
+        "recall": 0.9506,
+        "f1": 0.3101,
+        "so_mau": 648
+      }
+    },
+    "confusion": {
+      "nhan": [
+        "benign",
+        "port_scan",
+        "dos"
+      ],
+      "ma_tran": [
+        [
+          46875,
+          4373,
+          2701
+        ],
+        [
+          9,
+          33,
+          8
+        ],
+        [
+          21,
+          11,
+          616
+        ]
+      ]
+    }
+  },
+  "he_so": {
+    "benign": {
+      "dst_host_ports": 4.8,
+      "new_conn_in": 2.382,
+      "dst_port_entropy__trong": 2.289,
+      "tcp_attempts_out": -1.736,
+      "packets_in": 1.689,
+      "dst_port_entropy": -1.672
+    },
+    "dos": {
+      "new_conn_in": -4.504,
+      "packets_in": 2.735,
+      "tcp_attempts_in": 1.891,
+      "packets_out": -1.543,
+      "dst_hosts": -1.48,
+      "dst_host_ports": -1.154
+    },
+    "port_scan": {
+      "packets_in": -4.424,
+      "dst_host_ports": -3.647,
+      "dst_port_entropy": 2.188,
+      "new_conn_in": 2.122,
+      "packets_out": 1.964,
+      "dst_port_entropy__trong": -1.825
+    }
+  }
+}

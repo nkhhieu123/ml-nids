@@ -2,8 +2,10 @@
 
 - C07-T01: chốt nhãn thực tế: lớp nào, mẫu nào, đợt tấn công nào bị loại và vì sao
   (docs/39_phan_loai_nhan.md, QĐ-033).
+- C07-T02: Logistic Regression làm mô hình đối chiếu (docs/40_phan_loai_lr.md, QĐ-034).
 
     python -m nids.classifier nhan <tiền tố phiên>... --out docs/hinh
+    python -m nids.classifier thu logistic_regression <tiền tố phiên>... --out docs/hinh
 
 Mọi bước học chỉ dùng tập train; validation để chọn tham số và mô hình; test chỉ để đánh giá.
 """
@@ -16,10 +18,10 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from .dataset import load_table
+from .dataset import feature_columns, load_table
 from .gaussian import attack_groups
 from .labeling import STATUS_AMBIGUOUS, STATUS_EXCLUDED, load_schedule
-from .preprocessing import select_samples
+from .preprocessing import Preprocessor, balance_indices, drop_duplicates, log_columns, select_samples
 from .scope import ATTACK_LABELS, MODULE_ATTACK
 
 TABLE = "windows"
@@ -49,6 +51,7 @@ def classifier_config(cfg) -> dict:
     c.setdefault("drop_train_duplicates", p.get("drop_train_duplicates", True))
     c.setdefault("balance_max_ratio", p.get("balance_max_ratio", 10))
     c.setdefault("random_seed", (cfg or {}).get("random_seed", 42))
+    c.setdefault("logistic_regression", {"C": 1.0, "class_weight": "balanced"})
     return c
 
 
@@ -104,6 +107,150 @@ def class_report(df, rules) -> dict:
     return out
 
 
+# ---- C07-T02, T03: dữ liệu, mô hình, chỉ số ----
+
+SHORT = {"logistic_regression": "lr", "random_forest": "rf"}
+
+
+def prepare_data(df, max_ratio=10, seed=42, dedup=True) -> dict:
+    """Ba tập dạng bảng gốc. Train: bỏ trùng rồi giảm mẫu (chỉ train); validation, test giữ nguyên.
+
+    Trả thêm ``train_full`` (train sau bỏ trùng, trước giảm mẫu): bộ tiền xử lý fit trên bảng này
+    để trung vị và chuẩn hóa phản ánh đủ dữ liệu train (như C05-T07).
+    """
+    data, label_col = select_samples(df, MODULE_ATTACK)
+    feats = feature_columns(TABLE)
+    parts = {s: data[data["split"] == s].reset_index(drop=True) for s in SPLITS}
+    train = parts["train"]
+    n0 = len(train)
+    if dedup:
+        train = drop_duplicates(train, feats, label_col).reset_index(drop=True)
+    full = train
+    if max_ratio:
+        keep = balance_indices(train[label_col].to_numpy(), max_ratio, seed)
+        train = train.iloc[keep].reset_index(drop=True)
+    return {"train": train, "train_full": full, "validation": parts["validation"], "test": parts["test"],
+            "info": {"so_mau_train_truoc_bo_trung": n0, "so_mau_train_sau_bo_trung": len(full),
+                     "ty_le_can_bang": max_ratio, "seed": seed,
+                     "lop_train": _counts(train[label_col]),
+                     "lop_validation": _counts(parts["validation"][label_col]),
+                     "lop_test": _counts(parts["test"][label_col])}}
+
+
+def make_estimator(kind, params, seed=42):
+    params = dict(params or {})
+    if kind == "logistic_regression":
+        from sklearn.linear_model import LogisticRegression
+        params.setdefault("max_iter", 3000)
+        return LogisticRegression(random_state=seed, **params)
+    if kind == "random_forest":
+        from sklearn.ensemble import RandomForestClassifier
+        params.setdefault("n_jobs", 2)
+        return RandomForestClassifier(random_state=seed, **params)
+    raise ValueError(f"mô hình chưa hỗ trợ: {kind}")
+
+
+class AttackClassifier:
+    """Bộ tiền xử lý (fit trên train) và một mô hình phân loại; dự đoán từ bảng cửa sổ thô."""
+
+    def __init__(self, kind, params=None, seed=42):
+        self.kind = kind
+        self.params = dict(params or {})
+        self.seed = seed
+        self.preprocessor = None
+        self.estimator = None
+        self.info = {}
+
+    def fit(self, train, fit_frame=None):
+        feats = feature_columns(TABLE)
+        fit_frame = train if fit_frame is None else fit_frame
+        self.preprocessor = Preprocessor(TABLE, feats, log_columns(TABLE, feats)).fit(fit_frame)
+        self.estimator = make_estimator(self.kind, self.params, self.seed)
+        self.estimator.fit(self.preprocessor.transform(train), train[LABEL_COL].to_numpy())
+        self.info.update({"so_mau_train": len(train), "lop_train": _counts(train[LABEL_COL])})
+        return self
+
+    @property
+    def classes(self):
+        return list(self.estimator.classes_)
+
+    @property
+    def features(self):
+        return self.preprocessor.features
+
+    def predict(self, df) -> np.ndarray:
+        return self.estimator.predict(self.preprocessor.transform(df))
+
+    def predict_proba(self, df) -> np.ndarray:
+        return self.estimator.predict_proba(self.preprocessor.transform(df))
+
+
+def multiclass_metrics(y_true, y_pred, labels=ATTACK_LABELS) -> dict:
+    """Macro-F1, accuracy, chỉ số từng lớp và confusion matrix (hàng: nhãn thật, cột: dự đoán)."""
+    from sklearn.metrics import confusion_matrix, precision_recall_fscore_support
+
+    y_true = np.asarray(y_true)
+    y_pred = np.asarray(y_pred)
+    p, r, f, n = precision_recall_fscore_support(y_true, y_pred, labels=list(labels), zero_division=0)
+    cm = confusion_matrix(y_true, y_pred, labels=list(labels))
+    return {
+        "macro_f1": round(float(np.mean(f)), 4),
+        "accuracy": round(float((y_true == y_pred).mean()), 4) if len(y_true) else 0.0,
+        "theo_lop": {c: {"precision": round(float(p[i]), 4), "recall": round(float(r[i]), 4),
+                         "f1": round(float(f[i]), 4), "so_mau": int(n[i])} for i, c in enumerate(labels)},
+        "confusion": {"nhan": list(labels), "ma_tran": cm.tolist()},
+    }
+
+
+def fit_and_score(kind, params, data, seed=42) -> tuple:
+    """Fit trên train, đo trên train và validation (không đọc test)."""
+    model = AttackClassifier(kind, params, seed).fit(data["train"], data["train_full"])
+    res = {s: multiclass_metrics(data[s][LABEL_COL], model.predict(data[s])) for s in ("train", "validation")}
+    return model, res
+
+
+def lr_coefficients(model, top=6) -> dict:
+    """Hệ số lớn nhất theo trị tuyệt đối của từng lớp (đặc trưng đã log và chuẩn hóa)."""
+    names = model.preprocessor.output_names
+    coef = model.estimator.coef_
+    out = {}
+    for i, c in enumerate(model.classes):
+        order = np.argsort(-np.abs(coef[i]))[:top]
+        out[c] = {names[j]: round(float(coef[i][j]), 3) for j in order}
+    return out
+
+
+def _print_metrics(name, m):
+    print(f"{name}: macro-F1 {m['macro_f1']}, accuracy {m['accuracy']}")
+    for c, v in m["theo_lop"].items():
+        print(f"   {c:10s} P {v['precision']:.4f} R {v['recall']:.4f} F1 {v['f1']:.4f} n {v['so_mau']}")
+    print("   confusion", m["confusion"]["ma_tran"])
+
+
+def cmd_try(args):
+    from .config import load_config
+
+    cfg = classifier_config(load_config(args.config))
+    df = load_data(args.prefixes, cfg["sessions"])
+    data = prepare_data(df, cfg["balance_max_ratio"], cfg["random_seed"], cfg["drop_train_duplicates"])
+    model, res = fit_and_score(args.kind, cfg.get(args.kind), data, cfg["random_seed"])
+    rep = {"mo_hinh": args.kind, "tham_so": model.estimator.get_params(), "du_lieu": data["info"], **res}
+    if args.kind == "logistic_regression":
+        rep["he_so"] = lr_coefficients(model)
+    else:
+        rep["do_quan_trong"] = dict(sorted(
+            zip(model.preprocessor.output_names, np.round(model.estimator.feature_importances_, 4).tolist()),
+            key=lambda kv: -kv[1]))
+    out = Path(args.out)
+    out.mkdir(parents=True, exist_ok=True)
+    path = out / f"phan_loai_{SHORT[args.kind]}_validation.json"
+    path.write_text(json.dumps(rep, ensure_ascii=False, indent=2, default=str), encoding="utf-8")
+    print("Dữ liệu:", data["info"])
+    for s in ("train", "validation"):
+        _print_metrics(s, res[s])
+    print(f"Đã ghi: {path}")
+
+
 def cmd_labels(args):
     from .config import load_config
 
@@ -130,6 +277,12 @@ def main(argv=None):
     p.add_argument("--out", required=True, help="thư mục ghi JSON")
     p.add_argument("--config", help="file cấu hình, mặc định config/default.yaml")
     p.set_defaults(func=cmd_labels)
+    p = sub.add_parser("thu", help="fit một mô hình với tham số trong cấu hình, đo trên validation (C07-T02, T03)")
+    p.add_argument("kind", choices=("logistic_regression", "random_forest"))
+    p.add_argument("prefixes", nargs="+")
+    p.add_argument("--out", required=True, help="thư mục ghi JSON")
+    p.add_argument("--config", help="file cấu hình, mặc định config/default.yaml")
+    p.set_defaults(func=cmd_try)
     args = parser.parse_args(argv)
     args.func(args)
     return 0

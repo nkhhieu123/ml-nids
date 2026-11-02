@@ -246,6 +246,13 @@ Mẫu:
 - Quyết định: Ba lớp `benign`, `port_scan`, `dos` trên **cửa sổ host** của thứ Tư và thứ Sáu, chỉ nhãn chắc chắn (`khop`, `khong_khop`). DDoS, Heartbleed, Bot không thành lớp; brute-force và exploit chỉ thêm khi có dữ liệu và kiểm thử tương ứng.
 - Hệ quả: Train 166 233 cửa sổ (port_scan 671, dos 2 270), validation 54 647 (port_scan chỉ 50), test 68 902 (port_scan 462, dos 727). Chi tiết ở docs/39.
 
+## QĐ-034 — Logistic Regression làm mức chuẩn; tỷ lệ cân bằng và trọng số lớp chọn trên validation
+- Ngày: 02/11/2026
+- Trạng thái: Đã chốt
+- Bối cảnh: Với cân bằng của QĐ-028 (tối đa 10 lần) và `class_weight = balanced`, LR đạt macro-F1 validation 0,418: 13% cửa sổ benign bị báo tấn công vì train có 37% tấn công còn thực tế khoảng 1,3%. Không cân bằng thì macro-F1 0,883.
+- Quyết định: LR (C = 1, balanced) là mức chuẩn của C07-T02, dùng chung tiền xử lý với Random Forest. Tỷ lệ giảm mẫu train (10, 100, không giảm) và `class_weight` thành tham số chọn theo macro-F1 validation ở C07-T04, thay cho mức 10 cố định.
+- Hệ quả: Phần "tỷ lệ cân bằng 10" của QĐ-028 không còn cố định cho Chặng 7. Chi tiết ở docs/40.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.

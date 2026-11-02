@@ -50,6 +50,11 @@ gaussian:                    # Gaussian phát hiện bất thường trên cửa
   threshold_band: 1.2
   target_fpr: 0.01
 
+classifier:                  # phân loại tấn công đa lớp trên cửa sổ host (Chặng 7, QĐ-033)
+  logistic_regression:       # mô hình đối chiếu (C07-T02); tham số chốt trên validation ở C07-T04
+    C: 1.0
+    class_weight: balanced
+
 lab:
   subnet: 192.168.50.0/24
   hosts:

@@ -9,7 +9,9 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from nids.classifier import class_report, host_roles, load_data
+from nids.classifier import (class_report, fit_and_score, host_roles, load_data, lr_coefficients,
+                             make_estimator, multiclass_metrics, prepare_data)
+from nids.dataset import feature_columns
 from nids.labeling import Rule
 from session_fixture import make_session
 
@@ -21,6 +23,13 @@ def rule(id_, label, original, attackers, victims, start=0, end=10 ** 6):
 RULES = [rule("scan", "port_scan", "PortScan", ["10.0.0.0"], ["10.0.0.1"]),
          rule("dos", "dos", "DoS Hulk", ["10.0.0.0"], ["10.0.0.1"]),
          rule("ddos", "loai", "DDoS", ["10.0.0.2"], ["10.0.0.3"], 1300, 1600)]
+
+
+def separable(df):
+    """Trong phiên giả lập, port_scan và dos cùng dịch cột đầu; dịch thêm cột thứ hai cho dos."""
+    df = df.copy()
+    df.loc[df["label_attack"] == "dos", feature_columns("windows")[1]] += 1000
+    return df
 
 
 class SessionCase(unittest.TestCase):
@@ -69,6 +78,52 @@ class LabelReportTest(SessionCase):
         self.assertEqual(set(df["session"]), {"s2"})
         roles = host_roles(pd.DataFrame({"host": ["10.0.0.0", "10.0.0.1", "10.0.0.5"]}), RULES)
         self.assertEqual(list(roles), ["ben_tan_cong", "nan_nhan", "khac"])
+
+
+class PrepareTest(SessionCase):
+    """C07-T02: bỏ trùng và giảm mẫu chỉ trên train; validation, test giữ nguyên."""
+
+    def test_only_train_changes(self):
+        df = load_data(self.prefixes)
+        data = prepare_data(df, max_ratio=1, seed=0)
+        y = data["train"]["label_attack"].value_counts()
+        self.assertEqual(y.min(), y.max())                               # tỷ lệ 1: các lớp bằng nhau
+        for s in ("validation", "test"):
+            self.assertEqual(len(data[s]), int((df["split"] == s).sum()))
+        self.assertGreaterEqual(len(data["train_full"]), len(data["train"]))
+        none = prepare_data(df, max_ratio=None)
+        self.assertEqual(len(none["train"]), len(none["train_full"]))
+
+    def test_dedup_train(self):
+        df = load_data(self.prefixes)
+        dup = df[df["split"] == "train"].head(10)
+        data = prepare_data(pd.concat([df, dup], ignore_index=True), max_ratio=None)
+        self.assertEqual(len(data["train"]), int((df["split"] == "train").sum()))
+
+
+class ModelTest(SessionCase):
+    """C07-T02, T03: mô hình học được lớp tách biệt; chỉ số đúng định nghĩa."""
+
+    def test_metrics(self):
+        m = multiclass_metrics(["benign", "dos", "dos", "port_scan"], ["benign", "dos", "benign", "dos"])
+        self.assertEqual(m["confusion"]["ma_tran"], [[1, 0, 0], [0, 0, 1], [1, 0, 1]])
+        self.assertEqual(m["theo_lop"]["dos"]["recall"], 0.5)
+        self.assertEqual(m["theo_lop"]["port_scan"]["f1"], 0.0)
+        self.assertAlmostEqual(m["macro_f1"], round((2 / 3 + 0 + 0.5) / 3, 4))
+
+    def test_fit_logistic_regression(self):
+        data = prepare_data(separable(load_data(self.prefixes)), max_ratio=None)
+        model, res = fit_and_score("logistic_regression", {"C": 1.0}, data)
+        self.assertGreater(res["validation"]["macro_f1"], 0.9)
+        self.assertEqual(set(model.classes), {"benign", "port_scan", "dos"})
+        coef = lr_coefficients(model, top=2)
+        self.assertEqual(len(coef["dos"]), 2)
+        # bộ tiền xử lý fit trên train sau bỏ trùng, không phải validation
+        self.assertEqual(model.preprocessor.info["so_mau_fit"], len(data["train_full"]))
+
+    def test_unknown_model(self):
+        with self.assertRaises(ValueError):
+            make_estimator("svm", {})
 
 
 if __name__ == "__main__":
