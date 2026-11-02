@@ -76,6 +76,8 @@ Báo cáo Chặng 4: [docs/Bao_cao_Chang_4.md](docs/Bao_cao_Chang_4.md)
 - [x] C05-T06: Vẽ EDA cho các đặc trưng chính — `src/nids/eda.py`, [docs/31_eda.md](docs/31_eda.md)
 - [x] C05-T07: Xây dựng tiền xử lý; chỉ fit và cân bằng lớp trên train — `src/nids/preprocessing.py`, [docs/32_tien_xu_ly.md](docs/32_tien_xu_ly.md)
 
+Báo cáo Chặng 5: [docs/Bao_cao_Chang_5.md](docs/Bao_cao_Chang_5.md)
+
 Những gì còn thiếu sau Chặng 1–3 (dữ liệu, lab, tham số chưa chốt): [docs/Viec_con_thieu_Chang_1_3.md](docs/Viec_con_thieu_Chang_1_3.md)
 
 ## Cấu trúc
