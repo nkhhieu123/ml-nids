@@ -239,6 +239,13 @@ Mẫu:
 - Quyết định: Fit trên mẫu normal của train mọi phiên (F1 validation 0,700 so với 0,681 khi chỉ thứ Hai). Ngưỡng chọn bằng `f1_on_dinh`: lấy ngưỡng có F1 xấu nhất trong khoảng lệch ±20% lớn nhất. Ngưỡng đạt được: d² = 64,65.
 - Hệ quả: Ngưỡng nằm trong vùng F1 phẳng (51,5–139,5), đổi lấy FPR 1,49% thay vì 0,65%. Heartbleed không bắt được (recall 0), DDoS và Slowhttptest thấp; phân tích ở docs/36 và C06-T05.
 
+## QĐ-033 — Phân loại ba lớp trên cửa sổ host; DDoS, Heartbleed, Bot chưa thành lớp
+- Ngày: 02/11/2026
+- Trạng thái: Đã chốt cho CIC-IDS2017 (xem lại khi có dữ liệu lab)
+- Bối cảnh: C07-T01 cần chốt nhãn thực tế. Bảng flow có phần lớn mẫu `port_scan` test trùng hệt train; CIC có thêm DDoS (một đợt), Heartbleed (một kết nối) và Bot.
+- Quyết định: Ba lớp `benign`, `port_scan`, `dos` trên **cửa sổ host** của thứ Tư và thứ Sáu, chỉ nhãn chắc chắn (`khop`, `khong_khop`). DDoS, Heartbleed, Bot không thành lớp; brute-force và exploit chỉ thêm khi có dữ liệu và kiểm thử tương ứng.
+- Hệ quả: Train 166 233 cửa sổ (port_scan 671, dos 2 270), validation 54 647 (port_scan chỉ 50), test 68 902 (port_scan 462, dos 727). Chi tiết ở docs/39.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.

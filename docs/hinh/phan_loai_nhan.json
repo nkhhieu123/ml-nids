@@ -1,0 +1,138 @@
+{
+  "lop": [
+    "benign",
+    "port_scan",
+    "dos"
+  ],
+  "phien": [
+    "cic17_friday",
+    "cic17_wednesday"
+  ],
+  "theo_tap": {
+    "train": {
+      "benign": 163292,
+      "port_scan": 671,
+      "dos": 2270
+    },
+    "validation": {
+      "benign": 53949,
+      "port_scan": 50,
+      "dos": 648
+    },
+    "test": {
+      "benign": 67713,
+      "port_scan": 462,
+      "dos": 727
+    }
+  },
+  "theo_dot": {
+    "train": {
+      "DoS GoldenEye": 290,
+      "DoS Hulk": 659,
+      "DoS Slowhttptest": 561,
+      "DoS slowloris": 748,
+      "PortScan": 671,
+      "khác": 12
+    },
+    "validation": {
+      "DoS GoldenEye": 78,
+      "DoS Hulk": 172,
+      "DoS Slowhttptest": 192,
+      "DoS slowloris": 206,
+      "PortScan": 50
+    },
+    "test": {
+      "DoS GoldenEye": 24,
+      "DoS Hulk": 190,
+      "DoS Slowhttptest": 195,
+      "DoS slowloris": 318,
+      "PortScan": 462
+    }
+  },
+  "theo_vai_tro": {
+    "train": {
+      "benign": {
+        "ben_tan_cong": 1651,
+        "khac": 90564,
+        "nan_nhan": 71077
+      },
+      "port_scan": {
+        "ben_tan_cong": 338,
+        "nan_nhan": 333
+      },
+      "dos": {
+        "ben_tan_cong": 1137,
+        "nan_nhan": 1133
+      }
+    },
+    "validation": {
+      "benign": {
+        "ben_tan_cong": 955,
+        "khac": 29499,
+        "nan_nhan": 23495
+      },
+      "port_scan": {
+        "ben_tan_cong": 25,
+        "nan_nhan": 25
+      },
+      "dos": {
+        "ben_tan_cong": 324,
+        "nan_nhan": 324
+      }
+    },
+    "test": {
+      "benign": {
+        "ben_tan_cong": 635,
+        "khac": 37149,
+        "nan_nhan": 29929
+      },
+      "port_scan": {
+        "ben_tan_cong": 233,
+        "nan_nhan": 229
+      },
+      "dos": {
+        "ben_tan_cong": 359,
+        "nan_nhan": 368
+      }
+    }
+  },
+  "canh_bao": [
+    "port_scan ở validation chỉ có 50 mẫu: chỉ số của lớp này dao động lớn"
+  ],
+  "bi_loai": {
+    "Bot": {
+      "so_mau": {
+        "train": 5707,
+        "validation": 2355,
+        "test": 3554
+      },
+      "ly_do": "Thuộc module botnet (Chặng 8); không phải PortScan hay DoS"
+    },
+    "DDoS": {
+      "so_mau": {
+        "train": 712,
+        "validation": 214,
+        "test": 206
+      },
+      "ly_do": "Một đợt 20 phút, LOIT nhiều nguồn sau NAT; không đủ đợt độc lập để train và test riêng"
+    },
+    "Heartbleed": {
+      "so_mau": {
+        "train": 514,
+        "validation": 254,
+        "test": 402
+      },
+      "ly_do": "Một kết nối khai thác TLS kéo dài; lưu lượng trông bình thường, quá ít mẫu"
+    }
+  },
+  "mo_ho": {
+    "train": 88,
+    "validation": 80,
+    "test": 178
+  },
+  "tong": {
+    "train": 166233,
+    "validation": 54647,
+    "test": 68902
+  }
+}

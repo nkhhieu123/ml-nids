@@ -93,6 +93,13 @@ def select_samples(df, module) -> tuple[pd.DataFrame, str]:
 
 def balance(X, y, max_ratio, seed) -> tuple[np.ndarray, np.ndarray]:
     """Giảm mẫu ngẫu nhiên mỗi lớp xuống tối đa ``max_ratio`` lần lớp ít nhất. Chỉ gọi trên train."""
+    keep = balance_indices(y, max_ratio, seed)
+    return X[keep], y[keep]
+
+
+def balance_indices(y, max_ratio, seed) -> np.ndarray:
+    """Chỉ số các mẫu giữ lại khi cân bằng (đã sắp tăng dần), để lọc cả bảng gốc."""
+    y = np.asarray(y)
     rng = np.random.default_rng(seed)
     labels, counts = np.unique(y, return_counts=True)
     cap = int(counts.min() * max_ratio)
@@ -102,8 +109,7 @@ def balance(X, y, max_ratio, seed) -> tuple[np.ndarray, np.ndarray]:
         if len(idx) > cap:
             idx = rng.choice(idx, cap, replace=False)
         keep.append(idx)
-    keep = np.sort(np.concatenate(keep))
-    return X[keep], y[keep]
+    return np.sort(np.concatenate(keep))
 
 
 def drop_duplicates(df, feats, label_col) -> pd.DataFrame:

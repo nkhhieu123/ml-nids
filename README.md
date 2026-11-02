@@ -89,6 +89,10 @@ Báo cáo Chặng 5: [docs/Bao_cao_Chang_5.md](docs/Bao_cao_Chang_5.md)
 
 Báo cáo Chặng 6: [docs/Bao_cao_Chang_6.md](docs/Bao_cao_Chang_6.md)
 
+### Chặng 7 — Phân loại tấn công đa lớp
+
+- [x] C07-T01: Chốt nhãn thực tế: Benign, PortScan, DoS — `src/nids/classifier.py`, [docs/39_phan_loai_nhan.md](docs/39_phan_loai_nhan.md)
+
 Những gì còn thiếu sau Chặng 1–6 (việc đang dở, dữ liệu, lab, tham số chưa chốt): [docs/Viec_con_thieu.md](docs/Viec_con_thieu.md)
 
 ## Cấu trúc
