@@ -39,7 +39,7 @@ preprocess:                  # chỉ fit và cân bằng trên train (QĐ-028)
   sessions:                  # phiên dùng cho từng module (QĐ-009, docs/08)
     attack_classification: [cic17_wednesday, cic17_friday]
     anomaly: [cic17_monday, cic17_wednesday, cic17_friday]
-  anomaly_fit_sessions: [cic17_monday]   # Gaussian chỉ học trên phiên bình thường này
+  anomaly_fit_sessions: [cic17_monday]   # bộ tiền xử lý chung `anomaly` fit trên normal phiên này; Gaussian dùng biến đổi riêng và chọn phiên fit ở mục gaussian (QĐ-032)
 
 gaussian:                    # Gaussian phát hiện bất thường trên cửa sổ host (Chặng 6)
   covariance: ledoit_wolf    # co hiệp phương sai về đường chéo; luôn nghịch đảo được (QĐ-031)

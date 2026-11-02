@@ -231,7 +231,7 @@ Lệnh cuối là lệnh chính cho Chặng 5; các lệnh còn lại để xem 
 2. **Tham số tạm thời.** Timeout 60/120/10 giây và thời gian quan sát 3 giây chưa
    chỉnh trên validation (QĐ-017, QĐ-023).
 3. **Dữ liệu thật mới có CIC-IDS2017.** 11 file `.binetflow` của CTU-13 và dữ liệu lab
-   vẫn chưa có (xem [Viec_con_thieu_Chang_1_3.md](Viec_con_thieu_Chang_1_3.md)).
+   vẫn chưa có (xem [Viec_con_thieu.md](Viec_con_thieu.md)).
    Module botnet cần CTU-13.
 4. **Host sau NAT.** Ở CIC, mọi traffic tấn công là `172.16.0.1`, nên đặc trưng cửa sổ
    của "máy tấn công" thực ra gộp mọi máy tấn công.

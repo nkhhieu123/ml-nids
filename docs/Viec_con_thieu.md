@@ -1,33 +1,51 @@
-# Những gì còn thiếu sau Chặng 1–3
+# Những gì còn thiếu sau Chặng 1–6
 
-Tài liệu gom mọi thứ **chưa có** hoặc **chưa kiểm chứng** trong phạm vi Chặng 1,
-2 và 3, rút từ các tài liệu task, báo cáo chặng và nhật ký quyết định. Tình trạng
-tính đến ngày 23/10/2026, cập nhật ngày 27/10/2026 và 29/10/2026 sau khi tải
-đủ dữ liệu CIC-IDS2017.
+Tài liệu gom mọi thứ **chưa có** hoặc **chưa kiểm chứng** trong phạm vi Chặng 1–6, rút từ các
+tài liệu task, báo cáo chặng và nhật ký quyết định. Lập ngày 23/10/2026 (Chặng 1–3), cập nhật
+27/10, 29/10 và 02/11/2026 (mở rộng tới Chặng 6).
 
-Bảy chặng đầu đã có mã hoặc tài liệu. Dữ liệu thật của đồ án mới có **một phần**:
-**CIC-IDS2017 đã đủ** (PCAP thứ Hai, thứ Tư, thứ Sáu và CSV có nhãn, đã kiểm tra,
-docs/06 mục 7). Còn thiếu 11 scenario CTU-13 và toàn bộ dữ liệu lab.
-Các kiểm tra khác vẫn dùng dữ liệu thay thế: vài bản thu CTU-13 lưu tạm, bản tự bắt
-Windows ↔ WSL, Nginx cài tạm trên máy phát triển và dữ liệu tổng hợp.
+## 0. VIỆC ĐANG DỞ — CẦN CHẠY LẠI (đọc trước)
 
-Cột "Ai làm": **Bạn** là việc cần bạn hoặc nhóm tự làm (điền form, dựng máy,
-quyết định); **Làm được ngay** là việc làm được bằng mã hoặc tải dữ liệu công
-khai mà không cần thêm gì.
+Ngày 02/11/2026 hai việc chạy nền **bị hệ thống dừng vì máy thiếu RAM** (máy 12 GB, dừng sau
+khoảng 3 phút). Chỉ còn file dở dang, **chưa dùng được**, không đưa lên git. Bảng đặc trưng đang
+dùng trong `output/features/` không bị ảnh hưởng. Nên đóng bớt ứng dụng rồi chạy **lần lượt từng
+việc**, không chạy song song.
+
+| # | Việc | Trạng thái | Cách làm | Thời gian |
+|---|---|---|---|---|
+| 1 | Xuất lại bảng đặc trưng 3 ngày CIC từ mã đã commit (metadata hiện ghi `co_sua_chua_commit: true`) | **Bị dừng**; chỉ có một phần thứ Hai trong `output/features_v2/` | Trong `src/`: `python -m nids.feature_export ../data/pcap/cic-ids2017/<file>.pcap --net 192.168.10.0/24 --net 172.16.0.0/24 --name cic17_<ngày> --out ../output/features_v2`; so CSV với `output/features/`, giống thì thay file meta | Khoảng 1–1,5 giờ cho 3 ngày |
+| 2 | Tải 13 file `.binetflow` CTU-13 vào `data/ctu13/` (bản scenario 11, 12 tải trước đây đã mất cùng thư mục tạm) | **Bị dừng**; mới có 4 MB của `capture20110810.binetflow` (xóa rồi tải lại) | `https://mcfp.felk.cvut.cz/publicDatasets/<đường dẫn trong manifest>`; sau đó đếm nhãn, tìm múi giờ, thời điểm nhiễm, cập nhật manifest và docs/07 | Khoảng 2,5 GB |
+| 3 | Tải lại 4 bản thu CTU-13 dùng ở Chặng 3 (donbot, sogou, fast-flux, PCAP cắt ngắn scenario 5), ghi vào manifest kèm mã băm | Chưa làm | Như mục 2.2 | Vài trăm MB |
+| 4 | Tải bộ nhãn đã sửa của KU Leuven, đối chiếu với nhãn Chặng 5 | Chưa làm | `CICIDS2017_improved.zip` (328 MB) vào `data/cic-ids2017/`; flow "Attempted" coi là lành tính | 328 MB |
+| 5 | Đối chiếu Wireshark toàn bộ file CIC (hiện mới so 1 triệu gói đầu) | Chưa làm, tùy chọn | `nids.wireshark_compare` không `--limit` | Vài giờ mỗi file |
+
+Sau khi xong mục 1 cần chạy lại nhãn, chia tập, tiền xử lý (Chặng 5) và kiểm tra lại kết quả
+Chặng 6–7 nếu bảng mới khác bảng cũ.
+
+**Việc cần bạn** (không làm thay được): dựng lab 7 node và kiểm tra mirror hai chiều; cài dự án
+trên Kali, cho biết tên card mạng thật, cài NTP; chốt tham số kịch bản lab (tốc độ Nmap, ba mức
+DoS SYN, beaconing); chọn scenario validation của CTU-13 (cần trước Chặng 8); chọn nguồn mẫu DoS
+kiểu SYN. Chi tiết ở mục 2–4.
+
+Ở các mục dưới, **Bạn** là việc cần bạn hoặc nhóm tự làm (dựng máy, quyết định); **Làm được
+ngay** là việc làm được bằng mã hoặc tải dữ liệu công khai mà không cần thêm gì.
+
+Dữ liệu thật hiện có: **CIC-IDS2017 đủ** (PCAP thứ Hai, thứ Tư, thứ Sáu và CSV có nhãn).
+Chưa có CTU-13 và dữ liệu lab.
 
 ## 1. Tóm tắt mức độ
 
 | Mức | Nghĩa | Số mục |
 |---|---|---|
-| **Chặn** | Thiếu thì không làm được chặng sau | 9 |
-| **Quan trọng** | Làm tiếp được, nhưng kết quả chưa đáng tin cho tới khi bổ sung | 10 |
+| **Chặn** | Thiếu thì không làm được chặng sau | 8 |
+| **Quan trọng** | Làm tiếp được, nhưng kết quả chưa đáng tin cho tới khi bổ sung | 15 |
 | **Nên có** | Hoàn thiện, kiểm tra thêm | 10 |
 
-Số mục tính đến 29/10/2026, không tính các mục đã gạch (đã xong). 9 mục **chặn**
-gom lại thành 5 việc cần làm trước Chặng 5 (việc tải CIC-IDS2017 đã xong):
+Số mục ở mục 2–4b, tính đến 02/11/2026, không tính các mục đã gạch (đã xong). 8 mục **chặn**
+gom lại thành các việc sau (việc tải CIC-IDS2017 đã xong):
 
 1. ~~Tải nốt CIC-IDS2017: PCAP thứ Tư và CSV có nhãn (mục 2.1).~~ Xong 29/10/2026.
-2. Tải 11 file `.binetflow` còn lại của CTU-13 (mục 2.2).
+2. Tải 13 file `.binetflow` của CTU-13 (mục 0 và 2.2).
 3. Dựng mạng lab 7 node, kiểm tra mirror (mục 3).
 4. Chốt tham số kịch bản lab (mục 4).
 5. Chốt định dạng nhật ký lần chạy và viết script sinh traffic (mục 3).
@@ -52,8 +70,8 @@ gom lại thành 5 việc cần làm trước Chặng 5 (việc tải CIC-IDS201
 
 | Thiếu | Mức | Ảnh hưởng | Ai làm | Cách bổ sung |
 |---|---|---|---|---|
-| Mới tải 2/13 file `.binetflow` (scenario 11, 12); 11 file còn lại khoảng 2,5 GB | Chặn | Không đủ dữ liệu cho module botnet | Làm được ngay | Tải từ `mcfp.felk.cvut.cz`, đặt vào `data/ctu13/`, cập nhật manifest |
-| Chưa đếm nhãn của 11 scenario còn lại | Quan trọng | Số flow botnet theo README chưa được xác nhận | Làm được ngay sau khi tải | Lặp lại phép đếm ở [07_ctu13.md](07_ctu13.md) mục 3 |
+| Chưa có file `.binetflow` nào trong `data/ctu13/` (bản scenario 11, 12 tải trước đây đã mất; lần tải 02/11 bị dừng vì thiếu RAM) | Chặn | Không đủ dữ liệu cho module botnet | Làm được ngay | Tải từ `mcfp.felk.cvut.cz`, đặt vào `data/ctu13/`, cập nhật manifest |
+| Chưa đếm nhãn của 11 scenario (đã đếm scenario 11, 12) | Quan trọng | Số flow botnet theo README chưa được xác nhận | Làm được ngay sau khi tải | Lặp lại phép đếm ở [07_ctu13.md](07_ctu13.md) mục 3 |
 | Chưa xác định thời điểm bị nhiễm của từng scenario | Quan trọng | Cửa sổ trước khi bot hoạt động có thể bị gán nhầm `suspect_host` | Làm được ngay | Đọc nhật ký thao tác trong README của từng scenario |
 | Chưa xác định múi giờ của cột `StartTime` | Quan trọng | Lệch giờ khi ghép với PCAP | Làm được ngay | So `StartTime` với timestamp của PCAP cắt ngắn cùng scenario |
 | Chưa chốt scenario làm validation; cách chia train/test theo bài báo gốc vẫn là tạm thời (QĐ-010) | Quan trọng | Chưa chia được dữ liệu ở Chặng 5 | **Bạn** quyết định | Chọn 1–2 scenario trong nhóm train làm validation |
@@ -86,10 +104,24 @@ gom lại thành 5 việc cần làm trước Chặng 5 (việc tải CIC-IDS201
 | Tốc độ Nmap của biến thể chậm và nhanh, dải cổng quét | Chặn với thu lab | `config/default.yaml` + nhật ký quyết định |
 | Ba mức tải DoS SYN (B16 bắt buộc xác định trước) | Chặn với thu lab | `config/default.yaml` |
 | Chu kỳ và độ biến thiên beaconing; số peer của kịch bản P2P | Chặn với thu lab | `config/default.yaml` |
-| Nguồn mẫu huấn luyện cho DoS kiểu SYN (CIC chỉ có DoS tầng HTTP) | Chặn với Chặng 7 | Nhật ký quyết định |
+| Nguồn mẫu huấn luyện cho DoS kiểu SYN (CIC chỉ có DoS tầng HTTP); Chặng 7 tạm chỉ dùng DoS tầng HTTP | Quan trọng | Nhật ký quyết định |
 | Các quyết định còn **tạm thời**: QĐ-004 tên nhãn (nhất là `none` của topology), QĐ-006 cửa sổ và timeout 60 giây, QĐ-009 tập con CIC, QĐ-010 cách chia CTU-13, QĐ-012 dữ liệu lab, QĐ-013 bộ đọc PCAP tự viết | Quan trọng | Thêm mục quyết định mới khi khóa |
 | ~~Dùng `ip_len` hay `frame_len` cho đặc trưng byte~~ | Đã xong | Chốt `ip_len` kèm payload TCP/UDP ở C04-T03 (QĐ-018) |
 | Dung sai thời gian khi ghép dòng log với flow | Nên có | Chốt khi làm phần ghép log–flow |
+
+## 4b. Chặng 4–6: việc còn thiếu hoặc hạn chế đã biết
+
+| Thiếu | Mức | Ảnh hưởng | Ai làm |
+|---|---|---|---|
+| Bảng đặc trưng xuất khi mã chưa commit (mục 0, việc 1) | Quan trọng | Chưa chứng minh được bảng tái lập từ mã trên git | Làm được ngay khi máy rảnh |
+| Tham số flow tạm thời: timeout 60/120/10 giây, quan sát bắt tay 3 giây (QĐ-017, QĐ-023) chưa chỉnh trên validation | Nên có | Đặc trưng có thể chưa tối ưu | Làm được ngay |
+| Tốc độ xuất bảng khoảng 9 600 gói/giây trên máy phát triển, chưa đo trên Kali | Quan trọng | Có thể không kịp realtime | **Bạn** chạy trên Kali |
+| Mọi traffic tấn công CIC đi qua NAT `172.16.0.1`: đặc trưng cửa sổ của "máy tấn công" gộp nhiều máy | Nên có | Kết quả theo host phía tấn công không đại diện | Cần dữ liệu lab |
+| Validation lớp `port_scan` ở bảng cửa sổ chỉ 50 mẫu; GoldenEye chỉ 24 cửa sổ test | Quan trọng | Chọn ngưỡng/tham số và recall theo đợt dao động lớn | Cần thêm dữ liệu (lab) |
+| Train, validation, test cùng mạng và cùng đợt tấn công; chưa đo trên công cụ hay mạng chưa thấy | Quan trọng | Kết quả có thể lạc quan | Đo lại trên lab (Chặng 11) |
+| Tham số gán nhãn tạm thời: nới lịch 60 giây, ngưỡng cửa sổ 0,2, tỷ lệ cân bằng 10 | Nên có | Chỉnh trên validation khi cần | Làm được ngay |
+| Gaussian: ~17 đợt báo động giả mỗi giờ; Heartbleed recall 0, DDoS 0,50, Slowhttptest 0,28; ngưỡng χ² không dùng được | Quan trọng | Không đủ dùng một mình; cần Chặng 7 và kết hợp ở Chặng 9 | Đã ghi ở docs/37 |
+| Gaussian: đã xem test một lần khi chẩn đoán cách chọn ngưỡng (docs/36 mục 5) | Nên có | Cần ghi rõ trong báo cáo cuối | Đã ghi |
 
 ## 5. Giới hạn của mã nguồn hiện có
 
@@ -104,16 +136,16 @@ gom lại thành 5 việc cần làm trước Chặng 5 (việc tải CIC-IDS201
 | Tốc độ khoảng 300 000 packet/giây (đọc); đối chiếu Wireshark 4,48 triệu gói mất khoảng 14 phút | Quan trọng | Đo lại trên file CIC 10 GB; tối ưu nếu quá chậm |
 | Chưa có phần bắt gói trực tiếp (live capture) | — | Thuộc Chặng 10 |
 
-Các phần chưa có vì **thuộc chặng sau**, không tính là thiếu của Chặng 1–3:
-flow và đặc trưng (Chặng 4), gán nhãn và chia dữ liệu (Chặng 5), ba mô hình
-(Chặng 6–8), pipeline offline và realtime (Chặng 9–10), kiểm thử thực nghiệm và
-chỉ số (Chặng 11), dashboard (tùy chọn T06).
+Các phần chưa có vì **thuộc chặng sau**, không tính là thiếu của Chặng 1–6:
+phân loại tấn công và botnet (Chặng 7–8), pipeline offline và realtime (Chặng 9–10), kiểm thử
+thực nghiệm và chỉ số (Chặng 11), dashboard (tùy chọn T06).
 
 ## 6. Thứ tự nên làm
 
 1. ~~**Bạn:** điền form CIC-IDS2017 và tải.~~ Đã tải đủ (27 và 29/10/2026).
-2. **Làm được ngay:** tải 11 file `.binetflow`, đếm nhãn, xác định thời điểm bị
-   nhiễm và múi giờ; đưa các bản thu CTU-13 đã dùng vào manifest.
+2. **Làm được ngay, khi máy rảnh (mục 0):** xuất lại bảng đặc trưng; tải 13 file
+   `.binetflow`, đếm nhãn, xác định thời điểm bị nhiễm và múi giờ; đưa các bản thu CTU-13 đã
+   dùng vào manifest; tải nhãn KU Leuven.
 3. **Bạn:** dựng lab, kiểm tra mirror hai chiều, cài Nginx `nids`, đồng bộ đồng
    hồ, cài dự án trên Kali; chốt tham số ở mục 4.
 4. **Làm được ngay:** viết script sinh traffic và ghi nhật ký lần chạy.
@@ -122,8 +154,8 @@ chỉ số (Chặng 11), dashboard (tùy chọn T06).
 6. Thu lab theo thứ tự ở [09_du_lieu_lab.md](09_du_lieu_lab.md); các lần `test`
    chỉ thu sau khi mô hình đã khóa.
 
-Chặng 4 (flow và đặc trưng) có thể bắt đầu song song với bước 1–4 bằng các bản
-thu CTU-13 đang có, nhưng phải kiểm tra lại khi có CIC-IDS2017 và dữ liệu lab.
+Chặng 7 (phân loại Benign, PortScan, DoS) làm được trên CIC-IDS2017 song song với các bước trên;
+Chặng 8 (botnet) cần CTU-13 và scenario validation đã chốt.
 
 ## Thuật ngữ
 
@@ -153,3 +185,7 @@ Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
 | TSO | Card mạng tự chia gói lớn khi gửi; bắt trên máy gửi thấy độ dài IP bằng 0 |
 | Live capture | Bắt gói trực tiếp từ card mạng thay vì đọc file |
 | Wireshark, `wireshark_compare` | Công cụ xem gói tin; công cụ của dự án so kết quả đọc với Wireshark |
+| RAM, chạy nền | Bộ nhớ của máy; chạy lệnh trong lúc vẫn làm việc khác |
+| KU Leuven (nhãn đã sửa) | Bộ nhãn CIC-IDS2017 do nhóm KU Leuven sửa lỗi, công khai năm 2022 |
+| Recall, báo động giả | Tỷ lệ tấn công bắt được; cảnh báo nhầm trên traffic bình thường |
+| χ² | Phân bố lý thuyết của điểm d² nếu dữ liệu đúng Gaussian |
