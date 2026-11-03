@@ -93,6 +93,12 @@ botnet:                      # module botnet/topology (Chặng 8); cửa sổ đ
     min_udp: 0.5             # >= 50% flow là UDP,
     min_entropy_vao: 0.8     # và flow vào chia đều giữa các peer; còn lại là centralized
 
+pipeline:                    # pipeline offline (Chặng 9); đường dẫn tương đối tính từ thư mục dự án
+  models:                    # mô hình của từng module (mặc định trong paths.model_dir)
+    anomaly: models/gaussian_windows.joblib
+    attack_classification: models/phan_loai_rf_windows.joblib
+    botnet_topology: models/botnet_rf.joblib
+
 lab:
   subnet: 192.168.50.0/24
   hosts:

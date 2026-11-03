@@ -309,6 +309,13 @@ Mẫu:
 - Quyết định: Dùng quy tắc trên host–cửa sổ bị nghi là bot: `p2p` khi ≥ 5 peer gọi vào, ≥ 50% flow UDP và entropy flow vào ≥ 0,8; còn lại `centralized`; không bị nghi là `none`. Topology của lần chạy hoặc scenario là nhãn đa số. Ngưỡng đặt bằng CTU-13 train và lần chạy giả lập thứ nhất, ghi trong `botnet.topology_rule`.
 - Hệ quả: Trên dữ liệu đặt ngưỡng, đúng 100% cửa sổ tập trung, 95,1% cửa sổ P2P, 8/8 scenario. Không phân biệt được đối chứng tập trung lành tính; P2P chu kỳ dài hoặc dùng TCP dễ bị xếp thành tập trung. Chi tiết ở docs/51.
 
+## QĐ-043 — Pipeline nạp mô hình đã lưu, kiểm tra trước khi chạy
+- Ngày: 03/11/2026
+- Trạng thái: Đã chốt
+- Bối cảnh: C09-T01 cần nạp artifact của ba module và kiểm tra schema, để pipeline không chạy với mô hình sai đầu vào hoặc thiếu ngưỡng.
+- Quyết định: Đường dẫn mô hình trong `pipeline.models`. Trước khi chạy: nạp bằng `load_model` của từng module (từ chối lớp lạ), kiểm tra đặc trưng ⊆ schema đầu vào, `.json` khớp mô hình, có ngưỡng, lớp phân loại thuộc tập nhãn đã chốt (lỗi thì dừng); mã chưa commit chỉ là cảnh báo. Khi chạy, kiểm tra bảng đầu vào đủ cột.
+- Hệ quả: Pipeline không học gì, chỉ dùng artifact của Chặng 6–8. Chi tiết ở docs/53.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
