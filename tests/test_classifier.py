@@ -1,17 +1,25 @@
+import json
+import os
+import subprocess
 import sys
 import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
+import joblib
 import numpy as np
 import pandas as pd
+import yaml
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from nids.classifier import (class_report, fit_and_score, host_roles, load_data, lr_coefficients,
                              make_estimator, multiclass_metrics, paired_bootstrap, prepare_data,
-                             search, select_models, bootstrap_ci, duplicate_mask, evaluate, refit_chosen)
+                             search, select_models, bootstrap_ci, duplicate_mask, evaluate, refit_chosen,
+                             compare_profiles, error_table, load_model, permutation_importance, predict_frame,
+                             save_model, unseen_attacks, flow_kind, scan_window_traffic)
+from nids.config import DEFAULT_CONFIG
 from nids.dataset import feature_columns
 from nids.labeling import Rule
 from session_fixture import make_session
@@ -205,6 +213,109 @@ class EvaluateTest(SessionCase):
     def test_bootstrap_ci(self):
         y = np.array(["benign"] * 50 + ["dos"] * 25 + ["port_scan"] * 25)
         self.assertEqual(bootstrap_ci(y, y, n=50), [1.0, 1.0])
+
+
+class ArtifactTest(SessionCase):
+    """C07-T06: phân tích nhầm lẫn; lưu, nạp lại, dự đoán; dòng lệnh."""
+
+    def fitted(self):
+        df = separable(load_data(self.prefixes))
+        data = prepare_data(df, max_ratio=None)
+        model, _ = fit_and_score("random_forest", {"n_estimators": 15}, data)
+        return df, data, model
+
+    def test_analysis(self):
+        df, data, model = self.fitted()
+        errs = error_table(model, data["test"], RULES)
+        self.assertTrue(all(e["nhan"] != e["du_doan"] for e in errs))
+        prof = compare_profiles(model, data["test"], "dos")
+        self.assertEqual(prof["dung"]["so_mau"] + prof["sai"]["so_mau"], int((data["test"]["label_attack"] == "dos").sum()))
+        imp = permutation_importance(model, data["validation"], n_repeats=1)
+        first = feature_columns("windows")[0]
+        self.assertEqual(set(imp), set(model.features))
+        self.assertGreater(imp[first], 0)                     # cột tách lớp tấn công là quan trọng nhất
+        self.assertEqual(next(iter(imp)), first)
+
+    def test_scan_window_traffic(self):
+        flows = pd.DataFrame({
+            "first_index": range(5), "first_ts": [100.0, 101, 102, 103, 500], "last_ts": [100.5, 101, 102, 103, 500],
+            "protocol": ["17", "17", "132", "6", "6"], "fwd_ip": ["a"] * 5, "bwd_ip": ["b"] * 5,
+            "bwd_port": [53, 161, 80, 22, 80], "continuation": [0, 0, 0, 0, 0], "packets": [1] * 5,
+            "syn_count": [0, 0, 0, 1, 1], "fin_count": [0] * 5, "rst_count": [0] * 5, "ack_count": [0] * 5,
+            "psh_count": [0] * 5, "urg_count": [0] * 5, "session": ["s"] * 5})
+        self.assertEqual(list(flow_kind(flows)), ["udp", "udp", "sctp", "tcp_co_syn", "tcp_co_syn"])
+        windows = pd.DataFrame({"host": ["a", "a"], "window_start": [98.0, 498.0], "window_end": [108.0, 508.0],
+                                "session": ["s", "s"], "label_attack": ["port_scan"] * 2,
+                                "tcp_attempts_out": [1.0, 500.0], "tcp_attempts_in": [0.0, 0.0]})
+        r = scan_window_traffic(windows, flows, pred=["benign", "port_scan"])
+        self.assertEqual(r["so_cua_so_it_hoat_dong"], 1)          # cửa sổ thứ hai có 500 lần thử TCP
+        self.assertEqual(r["kieu_flow"], {"sctp": 1, "tcp_co_syn": 1, "udp": 2})
+        self.assertEqual(r["kieu_chu_dao_cua_cua_so"], {"udp": 1})
+        self.assertEqual(r["recall_cua_so_nhieu_hoat_dong"], 1.0)
+        self.assertEqual(r["recall_theo_kieu_chu_dao"]["udp"], {"so_cua_so": 1, "recall": 0.0})
+
+    def test_unseen_attacks(self):
+        df, _, model = self.fitted()
+        excl = (df["host"] == "10.0.0.2") & df["window_start"].between(1300, 1600) & (df["split"] == "test")
+        df.loc[excl, ["label_attack", "label_status"]] = [np.nan, "loai"]
+        res = unseen_attacks(model, df, RULES)
+        self.assertEqual(res["DDoS"]["so_mau"], int(excl.sum()))
+        self.assertEqual(sum(res["DDoS"]["du_doan"].values()), int(excl.sum()))
+
+    def test_save_load_predict(self):
+        _, data, model = self.fitted()
+        path = save_model(model, self.dir / "m" / "rf.joblib", {"x": 1})
+        meta = json.loads(path.with_suffix(".json").read_text(encoding="utf-8"))
+        self.assertEqual(meta["lop"], model.classes)
+        self.assertEqual(meta["dac_trung"], model.features)
+        loaded = load_model(path)
+        np.testing.assert_array_equal(loaded.predict_proba(data["test"]), model.predict_proba(data["test"]))
+        pred = predict_frame(loaded, data["test"])
+        self.assertEqual(len(pred), len(data["test"]))
+        self.assertTrue(np.allclose(pred[["p_benign", "p_dos", "p_port_scan"]].sum(1), 1, atol=1e-3))
+        with self.assertRaises(ValueError):
+            predict_frame(loaded, data["test"].drop(columns=[model.features[0]]))
+        joblib.dump({"khong": "phai"}, self.dir / "x.joblib")
+        with self.assertRaises(TypeError):
+            load_model(self.dir / "x.joblib")
+
+    def test_cli(self):
+        df = separable(load_data(self.prefixes))
+        for prefix in self.prefixes:                          # ghi lại bảng đã làm tách biệt dos
+            part = df[df["session"] == Path(prefix).name]
+            orig = pd.read_csv(f"{prefix}.windows.csv")
+            orig[feature_columns("windows")] = part[feature_columns("windows")].to_numpy()
+            orig.to_csv(f"{prefix}.windows.csv", index=False)
+        cfg = self.dir / "cfg.yaml"
+        full = yaml.safe_load(DEFAULT_CONFIG.read_text(encoding="utf-8"))
+        full["preprocess"]["sessions"]["attack_classification"] = ["s1", "s2"]
+        full["classifier"]["search"] = SelectTest.CFG["search"]
+        full["classifier"]["random_forest"] = {"n_estimators": 10}
+        cfg.write_text(yaml.safe_dump(full, allow_unicode=True), encoding="utf-8")
+        env = {**os.environ, "PYTHONIOENCODING": "utf-8"}
+        src = str(Path(__file__).resolve().parents[1] / "src")
+        run = lambda *a: subprocess.run([sys.executable, "-m", "nids.classifier", *a], cwd=src, env=env,
+                                        capture_output=True, text=True, encoding="utf-8")
+        out = self.dir / "out"
+        r = run("chon", *self.prefixes, "--out", str(out), "--config", str(cfg))
+        self.assertEqual(r.returncode, 0, r.stderr)
+        r = run("danh-gia", *self.prefixes, "--chon", str(out / "phan_loai_chon.json"), "--out", str(out),
+                "--config", str(cfg))
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertTrue((out / "phan_loai_confusion.png").exists())
+        r = run("huan-luyen", *self.prefixes, "--chon", str(out / "phan_loai_chon.json"), "--out", str(out),
+                "--config", str(cfg))
+        self.assertEqual(r.returncode, 0, r.stderr)
+        r = run("phan-tich", *self.prefixes, "--model", str(out / "phan_loai_rf_windows.joblib"), "--out", str(out),
+                "--config", str(cfg))
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertIn("random_forest", json.loads((out / "phan_loai_phan_tich.json").read_text(encoding="utf-8")))
+        model = load_model(out / "phan_loai_rf_windows.joblib")      # nạp ở tiến trình khác
+        self.assertEqual(type(model).__module__, "nids.classifier")
+        r = run("du-doan", self.prefixes[0], "--khong-nhan", "--model", str(out / "phan_loai_rf_windows.joblib"),
+                "--out", str(out / "du_doan.csv"))
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertEqual(len(pd.read_csv(out / "du_doan.csv")), 300)
 
 
 if __name__ == "__main__":

@@ -6,12 +6,16 @@
 - C07-T03: Random Forest (docs/41_phan_loai_rf.md).
 - C07-T04: chọn tham số và mô hình theo macro-F1 validation (docs/42_phan_loai_chon.md, QĐ-035).
 - C07-T05: đánh giá trên test: macro-F1, từng lớp, confusion matrix, theo đợt (docs/43_phan_loai_danh_gia.md).
+- C07-T06: phân tích nhầm lẫn, lưu và nạp lại mô hình, dự đoán (docs/44_phan_loai_phan_tich.md).
 
     python -m nids.classifier nhan <tiền tố phiên>... --out docs/hinh
     python -m nids.classifier thu logistic_regression <tiền tố phiên>... --out docs/hinh
     python -m nids.classifier thu random_forest <tiền tố phiên>... --out docs/hinh
     python -m nids.classifier chon <tiền tố phiên>... --out docs/hinh
     python -m nids.classifier danh-gia <tiền tố>... --chon docs/hinh/phan_loai_chon.json --out docs/hinh
+    python -m nids.classifier huan-luyen <tiền tố>... --chon docs/hinh/phan_loai_chon.json
+    python -m nids.classifier phan-tich <tiền tố>... --model models/phan_loai_rf_windows.joblib --out docs/hinh
+    python -m nids.classifier du-doan <tiền tố>... --model models/phan_loai_rf_windows.joblib --out output/x.csv
 
 Mọi bước học chỉ dùng tập train; validation để chọn tham số và mô hình; test chỉ để đánh giá.
 """
@@ -523,6 +527,260 @@ def cmd_evaluate(args):
     print(f"Đã ghi: {out / 'phan_loai_test.json'}, {out / 'phan_loai_confusion.png'}")
 
 
+# ---- C07-T06: phân tích nhầm lẫn, lưu artifact ----
+
+def error_table(model, test, rules) -> list:
+    """Các cặp (nhãn thật, dự đoán) sai, tách theo đợt tấn công và vai trò host."""
+    y = test[LABEL_COL].to_numpy()
+    pred = model.predict(test)
+    wrong = y != pred
+    d = pd.DataFrame({"nhan": y[wrong], "du_doan": pred[wrong], "dot": class_groups(test, rules)[wrong],
+                      "vai_tro": host_roles(test, rules)[wrong]})
+    g = d.groupby(list(d.columns)).size().sort_values(ascending=False)
+    return [{**dict(zip(d.columns, k)), "so_mau": int(v)} for k, v in g.items()]
+
+
+def compare_profiles(model, df, label, features=None) -> dict:
+    """Trung vị đặc trưng của mẫu lớp ``label`` đoán đúng, đoán sai, và của benign (để thấy vì sao sai)."""
+    features = features or model.features
+    y = df[LABEL_COL].to_numpy()
+    pred = model.predict(df)
+    groups = {"dung": (y == label) & (pred == label), "sai": (y == label) & (pred != label), "benign": y == "benign"}
+    return {name: {"so_mau": int(m.sum()),
+                   **{f: (None if not m.any() or pd.isna(df.loc[m, f].median()) else round(float(df.loc[m, f].median()), 3))
+                      for f in features}}
+            for name, m in groups.items()}
+
+
+FLOW_COLS = ["first_index", "first_ts", "last_ts", "protocol", "fwd_ip", "bwd_ip", "bwd_port", "continuation",
+             "packets", "syn_count", "fin_count", "rst_count", "ack_count", "psh_count", "urg_count"]
+# Cửa sổ port_scan có ít hơn số lần thử TCP này (cả vào lẫn ra) coi là "ít hoạt động quét"
+WEAK_SCAN_ATTEMPTS = 20
+
+
+def load_attack_flows(prefixes, label) -> pd.DataFrame:
+    """Flow mang nhãn ``label`` của các phiên (chỉ cột cần cho phân tích, để tiết kiệm bộ nhớ)."""
+    parts = []
+    for prefix in prefixes:
+        lab = pd.read_csv(f"{prefix}.flows.labels.csv", usecols=["first_index", "label_attack"])
+        keep = set(lab.loc[lab["label_attack"] == label, "first_index"])
+        if not keep:
+            continue
+        chunks = [c[c["first_index"].isin(keep)] for c in
+                  pd.read_csv(f"{prefix}.flows.csv", usecols=FLOW_COLS, chunksize=200_000,
+                              dtype={"fwd_ip": str, "bwd_ip": str, "protocol": str})]
+        parts.append(pd.concat(chunks).assign(session=Path(prefix).name))
+    return pd.concat(parts, ignore_index=True) if parts else pd.DataFrame(columns=FLOW_COLS + ["session"])
+
+
+def flow_kind(f) -> np.ndarray:
+    """Kiểu flow: ICMP, UDP, SCTP, TCP có SYN, TCP không SYN (FIN/NULL/Xmas/ACK...), TCP tiếp nối flow trước."""
+    proto = f["protocol"].astype(str).str.lower().to_numpy()
+    out = np.full(len(f), "khac", dtype=object)
+    out[np.isin(proto, ["1", "icmp", "58", "icmpv6"])] = "icmp"
+    out[np.isin(proto, ["17", "udp"])] = "udp"
+    out[np.isin(proto, ["132", "sctp"])] = "sctp"
+    tcp = np.isin(proto, ["6", "tcp"])
+    cont = f["continuation"].fillna(0).astype(float).to_numpy() > 0
+    syn = f["syn_count"].fillna(0).to_numpy() > 0
+    out[tcp & syn] = "tcp_co_syn"
+    out[tcp & ~syn] = "tcp_khong_syn"
+    out[tcp & ~syn & cont] = "tcp_tiep_noi"
+    return out
+
+
+def scan_window_traffic(windows, flows, max_attempts=WEAK_SCAN_ATTEMPTS, pred=None) -> dict:
+    """Flow tấn công trong các cửa sổ port_scan có ít lần thử TCP: kiểu flow, cổng, số gói.
+
+    Flow thuộc cửa sổ khi host là một đầu của flow và flow chạm khoảng [window_start, window_end).
+    """
+    if pred is not None:
+        windows = windows.assign(_pred=np.asarray(pred))
+    w = windows[(windows[LABEL_COL] == "port_scan")]
+    is_weak = (w["tcp_attempts_out"].fillna(0) < max_attempts) & (w["tcp_attempts_in"].fillna(0) < max_attempts)
+    weak = w[is_weak]
+    if weak.empty or flows.empty:
+        return {"so_cua_so_it_hoat_dong": int(len(weak)), "so_cua_so_port_scan": int(len(w))}
+    f = flows.sort_values("first_ts").reset_index(drop=True)
+    f["kieu"] = flow_kind(f)
+    starts = f["first_ts"].to_numpy(float)
+    span = float((f["last_ts"] - f["first_ts"]).max())
+    hits = []
+    for h, ws, we, sess in weak[["host", "window_start", "window_end", "session"]].itertuples(index=False):
+        lo, hi = np.searchsorted(starts, [ws - span, we])
+        c = f.iloc[lo:hi]
+        c = c[(c["last_ts"] >= ws) & (c["session"] == sess) & ((c["fwd_ip"] == h) | (c["bwd_ip"] == h))]
+        hits.append(c.assign(cua_so=f"{h}@{ws}"))
+    hit = pd.concat(hits, ignore_index=True) if hits else f.iloc[:0]
+    per_window = hit.groupby("cua_so")["kieu"].agg(lambda s: s.value_counts().idxmax())
+    extra = {}
+    if pred is not None:
+        ok = (w["_pred"] == "port_scan").to_numpy()
+        keys = (w["host"].astype(str) + "@" + w["window_start"].astype(str)).to_numpy()
+        kind = pd.Series(keys).map(per_window).fillna("khong_co_flow").to_numpy()
+        extra = {"recall_cua_so_nhieu_hoat_dong": round(float(ok[~is_weak.to_numpy()].mean()), 4) if (~is_weak).any() else None,
+                 "recall_cua_so_it_hoat_dong": round(float(ok[is_weak.to_numpy()].mean()), 4),
+                 "recall_theo_kieu_chu_dao": {k: {"so_cua_so": int((kind[is_weak.to_numpy()] == k).sum()),
+                                                  "recall": round(float(ok[is_weak.to_numpy() & (kind == k)].mean()), 4)}
+                                              for k in sorted(set(kind[is_weak.to_numpy()]))}}
+    return {**extra,
+        "so_cua_so_port_scan": int(len(w)), "so_cua_so_it_hoat_dong": int(len(weak)),
+        "flow_moi_cua_so_trung_vi": float(hit.groupby("cua_so").size().median()) if len(hit) else 0.0,
+        "kieu_flow": _counts(hit["kieu"]),
+        "kieu_chu_dao_cua_cua_so": _counts(per_window),
+        "cong_dich_pho_bien": {str(int(k)): int(v) for k, v in hit["bwd_port"].dropna().value_counts().head(10).items()},
+        "goi_moi_flow_trung_vi": float(hit["packets"].median()) if len(hit) else 0.0,
+    }
+
+
+def unseen_attacks(model, df, rules) -> dict:
+    """Mô hình đoán gì với cửa sổ của đợt tấn công bị loại (DDoS, Heartbleed, Bot) trong test."""
+    ex = df[(df["label_status"] == STATUS_EXCLUDED) & (df["split"] == "test")]
+    if ex.empty:
+        return {}
+    groups = attack_groups(ex.assign(label_anomaly="anomaly"), rules)
+    pred = model.predict(ex)
+    return {g: {"so_mau": int((groups == g).sum()), "du_doan": _counts(pd.Series(pred[groups == g]))}
+            for g in sorted(set(groups))}
+
+
+def permutation_importance(model, df, n_repeats=3, seed=42) -> dict:
+    """Macro-F1 giảm bao nhiêu khi xáo trộn từng đặc trưng gốc (trước tiền xử lý) trên ``df``."""
+    rng = np.random.default_rng(seed)
+    y = df[LABEL_COL].to_numpy()
+    base = multiclass_metrics(y, model.predict(df))["macro_f1"]
+    out = {}
+    for f in model.features:
+        drops = []
+        for _ in range(n_repeats):
+            shuffled = df.copy()
+            shuffled[f] = rng.permutation(shuffled[f].to_numpy())
+            drops.append(base - multiclass_metrics(y, model.predict(shuffled))["macro_f1"])
+        out[f] = round(float(np.mean(drops)), 4)
+    return dict(sorted(out.items(), key=lambda kv: -kv[1]))
+
+
+def model_metadata(model, cfg=None) -> dict:
+    import datetime
+    import platform
+
+    import sklearn
+
+    from .feature_export import _git_version
+
+    return {
+        "mo_hinh": f"{model.kind} phân loại {', '.join(model.classes)} trên cửa sổ host (Chặng 7)",
+        "bang": TABLE, "loai": model.kind, "lop": model.classes, "tham_so": model.params, "seed": model.seed,
+        "dac_trung": model.features, "cot_sau_tien_xu_ly": model.preprocessor.output_names,
+        "tien_xu_ly": {"cot_log": model.preprocessor.log_features, **model.preprocessor.info},
+        "cau_hinh": cfg, **{k: v for k, v in model.info.items()},
+        "ma_nguon": _git_version(),
+        "phien_ban": {"python": platform.python_version(), "numpy": np.__version__, "pandas": pd.__version__,
+                      "scikit-learn": sklearn.__version__},
+        "thoi_diem_tao": datetime.datetime.now().astimezone().isoformat(timespec="seconds"),
+    }
+
+
+def save_model(model, path, cfg=None) -> Path:
+    """Lưu bộ tiền xử lý và mô hình ra joblib, kèm file .json đọc được không cần Python."""
+    import joblib
+
+    if model.estimator is None:
+        raise ValueError("mô hình chưa fit; không lưu")
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    joblib.dump(model, path, compress=3)
+    path.with_suffix(".json").write_text(
+        json.dumps(model_metadata(model, cfg), ensure_ascii=False, indent=2, default=str), encoding="utf-8")
+    return path
+
+
+def load_model(path) -> AttackClassifier:
+    import joblib
+
+    model = joblib.load(path)
+    if not isinstance(model, AttackClassifier):
+        raise TypeError(f"{path} không phải mô hình phân loại của dự án")
+    return model
+
+
+def predict_frame(model, df) -> pd.DataFrame:
+    """Nhãn dự đoán và xác suất từng lớp cho bảng cửa sổ thô (cần đủ cột đặc trưng)."""
+    missing = [f for f in model.features if f not in df.columns]
+    if missing:
+        raise ValueError(f"bảng thiếu cột đặc trưng: {missing}")
+    proba = model.predict_proba(df)
+    out = df[["session", "host", "window_start"]].copy() if "session" in df else df[["host", "window_start"]].copy()
+    out["du_doan"] = np.asarray(model.classes)[proba.argmax(1)]
+    for i, c in enumerate(model.classes):
+        out[f"p_{c}"] = np.round(proba[:, i], 4)
+    return out.reset_index(drop=True)
+
+
+MODEL_FILES = {"logistic_regression": "phan_loai_lr_windows.joblib", "random_forest": "phan_loai_rf_windows.joblib"}
+
+
+def cmd_train(args):
+    from .config import PROJECT_ROOT, load_config
+
+    full = load_config(args.config)
+    cfg = classifier_config(full)
+    choice = json.loads(Path(args.chon).read_text(encoding="utf-8"))
+    df = load_data(args.prefixes, cfg["sessions"])
+    out_dir = Path(args.out or PROJECT_ROOT / full.get("paths", {}).get("model_dir", "models"))
+    for kind in choice["mo_hinh"]:
+        model, _ = refit_chosen(df, choice, cfg, kind)
+        model.info["chon_tren_validation"] = kind == choice["chon"]
+        path = save_model(model, out_dir / MODEL_FILES[kind], cfg)
+        print(f"{kind}: {model.params}, macro-F1 validation {model.info['macro_f1_validation']} -> {path}")
+    print("Mô hình chọn trên validation:", choice["chon"])
+
+
+def cmd_analyze(args):
+    from .config import load_config
+
+    cfg = classifier_config(load_config(args.config))
+    df = load_data(args.prefixes, cfg["sessions"])
+    rules = load_schedule()
+    data = prepare_data(df, None, cfg["random_seed"], cfg["drop_train_duplicates"])
+    scan_flows = load_attack_flows(args.prefixes, "port_scan")
+    res = {"quet_it_hoat_dong_train": scan_window_traffic(data["train_full"], scan_flows)}
+    for path in args.model:
+        model = load_model(path)
+        r = {"loi_test": error_table(model, data["test"], rules)[:25],
+             "port_scan_validation": compare_profiles(model, data["validation"], "port_scan"),
+             "port_scan_test": compare_profiles(model, data["test"], "port_scan"),
+             "dos_test": compare_profiles(model, data["test"], "dos"),
+             "tan_cong_chua_hoc": unseen_attacks(model, df, rules),
+             **{f"quet_it_hoat_dong_{sp}": scan_window_traffic(data[sp], scan_flows, pred=model.predict(data[sp]))
+                for sp in ("validation", "test")}}
+        if args.hoan_vi:
+            r["hoan_vi_validation"] = permutation_importance(model, data["validation"], seed=cfg["random_seed"])
+        res[model.kind] = r
+        print(model.kind, "| sai nhiều nhất:", r["loi_test"][:6])
+        print("   chưa học:", r["tan_cong_chua_hoc"])
+        print("   quét ít hoạt động (test):", r["quet_it_hoat_dong_test"])
+        if "hoan_vi_validation" in r:
+            print("   hoán vị:", dict(list(r["hoan_vi_validation"].items())[:8]))
+    out = Path(args.out)
+    out.mkdir(parents=True, exist_ok=True)
+    (out / "phan_loai_phan_tich.json").write_text(json.dumps(res, ensure_ascii=False, indent=2, default=str),
+                                                  encoding="utf-8")
+    print(f"Đã ghi: {out / 'phan_loai_phan_tich.json'}")
+
+
+def cmd_predict(args):
+    from .gaussian import _load_features_only
+
+    model = load_model(args.model)
+    df = _load_features_only(args.prefixes) if args.khong_nhan else load_table(args.prefixes, TABLE)
+    pred = predict_frame(model, df)
+    out = Path(args.out)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    pred.to_csv(out, index=False)
+    print(f"{len(pred)} cửa sổ: {_counts(pred['du_doan'])}. Đã ghi: {out}")
+
+
 def cmd_labels(args):
     from .config import load_config
 
@@ -566,6 +824,25 @@ def main(argv=None):
     p.add_argument("--out", required=True, help="thư mục ghi JSON và hình")
     p.add_argument("--config", help="file cấu hình, mặc định config/default.yaml")
     p.set_defaults(func=cmd_evaluate)
+    p = sub.add_parser("huan-luyen", help="fit lại cấu hình đã chọn và lưu cả hai mô hình (C07-T06)")
+    p.add_argument("prefixes", nargs="+")
+    p.add_argument("--chon", required=True, help="JSON của lệnh chon")
+    p.add_argument("--out", help="thư mục lưu, mặc định models/")
+    p.add_argument("--config", help="file cấu hình, mặc định config/default.yaml")
+    p.set_defaults(func=cmd_train)
+    p = sub.add_parser("phan-tich", help="phân tích nhầm lẫn bằng mô hình đã lưu (C07-T06)")
+    p.add_argument("prefixes", nargs="+")
+    p.add_argument("--model", action="append", required=True, help="file joblib; lặp lại cho nhiều mô hình")
+    p.add_argument("--out", required=True, help="thư mục ghi JSON")
+    p.add_argument("--hoan-vi", action="store_true", help="thêm độ quan trọng hoán vị trên validation (chậm)")
+    p.add_argument("--config", help="file cấu hình, mặc định config/default.yaml")
+    p.set_defaults(func=cmd_analyze)
+    p = sub.add_parser("du-doan", help="nạp mô hình đã lưu và dự đoán bảng cửa sổ (C07-T06)")
+    p.add_argument("prefixes", nargs="+")
+    p.add_argument("--model", required=True)
+    p.add_argument("--out", required=True, help="file CSV kết quả")
+    p.add_argument("--khong-nhan", action="store_true", help="bảng chưa gán nhãn, chưa chia tập")
+    p.set_defaults(func=cmd_predict)
     args = parser.parse_args(argv)
     args.func(args)
     return 0

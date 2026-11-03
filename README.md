@@ -96,6 +96,7 @@ Báo cáo Chặng 6: [docs/Bao_cao_Chang_6.md](docs/Bao_cao_Chang_6.md)
 - [x] C07-T03: Random Forest — `src/nids/classifier.py`, [docs/41_phan_loai_rf.md](docs/41_phan_loai_rf.md)
 - [x] C07-T04: Chọn tham số và mô hình bằng validation — `src/nids/classifier.py`, [docs/42_phan_loai_chon.md](docs/42_phan_loai_chon.md)
 - [x] C07-T05: Đánh giá macro-F1, chỉ số từng lớp và confusion matrix — `src/nids/classifier.py`, [docs/43_phan_loai_danh_gia.md](docs/43_phan_loai_danh_gia.md)
+- [x] C07-T06: Phân tích nhầm lẫn và lưu artifact — `src/nids/classifier.py`, [docs/44_phan_loai_phan_tich.md](docs/44_phan_loai_phan_tich.md)
 
 Những gì còn thiếu sau Chặng 1–6 (việc đang dở, dữ liệu, lab, tham số chưa chốt): [docs/Viec_con_thieu.md](docs/Viec_con_thieu.md)
 
@@ -247,6 +248,14 @@ python -m nids.gaussian nguong ../output/features/cic17_monday ../output/feature
 python -m nids.gaussian huan-luyen ../output/features/cic17_monday ../output/features/cic17_wednesday ../output/features/cic17_friday
 python -m nids.gaussian danh-gia ../output/features/cic17_monday ../output/features/cic17_wednesday ../output/features/cic17_friday --model ../models/gaussian_windows.joblib --out ../docs/hinh --so-sanh
 python -m nids.gaussian du-doan ../output/features/cic17_monday --khong-nhan --model ../models/gaussian_windows.joblib --out ../output/du_doan.csv
+
+# Phân loại tấn công (chạy trong src/): nhãn, chọn trên validation, đánh giá test, lưu, phân tích, dự đoán
+python -m nids.classifier nhan ../output/features/cic17_wednesday ../output/features/cic17_friday --out ../docs/hinh
+python -m nids.classifier chon ../output/features/cic17_wednesday ../output/features/cic17_friday --out ../docs/hinh
+python -m nids.classifier danh-gia ../output/features/cic17_wednesday ../output/features/cic17_friday --chon ../docs/hinh/phan_loai_chon.json --out ../docs/hinh
+python -m nids.classifier huan-luyen ../output/features/cic17_wednesday ../output/features/cic17_friday --chon ../docs/hinh/phan_loai_chon.json
+python -m nids.classifier phan-tich ../output/features/cic17_wednesday ../output/features/cic17_friday --model ../models/phan_loai_rf_windows.joblib --model ../models/phan_loai_lr_windows.joblib --hoan-vi --out ../docs/hinh
+python -m nids.classifier du-doan ../output/features/cic17_monday --khong-nhan --model ../models/phan_loai_rf_windows.joblib --out ../output/du_doan_phan_loai.csv
 
 # Đọc access log Nginx của một lần chạy, xuất bảng CSV rồi đối chiếu với file gốc
 python -m nids.service_log data/service_logs/<run_id>/access_nids.log --csv output/log.csv
