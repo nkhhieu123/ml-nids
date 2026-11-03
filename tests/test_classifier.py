@@ -11,7 +11,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from nids.classifier import (class_report, fit_and_score, host_roles, load_data, lr_coefficients,
                              make_estimator, multiclass_metrics, paired_bootstrap, prepare_data,
-                             search, select_models)
+                             search, select_models, bootstrap_ci, duplicate_mask, evaluate, refit_chosen)
 from nids.dataset import feature_columns
 from nids.labeling import Rule
 from session_fixture import make_session
@@ -176,6 +176,35 @@ class SelectTest(SessionCase):
         self.assertGreater(b["khoang_95"][0], 0)
         same = paired_bootstrap(y, good, good, n=50)
         self.assertEqual(same["hieu_trung_binh"], 0.0)
+
+
+class EvaluateTest(SessionCase):
+    """C07-T05: chỉ số trên test, theo phiên, theo đợt, mẫu trùng train."""
+
+    def test_evaluate(self):
+        df = separable(load_data(self.prefixes))
+        cfg = dict(SelectTest.CFG)
+        choice = select_models(df, cfg, log=lambda *_: None)
+        model, data = refit_chosen(df, choice, cfg, "random_forest")
+        r = evaluate(model, data["test"], RULES, data["train_full"])
+        self.assertEqual(r["so_mau"], int((df["split"] == "test").sum()))
+        self.assertEqual(set(r["theo_phien"]), {"s1", "s2"})
+        self.assertEqual(sum(v["so_mau"] for v in r["theo_phien"].values()), r["so_mau"])
+        self.assertIn("PortScan", r["theo_dot"])
+        lo, hi = r["khoang_95_macro_f1"]
+        self.assertLessEqual(lo, hi)
+        self.assertIn("bo_mau_trung", r["trung_train"])
+        # cấu hình fit lại đúng là cấu hình đã chọn trên validation
+        self.assertEqual(model.params, choice["mo_hinh"]["random_forest"]["tot_nhat"]["tham_so"])
+
+    def test_duplicate_mask(self):
+        a = pd.DataFrame({"x": [1.0, 2.0, np.nan], "y": [0.0, 0.0, 5.0]})
+        b = pd.DataFrame({"x": [2.0, np.nan], "y": [0.0, 5.0]})
+        self.assertEqual(list(duplicate_mask(a, b, ["x", "y"])), [False, True, True])
+
+    def test_bootstrap_ci(self):
+        y = np.array(["benign"] * 50 + ["dos"] * 25 + ["port_scan"] * 25)
+        self.assertEqual(bootstrap_ci(y, y, n=50), [1.0, 1.0])
 
 
 if __name__ == "__main__":

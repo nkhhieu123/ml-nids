@@ -5,11 +5,13 @@
 - C07-T02: Logistic Regression làm mô hình đối chiếu (docs/40_phan_loai_lr.md, QĐ-034).
 - C07-T03: Random Forest (docs/41_phan_loai_rf.md).
 - C07-T04: chọn tham số và mô hình theo macro-F1 validation (docs/42_phan_loai_chon.md, QĐ-035).
+- C07-T05: đánh giá trên test: macro-F1, từng lớp, confusion matrix, theo đợt (docs/43_phan_loai_danh_gia.md).
 
     python -m nids.classifier nhan <tiền tố phiên>... --out docs/hinh
     python -m nids.classifier thu logistic_regression <tiền tố phiên>... --out docs/hinh
     python -m nids.classifier thu random_forest <tiền tố phiên>... --out docs/hinh
     python -m nids.classifier chon <tiền tố phiên>... --out docs/hinh
+    python -m nids.classifier danh-gia <tiền tố>... --chon docs/hinh/phan_loai_chon.json --out docs/hinh
 
 Mọi bước học chỉ dùng tập train; validation để chọn tham số và mô hình; test chỉ để đánh giá.
 """
@@ -396,6 +398,131 @@ def cmd_select(args):
     print(f"Đã ghi: {path}")
 
 
+# ---- C07-T05: đánh giá trên test ----
+
+def duplicate_mask(test, train, feats=None) -> np.ndarray:
+    """Mẫu test có vector đặc trưng trùng hệt một mẫu train (ô trống coi như bằng nhau)."""
+    feats = feats or feature_columns(TABLE)
+    key = lambda d: pd.util.hash_pandas_object(d[feats].fillna(-1.2345e300), index=False).to_numpy()
+    return np.isin(key(test), key(train))
+
+
+def bootstrap_ci(y, pred, n=1000, seed=42) -> list:
+    """Khoảng 95% của macro-F1 khi lấy lại mẫu có hoàn lại (mẫu liền nhau không độc lập: khoảng hẹp hơn thực)."""
+    idx = {c: i for i, c in enumerate(ATTACK_LABELS)}
+    t = np.array([idx[v] for v in y])
+    p = np.array([idx[v] for v in pred])
+    rng = np.random.default_rng(seed)
+    vals = [_macro_f1_fast(t[s], p[s], 3) for s in (rng.integers(0, len(t), len(t)) for _ in range(n))]
+    return [round(float(np.percentile(vals, 2.5)), 4), round(float(np.percentile(vals, 97.5)), 4)]
+
+
+def evaluate(model, test, rules=None, train=None) -> dict:
+    """Kết quả trên test: tổng, khoảng tin cậy, theo phiên, theo đợt, theo vai trò host, báo động giả."""
+    from .gaussian import alert_episodes
+
+    y = test[LABEL_COL].to_numpy()
+    pred = model.predict(test)
+    out = {"so_mau": len(test), **multiclass_metrics(y, pred), "khoang_95_macro_f1": bootstrap_ci(y, pred),
+           "theo_phien": {}}
+    for sess, idx in test.groupby("session").indices.items():
+        part = test.iloc[idx]
+        hours = (part["window_end"].max() - part["window_start"].min()) / 3600
+        fa = (part[LABEL_COL] == "benign").to_numpy() & (pred[idx] != "benign")
+        out["theo_phien"][sess] = {
+            # Mỗi phiên chỉ có một lớp tấn công: tính macro-F1 trên các lớp có mặt, nếu không lớp vắng có F1 = 0
+            "so_mau": len(idx), **{k: v for k, v in multiclass_metrics(
+                y[idx], pred[idx], [c for c in ATTACK_LABELS if (y[idx] == c).any()]).items() if k != "confusion"},
+            "gio": round(float(hours), 2), "cua_so_benign_bi_bao": int(fa.sum()),
+            "dot_bao_dong_gia_moi_gio": round(alert_episodes(part.reset_index(drop=True), fa) / hours, 1) if hours else None}
+    benign = y == "benign"
+    out["ty_le_benign_bi_bao"] = round(float((pred[benign] != "benign").mean()), 5) if benign.any() else None
+    if rules is not None:
+        groups = class_groups(test, rules)
+        out["theo_dot"] = {g: {"so_mau": int((groups == g).sum()), "recall": round(float((pred[groups == g] == y[groups == g]).mean()), 4),
+                               "du_doan": _counts(pd.Series(pred[groups == g]))}
+                           for g in sorted(set(groups) - {"benign"})}
+        roles = host_roles(test, rules)
+        out["theo_vai_tro"] = {r: {"so_mau_tan_cong": int(((roles == r) & ~benign).sum()),
+                                   "recall_tan_cong": round(float((pred[(roles == r) & ~benign] == y[(roles == r) & ~benign]).mean()), 4)
+                                   if ((roles == r) & ~benign).any() else None}
+                               for r in ("ben_tan_cong", "nan_nhan")}
+    if train is not None:
+        dup = duplicate_mask(test, train)
+        out["trung_train"] = {"so_mau": int(dup.sum()), "theo_lop": _counts(pd.Series(y[dup])),
+                              "bo_mau_trung": {k: v for k, v in multiclass_metrics(y[~dup], pred[~dup]).items()
+                                               if k in ("macro_f1", "theo_lop")}}
+    return out
+
+
+def refit_chosen(df, choice, cfg, kind) -> tuple:
+    """Fit lại cấu hình tốt nhất của ``kind`` (đã chọn ở C07-T04) trên train; trả mô hình và dữ liệu."""
+    best = choice["mo_hinh"][kind]["tot_nhat"]
+    data = prepare_data(df, best["ty_le_can_bang"], cfg["random_seed"], cfg["drop_train_duplicates"])
+    model = AttackClassifier(kind, best["tham_so"], cfg["random_seed"]).fit(data["train"], data["train_full"])
+    model.info.update({"ty_le_can_bang": best["ty_le_can_bang"], "macro_f1_validation": best["macro_f1_validation"],
+                       "du_lieu": data["info"]})
+    return model, data
+
+
+def plot_confusions(results, path):
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    fig, axes = plt.subplots(1, len(results), figsize=(5.2 * len(results), 4.4))
+    axes = np.atleast_1d(axes)
+    for ax, (name, r) in zip(axes, results.items()):
+        cm = np.array(r["confusion"]["ma_tran"], float)
+        norm = cm / np.maximum(cm.sum(1, keepdims=True), 1)
+        ax.imshow(norm, cmap="Blues", vmin=0, vmax=1)
+        labels = r["confusion"]["nhan"]
+        ax.set_xticks(range(len(labels)), labels)
+        ax.set_yticks(range(len(labels)), labels)
+        for i in range(len(labels)):
+            for j in range(len(labels)):
+                ax.text(j, i, f"{int(cm[i, j])}\n{norm[i, j]:.1%}", ha="center", va="center", fontsize=8,
+                        color="white" if norm[i, j] > 0.6 else "black")
+        ax.set_xlabel("Dự đoán")
+        ax.set_ylabel("Nhãn thật")
+        ax.set_title(f"{name}: macro-F1 {r['macro_f1']}", fontsize=10)
+    fig.suptitle("Test: confusion matrix (số mẫu và tỷ lệ theo hàng)", fontsize=10)
+    fig.tight_layout()
+    fig.savefig(path, dpi=110)
+    plt.close(fig)
+
+
+def cmd_evaluate(args):
+    from .config import load_config
+
+    cfg = classifier_config(load_config(args.config))
+    choice = json.loads(Path(args.chon).read_text(encoding="utf-8"))
+    df = load_data(args.prefixes, cfg["sessions"])
+    rules = load_schedule()
+    res = {"chon_tren_validation": choice["chon"], "mo_hinh": {}}
+    preds = {}
+    for kind in choice["mo_hinh"]:
+        model, data = refit_chosen(df, choice, cfg, kind)
+        r = evaluate(model, data["test"], rules, data["train_full"])
+        res["mo_hinh"][kind] = {"ty_le_can_bang": model.info["ty_le_can_bang"], "tham_so": model.params,
+                                "macro_f1_validation": model.info["macro_f1_validation"], **r}
+        preds[kind] = model.predict(data["test"])
+        y_test = data["test"][LABEL_COL].to_numpy()
+    kinds = list(preds)
+    if len(kinds) == 2:
+        res["bootstrap_test"] = {"a": kinds[0], "b": kinds[1], **paired_bootstrap(y_test, preds[kinds[0]], preds[kinds[1]])}
+    out = Path(args.out)
+    out.mkdir(parents=True, exist_ok=True)
+    (out / "phan_loai_test.json").write_text(json.dumps(res, ensure_ascii=False, indent=2, default=str), encoding="utf-8")
+    plot_confusions({SHORT[k].upper(): v for k, v in res["mo_hinh"].items()}, out / "phan_loai_confusion.png")
+    for kind, r in res["mo_hinh"].items():
+        _print_metrics(f"{kind} (test)", r)
+        print("   khoảng 95%:", r["khoang_95_macro_f1"], "| benign bị báo:", r["ty_le_benign_bi_bao"])
+        print("   theo đợt:", {g: v["recall"] for g, v in r.get("theo_dot", {}).items()})
+    print("bootstrap:", res.get("bootstrap_test"))
+    print(f"Đã ghi: {out / 'phan_loai_test.json'}, {out / 'phan_loai_confusion.png'}")
+
+
 def cmd_labels(args):
     from .config import load_config
 
@@ -433,6 +560,12 @@ def main(argv=None):
     p.add_argument("--out", required=True, help="thư mục ghi JSON")
     p.add_argument("--config", help="file cấu hình, mặc định config/default.yaml")
     p.set_defaults(func=cmd_select)
+    p = sub.add_parser("danh-gia", help="fit lại cấu hình đã chọn, đánh giá trên test (C07-T05)")
+    p.add_argument("prefixes", nargs="+")
+    p.add_argument("--chon", required=True, help="JSON của lệnh chon (docs/hinh/phan_loai_chon.json)")
+    p.add_argument("--out", required=True, help="thư mục ghi JSON và hình")
+    p.add_argument("--config", help="file cấu hình, mặc định config/default.yaml")
+    p.set_defaults(func=cmd_evaluate)
     args = parser.parse_args(argv)
     args.func(args)
     return 0

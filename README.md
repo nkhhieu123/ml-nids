@@ -95,6 +95,7 @@ Báo cáo Chặng 6: [docs/Bao_cao_Chang_6.md](docs/Bao_cao_Chang_6.md)
 - [x] C07-T02: Logistic Regression làm mô hình đối chiếu — `src/nids/classifier.py`, [docs/40_phan_loai_lr.md](docs/40_phan_loai_lr.md)
 - [x] C07-T03: Random Forest — `src/nids/classifier.py`, [docs/41_phan_loai_rf.md](docs/41_phan_loai_rf.md)
 - [x] C07-T04: Chọn tham số và mô hình bằng validation — `src/nids/classifier.py`, [docs/42_phan_loai_chon.md](docs/42_phan_loai_chon.md)
+- [x] C07-T05: Đánh giá macro-F1, chỉ số từng lớp và confusion matrix — `src/nids/classifier.py`, [docs/43_phan_loai_danh_gia.md](docs/43_phan_loai_danh_gia.md)
 
 Những gì còn thiếu sau Chặng 1–6 (việc đang dở, dữ liệu, lab, tham số chưa chốt): [docs/Viec_con_thieu.md](docs/Viec_con_thieu.md)
 
