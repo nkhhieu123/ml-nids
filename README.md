@@ -109,6 +109,7 @@ Báo cáo Chặng 7: [docs/Bao_cao_Chang_7.md](docs/Bao_cao_Chang_7.md)
 - [x] C08-T05: Huấn luyện và so sánh hai mô hình phát hiện botnet — `src/nids/botnet.py`, [docs/49_botnet_mo_hinh.md](docs/49_botnet_mo_hinh.md)
 - [x] C08-T06: Dữ liệu topology tập trung, ngang hàng và đối chứng lành tính — `src/nids/topology_sim.py`, `scripts/sinh_topology.py`, [docs/50_du_lieu_topology.md](docs/50_du_lieu_topology.md)
 - [x] C08-T07: Bộ nhận diện topology (quy tắc, không ML) — `src/nids/botnet.py`, [docs/51_nhan_dien_topology.md](docs/51_nhan_dien_topology.md)
+- [x] C08-T08: Đánh giá phát hiện botnet và nhận diện topology bằng hai bảng riêng — `src/nids/botnet.py`, [docs/52_botnet_danh_gia.md](docs/52_botnet_danh_gia.md)
 
 Những gì còn thiếu sau Chặng 1–7 (việc đang dở, dữ liệu, lab, tham số chưa chốt): [docs/Viec_con_thieu.md](docs/Viec_con_thieu.md)
 
@@ -268,6 +269,14 @@ python -m nids.classifier danh-gia ../output/features/cic17_wednesday ../output/
 python -m nids.classifier huan-luyen ../output/features/cic17_wednesday ../output/features/cic17_friday --chon ../docs/hinh/phan_loai_chon.json
 python -m nids.classifier phan-tich ../output/features/cic17_wednesday ../output/features/cic17_friday --model ../models/phan_loai_rf_windows.joblib --model ../models/phan_loai_lr_windows.joblib --hoan-vi --out ../docs/hinh
 python -m nids.classifier du-doan ../output/features/cic17_monday --khong-nhan --model ../models/phan_loai_rf_windows.joblib --out ../output/du_doan_phan_loai.csv
+
+# Botnet và topology: chuẩn bị CTU-13 (chạy ở thư mục gốc), đặc trưng, nhãn, mô hình, giả lập, đánh giá (chạy trong src/)
+python -m nids.ctu13 chuan-bi data/ctu13 --out output/ctu13
+python -m nids.graph_features dac-trung ../output/ctu13 --scenario 1 --scenario 2 --scenario 3 --scenario 4 --scenario 5 --scenario 6 --scenario 7 --scenario 8 --scenario 9 --scenario 10 --scenario 11 --scenario 12 --scenario 13 --out ../output/ctu13
+python -m nids.botnet nhan ../output/ctu13 --out ../docs/hinh
+python -m nids.botnet huan-luyen ../output/ctu13 --out ../docs/hinh
+python -m nids.topology_sim --out ../output/topology_sim
+python -m nids.botnet danh-gia ../output/ctu13 --sim-dir ../output/topology_sim --model ../models/botnet_rf.joblib --model ../models/botnet_lr.joblib --chon botnet_rf --out ../docs/hinh
 
 # Đọc access log Nginx của một lần chạy, xuất bảng CSV rồi đối chiếu với file gốc
 python -m nids.service_log data/service_logs/<run_id>/access_nids.log --csv output/log.csv

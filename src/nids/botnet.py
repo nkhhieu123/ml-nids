@@ -399,6 +399,113 @@ def cmd_train(args):
     print("Chọn:", res["chon"])
 
 
+# ---- C08-T08: đánh giá, hai bảng riêng ----
+
+def topology_tables(df, detector, rule, group_col) -> dict:
+    """Bảng topology: (a) quy tắc trên cửa sổ bot thật; (b) nối tiếp sau bộ phát hiện. Mức cửa sổ và mức nhóm."""
+    part = df[df[LABEL_COL].isin([SUSPECT, NORMAL])].reset_index(drop=True)
+    y = np.where(part[LABEL_COL] == SUSPECT, part[TOPOLOGY_COL], "none")
+    true_suspect = (part[LABEL_COL] == SUSPECT).to_numpy()
+    alone = recognize_topology(part, true_suspect, rule)
+    chain = recognize_topology(part, detector.predict(part) == SUSPECT, rule)
+    groups = part[group_col].astype(str).to_numpy()
+    truth_run = pd.Series(y).groupby(groups).agg(lambda v: next((x for x in v if x != "none"), "none"))
+    out = {"so_cua_so": int(len(part))}
+    for name, pred in (("chi_bo_nhan_dien", alone), ("noi_tiep_bo_phat_hien", chain)):
+        m = true_suspect if name == "chi_bo_nhan_dien" else np.ones(len(part), bool)
+        runs = run_topology(pred, groups)
+        out[name] = {"cua_so": topology_confusion(y[m], pred[m]),
+                     "nhom": topology_confusion(truth_run.loc[runs.index].to_numpy(), runs.to_numpy()),
+                     "nhom_chi_tiet": {g: {"that": truth_run[g], "doan": runs[g]} for g in runs.index}}
+    return out
+
+
+def plot_tables(res, path):
+    """Hình: F1 theo scenario test (hai mô hình) và hai confusion matrix topology (chỉ bộ nhận diện)."""
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    fig, axes = plt.subplots(1, 3, figsize=(15, 4.4))
+    ax = axes[0]
+    names = list(res["phat_hien_botnet"])
+    scen = sorted({int(s) for r in res["phat_hien_botnet"].values() for s in r["theo_scenario"]})
+    w = 0.8 / max(len(names), 1)
+    for i, n in enumerate(names):
+        vals = [res["phat_hien_botnet"][n]["theo_scenario"].get(s, res["phat_hien_botnet"][n]["theo_scenario"].get(str(s), {})).get("f1", 0)
+                for s in scen]
+        ax.bar(np.arange(len(scen)) + i * w, vals, w, label=n)
+    ax.set_xticks(np.arange(len(scen)) + w * (len(names) - 1) / 2, [f"s{s}" for s in scen])
+    ax.set_ylim(0, 1.25)
+    ax.set_yticks(np.arange(0, 1.01, 0.2))
+    ax.set_ylabel("F1 suspect_host")
+    ax.set_title("Bảng 1 — phát hiện botnet, test CTU-13", fontsize=10)
+    ax.legend(fontsize=8, loc="upper center", ncol=len(names))
+    for ax, key, title in ((axes[1], "ctu13_test", "Bảng 2 — topology, test CTU-13"),
+                           (axes[2], "mo_phong", "Bảng 2 — topology, giả lập")):
+        cm = np.array(res["topology"][key]["chi_bo_nhan_dien"]["cua_so"]["ma_tran"], float)
+        labels = res["topology"][key]["chi_bo_nhan_dien"]["cua_so"]["nhan"]
+        keep = [i for i in range(len(labels)) if cm[i].sum() > 0 or cm[:, i].sum() > 0]
+        cm = cm[np.ix_(keep, keep)]
+        lab = [labels[i] for i in keep]
+        norm = cm / np.maximum(cm.sum(1, keepdims=True), 1)
+        ax.imshow(norm, cmap="Blues", vmin=0, vmax=1)
+        ax.set_xticks(range(len(lab)), lab)
+        ax.set_yticks(range(len(lab)), lab)
+        for i in range(len(lab)):
+            for j in range(len(lab)):
+                ax.text(j, i, f"{int(cm[i, j])}\n{norm[i, j]:.0%}", ha="center", va="center", fontsize=8,
+                        color="white" if norm[i, j] > 0.6 else "black")
+        ax.set_xlabel("Đoán")
+        ax.set_ylabel("Thật (cửa sổ bot)")
+        ax.set_title(title + " (chỉ bộ nhận diện)", fontsize=10)
+    fig.tight_layout()
+    fig.savefig(path, dpi=110)
+    plt.close(fig)
+
+
+def cmd_evaluate(args):
+    from .config import load_config
+    from .topology_sim import label_runs
+
+    cfg = load_config(args.config)
+    rule = topology_rule(cfg)
+    df = load_labeled(args.flows_dir, sorted(SCENARIOS), cfg)
+    sim = label_runs(args.sim_dir, cfg).assign(split="mo_phong", scenario=0)
+    res = {"phat_hien_botnet": {}, "topology": {}, "quy_tac_topology": rule}
+    models = {Path(p).stem: load_model(p) for p in args.model}
+    for name, m in models.items():
+        r = evaluate(m, df, "test")
+        r["validation"] = evaluate(m, df, "validation")["tong"]
+        simp = sim[sim[LABEL_COL].isin([SUSPECT, NORMAL])]
+        pred = m.predict(simp)
+        r["mo_phong"] = {"tong": binary_report(simp[LABEL_COL], pred),
+                         "theo_kieu": {k: {"so_cua_so": int(g.shape[0]),
+                                           "ty_le_bi_bao": round(float((pred[g.index.map(simp.index.get_loc)] == SUSPECT).mean()), 4)}
+                                       for k, g in simp.groupby("kieu")}}
+        res["phat_hien_botnet"][name] = {"nguong": m.threshold, "tham_so": m.params, **r}
+    chosen = models[args.chon] if args.chon else next(iter(models.values()))
+    res["topology"]["mo_hinh_phat_hien"] = args.chon or next(iter(models))
+    for split in ("train", "validation", "test"):
+        res["topology"][f"ctu13_{split}"] = topology_tables(df[df["split"] == split], chosen, rule, "scenario")
+    res["topology"]["mo_phong"] = topology_tables(sim, chosen, rule, "lan_chay")
+    out = Path(args.out)
+    out.mkdir(parents=True, exist_ok=True)
+    (out / "botnet_danh_gia.json").write_text(json.dumps(res, ensure_ascii=False, indent=2, default=str), encoding="utf-8")
+    plot_tables(res, out / "botnet_danh_gia.png")
+    for name, r in res["phat_hien_botnet"].items():
+        print(name, "test:", r["tong"], "| Background bị báo:", r["background_bi_bao"])
+        for s, v in r["theo_scenario"].items():
+            print(f"   s{s}: P {v['precision']} R {v['recall']} F1 {v['f1']} báo nhầm {v['ty_le_bao_nham']} "
+                  f"Background {v['background_bi_bao']} host bắt được {v['host_bot_bi_bat']}/{v['so_host_bot']}")
+        print("   mô phỏng:", r["mo_phong"])
+    for k, v in res["topology"].items():
+        if isinstance(v, dict):
+            print(k, "chỉ bộ nhận diện:", v["chi_bo_nhan_dien"]["cua_so"]["ma_tran"], v["chi_bo_nhan_dien"]["nhom"]["ma_tran"])
+            print("   nối tiếp:", v["noi_tiep_bo_phat_hien"]["cua_so"]["ma_tran"], v["noi_tiep_bo_phat_hien"]["nhom"]["ma_tran"])
+    print(f"Đã ghi: {out / 'botnet_danh_gia.json'}")
+
+
 def cmd_labels(args):
     from .config import load_config
 
@@ -431,6 +538,14 @@ def main(argv=None):
     p.add_argument("--models", help="thư mục lưu mô hình, mặc định models/")
     p.add_argument("--config", help="file cấu hình, mặc định config/default.yaml")
     p.set_defaults(func=cmd_train)
+    p = sub.add_parser("danh-gia", help="hai bảng: phát hiện botnet và topology (C08-T08)")
+    p.add_argument("flows_dir")
+    p.add_argument("--sim-dir", required=True, help="thư mục của nids.topology_sim")
+    p.add_argument("--model", action="append", required=True, help="file joblib; lặp lại cho nhiều mô hình")
+    p.add_argument("--chon", help="tên mô hình (tên file không đuôi) dùng trước bộ nhận diện topology")
+    p.add_argument("--out", required=True)
+    p.add_argument("--config", help="file cấu hình, mặc định config/default.yaml")
+    p.set_defaults(func=cmd_evaluate)
     args = parser.parse_args(argv)
     args.func(args)
     return 0

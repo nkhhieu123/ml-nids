@@ -11,7 +11,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from nids.botnet import (BotnetDetector, binary_report, botnet_config, evaluate, feature_names, label_host_windows,
                          labeled_part, load_model, model_search, recognize_topology, run_topology, save_model,
-                         scenario_split, scenario_topology, topology_confusion, training_set)
+                         scenario_split, scenario_topology, topology_confusion, topology_tables, training_set)
 from nids.topology_sim import default_runs, label_runs, simulate
 from nids.ctu13 import (FLOW_COLUMNS, extract, flow_group, from_project_flows, is_cc, load_flows,
                         pick_background, prepare_scenario, scan)
@@ -324,6 +324,25 @@ class TopologyRuleTest(unittest.TestCase):
         cm = topology_confusion(["p2p", "centralized", "none"], ["p2p", "p2p", "none"])
         self.assertEqual(cm["ma_tran"], [[0, 1, 0], [0, 1, 0], [0, 0, 1]])
         self.assertAlmostEqual(cm["do_chinh_xac"], 2 / 3, places=4)
+
+
+class EvaluationTablesTest(unittest.TestCase):
+    """C08-T08: bảng topology tách bộ nhận diện và nối tiếp bộ phát hiện."""
+
+    def test_topology_tables(self):
+        df = labeled_frame()
+        df = df[df["label_host"] != "background"].copy()
+        df["label_topology"] = np.where(df["label_host"] == "suspect_host", "p2p", "none")
+        df.loc[df["label_host"] == "suspect_host", "ty_le_udp"] = 0.9
+        df.loc[df["label_host"] == "suspect_host", "entropy_peer_vao"] = 0.95
+        m = BotnetDetector("random_forest", {"n_estimators": 20}).fit(labeled_part(df, "train"))
+        t = topology_tables(df, m, {"min_peer_vao": 5, "min_udp": 0.5, "min_entropy_vao": 0.8}, "scenario")
+        alone = t["chi_bo_nhan_dien"]["cua_so"]
+        self.assertEqual(sum(map(sum, alone["ma_tran"])), int((df["label_host"] == "suspect_host").sum()))
+        self.assertEqual(alone["recall_theo_lop"]["p2p"], 1.0)
+        chain = t["noi_tiep_bo_phat_hien"]["cua_so"]
+        self.assertEqual(sum(map(sum, chain["ma_tran"])), len(df))            # nối tiếp: mọi cửa sổ có nhãn
+        self.assertEqual(set(t["chi_bo_nhan_dien"]["nhom_chi_tiet"]), {"1", "2"})
 
 
 class SimulationTest(unittest.TestCase):

@@ -1,0 +1,1008 @@
+{
+  "phat_hien_botnet": {
+    "botnet_rf": {
+      "nguong": 0.1,
+      "tham_so": {
+        "n_estimators": 300,
+        "max_depth": null,
+        "min_samples_leaf": 5,
+        "class_weight": null
+      },
+      "tong": {
+        "precision": 0.9706,
+        "recall": 0.6775,
+        "f1": 0.7979,
+        "ty_le_bao_nham": 0.01584,
+        "tp": 12999,
+        "fp": 394,
+        "fn": 6189,
+        "tn": 24486
+      },
+      "theo_scenario": {
+        "1": {
+          "so_cua_so_bot": 1718,
+          "so_cua_so_binh_thuong": 5221,
+          "precision": 0.9789,
+          "recall": 0.9971,
+          "f1": 0.9879,
+          "ty_le_bao_nham": 0.00709,
+          "tp": 1713,
+          "fp": 37,
+          "fn": 5,
+          "tn": 5184,
+          "background_bi_bao": 0.0458,
+          "host_bot_bi_bat": 1,
+          "so_host_bot": 1
+        },
+        "2": {
+          "so_cua_so_bot": 1243,
+          "so_cua_so_binh_thuong": 1746,
+          "precision": 1.0,
+          "recall": 0.9807,
+          "f1": 0.9903,
+          "ty_le_bao_nham": 0.0,
+          "tp": 1219,
+          "fp": 0,
+          "fn": 24,
+          "tn": 1746,
+          "background_bi_bao": 0.1241,
+          "host_bot_bi_bat": 1,
+          "so_host_bot": 1
+        },
+        "6": {
+          "so_cua_so_bot": 746,
+          "so_cua_so_binh_thuong": 1403,
+          "precision": 0.9932,
+          "recall": 0.9759,
+          "f1": 0.9844,
+          "ty_le_bao_nham": 0.00356,
+          "tp": 728,
+          "fp": 5,
+          "fn": 18,
+          "tn": 1398,
+          "background_bi_bao": 0.0319,
+          "host_bot_bi_bat": 1,
+          "so_host_bot": 1
+        },
+        "8": {
+          "so_cua_so_bot": 6723,
+          "so_cua_so_binh_thuong": 12184,
+          "precision": 0.7699,
+          "recall": 0.1538,
+          "f1": 0.2564,
+          "ty_le_bao_nham": 0.02536,
+          "tp": 1034,
+          "fp": 309,
+          "fn": 5689,
+          "tn": 11875,
+          "background_bi_bao": 0.1666,
+          "host_bot_bi_bat": 1,
+          "so_host_bot": 1
+        },
+        "9": {
+          "so_cua_so_bot": 8758,
+          "so_cua_so_binh_thuong": 4326,
+          "precision": 0.9948,
+          "recall": 0.9483,
+          "f1": 0.971,
+          "ty_le_bao_nham": 0.00994,
+          "tp": 8305,
+          "fp": 43,
+          "fn": 453,
+          "tn": 4283,
+          "background_bi_bao": 0.0941,
+          "host_bot_bi_bat": 10,
+          "so_host_bot": 10
+        }
+      },
+      "background_bi_bao": 0.1193,
+      "validation": {
+        "precision": 0.9651,
+        "recall": 0.3709,
+        "f1": 0.5358,
+        "ty_le_bao_nham": 0.00842,
+        "tp": 2431,
+        "fp": 88,
+        "fn": 4124,
+        "tn": 10365
+      },
+      "mo_phong": {
+        "tong": {
+          "precision": 0.8,
+          "recall": 0.0169,
+          "f1": 0.0331,
+          "ty_le_bao_nham": 0.00285,
+          "tp": 24,
+          "fp": 6,
+          "fn": 1398,
+          "tn": 2098
+        },
+        "theo_kieu": {
+          "benign_centralized": {
+            "so_cua_so": 948,
+            "ty_le_bi_bao": 0.0
+          },
+          "benign_p2p": {
+            "so_cua_so": 682,
+            "ty_le_bi_bao": 0.0088
+          },
+          "centralized": {
+            "so_cua_so": 948,
+            "ty_le_bi_bao": 0.0
+          },
+          "p2p": {
+            "so_cua_so": 948,
+            "ty_le_bi_bao": 0.0253
+          }
+        }
+      }
+    },
+    "botnet_lr": {
+      "nguong": 0.3,
+      "tham_so": {
+        "C": 10.0,
+        "class_weight": null
+      },
+      "tong": {
+        "precision": 0.949,
+        "recall": 0.1319,
+        "f1": 0.2315,
+        "ty_le_bao_nham": 0.00547,
+        "tp": 2530,
+        "fp": 136,
+        "fn": 16658,
+        "tn": 24744
+      },
+      "theo_scenario": {
+        "1": {
+          "so_cua_so_bot": 1718,
+          "so_cua_so_binh_thuong": 5221,
+          "precision": 0.7388,
+          "recall": 0.0576,
+          "f1": 0.1069,
+          "ty_le_bao_nham": 0.0067,
+          "tp": 99,
+          "fp": 35,
+          "fn": 1619,
+          "tn": 5186,
+          "background_bi_bao": 0.0258,
+          "host_bot_bi_bat": 1,
+          "so_host_bot": 1
+        },
+        "2": {
+          "so_cua_so_bot": 1243,
+          "so_cua_so_binh_thuong": 1746,
+          "precision": 1.0,
+          "recall": 0.0161,
+          "f1": 0.0317,
+          "ty_le_bao_nham": 0.0,
+          "tp": 20,
+          "fp": 0,
+          "fn": 1223,
+          "tn": 1746,
+          "background_bi_bao": 0.0883,
+          "host_bot_bi_bat": 1,
+          "so_host_bot": 1
+        },
+        "6": {
+          "so_cua_so_bot": 746,
+          "so_cua_so_binh_thuong": 1403,
+          "precision": 0.9975,
+          "recall": 0.5255,
+          "f1": 0.6883,
+          "ty_le_bao_nham": 0.00071,
+          "tp": 392,
+          "fp": 1,
+          "fn": 354,
+          "tn": 1402,
+          "background_bi_bao": 0.0235,
+          "host_bot_bi_bat": 1,
+          "so_host_bot": 1
+        },
+        "8": {
+          "so_cua_so_bot": 6723,
+          "so_cua_so_binh_thuong": 12184,
+          "precision": 0.9143,
+          "recall": 0.1539,
+          "f1": 0.2635,
+          "ty_le_bao_nham": 0.00796,
+          "tp": 1035,
+          "fp": 97,
+          "fn": 5688,
+          "tn": 12087,
+          "background_bi_bao": 0.1842,
+          "host_bot_bi_bat": 1,
+          "so_host_bot": 1
+        },
+        "9": {
+          "so_cua_so_bot": 8758,
+          "so_cua_so_binh_thuong": 4326,
+          "precision": 0.997,
+          "recall": 0.1124,
+          "f1": 0.2019,
+          "ty_le_bao_nham": 0.00069,
+          "tp": 984,
+          "fp": 3,
+          "fn": 7774,
+          "tn": 4323,
+          "background_bi_bao": 0.0114,
+          "host_bot_bi_bat": 10,
+          "so_host_bot": 10
+        }
+      },
+      "background_bi_bao": 0.1069,
+      "validation": {
+        "precision": 0.9442,
+        "recall": 0.0903,
+        "f1": 0.1649,
+        "ty_le_bao_nham": 0.00335,
+        "tp": 592,
+        "fp": 35,
+        "fn": 5963,
+        "tn": 10418
+      },
+      "mo_phong": {
+        "tong": {
+          "precision": 0.3607,
+          "recall": 0.0556,
+          "f1": 0.0963,
+          "ty_le_bao_nham": 0.06654,
+          "tp": 79,
+          "fp": 140,
+          "fn": 1343,
+          "tn": 1964
+        },
+        "theo_kieu": {
+          "benign_centralized": {
+            "so_cua_so": 948,
+            "ty_le_bi_bao": 0.0833
+          },
+          "benign_p2p": {
+            "so_cua_so": 682,
+            "ty_le_bi_bao": 0.0279
+          },
+          "centralized": {
+            "so_cua_so": 948,
+            "ty_le_bi_bao": 0.0359
+          },
+          "p2p": {
+            "so_cua_so": 948,
+            "ty_le_bi_bao": 0.0918
+          }
+        }
+      }
+    }
+  },
+  "topology": {
+    "mo_hinh_phat_hien": "botnet_rf",
+    "ctu13_train": {
+      "so_cua_so": 42402,
+      "chi_bo_nhan_dien": {
+        "cua_so": {
+          "nhan": [
+            "centralized",
+            "p2p",
+            "none"
+          ],
+          "ma_tran": [
+            [
+              8878,
+              0,
+              0
+            ],
+            [
+              34,
+              663,
+              0
+            ],
+            [
+              0,
+              0,
+              0
+            ]
+          ],
+          "do_chinh_xac": 0.9964,
+          "recall_theo_lop": {
+            "centralized": 1.0,
+            "p2p": 0.9512,
+            "none": null
+          }
+        },
+        "nhom": {
+          "nhan": [
+            "centralized",
+            "p2p",
+            "none"
+          ],
+          "ma_tran": [
+            [
+              5,
+              0,
+              0
+            ],
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              0
+            ]
+          ],
+          "do_chinh_xac": 1.0,
+          "recall_theo_lop": {
+            "centralized": 1.0,
+            "p2p": 1.0,
+            "none": null
+          }
+        },
+        "nhom_chi_tiet": {
+          "10": {
+            "that": "centralized",
+            "doan": "centralized"
+          },
+          "11": {
+            "that": "centralized",
+            "doan": "centralized"
+          },
+          "12": {
+            "that": "p2p",
+            "doan": "p2p"
+          },
+          "3": {
+            "that": "centralized",
+            "doan": "centralized"
+          },
+          "5": {
+            "that": "centralized",
+            "doan": "centralized"
+          },
+          "7": {
+            "that": "centralized",
+            "doan": "centralized"
+          }
+        }
+      },
+      "noi_tiep_bo_phat_hien": {
+        "cua_so": {
+          "nhan": [
+            "centralized",
+            "p2p",
+            "none"
+          ],
+          "ma_tran": [
+            [
+              8865,
+              0,
+              13
+            ],
+            [
+              34,
+              663,
+              0
+            ],
+            [
+              29,
+              0,
+              32798
+            ]
+          ],
+          "do_chinh_xac": 0.9982,
+          "recall_theo_lop": {
+            "centralized": 0.9985,
+            "p2p": 0.9512,
+            "none": 0.9991
+          }
+        },
+        "nhom": {
+          "nhan": [
+            "centralized",
+            "p2p",
+            "none"
+          ],
+          "ma_tran": [
+            [
+              5,
+              0,
+              0
+            ],
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              0
+            ]
+          ],
+          "do_chinh_xac": 1.0,
+          "recall_theo_lop": {
+            "centralized": 1.0,
+            "p2p": 1.0,
+            "none": null
+          }
+        },
+        "nhom_chi_tiet": {
+          "10": {
+            "that": "centralized",
+            "doan": "centralized"
+          },
+          "11": {
+            "that": "centralized",
+            "doan": "centralized"
+          },
+          "12": {
+            "that": "p2p",
+            "doan": "p2p"
+          },
+          "3": {
+            "that": "centralized",
+            "doan": "centralized"
+          },
+          "5": {
+            "that": "centralized",
+            "doan": "centralized"
+          },
+          "7": {
+            "that": "centralized",
+            "doan": "centralized"
+          }
+        }
+      }
+    },
+    "ctu13_validation": {
+      "so_cua_so": 17008,
+      "chi_bo_nhan_dien": {
+        "cua_so": {
+          "nhan": [
+            "centralized",
+            "p2p",
+            "none"
+          ],
+          "ma_tran": [
+            [
+              6555,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0
+            ]
+          ],
+          "do_chinh_xac": 1.0,
+          "recall_theo_lop": {
+            "centralized": 1.0,
+            "p2p": null,
+            "none": null
+          }
+        },
+        "nhom": {
+          "nhan": [
+            "centralized",
+            "p2p",
+            "none"
+          ],
+          "ma_tran": [
+            [
+              2,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0
+            ]
+          ],
+          "do_chinh_xac": 1.0,
+          "recall_theo_lop": {
+            "centralized": 1.0,
+            "p2p": null,
+            "none": null
+          }
+        },
+        "nhom_chi_tiet": {
+          "13": {
+            "that": "centralized",
+            "doan": "centralized"
+          },
+          "4": {
+            "that": "centralized",
+            "doan": "centralized"
+          }
+        }
+      },
+      "noi_tiep_bo_phat_hien": {
+        "cua_so": {
+          "nhan": [
+            "centralized",
+            "p2p",
+            "none"
+          ],
+          "ma_tran": [
+            [
+              2431,
+              0,
+              4124
+            ],
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              88,
+              0,
+              10365
+            ]
+          ],
+          "do_chinh_xac": 0.7524,
+          "recall_theo_lop": {
+            "centralized": 0.3709,
+            "p2p": null,
+            "none": 0.9916
+          }
+        },
+        "nhom": {
+          "nhan": [
+            "centralized",
+            "p2p",
+            "none"
+          ],
+          "ma_tran": [
+            [
+              2,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0
+            ]
+          ],
+          "do_chinh_xac": 1.0,
+          "recall_theo_lop": {
+            "centralized": 1.0,
+            "p2p": null,
+            "none": null
+          }
+        },
+        "nhom_chi_tiet": {
+          "13": {
+            "that": "centralized",
+            "doan": "centralized"
+          },
+          "4": {
+            "that": "centralized",
+            "doan": "centralized"
+          }
+        }
+      }
+    },
+    "ctu13_test": {
+      "so_cua_so": 44068,
+      "chi_bo_nhan_dien": {
+        "cua_so": {
+          "nhan": [
+            "centralized",
+            "p2p",
+            "none"
+          ],
+          "ma_tran": [
+            [
+              19165,
+              23,
+              0
+            ],
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0
+            ]
+          ],
+          "do_chinh_xac": 0.9988,
+          "recall_theo_lop": {
+            "centralized": 0.9988,
+            "p2p": null,
+            "none": null
+          }
+        },
+        "nhom": {
+          "nhan": [
+            "centralized",
+            "p2p",
+            "none"
+          ],
+          "ma_tran": [
+            [
+              5,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0
+            ]
+          ],
+          "do_chinh_xac": 1.0,
+          "recall_theo_lop": {
+            "centralized": 1.0,
+            "p2p": null,
+            "none": null
+          }
+        },
+        "nhom_chi_tiet": {
+          "1": {
+            "that": "centralized",
+            "doan": "centralized"
+          },
+          "2": {
+            "that": "centralized",
+            "doan": "centralized"
+          },
+          "6": {
+            "that": "centralized",
+            "doan": "centralized"
+          },
+          "8": {
+            "that": "centralized",
+            "doan": "centralized"
+          },
+          "9": {
+            "that": "centralized",
+            "doan": "centralized"
+          }
+        }
+      },
+      "noi_tiep_bo_phat_hien": {
+        "cua_so": {
+          "nhan": [
+            "centralized",
+            "p2p",
+            "none"
+          ],
+          "ma_tran": [
+            [
+              12976,
+              23,
+              6189
+            ],
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              357,
+              37,
+              24486
+            ]
+          ],
+          "do_chinh_xac": 0.8501,
+          "recall_theo_lop": {
+            "centralized": 0.6763,
+            "p2p": null,
+            "none": 0.9842
+          }
+        },
+        "nhom": {
+          "nhan": [
+            "centralized",
+            "p2p",
+            "none"
+          ],
+          "ma_tran": [
+            [
+              5,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0
+            ]
+          ],
+          "do_chinh_xac": 1.0,
+          "recall_theo_lop": {
+            "centralized": 1.0,
+            "p2p": null,
+            "none": null
+          }
+        },
+        "nhom_chi_tiet": {
+          "1": {
+            "that": "centralized",
+            "doan": "centralized"
+          },
+          "2": {
+            "that": "centralized",
+            "doan": "centralized"
+          },
+          "6": {
+            "that": "centralized",
+            "doan": "centralized"
+          },
+          "8": {
+            "that": "centralized",
+            "doan": "centralized"
+          },
+          "9": {
+            "that": "centralized",
+            "doan": "centralized"
+          }
+        }
+      }
+    },
+    "mo_phong": {
+      "so_cua_so": 3526,
+      "chi_bo_nhan_dien": {
+        "cua_so": {
+          "nhan": [
+            "centralized",
+            "p2p",
+            "none"
+          ],
+          "ma_tran": [
+            [
+              711,
+              0,
+              0
+            ],
+            [
+              130,
+              581,
+              0
+            ],
+            [
+              0,
+              0,
+              0
+            ]
+          ],
+          "do_chinh_xac": 0.9086,
+          "recall_theo_lop": {
+            "centralized": 1.0,
+            "p2p": 0.8172,
+            "none": null
+          }
+        },
+        "nhom": {
+          "nhan": [
+            "centralized",
+            "p2p",
+            "none"
+          ],
+          "ma_tran": [
+            [
+              3,
+              0,
+              0
+            ],
+            [
+              1,
+              2,
+              0
+            ],
+            [
+              0,
+              0,
+              6
+            ]
+          ],
+          "do_chinh_xac": 0.9167,
+          "recall_theo_lop": {
+            "centralized": 1.0,
+            "p2p": 0.6667,
+            "none": 1.0
+          }
+        },
+        "nhom_chi_tiet": {
+          "benign_centralized_1": {
+            "that": "none",
+            "doan": "none"
+          },
+          "benign_centralized_2": {
+            "that": "none",
+            "doan": "none"
+          },
+          "benign_centralized_3": {
+            "that": "none",
+            "doan": "none"
+          },
+          "benign_p2p_1": {
+            "that": "none",
+            "doan": "none"
+          },
+          "benign_p2p_2": {
+            "that": "none",
+            "doan": "none"
+          },
+          "benign_p2p_3": {
+            "that": "none",
+            "doan": "none"
+          },
+          "centralized_1": {
+            "that": "centralized",
+            "doan": "centralized"
+          },
+          "centralized_2": {
+            "that": "centralized",
+            "doan": "centralized"
+          },
+          "centralized_3": {
+            "that": "centralized",
+            "doan": "centralized"
+          },
+          "p2p_1": {
+            "that": "p2p",
+            "doan": "p2p"
+          },
+          "p2p_2": {
+            "that": "p2p",
+            "doan": "centralized"
+          },
+          "p2p_3": {
+            "that": "p2p",
+            "doan": "p2p"
+          }
+        }
+      },
+      "noi_tiep_bo_phat_hien": {
+        "cua_so": {
+          "nhan": [
+            "centralized",
+            "p2p",
+            "none"
+          ],
+          "ma_tran": [
+            [
+              0,
+              0,
+              711
+            ],
+            [
+              0,
+              24,
+              687
+            ],
+            [
+              6,
+              0,
+              2098
+            ]
+          ],
+          "do_chinh_xac": 0.6018,
+          "recall_theo_lop": {
+            "centralized": 0.0,
+            "p2p": 0.0338,
+            "none": 0.9971
+          }
+        },
+        "nhom": {
+          "nhan": [
+            "centralized",
+            "p2p",
+            "none"
+          ],
+          "ma_tran": [
+            [
+              0,
+              0,
+              3
+            ],
+            [
+              0,
+              2,
+              1
+            ],
+            [
+              1,
+              0,
+              5
+            ]
+          ],
+          "do_chinh_xac": 0.5833,
+          "recall_theo_lop": {
+            "centralized": 0.0,
+            "p2p": 0.6667,
+            "none": 0.8333
+          }
+        },
+        "nhom_chi_tiet": {
+          "benign_centralized_1": {
+            "that": "none",
+            "doan": "none"
+          },
+          "benign_centralized_2": {
+            "that": "none",
+            "doan": "none"
+          },
+          "benign_centralized_3": {
+            "that": "none",
+            "doan": "none"
+          },
+          "benign_p2p_1": {
+            "that": "none",
+            "doan": "none"
+          },
+          "benign_p2p_2": {
+            "that": "none",
+            "doan": "none"
+          },
+          "benign_p2p_3": {
+            "that": "none",
+            "doan": "centralized"
+          },
+          "centralized_1": {
+            "that": "centralized",
+            "doan": "none"
+          },
+          "centralized_2": {
+            "that": "centralized",
+            "doan": "none"
+          },
+          "centralized_3": {
+            "that": "centralized",
+            "doan": "none"
+          },
+          "p2p_1": {
+            "that": "p2p",
+            "doan": "p2p"
+          },
+          "p2p_2": {
+            "that": "p2p",
+            "doan": "none"
+          },
+          "p2p_3": {
+            "that": "p2p",
+            "doan": "p2p"
+          }
+        }
+      }
+    }
+  },
+  "quy_tac_topology": {
+    "min_peer_vao": 5,
+    "min_udp": 0.5,
+    "min_entropy_vao": 0.8
+  }
+}
