@@ -108,6 +108,7 @@ Báo cáo Chặng 7: [docs/Bao_cao_Chang_7.md](docs/Bao_cao_Chang_7.md)
 - [x] C08-T04: Dữ liệu host–cửa sổ có nhãn botnet; cách xử lý Background — `src/nids/ctu13.py`, `src/nids/botnet.py`, [docs/48_botnet_nhan.md](docs/48_botnet_nhan.md)
 - [x] C08-T05: Huấn luyện và so sánh hai mô hình phát hiện botnet — `src/nids/botnet.py`, [docs/49_botnet_mo_hinh.md](docs/49_botnet_mo_hinh.md)
 - [x] C08-T06: Dữ liệu topology tập trung, ngang hàng và đối chứng lành tính — `src/nids/topology_sim.py`, `scripts/sinh_topology.py`, [docs/50_du_lieu_topology.md](docs/50_du_lieu_topology.md)
+- [x] C08-T07: Bộ nhận diện topology (quy tắc, không ML) — `src/nids/botnet.py`, [docs/51_nhan_dien_topology.md](docs/51_nhan_dien_topology.md)
 
 Những gì còn thiếu sau Chặng 1–7 (việc đang dở, dữ liệu, lab, tham số chưa chốt): [docs/Viec_con_thieu.md](docs/Viec_con_thieu.md)
 

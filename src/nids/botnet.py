@@ -2,8 +2,14 @@
 
 - C08-T04: gán nhãn host–cửa sổ, quy định cách xử lý Background, chia tập theo scenario
   (docs/48_botnet_nhan.md, QĐ-039).
+- C08-T05: Logistic Regression và Random Forest phát hiện host bot; chọn trên validation với giới hạn
+  báo động Background (docs/49_botnet_mo_hinh.md, QĐ-040).
+- C08-T07: nhận diện topology bằng quy tắc, không ML (docs/51_nhan_dien_topology.md, QĐ-042).
+- C08-T08: đánh giá bằng hai bảng riêng: phát hiện botnet và topology (docs/52_botnet_danh_gia.md).
 
     python -m nids.botnet nhan output/ctu13 --out docs/hinh
+    python -m nids.botnet huan-luyen output/ctu13 --out docs/hinh
+    python -m nids.botnet danh-gia output/ctu13 --sim-dir output/topology_sim --model models/botnet_rf.joblib         --model models/botnet_lr.joblib --chon botnet_rf --out docs/hinh
 
 Nhãn host lấy từ nhãn flow của CTU-13 (docs/07 mục 5), độc lập với đặc trưng.
 """
@@ -270,6 +276,58 @@ def evaluate(model, df, split="test") -> dict:
         }
     res["background_bi_bao"] = round(float((bg_pred == SUSPECT).mean()), 4) if len(bg) else None
     return res
+
+
+# ---- C08-T07: nhận diện topology bằng QUY TẮC (không ML) ----
+
+TOPOLOGY_LABELS = ("centralized", "p2p", "none")
+
+
+def topology_rule(cfg=None) -> dict:
+    r = dict((botnet_config(cfg).get("topology_rule")) or {})
+    r.setdefault("min_peer_vao", 5)
+    r.setdefault("min_udp", 0.5)
+    r.setdefault("min_entropy_vao", 0.8)
+    return r
+
+
+def recognize_topology(df, suspect, rule=None) -> np.ndarray:
+    """Topology của từng host–cửa sổ, bằng quy tắc (QĐ-042).
+
+    - ``none`` nếu host–cửa sổ không bị nghi là bot (``suspect`` False).
+    - ``p2p`` nếu đồng thời: ≥ ``min_peer_vao`` peer gọi vào host, ≥ ``min_udp`` phần flow là UDP và entropy
+      của flow vào theo peer ≥ ``min_entropy_vao`` (nhiều peer ngang hàng chủ động gọi tới, chia đều).
+    - ``centralized`` cho các cửa sổ bị nghi còn lại (bot chủ yếu gọi ra tới ít máy điều khiển hoặc nạn nhân).
+
+    Dùng quy tắc vì CTU-13 chỉ có một scenario P2P: không đủ dữ liệu để học và kiểm thử riêng một mô hình.
+    """
+    r = rule or topology_rule()
+    suspect = np.asarray(suspect, bool)
+    p2p = ((df["so_peer_vao"].fillna(0) >= r["min_peer_vao"]) & (df["ty_le_udp"].fillna(0) >= r["min_udp"])
+           & (df["entropy_peer_vao"].fillna(0) >= r["min_entropy_vao"])).to_numpy()
+    return np.where(~suspect, "none", np.where(p2p, "p2p", "centralized"))
+
+
+def run_topology(windows_topology, groups) -> pd.Series:
+    """Topology của cả lần chạy hoặc scenario: nhãn chiếm đa số trong các cửa sổ bị nghi; không có thì ``none``."""
+    s = pd.Series(windows_topology)
+    out = {}
+    for g, idx in pd.Series(groups).groupby(groups).groups.items():
+        vals = s.loc[idx]
+        vals = vals[vals != "none"]
+        out[g] = vals.value_counts().idxmax() if len(vals) else "none"
+    return pd.Series(out)
+
+
+def topology_confusion(y, pred) -> dict:
+    from sklearn.metrics import confusion_matrix
+
+    labels = list(TOPOLOGY_LABELS)
+    cm = confusion_matrix(y, pred, labels=labels)
+    acc = float(np.trace(cm) / cm.sum()) if cm.sum() else 0.0
+    return {"nhan": labels, "ma_tran": cm.tolist(), "do_chinh_xac": round(acc, 4),
+            "recall_theo_lop": {c: round(float(cm[i, i] / cm[i].sum()), 4) if cm[i].sum() else None
+                                for i, c in enumerate(labels)}}
 
 
 MODEL_FILES = {"logistic_regression": "botnet_lr.joblib", "random_forest": "botnet_rf.joblib"}

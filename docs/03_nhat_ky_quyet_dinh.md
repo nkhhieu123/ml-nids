@@ -302,6 +302,13 @@ Mẫu:
 - Quyết định: `nids.topology_sim` sinh bản ghi flow (không gửi gói) cho 4 kiểu × 3 lần chạy 15 phút với chu kỳ, jitter khác nhau, có nhật ký lần chạy; nhãn host–cửa sổ lấy từ nhật ký. `scripts/sinh_topology.py` sinh traffic thật trong lab: chỉ thông điệp vô hại, từ chối đích ngoài 192.168.50.0/24, ghi nhật ký vào `data/run_logs/nhat_ky.jsonl` (cũng là định dạng nhật ký lần chạy đề xuất).
 - Hệ quả: Kết quả trên giả lập chỉ kiểm tra logic của bộ nhận diện, báo cáo riêng, không coi là kết quả trên botnet thật. Đối chứng tập trung có cùng đặc trưng với botnet tập trung. Chi tiết ở docs/50.
 
+## QĐ-042 — Nhận diện topology bằng quy tắc, chạy sau bộ phát hiện botnet
+- Ngày: 03/11/2026
+- Trạng thái: Đã chốt cho CTU-13 và giả lập (xem lại khi có lab)
+- Bối cảnh: C08-T07 phải ghi rõ dùng quy tắc hay ML. CTU-13 chỉ có một scenario P2P: học trên nó thì không còn P2P để kiểm thử (B11).
+- Quyết định: Dùng quy tắc trên host–cửa sổ bị nghi là bot: `p2p` khi ≥ 5 peer gọi vào, ≥ 50% flow UDP và entropy flow vào ≥ 0,8; còn lại `centralized`; không bị nghi là `none`. Topology của lần chạy hoặc scenario là nhãn đa số. Ngưỡng đặt bằng CTU-13 train và lần chạy giả lập thứ nhất, ghi trong `botnet.topology_rule`.
+- Hệ quả: Trên dữ liệu đặt ngưỡng, đúng 100% cửa sổ tập trung, 95,1% cửa sổ P2P, 8/8 scenario. Không phân biệt được đối chứng tập trung lành tính; P2P chu kỳ dài hoặc dùng TCP dễ bị xếp thành tập trung. Chi tiết ở docs/51.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.

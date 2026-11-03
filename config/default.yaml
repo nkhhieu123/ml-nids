@@ -88,6 +88,10 @@ botnet:                      # module botnet/topology (Chặng 8); cửa sổ đ
   topology:                  # nhãn topology của bot theo scenario; còn lại là centralized (docs/07 mục 5)
     p2p: [12]
   max_background_alarm: 0.05 # chọn ngưỡng và tham số: tỷ lệ cửa sổ Background validation bị báo không quá mức này (QĐ-040)
+  topology_rule:             # nhận diện topology bằng quy tắc, chạy sau bộ phát hiện (C08-T07, QĐ-042)
+    min_peer_vao: 5          # p2p khi đồng thời: >= 5 peer gọi vào host,
+    min_udp: 0.5             # >= 50% flow là UDP,
+    min_entropy_vao: 0.8     # và flow vào chia đều giữa các peer; còn lại là centralized
 
 lab:
   subnet: 192.168.50.0/24

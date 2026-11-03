@@ -10,8 +10,8 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from nids.botnet import (BotnetDetector, binary_report, botnet_config, evaluate, feature_names, label_host_windows,
-                         labeled_part, load_model, model_search, save_model,
-                         scenario_split, scenario_topology, training_set)
+                         labeled_part, load_model, model_search, recognize_topology, run_topology, save_model,
+                         scenario_split, scenario_topology, topology_confusion, training_set)
 from nids.topology_sim import default_runs, label_runs, simulate
 from nids.ctu13 import (FLOW_COLUMNS, extract, flow_group, from_project_flows, is_cc, load_flows,
                         pick_background, prepare_scenario, scan)
@@ -305,6 +305,25 @@ class DetectorTest(unittest.TestCase):
             joblib.dump({"x": 1}, Path(d) / "x.joblib")
             with self.assertRaises(TypeError):
                 load_model(Path(d) / "x.joblib")
+
+
+class TopologyRuleTest(unittest.TestCase):
+    """C08-T07: nhận diện topology bằng quy tắc."""
+
+    def test_rule(self):
+        df = pd.DataFrame({"so_peer_vao": [20, 20, 1, 20, 20], "ty_le_udp": [0.9, 0.9, 0.9, 0.1, 0.9],
+                           "entropy_peer_vao": [0.95, 0.95, 1.0, 0.95, np.nan]})
+        topo = recognize_topology(df, [True, False, True, True, True])
+        self.assertEqual(list(topo), ["p2p", "none", "centralized", "centralized", "centralized"])
+        strict = recognize_topology(df, [True] * 5, {"min_peer_vao": 30, "min_udp": 0.5, "min_entropy_vao": 0.8})
+        self.assertEqual(strict[0], "centralized")
+
+    def test_run_topology_and_confusion(self):
+        runs = run_topology(["p2p", "p2p", "centralized", "none", "none"], ["a", "a", "a", "b", "b"])
+        self.assertEqual(runs.to_dict(), {"a": "p2p", "b": "none"})
+        cm = topology_confusion(["p2p", "centralized", "none"], ["p2p", "p2p", "none"])
+        self.assertEqual(cm["ma_tran"], [[0, 1, 0], [0, 1, 0], [0, 0, 1]])
+        self.assertAlmostEqual(cm["do_chinh_xac"], 2 / 3, places=4)
 
 
 class SimulationTest(unittest.TestCase):

@@ -48,7 +48,7 @@ Mỗi lần chạy có **nhật ký** (`nhat_ky.jsonl`, B10): mã lần chạy, 
 - 192.168.50.20 là `normal_host`;
 - chỉ giữ cửa sổ nằm trọn trong lần chạy.
 
-Kết quả: 12 lần chạy, 5 600–13 500 flow. Số host–cửa sổ: tập trung 711 bot + 237 bình thường; ngang
+Kết quả: 12 lần chạy, 455–1 354 flow mỗi lần. Số host–cửa sổ: tập trung 711 bot + 237 bình thường; ngang
 hàng 711 + 237; đối chứng tập trung 948 bình thường; đối chứng ngang hàng 682 bình thường (266 cửa sổ
 `bo` giữa các đợt).
 
