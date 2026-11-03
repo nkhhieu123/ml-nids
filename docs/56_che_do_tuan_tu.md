@@ -36,7 +36,8 @@ mọi cửa sổ 10 s ──> Gaussian ──normal──> dừng (không phân 
   chưa giải thích, danh sách host kiểm tra botnet.
 
 **Chế độ độc lập vẫn là mặc định**, đúng thiết kế ở docs/02 mục 1 (anomaly không là cổng lọc bắt
-buộc). Chế độ tuần tự là lựa chọn thêm, được so sánh ở C09-T05.
+buộc). Chế độ tuần tự là lựa chọn thêm, được so sánh ở C09-T05. Sau so sánh, mặc định đổi thành chế độ `ket_hop`
+(QĐ-047, docs/57).
 
 ## 2. Kết quả trên bốn đoạn PCAP
 

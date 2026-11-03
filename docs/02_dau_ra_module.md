@@ -15,6 +15,11 @@ nằm trong `src/nids/alerts.py`.
 Ba module chạy song song trên cùng luồng đặc trưng. Module anomaly **không**
 là cổng lọc bắt buộc cho hai module còn lại.
 
+Cập nhật 03/11/2026 (QĐ-047): pipeline mặc định chạy chế độ `ket_hop`. Anomaly và phân
+loại vẫn chạy độc lập trên mọi cửa sổ; riêng module botnet chỉ kiểm tra host có bất
+thường mà bộ phân loại cho là benign, vì khi chạy riêng nó gây phần lớn báo nhầm
+(docs/57). Chế độ độc lập hoàn toàn vẫn chọn được (`--che-do doc_lap`).
+
 ## 2. Tập nhãn
 
 | Module | Nhãn (`label`) | Nhãn sinh cảnh báo |

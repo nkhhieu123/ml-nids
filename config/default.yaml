@@ -98,7 +98,7 @@ pipeline:                    # pipeline offline (Chặng 9); đường dẫn tư
     anomaly: models/gaussian_windows.joblib
     attack_classification: models/phan_loai_rf_windows.joblib
     botnet_topology: models/botnet_rf.joblib
-  mode: doc_lap              # doc_lap: ba module độc lập (docs/02); tuan_tu: Gaussian → phân loại → kiểm tra botnet (QĐ-046)
+  mode: ket_hop              # ket_hop: phân loại mọi cửa sổ, botnet chỉ kiểm tra bất thường chưa giải thích (QĐ-047); doc_lap; tuan_tu (QĐ-046)
 
 lab:
   subnet: 192.168.50.0/24

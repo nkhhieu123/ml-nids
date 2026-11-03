@@ -7,6 +7,7 @@
 - C09-T03: mỗi module tạo đầu ra độc lập theo schema cảnh báo chung; hợp nhất vào một file, tổng hợp
   theo host (docs/55_hop_nhat_canh_bao.md, QĐ-045).
 - C09-T04: chế độ tuần tự Gaussian → phân loại → kiểm tra botnet (docs/56_che_do_tuan_tu.md, QĐ-046).
+- C09-T05: so sánh hai chế độ về bỏ sót (theo nhãn của lịch tấn công) và thời gian (docs/57_so_sanh_che_do.md).
 
     python -m nids.pipeline kiem-tra
     python -m nids.pipeline chay output/pcap/fri_quet.pcap --net 192.168.10.0/24 --net 172.16.0.0/24 --out output/pipeline
@@ -55,7 +56,7 @@ def pipeline_config(cfg=None) -> dict:
     models = {m: str(model_dir / f) for m, f in DEFAULT_MODELS.items()}
     models.update({k: v if Path(v).is_absolute() else str(PROJECT_ROOT / v) for k, v in (p.get("models") or {}).items()})
     p["models"] = models
-    p.setdefault("mode", "doc_lap")
+    p.setdefault("mode", "ket_hop")
     p.setdefault("merge_gap_s", 30.0)
     return p
 
@@ -249,12 +250,15 @@ def run_independent(arts, windows, flows, networks, cfg=None, timer=None) -> dic
 
 # ---- C09-T04: chế độ tuần tự Gaussian → phân loại → kiểm tra botnet ----
 
-def run_sequential(arts, windows, flows, networks, cfg=None, timer=None) -> dict:
+def run_sequential(arts, windows, flows, networks, cfg=None, timer=None, classify_all=False) -> dict:
     """Gaussian chấm mọi cửa sổ; phân loại chỉ cửa sổ bất thường; botnet chỉ kiểm tra host có bất thường
     mà bộ phân loại cho là ``benign`` (bất thường chưa giải thích được).
 
     Kết quả cùng dạng chế độ độc lập, nhưng bảng phân loại chỉ gồm cửa sổ đã xét, bảng botnet chỉ gồm
     host–cửa sổ 120 giây của host được kiểm tra **chồng lên** một cửa sổ bất thường chưa giải thích.
+
+    ``classify_all=True`` (chế độ ``ket_hop``, C09-T05): bộ phân loại chạy trên mọi cửa sổ như chế độ độc
+    lập; chỉ bước kiểm tra botnet là tuần tự.
     """
     import numpy as np
     timer = timer or Timer()
@@ -264,11 +268,15 @@ def run_sequential(arts, windows, flows, networks, cfg=None, timer=None) -> dict
         out[MODULE_ANOMALY] = an
     flagged = (an["du_doan"] == "anomaly").to_numpy()
     with timer(MODULE_ATTACK):
-        sub = windows[flagged].reset_index(drop=True)
+        sub = windows if classify_all else windows[flagged].reset_index(drop=True)
         at = score_attack(arts[MODULE_ATTACK], sub) if len(sub) else score_attack(arts[MODULE_ATTACK], windows.iloc[:0])
         out[MODULE_ATTACK] = at
     with timer(MODULE_BOTNET):
-        unexplained = at[at["du_doan"] == "benign"]
+        if classify_all:                                  # chỉ cửa sổ Gaussian báo mới là bất thường
+            at_flag = at[flagged]
+        else:
+            at_flag = at
+        unexplained = at_flag[at_flag["du_doan"] == "benign"]
         hosts = sorted(set(unexplained["host"].astype(str)))
         if hosts:
             bo = score_botnet(arts[MODULE_BOTNET], flows, hosts, networks, cfg)
@@ -285,8 +293,123 @@ def run_sequential(arts, windows, flows, networks, cfg=None, timer=None) -> dict
             bo = score_botnet(arts[MODULE_BOTNET], flows.iloc[:0], [], networks, cfg)
         out[MODULE_BOTNET] = bo
     out["_tuan_tu"] = {"cua_so_bat_thuong": int(flagged.sum()), "cua_so_phan_loai": int(len(at)),
+                       "phan_loai_moi_cua_so": classify_all,
                        "cua_so_chua_giai_thich": int(len(unexplained)), "host_kiem_tra_botnet": hosts}
     return out
+
+
+# ---- C09-T05: so sánh chế độ độc lập và tuần tự ----
+
+def label_tables(prefix, cfg=None) -> "pd.DataFrame":
+    """Nhãn cửa sổ 10 giây của một đoạn PCAP theo lịch tấn công (cùng mã gán nhãn Chặng 5)."""
+    from .labeling import (label_flows, label_windows, load_flows_for_labels, load_schedule,
+                           load_windows_for_labels)
+    lc = (cfg or load_config()).get("labeling", {})
+    flows = load_flows_for_labels(f"{prefix}.flows.csv")
+    fl = label_flows(flows, load_schedule(), lc.get("tolerance_s", 60))
+    return label_windows(load_windows_for_labels(f"{prefix}.windows.csv"), flows, fl,
+                         lc.get("window_min_attack_share", 0.2))
+
+
+def coverage(windows, res) -> "pd.DataFrame":
+    """Với mỗi cửa sổ 10 giây: module nào báo nó (cùng host; botnet: cửa sổ 120 giây chồng lên)."""
+    import numpy as np
+    import pandas as pd
+
+    key = windows[["host", "window_start", "window_end"]].copy()
+    key["host"] = key["host"].astype(str)
+    out = key.copy()
+    for m, labels in ((MODULE_ANOMALY, {"anomaly"}), (MODULE_ATTACK, {"port_scan", "dos"})):
+        df = res[m]
+        hit = df[df["du_doan"].isin(labels)][["host", "window_start", "du_doan"]].astype({"host": str})
+        merged = key.merge(hit, on=["host", "window_start"], how="left")
+        out[m] = merged["du_doan"].fillna("").to_numpy()
+    bo = res[MODULE_BOTNET]
+    bo = bo[bo["du_doan"] == "suspect_host"] if len(bo) else bo
+    flag = np.zeros(len(key), bool)
+    for h, g in bo.groupby(bo["host"].astype(str)) if len(bo) else []:
+        m = (key["host"] == h).to_numpy()
+        ws, we = key.loc[m, "window_start"].to_numpy(float), key.loc[m, "window_end"].to_numpy(float)
+        s, e = g["window_start"].to_numpy(float), g["window_end"].to_numpy(float)
+        flag[np.flatnonzero(m)[((ws[:, None] < e[None, :]) & (we[:, None] > s[None, :])).any(1)]] = True
+    out[MODULE_BOTNET] = np.where(flag, "suspect_host", "")
+    out["bao"] = (out[MODULE_ANOMALY] != "") | (out[MODULE_ATTACK] != "") | flag
+    return out
+
+
+def miss_report(labels, cov, rules) -> dict:
+    """Bỏ sót theo đợt tấn công, gọi đúng tên, và báo nhầm trên cửa sổ bình thường."""
+    import numpy as np
+
+    from .gaussian import attack_groups
+    lab = labels.astype({"host": str}).merge(cov, on=["host", "window_start"], how="inner")
+    lab = lab[lab["label_anomaly"].isin(["normal", "anomaly"])].reset_index(drop=True)
+    groups = attack_groups(lab, rules)
+    out = {"theo_dot": {}}
+    for g in sorted(set(groups) - {"normal"}):
+        m = groups == g
+        attack = lab.loc[m, "label_attack"].fillna("").to_numpy()
+        named = np.where(np.isin(attack, ["port_scan", "dos"]), lab.loc[m, MODULE_ATTACK].to_numpy() == attack,
+                         lab.loc[m, MODULE_BOTNET].to_numpy() == "suspect_host")
+        out["theo_dot"][g] = {"so_cua_so": int(m.sum()), "bo_sot": int((~lab.loc[m, "bao"]).sum()),
+                              "ty_le_bo_sot": round(float((~lab.loc[m, "bao"]).mean()), 4),
+                              "goi_dung_ten": round(float(named.mean()), 4)}
+    normal = (groups == "normal")
+    out["binh_thuong"] = {"so_cua_so": int(normal.sum()),
+                          "ty_le_bi_bao": round(float(lab.loc[normal, "bao"].mean()), 4) if normal.any() else None,
+                          "theo_module": {mm: round(float((lab.loc[normal, mm] != "").mean()), 4) if normal.any() else None
+                                          for mm in MODULES}}
+    att = groups != "normal"
+    out["tong_tan_cong"] = {"so_cua_so": int(att.sum()), "bo_sot": int((~lab.loc[att, "bao"]).sum()),
+                            "ty_le_bo_sot": round(float((~lab.loc[att, "bao"]).mean()), 4) if att.any() else None}
+    return out
+
+
+def compare_modes(prefix, networks, cfg=None, repeats=3) -> dict:
+    """Chạy cả hai chế độ trên cùng bảng đặc trưng của một đoạn PCAP; đo bỏ sót và thời gian mô hình."""
+    from .labeling import load_schedule
+
+    arts = load_artifacts(cfg)
+    windows, flows = load_windows(prefix), load_flows(prefix)
+    labels = label_tables(prefix, cfg)
+    rules = load_schedule()
+    out = {}
+    from functools import partial
+    for mode, fn in (("doc_lap", run_independent), ("tuan_tu", run_sequential),
+                     ("ket_hop", partial(run_sequential, classify_all=True))):
+        times = []
+        for _ in range(repeats):
+            timer = Timer()
+            res = fn(arts, windows, flows, networks, cfg, timer)
+            times.append(timer.steps)
+        info = res.pop("_tuan_tu", None)
+        cov = coverage(windows, res)
+        out[mode] = {"thoi_gian_mo_hinh_s": {k: round(sorted(t[k] for t in times)[len(times) // 2], 3) for k in times[0]},
+                     "tong_thoi_gian_mo_hinh_s": round(sorted(sum(t.values()) for t in times)[len(times) // 2], 3),
+                     **miss_report(labels, cov, rules), "tuan_tu": info}
+    return out
+
+
+def cmd_compare(args):
+    cfg = load_config(args.config)
+    res = {}
+    for pcap in args.pcap:
+        name = Path(pcap).stem
+        timer = Timer()
+        with timer("trich_xuat"):
+            prefix = extract(pcap, args.bang, args.net, args.config, name)
+        r = compare_modes(prefix, args.net, cfg, args.lap)
+        r["trich_xuat_s"] = timer.steps["trich_xuat"]
+        res[name] = r
+        for mode in ("doc_lap", "tuan_tu", "ket_hop"):
+            x = r[mode]
+            print(f"{name} {mode}: mô hình {x['tong_thoi_gian_mo_hinh_s']} s (trích xuất {r['trich_xuat_s']} s), "
+                  f"bỏ sót {x['tong_tan_cong']}, bình thường bị báo {x['binh_thuong']['ty_le_bi_bao']}")
+            for g, v in x["theo_dot"].items():
+                print(f"    {g}: {v}")
+    Path(args.out).parent.mkdir(parents=True, exist_ok=True)
+    Path(args.out).write_text(json.dumps(res, ensure_ascii=False, indent=2, default=str), encoding="utf-8")
+    print(f"Đã ghi: {args.out}")
 
 
 def run_pcap(pcap, out_dir, networks, cfg=None, config_path=None, mode="doc_lap", name=None) -> dict:
@@ -302,8 +425,8 @@ def run_pcap(pcap, out_dir, networks, cfg=None, config_path=None, mode="doc_lap"
         windows, flows = load_windows(prefix), load_flows(prefix)
     if mode == "doc_lap":
         res = run_independent(arts, windows, flows, networks, cfg, timer)
-    elif mode == "tuan_tu":
-        res = run_sequential(arts, windows, flows, networks, cfg, timer)
+    elif mode in ("tuan_tu", "ket_hop"):
+        res = run_sequential(arts, windows, flows, networks, cfg, timer, classify_all=mode == "ket_hop")
     else:
         raise ValueError(f"chế độ chưa hỗ trợ: {mode}")
     info = res.pop("_tuan_tu", None)
@@ -445,11 +568,20 @@ def main(argv=None):
     p.add_argument("--net", action="append", required=True, help="mạng giám sát, ví dụ 192.168.10.0/24")
     p.add_argument("--out", required=True, help="thư mục ghi bảng đặc trưng và dự đoán")
     p.add_argument("--ten", help="tên tiền tố, mặc định tên file PCAP")
-    p.add_argument("--che-do", choices=("doc_lap", "tuan_tu"), default=None,
-                   help="doc_lap: ba module độc lập; tuan_tu: Gaussian → phân loại → kiểm tra botnet; mặc định pipeline.mode")
+    p.add_argument("--che-do", choices=("doc_lap", "tuan_tu", "ket_hop"), default=None,
+                   help="doc_lap: ba module độc lập; tuan_tu: Gaussian → phân loại → kiểm tra botnet; "
+                        "ket_hop: phân loại mọi cửa sổ, botnet chỉ kiểm tra bất thường chưa giải thích; mặc định pipeline.mode")
     p.add_argument("--ma-lan-chay", help="run_id ghi vào cảnh báo, khớp nhật ký kịch bản; mặc định tên tiền tố")
     p.add_argument("--config", help="file cấu hình, mặc định config/default.yaml")
     p.set_defaults(func=cmd_run)
+    p = sub.add_parser("so-sanh", help="so sánh chế độ độc lập và tuần tự: bỏ sót, thời gian (C09-T05)")
+    p.add_argument("pcap", nargs="+")
+    p.add_argument("--net", action="append", required=True)
+    p.add_argument("--bang", required=True, help="thư mục ghi bảng đặc trưng trích từ PCAP")
+    p.add_argument("--out", required=True, help="file JSON kết quả")
+    p.add_argument("--lap", type=int, default=3, help="số lần chạy mỗi chế độ để lấy trung vị thời gian")
+    p.add_argument("--config", help="file cấu hình, mặc định config/default.yaml")
+    p.set_defaults(func=cmd_compare)
     args = parser.parse_args(argv)
     return args.func(args)
 

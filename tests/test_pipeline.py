@@ -12,7 +12,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from nids.dataset import feature_columns
 from nids.pipeline import (ERROR, WARNING, Artifact, Timer, check_artifact, check_table, expected_inputs, extract,
-                           host_overview, load_artifacts, load_flows, load_windows, monitored_hosts,
+                           coverage, host_overview, load_artifacts, load_flows, load_windows, miss_report,
+                           monitored_hosts,
                            pipeline_config, run_alerts, run_independent, run_sequential, write_alerts)
 
 
@@ -208,6 +209,51 @@ class SequentialTest(unittest.TestCase):
         flagged = an[(an["du_doan"] == "anomaly") & (an["host"] == "192.168.10.5")]
         for r in bot.itertuples():                                                # mọi cửa sổ 120 s chồng lên bất thường
             self.assertTrue(((flagged["window_start"] < r.window_end) & (flagged["window_end"] > r.window_start)).any())
+
+
+class CompareTest(unittest.TestCase):
+    """C09-T05: phủ cảnh báo, bỏ sót theo đợt, chế độ kết hợp."""
+
+    def test_coverage(self):
+        windows = pd.DataFrame({"host": ["a", "a", "b", "c"], "window_start": [0.0, 200.0, 0.0, 0.0],
+                                "window_end": [10.0, 210.0, 10.0, 10.0]})
+        res = {"anomaly": pd.DataFrame({"host": ["a"], "window_start": [0.0], "du_doan": ["anomaly"]}),
+               "attack_classification": pd.DataFrame({"host": ["b"], "window_start": [0.0], "du_doan": ["dos"]}),
+               "botnet_topology": pd.DataFrame({"host": ["c", "a"], "window_start": [-50.0, 300.0],
+                                                "window_end": [70.0, 420.0], "du_doan": ["suspect_host"] * 2})}
+        cov = coverage(windows, res)
+        self.assertEqual(list(cov["anomaly"]), ["anomaly", "", "", ""])
+        self.assertEqual(list(cov["attack_classification"]), ["", "", "dos", ""])
+        self.assertEqual(list(cov["botnet_topology"]), ["", "", "", "suspect_host"])   # 120 s chồng lên cửa sổ của c
+        self.assertEqual(list(cov["bao"]), [True, False, True, True])
+
+    def test_miss_report(self):
+        from nids.labeling import Rule
+        rules = [Rule("s", 0, 100, 0, 10 ** 6, frozenset({"x"}), frozenset({"v"}), "port_scan", "PortScan", "")]
+        labels = pd.DataFrame({"host": ["x", "x", "v", "n"], "window_start": [0.0, 20.0, 0.0, 0.0],
+                               "window_end": [10.0, 30.0, 10.0, 10.0],
+                               "label_anomaly": ["anomaly", "anomaly", "anomaly", "normal"],
+                               "label_attack": ["port_scan"] * 3 + ["benign"]})
+        cov = labels[["host", "window_start", "window_end"]].assign(
+            anomaly=["anomaly", "", "", "anomaly"], attack_classification=["port_scan", "", "", ""],
+            botnet_topology=["", "", "suspect_host", ""])
+        cov["bao"] = (cov["anomaly"] != "") | (cov["attack_classification"] != "") | (cov["botnet_topology"] != "")
+        r = miss_report(labels, cov.drop(columns="window_end"), rules)
+        self.assertEqual(r["theo_dot"]["PortScan"], {"so_cua_so": 3, "bo_sot": 1, "ty_le_bo_sot": round(1 / 3, 4),
+                                                     "goi_dung_ten": round(1 / 3, 4)})
+        self.assertEqual(r["binh_thuong"]["ty_le_bi_bao"], 1.0)
+        self.assertEqual(r["binh_thuong"]["theo_module"]["anomaly"], 1.0)
+
+    def test_combined_mode(self):
+        with TemporaryDirectory() as d:
+            prefix = extract(scan_pcap(Path(d) / "scan.pcap"), Path(d) / "out", ["192.168.10.0/24"])
+            windows, flows = load_windows(prefix), load_flows(prefix)
+        seq = run_sequential(fake_artifacts(), windows, flows, ["192.168.10.0/24"])
+        both = run_sequential(fake_artifacts(), windows, flows, ["192.168.10.0/24"], classify_all=True)
+        self.assertEqual(len(both["attack_classification"]), len(windows))           # phân loại mọi cửa sổ
+        self.assertLess(len(seq["attack_classification"]), len(windows))
+        self.assertTrue(both["_tuan_tu"]["phan_loai_moi_cua_so"])
+        self.assertEqual(both["_tuan_tu"]["host_kiem_tra_botnet"], seq["_tuan_tu"]["host_kiem_tra_botnet"])
 
 
 class AlertMergeTest(unittest.TestCase):

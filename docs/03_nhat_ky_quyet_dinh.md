@@ -337,6 +337,13 @@ Mẫu:
 - Quyết định: `pipeline.mode = tuan_tu` chạy Gaussian trên mọi cửa sổ, phân loại chỉ cửa sổ bất thường, kiểm tra botnet chỉ host có bất thường mà bộ phân loại cho là benign, và chỉ giữ cửa sổ 120 giây chồng lên cửa sổ đó. Mặc định vẫn `doc_lap`.
 - Hệ quả: Bộ phân loại chạy trên 5–23% cửa sổ, botnet kiểm tra 3–11 thay vì 15–16 host. Cửa sổ Gaussian không báo thì bị bỏ qua hoàn toàn. Chi tiết ở docs/56; so sánh ở C09-T05.
 
+## QĐ-047 — Chế độ pipeline mặc định là `ket_hop`
+- Ngày: 03/11/2026
+- Trạng thái: Đã chốt cho CIC-IDS2017 (xem lại trên lab)
+- Bối cảnh: C09-T05 so sánh độc lập và tuần tự trên bốn đoạn PCAP thuộc khoảng test. Độc lập: gần như không bỏ sót nhưng 17–40% cửa sổ bình thường bị báo, gần hết do module botnet. Tuần tự: báo nhầm 4–19% nhưng bỏ sót quét cổng 35%, Hulk 28%, vì Gaussian chặn cả cửa sổ mà bộ phân loại bắt được.
+- Quyết định: Thêm chế độ `ket_hop`: phân loại mọi cửa sổ như độc lập; kiểm tra botnet chỉ host có bất thường mà phân loại cho là benign, như tuần tự. Đặt làm mặc định (`pipeline.mode`). Sửa phần thứ tự chạy của docs/02 mục 1 cho module botnet.
+- Hệ quả: Gọi đúng tên và bỏ sót bot bằng chế độ độc lập; báo nhầm bằng tuần tự. Mất phần phủ ngẫu nhiên của module botnet lên cửa sổ tấn công (bỏ sót quét cổng theo nghĩa "bất kỳ cảnh báo" 34%). Thời gian offline gần như không đổi vì trích xuất chiếm 90–99%. Chi tiết ở docs/57.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
