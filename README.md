@@ -111,7 +111,9 @@ Báo cáo Chặng 7: [docs/Bao_cao_Chang_7.md](docs/Bao_cao_Chang_7.md)
 - [x] C08-T07: Bộ nhận diện topology (quy tắc, không ML) — `src/nids/botnet.py`, [docs/51_nhan_dien_topology.md](docs/51_nhan_dien_topology.md)
 - [x] C08-T08: Đánh giá phát hiện botnet và nhận diện topology bằng hai bảng riêng — `src/nids/botnet.py`, [docs/52_botnet_danh_gia.md](docs/52_botnet_danh_gia.md)
 
-Những gì còn thiếu sau Chặng 1–7 (việc đang dở, dữ liệu, lab, tham số chưa chốt): [docs/Viec_con_thieu.md](docs/Viec_con_thieu.md)
+Báo cáo Chặng 8: [docs/Bao_cao_Chang_8.md](docs/Bao_cao_Chang_8.md)
+
+Những gì còn thiếu sau Chặng 1–8 (việc đang dở, dữ liệu, lab, tham số chưa chốt): [docs/Viec_con_thieu.md](docs/Viec_con_thieu.md)
 
 ## Cấu trúc
 
