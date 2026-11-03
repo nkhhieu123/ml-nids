@@ -295,6 +295,13 @@ Mẫu:
 - Quyết định: Chọn tham số, ngưỡng xác suất và tỷ lệ Background làm mẫu âm theo F1 `suspect_host` trên validation, chỉ trong các cấu hình có tỷ lệ cửa sổ Background validation bị báo ≤ 5% (`botnet.max_background_alarm`). Cho phép thêm cửa sổ Background của train làm mẫu âm (`normal_host`) khi học; Background không bao giờ là lớp dương và không tính vào Precision/Recall. Sửa phần "Background không học" của QĐ-039.
 - Hệ quả: Chọn Random Forest (300 cây, min_samples_leaf 5, 100% Background train làm mẫu âm, ngưỡng 0,10): F1 validation 0,536 (P 0,965, R 0,371), Background bị báo 4,1%. LR tốt nhất 0,165. Chi tiết ở docs/49.
 
+## QĐ-041 — Dữ liệu topology: flow giả lập ngay, traffic lab vô hại sau; nhãn từ nhật ký lần chạy
+- Ngày: 03/11/2026
+- Trạng thái: Đã chốt (giả lập là tạm thời cho đến khi có lab)
+- Bối cảnh: C08-T06 cần dữ liệu tập trung, ngang hàng và đối chứng lành tính. CTU-13 chỉ có một scenario P2P và không có đối chứng; lab chưa dựng.
+- Quyết định: `nids.topology_sim` sinh bản ghi flow (không gửi gói) cho 4 kiểu × 3 lần chạy 15 phút với chu kỳ, jitter khác nhau, có nhật ký lần chạy; nhãn host–cửa sổ lấy từ nhật ký. `scripts/sinh_topology.py` sinh traffic thật trong lab: chỉ thông điệp vô hại, từ chối đích ngoài 192.168.50.0/24, ghi nhật ký vào `data/run_logs/nhat_ky.jsonl` (cũng là định dạng nhật ký lần chạy đề xuất).
+- Hệ quả: Kết quả trên giả lập chỉ kiểm tra logic của bộ nhận diện, báo cáo riêng, không coi là kết quả trên botnet thật. Đối chứng tập trung có cùng đặc trưng với botnet tập trung. Chi tiết ở docs/50.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.

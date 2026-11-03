@@ -12,6 +12,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from nids.botnet import (BotnetDetector, binary_report, botnet_config, evaluate, feature_names, label_host_windows,
                          labeled_part, load_model, model_search, save_model,
                          scenario_split, scenario_topology, training_set)
+from nids.topology_sim import default_runs, label_runs, simulate
 from nids.ctu13 import (FLOW_COLUMNS, extract, flow_group, from_project_flows, is_cc, load_flows,
                         pick_background, prepare_scenario, scan)
 from nids.graph_features import (build_features, host_ports, in_networks, pair_regularity, to_graph,
@@ -304,6 +305,56 @@ class DetectorTest(unittest.TestCase):
             joblib.dump({"x": 1}, Path(d) / "x.joblib")
             with self.assertRaises(TypeError):
                 load_model(Path(d) / "x.joblib")
+
+
+class SimulationTest(unittest.TestCase):
+    """C08-T06: dữ liệu topology giả lập và script sinh traffic lab."""
+
+    def test_lab_script_refuses_outside(self):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(
+            "sinh_topology", Path(__file__).resolve().parents[1] / "scripts" / "sinh_topology.py")
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        self.assertEqual(mod.check_target("192.168.50.50"), "192.168.50.50")
+        with self.assertRaises(SystemExit):
+            mod.check_target("8.8.8.8")                                           # ngoài mạng lab: từ chối
+        import random
+        t = mod.schedule(30, 0.2, 600, random.Random(1))
+        self.assertTrue(all(24 <= b - a <= 36 for a, b in zip(t, t[1:])))        # chu kỳ 30 giây ±20%
+        self.assertEqual(mod.run_periodic("192.168.50.50", 8080, 30, 0, 600, random.Random(1), dry=True)["so_lan_gui"],
+                         len(mod.schedule(30, 0, 600, random.Random(1))))
+
+    def test_simulation(self):
+        f, log = simulate("centralized", "c", duration=600, period=30, jitter=0.0, seed=1)
+        self.assertEqual(list(f.columns), FLOW_COLUMNS)
+        cc = f[(f["dst"] == "192.168.50.50") & (f["src"] == "192.168.50.41")]
+        self.assertTrue(np.allclose(np.diff(cc["ts"]), 30))                       # chu kỳ cố định
+        self.assertEqual((log["topology"], log["ma_lan_chay"], log["gia_lap"]), ("centralized", "c", True))
+        p, plog = simulate("p2p", "p", duration=600, seed=2)
+        self.assertGreater((p["proto"] == "udp").mean(), 0.3)
+        self.assertTrue(((p["src"].str.startswith("198.51.100.")) & (p["dst"] == "192.168.50.41")).any())  # peer gọi lại
+        b, blog = simulate("benign_p2p", "b", duration=600, seed=3)
+        self.assertEqual(blog["topology"], "none")
+        self.assertTrue((b["src"] == "192.168.50.20").any())                     # có nền duyệt web
+        with self.assertRaises(ValueError):
+            simulate("khac", "x")
+        self.assertEqual(len(default_runs()), 12)                                # 4 kiểu × 3 lần (B19)
+
+    def test_label_runs(self):
+        with TemporaryDirectory() as d:
+            for kind in ("centralized", "benign_centralized"):
+                f, log = simulate(kind, kind, t0=0 if kind == "centralized" else 5000, duration=600, seed=4)
+                f.to_csv(Path(d) / f"sim_{kind}.flows.csv.gz", index=False, compression="gzip")
+                with (Path(d) / "nhat_ky.jsonl").open("a", encoding="utf-8") as fh:
+                    fh.write(json.dumps(log) + "\n")
+            lab = label_runs(d)
+            bots = lab[lab["kieu"] == "centralized"]
+            self.assertEqual(set(bots.loc[bots["host"] == "192.168.50.41", "label_host"]), {"suspect_host"})
+            self.assertEqual(set(bots.loc[bots["host"] == "192.168.50.41", "label_topology"]), {"centralized"})
+            ctrl = lab[lab["kieu"] == "benign_centralized"]
+            self.assertEqual(set(ctrl["label_host"]), {"normal_host"})
+            self.assertTrue((lab["window_start"] + 120 <= 5600).all())
 
 
 if __name__ == "__main__":
