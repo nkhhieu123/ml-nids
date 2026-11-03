@@ -98,7 +98,9 @@ Báo cáo Chặng 6: [docs/Bao_cao_Chang_6.md](docs/Bao_cao_Chang_6.md)
 - [x] C07-T05: Đánh giá macro-F1, chỉ số từng lớp và confusion matrix — `src/nids/classifier.py`, [docs/43_phan_loai_danh_gia.md](docs/43_phan_loai_danh_gia.md)
 - [x] C07-T06: Phân tích nhầm lẫn và lưu artifact — `src/nids/classifier.py`, [docs/44_phan_loai_phan_tich.md](docs/44_phan_loai_phan_tich.md)
 
-Những gì còn thiếu sau Chặng 1–6 (việc đang dở, dữ liệu, lab, tham số chưa chốt): [docs/Viec_con_thieu.md](docs/Viec_con_thieu.md)
+Báo cáo Chặng 7: [docs/Bao_cao_Chang_7.md](docs/Bao_cao_Chang_7.md)
+
+Những gì còn thiếu sau Chặng 1–7 (việc đang dở, dữ liệu, lab, tham số chưa chốt): [docs/Viec_con_thieu.md](docs/Viec_con_thieu.md)
 
 ## Cấu trúc
 

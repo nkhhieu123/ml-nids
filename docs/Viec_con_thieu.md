@@ -1,8 +1,8 @@
-# Những gì còn thiếu sau Chặng 1–6
+# Những gì còn thiếu sau Chặng 1–7
 
-Tài liệu gom mọi thứ **chưa có** hoặc **chưa kiểm chứng** trong phạm vi Chặng 1–6, rút từ các
+Tài liệu gom mọi thứ **chưa có** hoặc **chưa kiểm chứng** trong phạm vi Chặng 1–7, rút từ các
 tài liệu task, báo cáo chặng và nhật ký quyết định. Lập ngày 23/10/2026 (Chặng 1–3), cập nhật
-27/10, 29/10 và 02/11/2026 (mở rộng tới Chặng 6).
+27/10, 29/10, 02/11 và 03/11/2026 (mở rộng tới Chặng 7).
 
 ## 0. VIỆC ĐANG DỞ — CẦN CHẠY LẠI (đọc trước)
 
@@ -20,7 +20,7 @@ việc**, không chạy song song.
 | 5 | Đối chiếu Wireshark toàn bộ file CIC (hiện mới so 1 triệu gói đầu) | Chưa làm, tùy chọn | `nids.wireshark_compare` không `--limit` | Vài giờ mỗi file |
 
 Sau khi xong mục 1 cần chạy lại nhãn, chia tập, tiền xử lý (Chặng 5) và kiểm tra lại kết quả
-Chặng 6–7 nếu bảng mới khác bảng cũ.
+Chặng 6–7 (Gaussian, phân loại) nếu bảng mới khác bảng cũ.
 
 **Việc cần bạn** (không làm thay được): dựng lab 7 node và kiểm tra mirror hai chiều; cài dự án
 trên Kali, cho biết tên card mạng thật, cài NTP; chốt tham số kịch bản lab (tốc độ Nmap, ba mức
@@ -41,7 +41,7 @@ Chưa có CTU-13 và dữ liệu lab.
 | **Quan trọng** | Làm tiếp được, nhưng kết quả chưa đáng tin cho tới khi bổ sung | 15 |
 | **Nên có** | Hoàn thiện, kiểm tra thêm | 10 |
 
-Số mục ở mục 2–4b, tính đến 02/11/2026, không tính các mục đã gạch (đã xong). 8 mục **chặn**
+Số mục ở mục 2–4b (chưa tính 4c), tính đến 02/11/2026, không tính các mục đã gạch (đã xong). 8 mục **chặn**
 gom lại thành các việc sau (việc tải CIC-IDS2017 đã xong):
 
 1. ~~Tải nốt CIC-IDS2017: PCAP thứ Tư và CSV có nhãn (mục 2.1).~~ Xong 29/10/2026.
@@ -123,6 +123,16 @@ gom lại thành các việc sau (việc tải CIC-IDS2017 đã xong):
 | Gaussian: ~17 đợt báo động giả mỗi giờ; Heartbleed recall 0, DDoS 0,50, Slowhttptest 0,28; ngưỡng χ² không dùng được | Quan trọng | Không đủ dùng một mình; cần Chặng 7 và kết hợp ở Chặng 9 | Đã ghi ở docs/37 |
 | Gaussian: đã xem test một lần khi chẩn đoán cách chọn ngưỡng (docs/36 mục 5) | Nên có | Cần ghi rõ trong báo cáo cuối | Đã ghi |
 
+## 4c. Chặng 7: việc còn thiếu hoặc hạn chế đã biết
+
+| Thiếu | Mức | Ảnh hưởng | Ai làm |
+|---|---|---|---|
+| Đặc trưng cửa sổ chỉ đếm lần thử TCP: quét UDP và SCTP trông như benign (recall 0,01–0,02; docs/44 mục 2) | Quan trọng | Recall port_scan test 0,45 dù quét TCP bắt 97,8% | Làm được ngay: thêm đặc trưng cổng UDP/SCTP, ICMP unreachable (Chặng 4), xuất lại, chọn lại trên validation |
+| Port_scan chia theo thời gian nên kiểu quét SCTP chỉ có ở test; validation chỉ 50 cửa sổ, toàn quét TCP | Quan trọng | Validation không báo trước được lỗi | Làm được ngay: chia theo lượt Nmap (Chặng 5) |
+| DoS HTTP chậm (Slowhttptest recall 0,61) cần đặc trưng kết nối giữ lâu, dài hơn cửa sổ 10 giây | Nên có | Bỏ sót DoS chậm | Làm được ngay (cửa sổ dài, Chặng 8–9) |
+| DoS kiểu SYN, brute-force, exploit chưa có dữ liệu; DDoS chỉ một đợt | Quan trọng | Ba lớp hiện tại chưa đủ cho lab; chưa biết SYN flood được nhận ra không | **Bạn** thu lab; tải CIC thứ Ba, thứ Năm nếu muốn thêm lớp |
+| RF báo 224 cửa sổ Bot là `port_scan` | Nên có | Cảnh báo sai loại | Quy tắc kết hợp ở Chặng 9 |
+
 ## 5. Giới hạn của mã nguồn hiện có
 
 Đây không phải lỗi, mà là phạm vi đã chọn; ghi lại để biết khi nào cần làm thêm.
@@ -136,8 +146,8 @@ gom lại thành các việc sau (việc tải CIC-IDS2017 đã xong):
 | Tốc độ khoảng 300 000 packet/giây (đọc); đối chiếu Wireshark 4,48 triệu gói mất khoảng 14 phút | Quan trọng | Đo lại trên file CIC 10 GB; tối ưu nếu quá chậm |
 | Chưa có phần bắt gói trực tiếp (live capture) | — | Thuộc Chặng 10 |
 
-Các phần chưa có vì **thuộc chặng sau**, không tính là thiếu của Chặng 1–6:
-phân loại tấn công và botnet (Chặng 7–8), pipeline offline và realtime (Chặng 9–10), kiểm thử
+Các phần chưa có vì **thuộc chặng sau**, không tính là thiếu của Chặng 1–7:
+botnet (Chặng 8), pipeline offline và realtime (Chặng 9–10), kiểm thử
 thực nghiệm và chỉ số (Chặng 11), dashboard (tùy chọn T06).
 
 ## 6. Thứ tự nên làm
@@ -154,8 +164,8 @@ thực nghiệm và chỉ số (Chặng 11), dashboard (tùy chọn T06).
 6. Thu lab theo thứ tự ở [09_du_lieu_lab.md](09_du_lieu_lab.md); các lần `test`
    chỉ thu sau khi mô hình đã khóa.
 
-Chặng 7 (phân loại Benign, PortScan, DoS) làm được trên CIC-IDS2017 song song với các bước trên;
-Chặng 8 (botnet) cần CTU-13 và scenario validation đã chốt.
+Chặng 7 (phân loại) đã xong trên CIC-IDS2017. Chặng 8 (botnet) cần CTU-13 (mục 0, việc 2) và
+scenario validation đã chốt.
 
 ## Thuật ngữ
 
@@ -189,3 +199,5 @@ Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
 | KU Leuven (nhãn đã sửa) | Bộ nhãn CIC-IDS2017 do nhóm KU Leuven sửa lỗi, công khai năm 2022 |
 | Recall, báo động giả | Tỷ lệ tấn công bắt được; cảnh báo nhầm trên traffic bình thường |
 | χ² | Phân bố lý thuyết của điểm d² nếu dữ liệu đúng Gaussian |
+| UDP, SCTP, ICMP unreachable | Giao thức khác TCP; gói báo "cổng không mở" mà máy đích trả về khi bị quét UDP |
+| Lượt Nmap | Một lần chạy Nmap với một kiểu quét |
