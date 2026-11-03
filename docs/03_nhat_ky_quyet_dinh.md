@@ -330,6 +330,13 @@ Mẫu:
 - Quyết định: Mỗi module đổi dự đoán thành `Alert` (schema docs/02); module botnet ghi nhóm host và nhóm topology thành hai dòng riêng. Hợp nhất là một file sắp theo thời gian, không bỏ dòng nào, không cộng điểm. Kèm tổng hợp theo host; host có ≥ 2 module cùng báo được liệt kê riêng.
 - Hệ quả: Số dòng cảnh báo lớn (mỗi cửa sổ trượt một dòng); gộp thành sự kiện ở C09-T06. Chi tiết ở docs/55.
 
+## QĐ-046 — Thêm chế độ tuần tự Gaussian → phân loại → kiểm tra botnet; độc lập vẫn là mặc định
+- Ngày: 03/11/2026
+- Trạng thái: Đã chốt (mặc định có thể đổi sau C09-T05)
+- Bối cảnh: C09-T04 cần chế độ tuần tự; docs/02 mục 1 chốt rằng anomaly không là cổng lọc bắt buộc.
+- Quyết định: `pipeline.mode = tuan_tu` chạy Gaussian trên mọi cửa sổ, phân loại chỉ cửa sổ bất thường, kiểm tra botnet chỉ host có bất thường mà bộ phân loại cho là benign, và chỉ giữ cửa sổ 120 giây chồng lên cửa sổ đó. Mặc định vẫn `doc_lap`.
+- Hệ quả: Bộ phân loại chạy trên 5–23% cửa sổ, botnet kiểm tra 3–11 thay vì 15–16 host. Cửa sổ Gaussian không báo thì bị bỏ qua hoàn toàn. Chi tiết ở docs/56; so sánh ở C09-T05.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.

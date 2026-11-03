@@ -6,6 +6,7 @@
   (docs/54_chay_pcap.md, QĐ-044).
 - C09-T03: mỗi module tạo đầu ra độc lập theo schema cảnh báo chung; hợp nhất vào một file, tổng hợp
   theo host (docs/55_hop_nhat_canh_bao.md, QĐ-045).
+- C09-T04: chế độ tuần tự Gaussian → phân loại → kiểm tra botnet (docs/56_che_do_tuan_tu.md, QĐ-046).
 
     python -m nids.pipeline kiem-tra
     python -m nids.pipeline chay output/pcap/fri_quet.pcap --net 192.168.10.0/24 --net 172.16.0.0/24 --out output/pipeline
@@ -246,6 +247,48 @@ def run_independent(arts, windows, flows, networks, cfg=None, timer=None) -> dic
     return out
 
 
+# ---- C09-T04: chế độ tuần tự Gaussian → phân loại → kiểm tra botnet ----
+
+def run_sequential(arts, windows, flows, networks, cfg=None, timer=None) -> dict:
+    """Gaussian chấm mọi cửa sổ; phân loại chỉ cửa sổ bất thường; botnet chỉ kiểm tra host có bất thường
+    mà bộ phân loại cho là ``benign`` (bất thường chưa giải thích được).
+
+    Kết quả cùng dạng chế độ độc lập, nhưng bảng phân loại chỉ gồm cửa sổ đã xét, bảng botnet chỉ gồm
+    host–cửa sổ 120 giây của host được kiểm tra **chồng lên** một cửa sổ bất thường chưa giải thích.
+    """
+    import numpy as np
+    timer = timer or Timer()
+    out = {}
+    with timer(MODULE_ANOMALY):
+        an = score_anomaly(arts[MODULE_ANOMALY], windows)
+        out[MODULE_ANOMALY] = an
+    flagged = (an["du_doan"] == "anomaly").to_numpy()
+    with timer(MODULE_ATTACK):
+        sub = windows[flagged].reset_index(drop=True)
+        at = score_attack(arts[MODULE_ATTACK], sub) if len(sub) else score_attack(arts[MODULE_ATTACK], windows.iloc[:0])
+        out[MODULE_ATTACK] = at
+    with timer(MODULE_BOTNET):
+        unexplained = at[at["du_doan"] == "benign"]
+        hosts = sorted(set(unexplained["host"].astype(str)))
+        if hosts:
+            bo = score_botnet(arts[MODULE_BOTNET], flows, hosts, networks, cfg)
+            # chỉ giữ cửa sổ 120 giây chồng lên ít nhất một cửa sổ bất thường chưa giải thích của cùng host
+            keep = np.zeros(len(bo), bool)
+            for h, g in unexplained.groupby("host"):
+                m = (bo["host"] == h).to_numpy()
+                s, e = g["window_start"].to_numpy(float), g["window_end"].to_numpy(float)
+                ws, we = bo.loc[m, "window_start"].to_numpy(float), bo.loc[m, "window_end"].to_numpy(float)
+                hit = ((ws[:, None] < e[None, :]) & (we[:, None] > s[None, :])).any(1)
+                keep[np.flatnonzero(m)[hit]] = True
+            bo = bo[keep].reset_index(drop=True)
+        else:
+            bo = score_botnet(arts[MODULE_BOTNET], flows.iloc[:0], [], networks, cfg)
+        out[MODULE_BOTNET] = bo
+    out["_tuan_tu"] = {"cua_so_bat_thuong": int(flagged.sum()), "cua_so_phan_loai": int(len(at)),
+                       "cua_so_chua_giai_thich": int(len(unexplained)), "host_kiem_tra_botnet": hosts}
+    return out
+
+
 def run_pcap(pcap, out_dir, networks, cfg=None, config_path=None, mode="doc_lap", name=None) -> dict:
     """PCAP → bảng đặc trưng → ba module. Trả về kết quả từng module, thời gian từng bước, số liệu."""
     timer = Timer()
@@ -257,10 +300,16 @@ def run_pcap(pcap, out_dir, networks, cfg=None, config_path=None, mode="doc_lap"
         prefix = extract(pcap, out_dir, networks, config_path, name)
     with timer("doc_bang"):
         windows, flows = load_windows(prefix), load_flows(prefix)
-    res = run_independent(arts, windows, flows, networks, cfg, timer)
+    if mode == "doc_lap":
+        res = run_independent(arts, windows, flows, networks, cfg, timer)
+    elif mode == "tuan_tu":
+        res = run_sequential(arts, windows, flows, networks, cfg, timer)
+    else:
+        raise ValueError(f"chế độ chưa hỗ trợ: {mode}")
+    info = res.pop("_tuan_tu", None)
     return {"prefix": prefix, "ket_qua": res, "thoi_gian_s": timer.steps, "artifact": arts,
             "so_luong": {"flow": len(flows), "cua_so": len(windows), "host_giam_sat": len(monitored_hosts(flows, networks))},
-            "che_do": mode}
+            "che_do": mode, "tuan_tu": info}
 
 
 # ---- C09-T03: đầu ra độc lập của từng module, hợp nhất cảnh báo ----
@@ -353,14 +402,16 @@ def write_predictions(run) -> dict:
 
 def cmd_run(args):
     cfg = load_config(args.config)
-    run = run_pcap(args.pcap, args.out, args.net, cfg, args.config, args.che_do, args.ten)
+    mode = args.che_do or pipeline_config(cfg)["mode"]
+    name = args.ten or (Path(args.pcap).stem + ("" if mode == "doc_lap" else f"_{mode}"))
+    run = run_pcap(args.pcap, args.out, args.net, cfg, args.config, mode, name)
     paths = write_predictions(run)
     run_id = args.ma_lan_chay or Path(run["prefix"]).name
     alerts = run_alerts(run, run["artifact"], run_id)
     paths["canh_bao"] = str(Path(f"{run['prefix']}.alerts.csv"))
     n_alerts = write_alerts(alerts, paths["canh_bao"])
     overview = host_overview(alerts)
-    summary = {"pcap": args.pcap, "che_do": run["che_do"], "thoi_gian_s": run["thoi_gian_s"], "so_luong": run["so_luong"],
+    summary = {"pcap": args.pcap, "che_do": run["che_do"], "tuan_tu": run["tuan_tu"], "thoi_gian_s": run["thoi_gian_s"], "so_luong": run["so_luong"],
                "bao_dong": {m: int((df["du_doan"].isin(["anomaly", "port_scan", "dos", "suspect_host"])).sum())
                             for m, df in run["ket_qua"].items()},
                "so_canh_bao_hop_nhat": n_alerts, "host_nhieu_module": overview["host_nhieu_module"],
@@ -394,7 +445,8 @@ def main(argv=None):
     p.add_argument("--net", action="append", required=True, help="mạng giám sát, ví dụ 192.168.10.0/24")
     p.add_argument("--out", required=True, help="thư mục ghi bảng đặc trưng và dự đoán")
     p.add_argument("--ten", help="tên tiền tố, mặc định tên file PCAP")
-    p.add_argument("--che-do", choices=("doc_lap",), default="doc_lap")
+    p.add_argument("--che-do", choices=("doc_lap", "tuan_tu"), default=None,
+                   help="doc_lap: ba module độc lập; tuan_tu: Gaussian → phân loại → kiểm tra botnet; mặc định pipeline.mode")
     p.add_argument("--ma-lan-chay", help="run_id ghi vào cảnh báo, khớp nhật ký kịch bản; mặc định tên tiền tố")
     p.add_argument("--config", help="file cấu hình, mặc định config/default.yaml")
     p.set_defaults(func=cmd_run)

@@ -13,7 +13,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from nids.dataset import feature_columns
 from nids.pipeline import (ERROR, WARNING, Artifact, Timer, check_artifact, check_table, expected_inputs, extract,
                            host_overview, load_artifacts, load_flows, load_windows, monitored_hosts,
-                           pipeline_config, run_alerts, run_independent, write_alerts)
+                           pipeline_config, run_alerts, run_independent, run_sequential, write_alerts)
 
 
 def fake(module, features, threshold=1.0, meta=None, classes=None):
@@ -175,6 +175,39 @@ class PcapPipelineTest(unittest.TestCase):
         self.assertTrue((bot.loc[bot["host"] == "192.168.10.5", "du_doan"] == "suspect_host").any())
         self.assertTrue(set(bot.loc[bot["du_doan"] == "suspect_host", "topology"]) <= {"centralized", "p2p"})
         self.assertTrue(((bot["window_end"] - bot["window_start"]) == 120).all())
+
+
+class SequentialTest(unittest.TestCase):
+    """C09-T04: Gaussian → phân loại → kiểm tra botnet."""
+
+    def setUp(self):
+        tmp = TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        prefix = extract(scan_pcap(Path(tmp.name) / "scan.pcap"), Path(tmp.name) / "out", ["192.168.10.0/24"])
+        self.windows, self.flows = load_windows(prefix), load_flows(prefix)
+
+    def test_explained_anomaly_skips_botnet(self):
+        res = run_sequential(fake_artifacts(), self.windows, self.flows, ["192.168.10.0/24"])
+        info = res["_tuan_tu"]
+        n_flag = int((res["anomaly"]["du_doan"] == "anomaly").sum())
+        self.assertEqual(info["cua_so_phan_loai"], n_flag)                        # chỉ phân loại cửa sổ bất thường
+        self.assertLess(n_flag, len(self.windows))
+        self.assertTrue(set(res["attack_classification"]["host"]) <= set(res["anomaly"].loc[
+            res["anomaly"]["du_doan"] == "anomaly", "host"]))
+        self.assertEqual(info["host_kiem_tra_botnet"], [])                        # bất thường đã giải thích là quét
+        self.assertTrue(res["botnet_topology"].empty)
+
+    def test_unexplained_anomaly_checks_botnet(self):
+        arts = fake_artifacts()
+        arts["attack_classification"] = Artifact("attack_classification", Path("b"), FakeWindowModel(threshold=1e9))
+        res = run_sequential(arts, self.windows, self.flows, ["192.168.10.0/24"])
+        self.assertEqual(res["_tuan_tu"]["host_kiem_tra_botnet"], ["192.168.10.5"])
+        bot = res["botnet_topology"]
+        self.assertEqual(set(bot["host"]), {"192.168.10.5"})
+        an = res["anomaly"]
+        flagged = an[(an["du_doan"] == "anomaly") & (an["host"] == "192.168.10.5")]
+        for r in bot.itertuples():                                                # mọi cửa sổ 120 s chồng lên bất thường
+            self.assertTrue(((flagged["window_start"] < r.window_end) & (flagged["window_end"] > r.window_start)).any())
 
 
 class AlertMergeTest(unittest.TestCase):
