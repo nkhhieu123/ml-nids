@@ -323,6 +323,13 @@ Mẫu:
 - Quyết định: Trích xuất bằng `nids.feature_export.export` (cùng tham số cấu hình), anomaly và phân loại chấm cửa sổ 10 giây, module botnet dựng đồ thị 120 giây cho mọi IP thuộc mạng giám sát `--net` (cũng dùng làm `local_nets`). Chạy thử trên các đoạn PCAP cắt bằng `nids.pcap_cut`, nằm trọn trong khoảng test của Chặng 5.
 - Hệ quả: Trích xuất chiếm hơn 90% thời gian (khoảng 22 000 gói/giây). Module botnet học trên CTU-13 chạy trên CIC chỉ để kiểm tra tích hợp. Chi tiết ở docs/54.
 
+## QĐ-045 — Hợp nhất cảnh báo: giữ mọi dòng theo schema chung, không cộng điểm; đánh dấu host có nhiều module báo
+- Ngày: 03/11/2026
+- Trạng thái: Đã chốt
+- Bối cảnh: C09-T03 cần đầu ra độc lập của từng module và một luồng cảnh báo hợp nhất. Ba module có điểm khác thang đo (d², xác suất 3 lớp, xác suất bot).
+- Quyết định: Mỗi module đổi dự đoán thành `Alert` (schema docs/02); module botnet ghi nhóm host và nhóm topology thành hai dòng riêng. Hợp nhất là một file sắp theo thời gian, không bỏ dòng nào, không cộng điểm. Kèm tổng hợp theo host; host có ≥ 2 module cùng báo được liệt kê riêng.
+- Hệ quả: Số dòng cảnh báo lớn (mỗi cửa sổ trượt một dòng); gộp thành sự kiện ở C09-T06. Chi tiết ở docs/55.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.

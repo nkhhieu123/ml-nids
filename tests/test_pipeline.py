@@ -12,8 +12,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from nids.dataset import feature_columns
 from nids.pipeline import (ERROR, WARNING, Artifact, Timer, check_artifact, check_table, expected_inputs, extract,
-                           load_artifacts, load_flows, load_windows, monitored_hosts, pipeline_config,
-                           run_independent)
+                           host_overview, load_artifacts, load_flows, load_windows, monitored_hosts,
+                           pipeline_config, run_alerts, run_independent, write_alerts)
 
 
 def fake(module, features, threshold=1.0, meta=None, classes=None):
@@ -175,6 +175,53 @@ class PcapPipelineTest(unittest.TestCase):
         self.assertTrue((bot.loc[bot["host"] == "192.168.10.5", "du_doan"] == "suspect_host").any())
         self.assertTrue(set(bot.loc[bot["du_doan"] == "suspect_host", "topology"]) <= {"centralized", "p2p"})
         self.assertTrue(((bot["window_end"] - bot["window_start"]) == 120).all())
+
+
+class AlertMergeTest(unittest.TestCase):
+    """C09-T03: đầu ra độc lập theo schema chung, hợp nhất cảnh báo."""
+
+    def results(self):
+        an = pd.DataFrame({"host": ["a", "b"], "window_start": [10.0, 0.0], "window_end": [20.0, 10.0],
+                           "d2": [99.0, 1.0], "du_doan": ["anomaly", "normal"]})
+        at = pd.DataFrame({"host": ["a", "b"], "window_start": [10.0, 0.0], "window_end": [20.0, 10.0],
+                           "du_doan": ["port_scan", "benign"], "p_benign": [0.1, 0.9], "p_dos": [0.0, 0.05],
+                           "p_port_scan": [0.9, 0.05]})
+        bo = pd.DataFrame({"host": ["a"], "window_start": [0.0], "window_end": [120.0], "diem": [0.7],
+                           "du_doan": ["suspect_host"], "topology": ["p2p"]})
+        return {"anomaly": an, "attack_classification": at, "botnet_topology": bo}
+
+    def arts(self):
+        return {"anomaly": SimpleNamespace(threshold=50.0),
+                "attack_classification": SimpleNamespace(model=SimpleNamespace(classes=["benign", "dos", "port_scan"])),
+                "botnet_topology": SimpleNamespace(threshold=0.5)}
+
+    def test_alerts_and_merge(self):
+        run = {"ket_qua": self.results()}
+        alerts = run_alerts(run, self.arts(), "r1")
+        self.assertEqual([(a.module, a.label) for a in alerts],
+                         [("botnet_topology", "p2p"), ("botnet_topology", "suspect_host"),
+                          ("anomaly", "anomaly"), ("attack_classification", "port_scan")])   # theo thời gian
+        self.assertTrue(all(a.run_id == "r1" and a.src_ip == "a" for a in alerts))
+        scan = [a for a in alerts if a.label == "port_scan"][0]
+        self.assertAlmostEqual(scan.score, 0.9)
+        self.assertIn("p_dos=0.000", scan.detail)
+        full = run_alerts(run, self.arts(), log_all=True)
+        self.assertEqual(sum(not a.is_alert for a in full), 2)                    # normal, benign của b
+        ov = host_overview(alerts)
+        self.assertEqual(ov["host_nhieu_module"], ["a"])
+        self.assertEqual(ov["theo_host"]["a"]["so_module_bao"], 3)
+        self.assertEqual(ov["theo_host"]["a"]["cuoi"], 120.0)
+
+    def test_write(self):
+        import csv
+        alerts = run_alerts({"ket_qua": self.results()}, self.arts(), "r1", log_all=True)
+        with TemporaryDirectory() as d:
+            p = Path(d) / "x.alerts.csv"
+            self.assertEqual(write_alerts(alerts, p), 4)                          # mặc định chỉ ghi cảnh báo
+            self.assertEqual(write_alerts(alerts, p, log_all=True), 6)            # ghi đè, kèm dự đoán bình thường
+            rows = list(csv.DictReader(p.open(encoding="utf-8")))
+            self.assertEqual(len(rows), 6)
+            self.assertEqual(rows[0]["window_start"], "1970-01-01T00:00:00.000Z")
 
 
 if __name__ == "__main__":

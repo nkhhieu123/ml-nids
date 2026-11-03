@@ -4,6 +4,8 @@
   (docs/53_nap_artifact.md, QĐ-043).
 - C09-T02: chạy PCAP qua toàn bộ pipeline: trích flow và cửa sổ, ba module, thời gian từng bước
   (docs/54_chay_pcap.md, QĐ-044).
+- C09-T03: mỗi module tạo đầu ra độc lập theo schema cảnh báo chung; hợp nhất vào một file, tổng hợp
+  theo host (docs/55_hop_nhat_canh_bao.md, QĐ-045).
 
     python -m nids.pipeline kiem-tra
     python -m nids.pipeline chay output/pcap/fri_quet.pcap --net 192.168.10.0/24 --net 172.16.0.0/24 --out output/pipeline
@@ -256,9 +258,87 @@ def run_pcap(pcap, out_dir, networks, cfg=None, config_path=None, mode="doc_lap"
     with timer("doc_bang"):
         windows, flows = load_windows(prefix), load_flows(prefix)
     res = run_independent(arts, windows, flows, networks, cfg, timer)
-    return {"prefix": prefix, "ket_qua": res, "thoi_gian_s": timer.steps,
+    return {"prefix": prefix, "ket_qua": res, "thoi_gian_s": timer.steps, "artifact": arts,
             "so_luong": {"flow": len(flows), "cua_so": len(windows), "host_giam_sat": len(monitored_hosts(flows, networks))},
             "che_do": mode}
+
+
+# ---- C09-T03: đầu ra độc lập của từng module, hợp nhất cảnh báo ----
+
+ALERT_LABELS = {"anomaly", "port_scan", "dos", "suspect_host", "centralized", "p2p"}
+
+
+def module_alerts(module, df, art, run_id="", log_all=False) -> list:
+    """Bảng dự đoán của một module thành danh sách ``Alert`` theo schema chung (docs/02 mục 3).
+
+    Module botnet có hai nhóm đầu ra riêng: nhãn host (``suspect_host``) và topology (``centralized``,
+    ``p2p``); chỉ cửa sổ bị nghi mới có dòng topology.
+    """
+    from .alerts import Alert
+
+    out = []
+    if df is None or df.empty:
+        return out
+    rows = df if log_all else df[df["du_doan"].isin(ALERT_LABELS)]
+    for r in rows.itertuples(index=False):
+        ws, we = float(r.window_start), float(r.window_end)
+        if module == MODULE_ANOMALY:
+            out.append(Alert(module, r.du_doan, ws, we, src_ip=r.host, score=float(r.d2),
+                             threshold=float(art.threshold), run_id=run_id))
+        elif module == MODULE_ATTACK:
+            probs = {c: getattr(r, f"p_{c}") for c in art.model.classes}
+            out.append(Alert(module, r.du_doan, ws, we, src_ip=r.host, score=float(probs[r.du_doan]), run_id=run_id,
+                             detail=" ".join(f"p_{c}={v:.3f}" for c, v in probs.items())))
+        else:
+            out.append(Alert(module, "suspect_host" if r.du_doan == "suspect_host" else "normal_host", ws, we,
+                             src_ip=r.host, score=float(r.diem), threshold=float(art.threshold), run_id=run_id,
+                             detail="mức nghi vấn, không khẳng định có mã độc"))
+            if r.du_doan == "suspect_host":
+                out.append(Alert(module, r.topology, ws, we, src_ip=r.host, run_id=run_id,
+                                 detail="topology theo quy tắc (QĐ-042)"))
+    return out
+
+
+def merge_alerts(alert_lists) -> list:
+    """Hợp nhất cảnh báo của các module: một danh sách, sắp theo thời gian, rồi host, rồi module."""
+    from .scope import MODULES as ORDER
+    merged = [a for lst in alert_lists for a in lst]
+    return sorted(merged, key=lambda a: (a.window_start, a.src_ip, ORDER.index(a.module), a.label))
+
+
+def host_overview(alerts) -> dict:
+    """Theo host: module nào báo, nhãn gì, bao nhiêu cửa sổ, lần đầu và lần cuối; host có ≥ 2 module báo."""
+    hosts = {}
+    for a in alerts:
+        if not a.is_alert:
+            continue
+        h = hosts.setdefault(a.src_ip, {"module": {}, "dau": a.window_start, "cuoi": a.window_end})
+        h["module"].setdefault(a.module, {})
+        h["module"][a.module][a.label] = h["module"][a.module].get(a.label, 0) + 1
+        h["dau"], h["cuoi"] = min(h["dau"], a.window_start), max(h["cuoi"], a.window_end)
+    for h in hosts.values():
+        h["so_module_bao"] = len(h["module"])
+    return {"theo_host": dict(sorted(hosts.items(), key=lambda kv: -kv[1]["so_module_bao"])),
+            "host_nhieu_module": sorted(k for k, v in hosts.items() if v["so_module_bao"] >= 2)}
+
+
+def write_alerts(alerts, path, log_all=False, stream=None) -> int:
+    """Ghi cảnh báo ra CSV qua ``AlertSink`` (ghi đè file cũ); trả về số dòng ghi."""
+    import io
+
+    from .alerts import AlertSink
+    path = Path(path)
+    if path.exists():
+        path.unlink()
+    n = 0
+    with AlertSink(path, stream=stream if stream is not None else io.StringIO(), log_all=log_all) as sink:
+        for a in alerts:
+            n += sink.emit(a)
+    return n
+
+
+def run_alerts(run, arts, run_id="", log_all=False) -> list:
+    return merge_alerts(module_alerts(m, df, arts[m], run_id, log_all) for m, df in run["ket_qua"].items())
 
 
 def write_predictions(run) -> dict:
@@ -275,10 +355,16 @@ def cmd_run(args):
     cfg = load_config(args.config)
     run = run_pcap(args.pcap, args.out, args.net, cfg, args.config, args.che_do, args.ten)
     paths = write_predictions(run)
+    run_id = args.ma_lan_chay or Path(run["prefix"]).name
+    alerts = run_alerts(run, run["artifact"], run_id)
+    paths["canh_bao"] = str(Path(f"{run['prefix']}.alerts.csv"))
+    n_alerts = write_alerts(alerts, paths["canh_bao"])
+    overview = host_overview(alerts)
     summary = {"pcap": args.pcap, "che_do": run["che_do"], "thoi_gian_s": run["thoi_gian_s"], "so_luong": run["so_luong"],
                "bao_dong": {m: int((df["du_doan"].isin(["anomaly", "port_scan", "dos", "suspect_host"])).sum())
                             for m, df in run["ket_qua"].items()},
-               "file": paths}
+               "so_canh_bao_hop_nhat": n_alerts, "host_nhieu_module": overview["host_nhieu_module"],
+               "theo_host": overview["theo_host"], "file": paths}
     Path(f"{run['prefix']}.pipeline.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps(summary, ensure_ascii=False, indent=1))
 
@@ -309,6 +395,7 @@ def main(argv=None):
     p.add_argument("--out", required=True, help="thư mục ghi bảng đặc trưng và dự đoán")
     p.add_argument("--ten", help="tên tiền tố, mặc định tên file PCAP")
     p.add_argument("--che-do", choices=("doc_lap",), default="doc_lap")
+    p.add_argument("--ma-lan-chay", help="run_id ghi vào cảnh báo, khớp nhật ký kịch bản; mặc định tên tiền tố")
     p.add_argument("--config", help="file cấu hình, mặc định config/default.yaml")
     p.set_defaults(func=cmd_run)
     args = parser.parse_args(argv)
