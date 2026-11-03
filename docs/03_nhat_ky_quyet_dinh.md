@@ -267,6 +267,13 @@ Mẫu:
 - Quyết định: Cửa sổ 120 giây, bước 10 giây (B02, `windows.graph`). Node là IP, cạnh có hướng từ bên khởi tạo, trọng số: số flow, gói, byte, số cổng, flow UDP, flow không được trả lời. Chỉ dựng đồ thị một bước quanh **host cần xét**: bot trong mạng trường (147.32.x), ba máy bình thường đã xác nhận, và 20 host Background lấy mẫu ngẫu nhiên mỗi scenario (seed cố định) để ước lượng báo động. Mọi flow có một đầu là host cần xét đều giữ, kể cả flow Background. Flow thuộc mọi cửa sổ chứa thời điểm bắt đầu của nó.
 - Hệ quả: Đặc trưng chỉ nhìn được hàng xóm trực tiếp của host, không thấy bậc của hàng xóm. Peer ngoài mạng mang nhãn From-Botnet (scenario 12) không là host xét, chỉ là peer. Flow dài được tính ở cửa sổ bắt đầu. Chi tiết ở docs/45.
 
+## QĐ-037 — Đặc trưng đồ thị của host–cửa sổ; hướng không có flow thì để trống
+- Ngày: 03/11/2026
+- Trạng thái: Đã chốt
+- Bối cảnh: C08-T02 cần số peer, bậc vào/ra, tính tương hỗ và mức tập trung, tính được từ bảng cạnh một bước quanh host (QĐ-036), dùng chung cho CTU-13 và lab.
+- Quyết định: 19 đặc trưng: số peer, bậc ra/vào, flow/byte/gói mỗi hướng, tỷ lệ peer tương hỗ, mức tập trung (phần flow lớn nhất vào một peer, entropy chuẩn hóa) mỗi hướng, số cổng đích, tỷ lệ flow ra không được trả lời, tỷ lệ UDP, tỷ lệ peer nội bộ (`botnet.local_nets`), tỷ lệ peer mới so với cửa sổ không chồng lấn trước. Hướng không có flow thì mức tập trung, entropy, tỷ lệ không trả lời để trống.
+- Hệ quả: Mô hình phải điền ô trống (trung vị train và cột đánh dấu). Không có đặc trưng độ trung tâm toàn mạng; phần nhiều bot chung một máy điều khiển để cho bộ nhận diện topology. Chi tiết ở docs/46.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
