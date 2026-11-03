@@ -100,6 +100,10 @@ Báo cáo Chặng 6: [docs/Bao_cao_Chang_6.md](docs/Bao_cao_Chang_6.md)
 
 Báo cáo Chặng 7: [docs/Bao_cao_Chang_7.md](docs/Bao_cao_Chang_7.md)
 
+### Chặng 8 — Botnet và nhận diện topology
+
+- [x] C08-T01: Đồ thị theo cửa sổ: node, cạnh, trọng số — `src/nids/ctu13.py`, `src/nids/graph_features.py`, [docs/45_do_thi_cua_so.md](docs/45_do_thi_cua_so.md)
+
 Những gì còn thiếu sau Chặng 1–7 (việc đang dở, dữ liệu, lab, tham số chưa chốt): [docs/Viec_con_thieu.md](docs/Viec_con_thieu.md)
 
 ## Cấu trúc

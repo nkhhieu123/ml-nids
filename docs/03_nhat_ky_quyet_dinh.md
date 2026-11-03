@@ -260,6 +260,13 @@ Mẫu:
 - Quyết định: Random Forest 300 cây, max_depth 20, min_samples_leaf 3, max_features sqrt, train giữ nguyên phân bố lớp (macro-F1 validation 0,913). LR (C = 1, không cân bằng, 0,883) giữ làm mức chuẩn.
 - Hệ quả: RF hơn LR ở 99,7% lần bootstrap ghép cặp trên validation (hiệu +0,029), chủ yếu nhờ recall dos. Tham số cây gần như không ảnh hưởng (0,89–0,913). Thay phần cân bằng 10 lần của QĐ-028 cho Chặng 7. Chi tiết ở docs/42.
 
+## QĐ-036 — Đồ thị theo cửa sổ quanh host cần xét; flow thuộc cửa sổ theo thời điểm bắt đầu
+- Ngày: 03/11/2026
+- Trạng thái: Đã chốt
+- Bối cảnh: C08-T01 cần đồ thị giao tiếp theo cửa sổ. File CTU-13 tới 4,7 triệu flow mỗi scenario, phần lớn là Background giữa các máy không có nhãn; dựng đồ thị toàn mạng trường cho mọi cửa sổ vượt RAM 12 GB.
+- Quyết định: Cửa sổ 120 giây, bước 10 giây (B02, `windows.graph`). Node là IP, cạnh có hướng từ bên khởi tạo, trọng số: số flow, gói, byte, số cổng, flow UDP, flow không được trả lời. Chỉ dựng đồ thị một bước quanh **host cần xét**: bot trong mạng trường (147.32.x), ba máy bình thường đã xác nhận, và 20 host Background lấy mẫu ngẫu nhiên mỗi scenario (seed cố định) để ước lượng báo động. Mọi flow có một đầu là host cần xét đều giữ, kể cả flow Background. Flow thuộc mọi cửa sổ chứa thời điểm bắt đầu của nó.
+- Hệ quả: Đặc trưng chỉ nhìn được hàng xóm trực tiếp của host, không thấy bậc của hàng xóm. Peer ngoài mạng mang nhãn From-Botnet (scenario 12) không là host xét, chỉ là peer. Flow dài được tính ở cửa sổ bắt đầu. Chi tiết ở docs/45.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.

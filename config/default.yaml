@@ -71,6 +71,11 @@ classifier:                  # phân loại tấn công đa lớp trên cửa s�
       min_samples_leaf: [1, 3, 10]
       max_features: [sqrt, 0.5]
 
+botnet:                      # module botnet/topology (Chặng 8); cửa sổ đồ thị ở windows.graph
+  ctu13_dir: data/ctu13      # file .binetflow gốc
+  flows_dir: output/ctu13    # flow đã lọc theo host cần xét (python -m nids.ctu13 chuan-bi)
+  background_sample: 20      # số host Background lấy mẫu mỗi scenario, chỉ để ước lượng báo động (QĐ-036)
+
 lab:
   subnet: 192.168.50.0/24
   hosts:

@@ -1,0 +1,26 @@
+{
+  "ctu13_s11": {
+    "so_canh": 1871,
+    "so_host_cua_so": 381,
+    "peer_moi_host_cua_so": {
+      "0.5": 3.0,
+      "0.9": 10.0,
+      "0.99": 18.0
+    },
+    "so_cua_so_moi_phien": {
+      "ctu13_s11": 108
+    }
+  },
+  "ctu13_s12": {
+    "so_canh": 82333,
+    "so_host_cua_so": 2233,
+    "peer_moi_host_cua_so": {
+      "0.5": 22.0,
+      "0.9": 69.0,
+      "0.99": 282.0399999999995
+    },
+    "so_cua_so_moi_phien": {
+      "ctu13_s12": 453
+    }
+  }
+}
