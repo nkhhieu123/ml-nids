@@ -122,7 +122,9 @@ Báo cáo Chặng 8: [docs/Bao_cao_Chang_8.md](docs/Bao_cao_Chang_8.md)
 - [x] C09-T05: So sánh chế độ độc lập với tuần tự về bỏ sót và thời gian xử lý — `src/nids/pipeline.py`, [docs/57_so_sanh_che_do.md](docs/57_so_sanh_che_do.md)
 - [x] C09-T06: Ghi cảnh báo, điểm mô hình và gộp sự kiện lặp — `src/nids/pipeline.py`, [docs/58_ghi_canh_bao_su_kien.md](docs/58_ghi_canh_bao_su_kien.md)
 
-Những gì còn thiếu sau Chặng 1–8 (việc đang dở, dữ liệu, lab, tham số chưa chốt): [docs/Viec_con_thieu.md](docs/Viec_con_thieu.md)
+Báo cáo Chặng 9: [docs/Bao_cao_Chang_9.md](docs/Bao_cao_Chang_9.md)
+
+Những gì còn thiếu sau Chặng 1–9 (việc đang dở, dữ liệu, lab, tham số chưa chốt): [docs/Viec_con_thieu.md](docs/Viec_con_thieu.md)
 
 ## Cấu trúc
 

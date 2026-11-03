@@ -59,6 +59,9 @@ hình trên dữ liệu nó đã học:
 
 Thời gian (giây, máy phát triển) và số báo động mỗi module (chế độ độc lập):
 
+> Từ C09-T05 lệnh `chay` mặc định dùng chế độ `ket_hop` (QĐ-047); thêm `--che-do doc_lap` để
+> tái lập bảng này.
+
 | Đoạn | Flow | Cửa sổ 10 s | Host xét | Trích xuất | Anomaly | Phân loại | Botnet | Báo anomaly / phân loại / botnet |
 |---|---|---|---|---|---|---|---|---|
 | `fri_binh_thuong` | 4 347 | 4 633 | 15 | 3,4 | 0,008 | 0,07 | 0,29 | 421 / 34 / 153 |

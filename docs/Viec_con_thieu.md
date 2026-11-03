@@ -1,8 +1,8 @@
-# Những gì còn thiếu sau Chặng 1–8
+# Những gì còn thiếu sau Chặng 1–9
 
-Tài liệu gom mọi thứ **chưa có** hoặc **chưa kiểm chứng** trong phạm vi Chặng 1–8, rút từ các
+Tài liệu gom mọi thứ **chưa có** hoặc **chưa kiểm chứng** trong phạm vi Chặng 1–9, rút từ các
 tài liệu task, báo cáo chặng và nhật ký quyết định. Lập ngày 23/10/2026 (Chặng 1–3), cập nhật
-27/10, 29/10, 02/11 và 03/11/2026 (mở rộng tới Chặng 8).
+27/10, 29/10, 02/11 và 03/11/2026 (mở rộng tới Chặng 9).
 
 ## 0. VIỆC ĐANG DỞ — CẦN CHẠY LẠI (đọc trước)
 
@@ -41,7 +41,7 @@ Dữ liệu thật hiện có: **CIC-IDS2017 đủ** (PCAP thứ Hai, thứ Tư,
 | **Quan trọng** | Làm tiếp được, nhưng kết quả chưa đáng tin cho tới khi bổ sung | 15 |
 | **Nên có** | Hoàn thiện, kiểm tra thêm | 10 |
 
-Số mục ở mục 2–4b (chưa tính 4c, 4d), tính đến 02/11/2026, không tính các mục đã gạch (đã xong). 8 mục **chặn**
+Số mục ở mục 2–4b (chưa tính 4c–4e), tính đến 02/11/2026, không tính các mục đã gạch (đã xong). 8 mục **chặn**
 gom lại thành các việc sau (việc tải CIC-IDS2017 đã xong):
 
 1. ~~Tải nốt CIC-IDS2017: PCAP thứ Tư và CSV có nhãn (mục 2.1).~~ Xong 29/10/2026.
@@ -146,6 +146,16 @@ gom lại thành các việc sau (việc tải CIC-IDS2017 đã xong):
 | Beaconing không tách bot khỏi máy bình thường trên CTU-13 (docs/47) | Nên có | Đặc trưng yếu trên CTU-13 | Kiểm tra lại trên lab |
 | Script `scripts/sinh_topology.py` chưa chạy trong lab | Quan trọng | Chưa có traffic topology thật | **Bạn** chạy khi lab dựng xong |
 
+## 4e. Chặng 9: việc còn thiếu hoặc hạn chế đã biết
+
+| Thiếu | Mức | Ảnh hưởng | Ai làm |
+|---|---|---|---|
+| Pipeline mới chạy trên 4 đoạn PCAP CIC ngắn (3–21 phút), chưa chạy trên PCAP lab | Quan trọng | So sánh chế độ và khoảng gộp sự kiện chưa kiểm chứng trên mạng sẽ triển khai | **Bạn** thu lab; chạy `nids.pipeline chay` |
+| Module botnet trong pipeline dùng mô hình học từ CTU-13; trên CIC báo nhầm nhiều khi chạy độc lập | Quan trọng | Cảnh báo botnet chưa đáng tin trên mạng mới | Học lại trên dữ liệu lab (Chặng 11) |
+| `created_at` của cảnh báo offline là lúc chạy pipeline, chưa đo được độ trễ phát hiện | Nên có | Độ trễ đo ở realtime | Chặng 10 |
+| Trích xuất khoảng 22 000 gói/giây, chiếm 90–99% thời gian | Quan trọng | Có thể không kịp realtime khi lưu lượng lớn | Đo trên Kali (Chặng 10) |
+| Mỗi lần sửa `src/` hoặc `config/` cần chạy `pipeline kiem-tra`; mô hình tạo khi mã chưa commit chỉ bị cảnh báo | Nên có | Dễ dùng nhầm mô hình cũ | Làm được ngay khi có thay đổi |
+
 ## 5. Giới hạn của mã nguồn hiện có
 
 Đây không phải lỗi, mà là phạm vi đã chọn; ghi lại để biết khi nào cần làm thêm.
@@ -159,7 +169,7 @@ gom lại thành các việc sau (việc tải CIC-IDS2017 đã xong):
 | Tốc độ khoảng 300 000 packet/giây (đọc); đối chiếu Wireshark 4,48 triệu gói mất khoảng 14 phút | Quan trọng | Đo lại trên file CIC 10 GB; tối ưu nếu quá chậm |
 | Chưa có phần bắt gói trực tiếp (live capture) | — | Thuộc Chặng 10 |
 
-Các phần chưa có vì **thuộc chặng sau**, không tính là thiếu của Chặng 1–8: pipeline offline và realtime (Chặng 9–10), kiểm thử
+Các phần chưa có vì **thuộc chặng sau**, không tính là thiếu của Chặng 1–9: realtime (Chặng 10), kiểm thử
 thực nghiệm và chỉ số (Chặng 11), dashboard (tùy chọn T06).
 
 ## 6. Thứ tự nên làm
