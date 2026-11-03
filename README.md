@@ -105,6 +105,7 @@ Báo cáo Chặng 7: [docs/Bao_cao_Chang_7.md](docs/Bao_cao_Chang_7.md)
 - [x] C08-T01: Đồ thị theo cửa sổ: node, cạnh, trọng số — `src/nids/ctu13.py`, `src/nids/graph_features.py`, [docs/45_do_thi_cua_so.md](docs/45_do_thi_cua_so.md)
 - [x] C08-T02: Số peer, bậc vào/ra, tính tương hỗ và mức tập trung — `src/nids/graph_features.py`, [docs/46_dac_trung_do_thi.md](docs/46_dac_trung_do_thi.md)
 - [x] C08-T03: Đặc trưng beaconing với số quan sát tối thiểu — `src/nids/graph_features.py`, [docs/47_beaconing.md](docs/47_beaconing.md)
+- [x] C08-T04: Dữ liệu host–cửa sổ có nhãn botnet; cách xử lý Background — `src/nids/ctu13.py`, `src/nids/botnet.py`, [docs/48_botnet_nhan.md](docs/48_botnet_nhan.md)
 
 Những gì còn thiếu sau Chặng 1–7 (việc đang dở, dữ liệu, lab, tham số chưa chốt): [docs/Viec_con_thieu.md](docs/Viec_con_thieu.md)
 

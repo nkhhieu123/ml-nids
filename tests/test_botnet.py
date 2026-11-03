@@ -8,6 +8,7 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
+from nids.botnet import botnet_config, label_host_windows, scenario_split, scenario_topology
 from nids.ctu13 import (FLOW_COLUMNS, extract, flow_group, from_project_flows, is_cc, load_flows,
                         pick_background, prepare_scenario, scan)
 from nids.graph_features import (build_features, host_ports, in_networks, pair_regularity, to_graph,
@@ -195,6 +196,44 @@ class BeaconTest(unittest.TestCase):
         self.assertTrue(np.isnan(early["beacon_cv_nho_nhat"]))
         strict = build_features(f, ["h"], {"botnet": {"beaconing": {"min_observations": 7}}})
         self.assertEqual(strict.loc[strict["window_start"] == 0, "beacon_so_cap_deu"].iloc[0], 0)
+
+
+class LabelTest(unittest.TestCase):
+    """C08-T04: nhãn host–cửa sổ, Background, chia theo scenario."""
+
+    INFO = {"scenario": 12, "host": {"bot": ["b"], "binh_thuong": ["n"], "background_mau": ["g"]}}
+
+    def flows(self):
+        f = flows_frame([(5.0, "b", "x", 80, "udp", 0), (300.0, "b", "y", 80, "udp", 10),
+                         (6.0, "n", "x", 80, "tcp", 10), (7.0, "g", "x", 80, "tcp", 10), (8.0, "x", "n", 80, "tcp", 10)])
+        f["label"] = ["flow=From-Botnet-V53-1-UDP", "flow=Background-UDP", "flow=From-Normal-V53-Grill",
+                      "flow=Background", "flow=To-Normal-V53"]
+        return f
+
+    def test_labels(self):
+        f = self.flows()
+        feats = build_features(f, ["b", "n", "g"])
+        lab = label_host_windows(feats, f, self.INFO)
+        at0 = lab[lab["window_start"] == 0].set_index("host")
+        self.assertEqual(at0.loc["b", "label_host"], "suspect_host")
+        self.assertEqual(at0.loc["b", "label_topology"], "p2p")                       # scenario 12
+        self.assertEqual(at0.loc["n", "label_host"], "normal_host")
+        self.assertEqual(at0.loc["n", "label_topology"], "none")
+        self.assertEqual(at0.loc["g", "label_host"], "background")
+        late = lab[(lab["window_start"] == 290) & (lab["host"] == "b")].iloc[0]
+        self.assertEqual(late["label_host"], "bo")                                   # bot không có flow From-Botnet
+        self.assertEqual(at0.loc["b", "so_flow_bot"], 1)
+        self.assertTrue((lab["split"] == "train").all())
+
+    def test_splits_and_topology(self):
+        cfg = botnet_config({})
+        self.assertEqual(scenario_split(4, cfg["splits"]), "validation")
+        self.assertEqual(scenario_split(1, cfg["splits"]), "test")
+        self.assertEqual(scenario_split(99, cfg["splits"]), "bo")
+        all_s = sum(cfg["splits"].values(), [])
+        self.assertEqual(sorted(all_s), list(range(1, 14)))                         # mỗi scenario đúng một tập
+        self.assertEqual(scenario_topology(12, cfg["topology"]), "p2p")
+        self.assertEqual(scenario_topology(1, cfg["topology"]), "centralized")
 
 
 if __name__ == "__main__":

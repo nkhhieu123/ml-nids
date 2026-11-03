@@ -281,6 +281,13 @@ Mẫu:
 - Quyết định: Cặp (host, peer, cổng, giao thức) theo flow host khởi tạo; quan sát là thời điểm bắt đầu flow trong 600 giây nhìn ngược từ cuối cửa sổ; cần ≥ 5 quan sát, nếu không thì CV và chu kỳ để trống. Cặp đều khi CV khoảng cách ≤ 0,3 và khoảng cách trung bình ≥ 1 giây.
 - Hệ quả: Trên CTU-13, 58,7% cửa sổ bot và 57,8% cửa sổ máy bình thường có cặp đều; cặp CC có CV trung vị 0,92. Beaconing không tách được bot khỏi máy bình thường trên CTU-13, giữ làm đặc trưng và kiểm tra trên dữ liệu giả lập, lab. Chi tiết ở docs/47.
 
+## QĐ-039 — Nhãn host–cửa sổ botnet; Background chỉ để ước lượng báo động; chia theo scenario
+- Ngày: 03/11/2026
+- Trạng thái: Đã chốt (scenario validation tạm thời, chờ nhóm xác nhận)
+- Bối cảnh: C08-T04 cần dữ liệu host–cửa sổ có nhãn và quy định cách xử lý Background, phần lớn traffic CTU-13 chưa được kiểm chứng.
+- Quyết định: `suspect_host` khi bot trong mạng khởi tạo ≥ 1 flow From-Botnet trong cửa sổ; `normal_host` khi máy bình thường đã xác nhận khởi tạo flow From-Normal; host Background lấy mẫu không học, không tính Precision/Recall, chỉ báo tỷ lệ bị báo; còn lại bỏ (gồm cửa sổ trước khi bị nhiễm). Flow Background vẫn giữ trong đồ thị. Chia theo scenario: train 3, 5, 7, 10, 11, 12; validation 4, 13; test 1, 2, 6, 8, 9.
+- Hệ quả: Train 9 575 bot / 32 827 bình thường, validation 6 555 / 10 453, test 19 188 / 24 880 host–cửa sổ, nhưng chỉ khoảng 10 IP bot và 4 IP bình thường. Scenario P2P duy nhất ở train. Chi tiết ở docs/48.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.

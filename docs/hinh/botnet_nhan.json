@@ -1,0 +1,447 @@
+{
+  "theo_scenario": {
+    "1": {
+      "tap": "test",
+      "gio": 6.12,
+      "so_flow": 2824636,
+      "nhom_nhan_flow": {
+        "background": 2753297,
+        "tu_normal": 30258,
+        "toi_normal": 120,
+        "tu_bot": 40961
+      },
+      "so_flow_cc": 341,
+      "bot": [
+        "147.32.84.165"
+      ],
+      "peer_bot_ben_ngoai": [],
+      "may_binh_thuong": [
+        "147.32.84.134",
+        "147.32.84.164",
+        "147.32.84.170"
+      ],
+      "flow_bot_dau_tien_sau_bat_dau_giay": 4651.8,
+      "host_cua_so": {
+        "background": 26784,
+        "normal_host": 5221,
+        "suspect_host": 1718,
+        "bo": 237
+      },
+      "topology": "centralized"
+    },
+    "2": {
+      "tap": "test",
+      "gio": 4.19,
+      "so_flow": 1808122,
+      "nhom_nhan_flow": {
+        "background": 1778063,
+        "tu_normal": 9082,
+        "toi_normal": 36,
+        "tu_bot": 20941
+      },
+      "so_flow_cc": 673,
+      "bot": [
+        "147.32.84.165"
+      ],
+      "peer_bot_ben_ngoai": [],
+      "may_binh_thuong": [
+        "147.32.84.164",
+        "147.32.84.170"
+      ],
+      "flow_bot_dau_tien_sau_bat_dau_giay": 2264.4,
+      "host_cua_so": {
+        "background": 16014,
+        "normal_host": 1746,
+        "suspect_host": 1243,
+        "bo": 392
+      },
+      "topology": "centralized"
+    },
+    "3": {
+      "tap": "train",
+      "gio": 66.82,
+      "so_flow": 4710638,
+      "nhom_nhan_flow": {
+        "background": 4566951,
+        "tu_normal": 116303,
+        "toi_normal": 562,
+        "tu_bot": 26822
+      },
+      "so_flow_cc": 63,
+      "bot": [
+        "147.32.84.165"
+      ],
+      "peer_bot_ben_ngoai": [
+        "38.229.70.20"
+      ],
+      "may_binh_thuong": [
+        "147.32.84.134",
+        "147.32.84.164",
+        "147.32.84.170"
+      ],
+      "flow_bot_dau_tien_sau_bat_dau_giay": 109.0,
+      "host_cua_so": {
+        "background": 150098,
+        "normal_host": 26998,
+        "bo": 8808,
+        "suspect_host": 5292
+      },
+      "topology": "centralized"
+    },
+    "4": {
+      "tap": "validation",
+      "gio": 4.47,
+      "so_flow": 1121076,
+      "nhom_nhan_flow": {
+        "background": 1093252,
+        "tu_normal": 25195,
+        "toi_normal": 49,
+        "tu_bot": 2580
+      },
+      "so_flow_cc": 52,
+      "bot": [
+        "147.32.84.165"
+      ],
+      "peer_bot_ben_ngoai": [],
+      "may_binh_thuong": [
+        "147.32.84.134",
+        "147.32.84.164",
+        "147.32.84.170"
+      ],
+      "flow_bot_dau_tien_sau_bat_dau_giay": 1040.3,
+      "host_cua_so": {
+        "background": 18368,
+        "normal_host": 3621,
+        "suspect_host": 674,
+        "bo": 226
+      },
+      "topology": "centralized"
+    },
+    "5": {
+      "tap": "train",
+      "gio": 0.5,
+      "so_flow": 129832,
+      "nhom_nhan_flow": {
+        "background": 124260,
+        "tu_normal": 4660,
+        "tu_bot": 901,
+        "toi_normal": 11
+      },
+      "so_flow_cc": 24,
+      "bot": [
+        "147.32.84.165"
+      ],
+      "peer_bot_ben_ngoai": [],
+      "may_binh_thuong": [
+        "147.32.84.134",
+        "147.32.84.164",
+        "147.32.84.170"
+      ],
+      "flow_bot_dau_tien_sau_bat_dau_giay": 570.0,
+      "host_cua_so": {
+        "background": 3148,
+        "normal_host": 492,
+        "suspect_host": 132,
+        "bo": 12
+      },
+      "topology": "centralized"
+    },
+    "6": {
+      "tap": "test",
+      "gio": 2.15,
+      "so_flow": 558919,
+      "nhom_nhan_flow": {
+        "background": 546796,
+        "tu_normal": 7471,
+        "tu_bot": 4630,
+        "toi_normal": 22
+      },
+      "so_flow_cc": 199,
+      "bot": [
+        "147.32.84.165"
+      ],
+      "peer_bot_ben_ngoai": [],
+      "may_binh_thuong": [
+        "147.32.84.134",
+        "147.32.84.164",
+        "147.32.84.170"
+      ],
+      "flow_bot_dau_tien_sau_bat_dau_giay": 21.7,
+      "host_cua_so": {
+        "background": 10627,
+        "normal_host": 1403,
+        "suspect_host": 746,
+        "bo": 163
+      },
+      "topology": "centralized"
+    },
+    "7": {
+      "tap": "train",
+      "gio": 0.35,
+      "so_flow": 114077,
+      "nhom_nhan_flow": {
+        "background": 112337,
+        "tu_normal": 1669,
+        "tu_bot": 63,
+        "toi_normal": 8
+      },
+      "so_flow_cc": 26,
+      "bot": [
+        "147.32.84.165"
+      ],
+      "peer_bot_ben_ngoai": [],
+      "may_binh_thuong": [
+        "147.32.84.134",
+        "147.32.84.164",
+        "147.32.84.170"
+      ],
+      "flow_bot_dau_tien_sau_bat_dau_giay": 112.5,
+      "host_cua_so": {
+        "background": 2252,
+        "normal_host": 320,
+        "suspect_host": 49,
+        "bo": 35
+      },
+      "topology": "centralized"
+    },
+    "8": {
+      "tap": "test",
+      "gio": 19.47,
+      "so_flow": 2954230,
+      "nhom_nhan_flow": {
+        "background": 2875282,
+        "tu_normal": 72639,
+        "tu_bot": 6127,
+        "toi_normal": 182
+      },
+      "so_flow_cc": 1074,
+      "bot": [
+        "147.32.84.165"
+      ],
+      "peer_bot_ben_ngoai": [],
+      "may_binh_thuong": [
+        "147.32.1.20",
+        "147.32.84.134",
+        "147.32.84.164",
+        "147.32.84.170"
+      ],
+      "flow_bot_dau_tien_sau_bat_dau_giay": 5.5,
+      "host_cua_so": {
+        "background": 72077,
+        "normal_host": 12184,
+        "suspect_host": 6723,
+        "bo": 2796
+      },
+      "topology": "centralized"
+    },
+    "9": {
+      "tap": "test",
+      "gio": 5.62,
+      "so_flow": 2087508,
+      "nhom_nhan_flow": {
+        "background": 1872560,
+        "tu_normal": 29893,
+        "tu_bot": 184987,
+        "toi_normal": 68
+      },
+      "so_flow_cc": 2973,
+      "bot": [
+        "147.32.84.165",
+        "147.32.84.191",
+        "147.32.84.192",
+        "147.32.84.193",
+        "147.32.84.204",
+        "147.32.84.205",
+        "147.32.84.206",
+        "147.32.84.207",
+        "147.32.84.208",
+        "147.32.84.209"
+      ],
+      "peer_bot_ben_ngoai": [],
+      "may_binh_thuong": [
+        "147.32.1.20",
+        "147.32.84.134",
+        "147.32.84.164",
+        "147.32.84.170"
+      ],
+      "flow_bot_dau_tien_sau_bat_dau_giay": 3232.3,
+      "host_cua_so": {
+        "background": 23218,
+        "suspect_host": 8758,
+        "normal_host": 4326,
+        "bo": 2901
+      },
+      "topology": "centralized"
+    },
+    "10": {
+      "tap": "train",
+      "gio": 5.14,
+      "so_flow": 1309791,
+      "nhom_nhan_flow": {
+        "background": 1187597,
+        "tu_normal": 15805,
+        "tu_bot": 106352,
+        "toi_normal": 37
+      },
+      "so_flow_cc": 33,
+      "bot": [
+        "147.32.84.165",
+        "147.32.84.191",
+        "147.32.84.192",
+        "147.32.84.193",
+        "147.32.84.204",
+        "147.32.84.205",
+        "147.32.84.206",
+        "147.32.84.207",
+        "147.32.84.208",
+        "147.32.84.209"
+      ],
+      "peer_bot_ben_ngoai": [],
+      "may_binh_thuong": [
+        "147.32.1.20",
+        "147.32.84.134",
+        "147.32.84.164",
+        "147.32.84.170"
+      ],
+      "flow_bot_dau_tien_sau_bat_dau_giay": 2489.3,
+      "host_cua_so": {
+        "background": 20914,
+        "normal_host": 3781,
+        "suspect_host": 3305,
+        "bo": 2541
+      },
+      "topology": "centralized"
+    },
+    "11": {
+      "tap": "train",
+      "gio": 0.27,
+      "so_flow": 107251,
+      "nhom_nhan_flow": {
+        "background": 96370,
+        "tu_bot": 8164,
+        "tu_normal": 2709,
+        "toi_normal": 8
+      },
+      "so_flow_cc": 2,
+      "bot": [
+        "147.32.84.165",
+        "147.32.84.191",
+        "147.32.84.192"
+      ],
+      "peer_bot_ben_ngoai": [],
+      "may_binh_thuong": [
+        "147.32.84.134",
+        "147.32.84.164",
+        "147.32.84.170"
+      ],
+      "flow_bot_dau_tien_sau_bat_dau_giay": 502.9,
+      "host_cua_so": {
+        "background": 1907,
+        "normal_host": 211,
+        "suspect_host": 100,
+        "bo": 70
+      },
+      "topology": "centralized"
+    },
+    "12": {
+      "tap": "train",
+      "gio": 1.72,
+      "so_flow": 325471,
+      "nhom_nhan_flow": {
+        "background": 315675,
+        "tu_normal": 7615,
+        "tu_bot": 2168,
+        "toi_normal": 13
+      },
+      "so_flow_cc": 25,
+      "bot": [
+        "147.32.84.165",
+        "147.32.84.191",
+        "147.32.84.192"
+      ],
+      "peer_bot_ben_ngoai": [
+        "161.200.133.204",
+        "222.160.227.154",
+        "69.104.66.134",
+        "91.188.37.153",
+        "93.103.254.175",
+        "95.65.17.47"
+      ],
+      "may_binh_thuong": [
+        "147.32.84.134",
+        "147.32.84.164",
+        "147.32.84.170"
+      ],
+      "flow_bot_dau_tien_sau_bat_dau_giay": 2381.2,
+      "host_cua_so": {
+        "background": 5639,
+        "normal_host": 1025,
+        "suspect_host": 697,
+        "bo": 511
+      },
+      "topology": "p2p"
+    },
+    "13": {
+      "tap": "validation",
+      "gio": 16.37,
+      "so_flow": 1925149,
+      "nhom_nhan_flow": {
+        "background": 1853215,
+        "tu_bot": 40003,
+        "tu_normal": 31779,
+        "toi_normal": 152
+      },
+      "so_flow_cc": 536,
+      "bot": [
+        "147.32.84.165"
+      ],
+      "peer_bot_ben_ngoai": [],
+      "may_binh_thuong": [
+        "147.32.84.134",
+        "147.32.84.164",
+        "147.32.84.170"
+      ],
+      "flow_bot_dau_tien_sau_bat_dau_giay": 188.1,
+      "host_cua_so": {
+        "background": 41763,
+        "normal_host": 6832,
+        "suspect_host": 5881,
+        "bo": 1005
+      },
+      "topology": "centralized"
+    }
+  },
+  "theo_tap": {
+    "train": {
+      "normal_host": 32827,
+      "suspect_host": 9575
+    },
+    "validation": {
+      "normal_host": 10453,
+      "suspect_host": 6555
+    },
+    "test": {
+      "normal_host": 24880,
+      "suspect_host": 19188
+    }
+  },
+  "host_doc_lap_theo_tap": {
+    "train": {
+      "normal_host": 4,
+      "suspect_host": 10
+    },
+    "validation": {
+      "normal_host": 3,
+      "suspect_host": 1
+    },
+    "test": {
+      "normal_host": 4,
+      "suspect_host": 10
+    }
+  },
+  "background_theo_tap": {
+    "train": 183958,
+    "validation": 60131,
+    "test": 148720
+  }
+}

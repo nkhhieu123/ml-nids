@@ -81,6 +81,12 @@ botnet:                      # module botnet/topology (Chặng 8); cửa sổ đ
     min_observations: 5      # ít hơn số lần bắt đầu flow này thì cặp không đủ quan sát, không tính
     max_cv: 0.3              # CV khoảng cách <= mức này là đều (cho phép jitter khoảng ±30%)
     min_period_s: 1.0        # khoảng cách trung bình nhỏ hơn là dồn dập (tấn công), không phải beacon
+  splits:                    # chia theo scenario CTU-13 (B11, QĐ-039); validation tạm chọn, đổi được
+    train: [3, 5, 7, 10, 11, 12]
+    validation: [4, 13]
+    test: [1, 2, 6, 8, 9]
+  topology:                  # nhãn topology của bot theo scenario; còn lại là centralized (docs/07 mục 5)
+    p2p: [12]
 
 lab:
   subnet: 192.168.50.0/24
