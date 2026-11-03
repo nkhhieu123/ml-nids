@@ -2,8 +2,11 @@
 
 - C09-T01: nạp artifact (mô hình, biến đổi, ngưỡng) và kiểm tra schema trước khi chạy
   (docs/53_nap_artifact.md, QĐ-043).
+- C09-T02: chạy PCAP qua toàn bộ pipeline: trích flow và cửa sổ, ba module, thời gian từng bước
+  (docs/54_chay_pcap.md, QĐ-044).
 
     python -m nids.pipeline kiem-tra
+    python -m nids.pipeline chay output/pcap/fri_quet.pcap --net 192.168.10.0/24 --net 172.16.0.0/24 --out output/pipeline
 
 Ba module dùng mô hình đã lưu ở Chặng 6–8; pipeline không học gì.
 """
@@ -134,6 +137,152 @@ def check_all(cfg=None) -> dict:
     return report
 
 
+# ---- C09-T02: chạy PCAP qua toàn bộ pipeline ----
+
+class Timer:
+    """Đo thời gian từng bước (giây, đồng hồ thật)."""
+
+    def __init__(self):
+        self.steps = {}
+
+    def __call__(self, name):
+        import time
+        timer = self
+
+        class _Step:
+            def __enter__(self):
+                self.t = time.perf_counter()
+
+            def __exit__(self, *exc):
+                timer.steps[name] = round(timer.steps.get(name, 0.0) + time.perf_counter() - self.t, 3)
+        return _Step()
+
+
+def extract(pcap, out_dir, networks, config_path=None, name=None) -> Path:
+    """PCAP → bảng flow và cửa sổ 10 giây (cùng mã ``nids.feature_export`` như lúc huấn luyện, B12)."""
+    from .feature_export import export
+
+    name = name or Path(pcap).stem
+    export(pcap, out_dir, name, networks, config_path)
+    return Path(out_dir) / name
+
+
+def load_windows(prefix) -> "pd.DataFrame":
+    import pandas as pd
+    df = pd.read_csv(f"{prefix}.windows.csv", dtype={"host": str})
+    df.insert(0, "session", Path(prefix).name)
+    return df
+
+
+def load_flows(prefix) -> "pd.DataFrame":
+    """Bảng flow của dự án đổi sang bảng flow chung của module botnet."""
+    import pandas as pd
+
+    from .ctu13 import from_project_flows
+    cols = ["first_ts", "last_ts", "protocol", "fwd_ip", "fwd_port", "bwd_ip", "bwd_port", "packets", "bytes",
+            "fwd_bytes", "bwd_bytes"]
+    f = pd.read_csv(f"{prefix}.flows.csv", usecols=cols, dtype={"fwd_ip": str, "bwd_ip": str, "protocol": str})
+    return from_project_flows(f.dropna(subset=["first_ts"]), Path(prefix).name)
+
+
+def monitored_hosts(flows, networks) -> list:
+    """Host trong các mạng giám sát xuất hiện ở một đầu của flow."""
+    import pandas as pd
+
+    from .graph_features import in_networks
+    ips = pd.unique(pd.concat([flows["src"], flows["dst"]], ignore_index=True).astype(str))
+    return sorted(ip for ip, ok in zip(ips, in_networks(ips, networks)) if ok)
+
+
+def score_anomaly(art, windows):
+    check_table(windows, art)
+    return art.model.predict_frame(windows)                     # host, window_start, window_end, d2, du_doan
+
+
+def score_attack(art, windows):
+    from .classifier import predict_frame
+    check_table(windows, art)
+    out = predict_frame(art.model, windows)
+    out["window_end"] = windows["window_end"].to_numpy()
+    return out
+
+
+def score_botnet(art, flows, hosts, networks, cfg=None, topology_rule=None):
+    """Đặc trưng đồ thị và beaconing 120 giây của ``hosts``, điểm botnet và topology theo quy tắc."""
+    import numpy as np
+
+    from .botnet import SUSPECT, recognize_topology
+    from .graph_features import build_features, graph_window
+    cfg = dict(cfg or {})
+    cfg["botnet"] = {**(cfg.get("botnet") or {}), "local_nets": list(networks)}
+    feats = build_features(flows, hosts, cfg)
+    if feats.empty:
+        return feats.assign(diem=[], du_doan=[], topology=[])
+    check_table(feats, art)
+    size, _ = graph_window(cfg)
+    score = art.model.score(feats)
+    out = feats[["session", "host", "window_start"]].copy()
+    out["window_end"] = out["window_start"] + size
+    out["diem"] = score
+    out["du_doan"] = np.where(score >= art.threshold, SUSPECT, "normal_host")
+    from .botnet import topology_rule as default_rule
+    out["topology"] = recognize_topology(feats, out["du_doan"] == SUSPECT, topology_rule or default_rule(cfg))
+    return out
+
+
+def run_independent(arts, windows, flows, networks, cfg=None, timer=None) -> dict:
+    """Ba module chạy độc lập trên cùng dữ liệu (docs/02 mục 1: anomaly không là cổng lọc)."""
+    timer = timer or Timer()
+    out = {}
+    with timer(MODULE_ANOMALY):
+        out[MODULE_ANOMALY] = score_anomaly(arts[MODULE_ANOMALY], windows)
+    with timer(MODULE_ATTACK):
+        out[MODULE_ATTACK] = score_attack(arts[MODULE_ATTACK], windows)
+    with timer(MODULE_BOTNET):
+        out[MODULE_BOTNET] = score_botnet(arts[MODULE_BOTNET], flows, monitored_hosts(flows, networks),
+                                          networks, cfg)
+    return out
+
+
+def run_pcap(pcap, out_dir, networks, cfg=None, config_path=None, mode="doc_lap", name=None) -> dict:
+    """PCAP → bảng đặc trưng → ba module. Trả về kết quả từng module, thời gian từng bước, số liệu."""
+    timer = Timer()
+    arts = load_artifacts(cfg)
+    bad = {m: [p for p in check_artifact(a) if p[0] == ERROR] for m, a in arts.items()}
+    if any(bad.values()):
+        raise ValueError(f"artifact không hợp lệ: {bad}")
+    with timer("trich_xuat"):
+        prefix = extract(pcap, out_dir, networks, config_path, name)
+    with timer("doc_bang"):
+        windows, flows = load_windows(prefix), load_flows(prefix)
+    res = run_independent(arts, windows, flows, networks, cfg, timer)
+    return {"prefix": prefix, "ket_qua": res, "thoi_gian_s": timer.steps,
+            "so_luong": {"flow": len(flows), "cua_so": len(windows), "host_giam_sat": len(monitored_hosts(flows, networks))},
+            "che_do": mode}
+
+
+def write_predictions(run) -> dict:
+    """Ghi bảng dự đoán của từng module cạnh bảng đặc trưng; trả về đường dẫn."""
+    paths = {}
+    for m, df in run["ket_qua"].items():
+        p = Path(f"{run['prefix']}.{m}.csv")
+        df.to_csv(p, index=False)
+        paths[m] = str(p)
+    return paths
+
+
+def cmd_run(args):
+    cfg = load_config(args.config)
+    run = run_pcap(args.pcap, args.out, args.net, cfg, args.config, args.che_do, args.ten)
+    paths = write_predictions(run)
+    summary = {"pcap": args.pcap, "che_do": run["che_do"], "thoi_gian_s": run["thoi_gian_s"], "so_luong": run["so_luong"],
+               "bao_dong": {m: int((df["du_doan"].isin(["anomaly", "port_scan", "dos", "suspect_host"])).sum())
+                            for m, df in run["ket_qua"].items()},
+               "file": paths}
+    Path(f"{run['prefix']}.pipeline.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
+    print(json.dumps(summary, ensure_ascii=False, indent=1))
+
+
 def cmd_check(args):
     rep = check_all(load_config(args.config))
     for m in MODULES:
@@ -154,6 +303,14 @@ def main(argv=None):
     p.add_argument("--out", help="ghi báo cáo JSON")
     p.add_argument("--config", help="file cấu hình, mặc định config/default.yaml")
     p.set_defaults(func=cmd_check)
+    p = sub.add_parser("chay", help="chạy một PCAP qua toàn bộ pipeline (C09-T02)")
+    p.add_argument("pcap")
+    p.add_argument("--net", action="append", required=True, help="mạng giám sát, ví dụ 192.168.10.0/24")
+    p.add_argument("--out", required=True, help="thư mục ghi bảng đặc trưng và dự đoán")
+    p.add_argument("--ten", help="tên tiền tố, mặc định tên file PCAP")
+    p.add_argument("--che-do", choices=("doc_lap",), default="doc_lap")
+    p.add_argument("--config", help="file cấu hình, mặc định config/default.yaml")
+    p.set_defaults(func=cmd_run)
     args = parser.parse_args(argv)
     return args.func(args)
 

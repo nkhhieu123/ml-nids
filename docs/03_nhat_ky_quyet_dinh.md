@@ -316,6 +316,13 @@ Mẫu:
 - Quyết định: Đường dẫn mô hình trong `pipeline.models`. Trước khi chạy: nạp bằng `load_model` của từng module (từ chối lớp lạ), kiểm tra đặc trưng ⊆ schema đầu vào, `.json` khớp mô hình, có ngưỡng, lớp phân loại thuộc tập nhãn đã chốt (lỗi thì dừng); mã chưa commit chỉ là cảnh báo. Khi chạy, kiểm tra bảng đầu vào đủ cột.
 - Hệ quả: Pipeline không học gì, chỉ dùng artifact của Chặng 6–8. Chi tiết ở docs/53.
 
+## QĐ-044 — Pipeline offline dùng đúng mã trích xuất lúc huấn luyện; host botnet là mọi IP trong mạng giám sát
+- Ngày: 03/11/2026
+- Trạng thái: Đã chốt
+- Bối cảnh: C09-T02 chạy PCAP qua toàn bộ pipeline. PCAP CIC mỗi ngày 8–13 GB; đánh giá phải tránh dữ liệu mô hình đã học.
+- Quyết định: Trích xuất bằng `nids.feature_export.export` (cùng tham số cấu hình), anomaly và phân loại chấm cửa sổ 10 giây, module botnet dựng đồ thị 120 giây cho mọi IP thuộc mạng giám sát `--net` (cũng dùng làm `local_nets`). Chạy thử trên các đoạn PCAP cắt bằng `nids.pcap_cut`, nằm trọn trong khoảng test của Chặng 5.
+- Hệ quả: Trích xuất chiếm hơn 90% thời gian (khoảng 22 000 gói/giây). Module botnet học trên CTU-13 chạy trên CIC chỉ để kiểm tra tích hợp. Chi tiết ở docs/54.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.

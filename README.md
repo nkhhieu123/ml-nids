@@ -116,6 +116,7 @@ Báo cáo Chặng 8: [docs/Bao_cao_Chang_8.md](docs/Bao_cao_Chang_8.md)
 ### Chặng 9 — Tích hợp pipeline offline
 
 - [x] C09-T01: Bộ nạp artifact và kiểm tra schema — `src/nids/pipeline.py`, [docs/53_nap_artifact.md](docs/53_nap_artifact.md)
+- [x] C09-T02: Chạy PCAP qua toàn bộ pipeline — `src/nids/pipeline.py`, `src/nids/pcap_cut.py`, [docs/54_chay_pcap.md](docs/54_chay_pcap.md)
 
 Những gì còn thiếu sau Chặng 1–8 (việc đang dở, dữ liệu, lab, tham số chưa chốt): [docs/Viec_con_thieu.md](docs/Viec_con_thieu.md)
 

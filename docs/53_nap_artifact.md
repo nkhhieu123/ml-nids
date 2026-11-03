@@ -44,8 +44,11 @@ Khi chạy, `check_table` còn kiểm tra **bảng đầu vào thật** có đ�
 | `attack_classification` | `AttackClassifier` | 20 | (lớp có xác suất lớn nhất) | Cảnh báo: như trên |
 | `botnet_topology` | `BotnetDetector` | 24 | 0,10 | Cảnh báo: như trên |
 
-Không có lỗi. Cả ba mô hình được huấn luyện lúc code của task đang viết chưa commit. Ngay sau commit
-này, ba mô hình được huấn luyện lại từ mã đã commit (cùng dữ liệu, cùng seed); kết quả ghi ở C09-T02.
+Không có lỗi. Cả ba mô hình được huấn luyện lúc code của task đang viết chưa commit.
+
+**Đã sửa (03/11/2026)**: huấn luyện lại cả ba từ commit `7536876` (cùng dữ liệu, cùng seed). Kết quả
+trùng với trước (Gaussian ngưỡng 64,65, F1 validation 0,700; phân loại macro-F1 validation 0,913;
+botnet F1 validation 0,536, ngưỡng 0,10). `kiem-tra` không còn cảnh báo nào.
 
 ## 4. Kiểm thử
 
