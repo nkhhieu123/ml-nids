@@ -344,6 +344,13 @@ Mẫu:
 - Quyết định: Thêm chế độ `ket_hop`: phân loại mọi cửa sổ như độc lập; kiểm tra botnet chỉ host có bất thường mà phân loại cho là benign, như tuần tự. Đặt làm mặc định (`pipeline.mode`). Sửa phần thứ tự chạy của docs/02 mục 1 cho module botnet.
 - Hệ quả: Gọi đúng tên và bỏ sót bot bằng chế độ độc lập; báo nhầm bằng tuần tự. Mất phần phủ ngẫu nhiên của module botnet lên cửa sổ tấn công (bỏ sót quét cổng theo nghĩa "bất kỳ cảnh báo" 34%). Thời gian offline gần như không đổi vì trích xuất chiếm 90–99%. Chi tiết ở docs/57.
 
+## QĐ-048 — Ghi mọi dự đoán kèm điểm; gộp cảnh báo lặp thành sự kiện theo module, nhãn, host, khoảng gộp 30 giây
+- Ngày: 03/11/2026
+- Trạng thái: Đã chốt (khoảng gộp chỉnh được trên lab)
+- Bối cảnh: C09-T06. Cửa sổ trượt làm một hành vi dài sinh hàng trăm dòng cảnh báo; tính báo nhầm cần cả dự đoán bình thường.
+- Quyết định: Mỗi lần chạy ghi cảnh báo (`alerts.csv`), mọi dự đoán kèm điểm và ngưỡng (`diem.csv`, cơ chế `log_all`), sự kiện (`su_kien.csv`). Sự kiện gộp cảnh báo cùng module, nhãn, host khi cảnh báo sau bắt đầu không quá `pipeline.merge_gap_s` = 30 giây sau khi cảnh báo trước kết thúc; ghi giờ đầu, giờ cuối, số cảnh báo, điểm lớn nhất, trung bình, thời điểm tạo của cảnh báo đầu. Không gộp giữa các module.
+- Hệ quả: 378–1 189 cảnh báo mỗi đoạn còn 11–104 sự kiện; DoS liên tục thành vài sự kiện, quét theo lượt Nmap tách theo từng lượt. Chi tiết ở docs/58.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.

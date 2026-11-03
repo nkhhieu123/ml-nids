@@ -8,6 +8,8 @@
   theo host (docs/55_hop_nhat_canh_bao.md, QĐ-045).
 - C09-T04: chế độ tuần tự Gaussian → phân loại → kiểm tra botnet (docs/56_che_do_tuan_tu.md, QĐ-046).
 - C09-T05: so sánh hai chế độ về bỏ sót (theo nhãn của lịch tấn công) và thời gian (docs/57_so_sanh_che_do.md).
+- C09-T06: ghi cảnh báo, điểm mô hình của mọi dự đoán, gộp cảnh báo lặp thành sự kiện
+  (docs/58_ghi_canh_bao_su_kien.md, QĐ-048).
 
     python -m nids.pipeline kiem-tra
     python -m nids.pipeline chay output/pcap/fri_quet.pcap --net 192.168.10.0/24 --net 172.16.0.0/24 --out output/pipeline
@@ -513,6 +515,100 @@ def run_alerts(run, arts, run_id="", log_all=False) -> list:
     return merge_alerts(module_alerts(m, df, arts[m], run_id, log_all) for m, df in run["ket_qua"].items())
 
 
+# ---- C09-T06: ghi cảnh báo, điểm mô hình, gộp sự kiện lặp ----
+
+EVENT_COLUMNS = ["module", "label", "src_ip", "bat_dau", "ket_thuc", "thoi_luong_s", "so_canh_bao", "diem_lon_nhat",
+                 "diem_trung_binh", "nguong", "run_id", "canh_bao_dau_tao_luc"]
+
+
+def merge_events(alerts, gap_s=30.0) -> list:
+    """Gộp cảnh báo lặp thành sự kiện.
+
+    Hai cảnh báo cùng module, cùng nhãn, cùng host thuộc một sự kiện nếu cảnh báo sau bắt đầu không quá
+    ``gap_s`` giây sau khi cảnh báo trước kết thúc (cửa sổ trượt chồng nhau nên liên tiếp luôn gộp).
+    Chỉ gộp cảnh báo thật (bỏ dự đoán bình thường).
+    """
+    groups = {}
+    for a in alerts:
+        if a.is_alert:
+            groups.setdefault((a.module, a.label, a.src_ip), []).append(a)
+    events = []
+    for (module, label, host), lst in groups.items():
+        lst.sort(key=lambda a: a.window_start)
+        cur = None
+        for a in lst:
+            if cur is not None and a.window_start <= cur["ket_thuc"] + gap_s:
+                cur["ket_thuc"] = max(cur["ket_thuc"], a.window_end)
+                cur["_diem"].append(a.score)
+                continue
+            if cur is not None:
+                events.append(cur)
+            cur = {"module": module, "label": label, "src_ip": host, "bat_dau": a.window_start, "ket_thuc": a.window_end,
+                   "_diem": [a.score], "nguong": a.threshold, "run_id": a.run_id, "canh_bao_dau_tao_luc": a.created_at}
+        events.append(cur)
+    out = []
+    for e in events:
+        scores = [s for s in e.pop("_diem") if s is not None]
+        e["so_canh_bao"] = len(scores) if scores else None
+        e["diem_lon_nhat"] = round(max(scores), 6) if scores else None
+        e["diem_trung_binh"] = round(sum(scores) / len(scores), 6) if scores else None
+        e["thoi_luong_s"] = round(e["ket_thuc"] - e["bat_dau"], 3)
+        out.append(e)
+    # nhãn topology không có điểm: đếm theo số dòng của sự kiện
+    for e in out:
+        if e["so_canh_bao"] is None:
+            e["so_canh_bao"] = sum(1 for a in groups[(e["module"], e["label"], e["src_ip"])]
+                                   if e["bat_dau"] <= a.window_start and a.window_end <= e["ket_thuc"])
+    return sorted(out, key=lambda e: (e["bat_dau"], e["src_ip"], e["module"]))
+
+
+def write_events(events, path) -> int:
+    import csv
+
+    from .alerts import _iso
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", newline="", encoding="utf-8") as f:
+        w = csv.DictWriter(f, fieldnames=EVENT_COLUMNS)
+        w.writeheader()
+        for e in events:
+            row = dict(e)
+            for k in ("bat_dau", "ket_thuc", "canh_bao_dau_tao_luc"):
+                row[k] = _iso(row[k])
+            w.writerow({k: ("" if row.get(k) is None else row[k]) for k in EVENT_COLUMNS})
+    return len(events)
+
+
+def format_event(e) -> str:
+    from .alerts import _iso
+    s = f"{_iso(e['bat_dau'])} → {_iso(e['ket_thuc'])} | [{e['module']}] {e['label'].upper()} | {e['src_ip']} | " \
+        f"{e['so_canh_bao']} cảnh báo"
+    if e["diem_lon_nhat"] is not None:
+        s += f" | điểm lớn nhất {e['diem_lon_nhat']:.4g}"
+    return s
+
+
+def write_outputs(run, run_id="", gap_s=30.0, stream=None) -> dict:
+    """Ghi bảng dự đoán, cảnh báo, điểm mô hình (mọi dự đoán) và sự kiện; in sự kiện ra terminal."""
+    prefix = run["prefix"]
+    paths = write_predictions(run)
+    alerts = run_alerts(run, run["artifact"], run_id)
+    scores = run_alerts(run, run["artifact"], run_id, log_all=True)
+    paths["canh_bao"] = f"{prefix}.alerts.csv"
+    paths["diem"] = f"{prefix}.diem.csv"
+    paths["su_kien"] = f"{prefix}.su_kien.csv"
+    n_alerts = write_alerts(alerts, paths["canh_bao"])
+    n_scores = write_alerts(scores, paths["diem"], log_all=True)
+    events = merge_events(alerts, gap_s)
+    write_events(events, paths["su_kien"])
+    if stream is not None:
+        for e in events:
+            print(format_event(e), file=stream)
+    return {"file": paths, "so_canh_bao_hop_nhat": n_alerts, "so_dong_diem": n_scores, "so_su_kien": len(events),
+            "su_kien_theo_module": {m: sum(e["module"] == m for e in events) for m in MODULES},
+            **{k: v for k, v in host_overview(alerts).items()}}
+
+
 def write_predictions(run) -> dict:
     """Ghi bảng dự đoán của từng module cạnh bảng đặc trưng; trả về đường dẫn."""
     paths = {}
@@ -524,23 +620,23 @@ def write_predictions(run) -> dict:
 
 
 def cmd_run(args):
+    import sys as _sys
     cfg = load_config(args.config)
-    mode = args.che_do or pipeline_config(cfg)["mode"]
-    name = args.ten or (Path(args.pcap).stem + ("" if mode == "doc_lap" else f"_{mode}"))
+    pc = pipeline_config(cfg)
+    mode = args.che_do or pc["mode"]
+    name = args.ten or (Path(args.pcap).stem + ("" if mode == pc["mode"] else f"_{mode}"))
     run = run_pcap(args.pcap, args.out, args.net, cfg, args.config, mode, name)
-    paths = write_predictions(run)
     run_id = args.ma_lan_chay or Path(run["prefix"]).name
-    alerts = run_alerts(run, run["artifact"], run_id)
-    paths["canh_bao"] = str(Path(f"{run['prefix']}.alerts.csv"))
-    n_alerts = write_alerts(alerts, paths["canh_bao"])
-    overview = host_overview(alerts)
-    summary = {"pcap": args.pcap, "che_do": run["che_do"], "tuan_tu": run["tuan_tu"], "thoi_gian_s": run["thoi_gian_s"], "so_luong": run["so_luong"],
+    out = write_outputs(run, run_id, pc["merge_gap_s"], _sys.stdout if args.in_su_kien else None)
+    summary = {"pcap": args.pcap, "che_do": run["che_do"], "tuan_tu": run["tuan_tu"], "thoi_gian_s": run["thoi_gian_s"],
+               "so_luong": run["so_luong"],
                "bao_dong": {m: int((df["du_doan"].isin(["anomaly", "port_scan", "dos", "suspect_host"])).sum())
                             for m, df in run["ket_qua"].items()},
-               "so_canh_bao_hop_nhat": n_alerts, "host_nhieu_module": overview["host_nhieu_module"],
-               "theo_host": overview["theo_host"], "file": paths}
+               "gop_su_kien_cach_s": pc["merge_gap_s"], **out}
     Path(f"{run['prefix']}.pipeline.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(json.dumps(summary, ensure_ascii=False, indent=1))
+    print(f"{run['prefix']}: chế độ {mode}, {out['so_canh_bao_hop_nhat']} cảnh báo -> {out['so_su_kien']} sự kiện "
+          f"{out['su_kien_theo_module']}; thời gian {run['thoi_gian_s']}")
+    print(f"Đã ghi: {', '.join(out['file'].values())}, {run['prefix']}.pipeline.json")
 
 
 def cmd_check(args):
@@ -572,6 +668,7 @@ def main(argv=None):
                    help="doc_lap: ba module độc lập; tuan_tu: Gaussian → phân loại → kiểm tra botnet; "
                         "ket_hop: phân loại mọi cửa sổ, botnet chỉ kiểm tra bất thường chưa giải thích; mặc định pipeline.mode")
     p.add_argument("--ma-lan-chay", help="run_id ghi vào cảnh báo, khớp nhật ký kịch bản; mặc định tên tiền tố")
+    p.add_argument("--in-su-kien", action="store_true", help="in từng sự kiện ra terminal")
     p.add_argument("--config", help="file cấu hình, mặc định config/default.yaml")
     p.set_defaults(func=cmd_run)
     p = sub.add_parser("so-sanh", help="so sánh chế độ độc lập và tuần tự: bỏ sót, thời gian (C09-T05)")

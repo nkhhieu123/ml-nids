@@ -120,6 +120,7 @@ Báo cáo Chặng 8: [docs/Bao_cao_Chang_8.md](docs/Bao_cao_Chang_8.md)
 - [x] C09-T03: Đầu ra độc lập của các module và hợp nhất cảnh báo — `src/nids/pipeline.py`, [docs/55_hop_nhat_canh_bao.md](docs/55_hop_nhat_canh_bao.md)
 - [x] C09-T04: Chế độ Gaussian → classifier → kiểm tra botnet — `src/nids/pipeline.py`, [docs/56_che_do_tuan_tu.md](docs/56_che_do_tuan_tu.md)
 - [x] C09-T05: So sánh chế độ độc lập với tuần tự về bỏ sót và thời gian xử lý — `src/nids/pipeline.py`, [docs/57_so_sanh_che_do.md](docs/57_so_sanh_che_do.md)
+- [x] C09-T06: Ghi cảnh báo, điểm mô hình và gộp sự kiện lặp — `src/nids/pipeline.py`, [docs/58_ghi_canh_bao_su_kien.md](docs/58_ghi_canh_bao_su_kien.md)
 
 Những gì còn thiếu sau Chặng 1–8 (việc đang dở, dữ liệu, lab, tham số chưa chốt): [docs/Viec_con_thieu.md](docs/Viec_con_thieu.md)
 
@@ -287,6 +288,12 @@ python -m nids.botnet nhan ../output/ctu13 --out ../docs/hinh
 python -m nids.botnet huan-luyen ../output/ctu13 --out ../docs/hinh
 python -m nids.topology_sim --out ../output/topology_sim
 python -m nids.botnet danh-gia ../output/ctu13 --sim-dir ../output/topology_sim --model ../models/botnet_rf.joblib --model ../models/botnet_lr.joblib --chon botnet_rf --out ../docs/hinh
+
+# Pipeline offline (chạy trong src/): kiểm tra artifact, cắt PCAP, chạy, so sánh chế độ
+python -m nids.pipeline kiem-tra
+python -m nids.pcap_cut ../data/pcap/cic-ids2017/Friday-WorkingHours.pcap ../output/pcap/fri_quet.pcap --bat-dau "2017-07-07 15:08:30" --ket-thuc "2017-07-07 15:29:30" --utc-offset -3
+python -m nids.pipeline chay ../output/pcap/fri_quet.pcap --net 192.168.10.0/24 --net 172.16.0.0/24 --out ../output/pipeline --in-su-kien
+python -m nids.pipeline so-sanh ../output/pcap/fri_quet.pcap --net 192.168.10.0/24 --net 172.16.0.0/24 --bang ../output/pipeline_so_sanh --out ../docs/hinh/pipeline_so_sanh.json
 
 # Đọc access log Nginx của một lần chạy, xuất bảng CSV rồi đối chiếu với file gốc
 python -m nids.service_log data/service_logs/<run_id>/access_nids.log --csv output/log.csv

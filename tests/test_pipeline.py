@@ -11,10 +11,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from nids.dataset import feature_columns
-from nids.pipeline import (ERROR, WARNING, Artifact, Timer, check_artifact, check_table, expected_inputs, extract,
-                           coverage, host_overview, load_artifacts, load_flows, load_windows, miss_report,
-                           monitored_hosts,
-                           pipeline_config, run_alerts, run_independent, run_sequential, write_alerts)
+from nids.pipeline import (ERROR, EVENT_COLUMNS, WARNING, Artifact, Timer, check_artifact, check_table, coverage,
+                           expected_inputs, extract, host_overview, load_artifacts, load_flows, load_windows,
+                           merge_events, miss_report, monitored_hosts, pipeline_config, run_alerts, run_independent,
+                           run_sequential, write_alerts, write_outputs)
 
 
 def fake(module, features, threshold=1.0, meta=None, classes=None):
@@ -254,6 +254,52 @@ class CompareTest(unittest.TestCase):
         self.assertLess(len(seq["attack_classification"]), len(windows))
         self.assertTrue(both["_tuan_tu"]["phan_loai_moi_cua_so"])
         self.assertEqual(both["_tuan_tu"]["host_kiem_tra_botnet"], seq["_tuan_tu"]["host_kiem_tra_botnet"])
+
+
+class EventTest(unittest.TestCase):
+    """C09-T06: điểm mô hình, gộp sự kiện lặp."""
+
+    def alerts(self):
+        from nids.alerts import Alert
+        A = lambda s, e, sc, host="a", label="anomaly": Alert("anomaly", label, s, e, src_ip=host, score=sc,
+                                                              threshold=50.0, run_id="r")
+        return [A(0, 10, 60), A(2, 12, 90), A(4, 14, 70),             # chồng nhau: một sự kiện
+                A(40, 50, 55),                                      # cách 26 s: cùng sự kiện nếu gap 30
+                A(200, 210, 80),                                    # cách xa: sự kiện mới
+                A(0, 10, 99, host="b"),                             # host khác
+                A(0, 10, 1, label="normal")]                        # dự đoán bình thường: bỏ
+
+    def test_merge(self):
+        ev = merge_events(self.alerts(), gap_s=30)
+        a = [e for e in ev if e["src_ip"] == "a"]
+        self.assertEqual([(e["bat_dau"], e["ket_thuc"], e["so_canh_bao"]) for e in a], [(0, 50, 4), (200, 210, 1)])
+        self.assertEqual(a[0]["diem_lon_nhat"], 90)
+        self.assertAlmostEqual(a[0]["diem_trung_binh"], (60 + 90 + 70 + 55) / 4)
+        self.assertEqual(len(ev), 3)
+        self.assertEqual(len(merge_events(self.alerts(), gap_s=0)), 4)                # gap 0: tách ở 40 s
+        self.assertEqual(len(merge_events(self.alerts(), gap_s=500)), 2)
+
+    def test_topology_rows_counted(self):
+        from nids.alerts import Alert
+        rows = [Alert("botnet_topology", "p2p", 0, 120, src_ip="h"), Alert("botnet_topology", "p2p", 10, 130, src_ip="h")]
+        ev = merge_events(rows)
+        self.assertEqual((len(ev), ev[0]["so_canh_bao"], ev[0]["diem_lon_nhat"]), (1, 2, None))
+
+    def test_write_outputs(self):
+        import csv
+        run = {"prefix": None, "ket_qua": AlertMergeTest.results(None), "artifact": AlertMergeTest.arts(None)}
+        with TemporaryDirectory() as d:
+            run["prefix"] = str(Path(d) / "x")
+            out = write_outputs(run, "r1", 30.0)
+            self.assertEqual(out["so_canh_bao_hop_nhat"], 4)
+            self.assertEqual(out["so_dong_diem"], 6)                                  # điểm: mọi dự đoán
+            ev = list(csv.DictReader(open(out["file"]["su_kien"], encoding="utf-8")))
+            self.assertEqual(len(ev), out["so_su_kien"])
+            self.assertEqual(set(ev[0]), set(EVENT_COLUMNS))
+            scores = list(csv.DictReader(open(out["file"]["diem"], encoding="utf-8")))
+            self.assertIn("normal", {r["label"] for r in scores})
+            for m in ("anomaly", "attack_classification", "botnet_topology"):
+                self.assertTrue(Path(out["file"][m]).exists())
 
 
 class AlertMergeTest(unittest.TestCase):
