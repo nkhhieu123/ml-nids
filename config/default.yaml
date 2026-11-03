@@ -87,6 +87,7 @@ botnet:                      # module botnet/topology (Chặng 8); cửa sổ đ
     test: [1, 2, 6, 8, 9]
   topology:                  # nhãn topology của bot theo scenario; còn lại là centralized (docs/07 mục 5)
     p2p: [12]
+  max_background_alarm: 0.05 # chọn ngưỡng và tham số: tỷ lệ cửa sổ Background validation bị báo không quá mức này (QĐ-040)
 
 lab:
   subnet: 192.168.50.0/24

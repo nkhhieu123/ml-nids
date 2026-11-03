@@ -283,10 +283,17 @@ Mẫu:
 
 ## QĐ-039 — Nhãn host–cửa sổ botnet; Background chỉ để ước lượng báo động; chia theo scenario
 - Ngày: 03/11/2026
-- Trạng thái: Đã chốt (scenario validation tạm thời, chờ nhóm xác nhận)
+- Trạng thái: Đã chốt (scenario validation tạm thời, chờ nhóm xác nhận); phần "Background không học" sửa bởi QĐ-040
 - Bối cảnh: C08-T04 cần dữ liệu host–cửa sổ có nhãn và quy định cách xử lý Background, phần lớn traffic CTU-13 chưa được kiểm chứng.
 - Quyết định: `suspect_host` khi bot trong mạng khởi tạo ≥ 1 flow From-Botnet trong cửa sổ; `normal_host` khi máy bình thường đã xác nhận khởi tạo flow From-Normal; host Background lấy mẫu không học, không tính Precision/Recall, chỉ báo tỷ lệ bị báo; còn lại bỏ (gồm cửa sổ trước khi bị nhiễm). Flow Background vẫn giữ trong đồ thị. Chia theo scenario: train 3, 5, 7, 10, 11, 12; validation 4, 13; test 1, 2, 6, 8, 9.
 - Hệ quả: Train 9 575 bot / 32 827 bình thường, validation 6 555 / 10 453, test 19 188 / 24 880 host–cửa sổ, nhưng chỉ khoảng 10 IP bot và 4 IP bình thường. Scenario P2P duy nhất ở train. Chi tiết ở docs/48.
+
+## QĐ-040 — Chọn mô hình botnet với giới hạn báo động trên Background; Background làm mẫu âm yếu
+- Ngày: 03/11/2026
+- Trạng thái: Đã chốt
+- Bối cảnh: Chọn theo F1 validation đẩy ngưỡng xuống 0,05 và làm 84–93% cửa sổ Background bị báo: với 4 máy bình thường giống nhau ở mọi tập, mô hình học danh tính máy thay vì hành vi bot.
+- Quyết định: Chọn tham số, ngưỡng xác suất và tỷ lệ Background làm mẫu âm theo F1 `suspect_host` trên validation, chỉ trong các cấu hình có tỷ lệ cửa sổ Background validation bị báo ≤ 5% (`botnet.max_background_alarm`). Cho phép thêm cửa sổ Background của train làm mẫu âm (`normal_host`) khi học; Background không bao giờ là lớp dương và không tính vào Precision/Recall. Sửa phần "Background không học" của QĐ-039.
+- Hệ quả: Chọn Random Forest (300 cây, min_samples_leaf 5, 100% Background train làm mẫu âm, ngưỡng 0,10): F1 validation 0,536 (P 0,965, R 0,371), Background bị báo 4,1%. LR tốt nhất 0,165. Chi tiết ở docs/49.
 
 ## Thuật ngữ
 

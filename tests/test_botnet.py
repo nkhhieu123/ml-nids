@@ -1,3 +1,4 @@
+import json
 import sys
 import unittest
 from pathlib import Path
@@ -8,7 +9,9 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from nids.botnet import botnet_config, label_host_windows, scenario_split, scenario_topology
+from nids.botnet import (BotnetDetector, binary_report, botnet_config, evaluate, feature_names, label_host_windows,
+                         labeled_part, load_model, model_search, save_model,
+                         scenario_split, scenario_topology, training_set)
 from nids.ctu13 import (FLOW_COLUMNS, extract, flow_group, from_project_flows, is_cc, load_flows,
                         pick_background, prepare_scenario, scan)
 from nids.graph_features import (build_features, host_ports, in_networks, pair_regularity, to_graph,
@@ -234,6 +237,73 @@ class LabelTest(unittest.TestCase):
         self.assertEqual(sorted(all_s), list(range(1, 14)))                         # mỗi scenario đúng một tập
         self.assertEqual(scenario_topology(12, cfg["topology"]), "p2p")
         self.assertEqual(scenario_topology(1, cfg["topology"]), "centralized")
+
+
+def labeled_frame(n=240, seed=0):
+    """Host–cửa sổ tổng hợp: bot có nhiều peer gọi vào và nhiều flow không trả lời; có Background."""
+    rng = np.random.default_rng(seed)
+    cols = feature_names()
+    df = pd.DataFrame(rng.random((n, len(cols))) * 5, columns=cols)
+    lab = np.array(["normal_host", "suspect_host", "background"] * (n // 3))
+    df.loc[lab == "suspect_host", "so_peer_vao"] += 50
+    df.loc[lab == "suspect_host", "ty_le_khong_tra_loi_ra"] = 0.9
+    df.loc[lab != "suspect_host", "ty_le_khong_tra_loi_ra"] = 0.0
+    df.loc[::7, "beacon_cv_nho_nhat"] = np.nan
+    df["label_host"] = lab
+    df["split"] = np.array(["train", "train", "validation", "test"])[np.arange(n) % 4]
+    df["scenario"] = 1 + (np.arange(n) // 4) % 2
+    df["host"] = [f"h{i % 5}" for i in range(n)]
+    df["session"] = "s"
+    df["window_start"] = np.arange(n) * 10.0
+    return df
+
+
+class DetectorTest(unittest.TestCase):
+    """C08-T05: hai mô hình, ngưỡng và Background làm mẫu âm chọn trên validation."""
+
+    CFG = {"botnet": {"search": {"logistic_regression": {"C": [1.0], "class_weight": ["balanced"]},
+                                 "random_forest": {"n_estimators": [20], "max_depth": [None]}},
+                      "background_negative_fractions": [0.0, 1.0], "thresholds": [0.3, 0.5, 0.7],
+                      "max_background_alarm": 0.05}}
+
+    def test_detector(self):
+        df = labeled_frame()
+        m = BotnetDetector("random_forest", {"n_estimators": 20}).fit(labeled_part(df, "train"))
+        test = labeled_part(df, "test")
+        self.assertGreater(binary_report(test["label_host"], m.predict(test))["f1"], 0.9)
+        self.assertTrue(set(m.predict(test, threshold=1.01)) == {"normal_host"})    # ngưỡng cao: không báo gì
+        self.assertEqual(len(m.score(test)), len(test))
+
+    def test_training_set(self):
+        df = labeled_frame()
+        plain, extra = training_set(df, 0.0), training_set(df, 1.0)
+        n_bg = int(((df["split"] == "train") & (df["label_host"] == "background")).sum())
+        self.assertEqual(len(extra) - len(plain), n_bg)
+        self.assertEqual(set(extra["label_host"]), {"normal_host", "suspect_host"})   # Background chỉ là mẫu âm
+
+    def test_search(self):
+        res = model_search(labeled_frame(), self.CFG, log=lambda *_: None)
+        self.assertIn(res["chon"], ("logistic_regression", "random_forest"))
+        rows = res["random_forest"]["cac_lan_thu"]
+        self.assertEqual({r["ty_le_background_lam_mau_am"] for r in rows}, {0.0, 1.0})
+        best = res["random_forest"]["tot_nhat"]
+        self.assertIn(best["nguong"], [0.3, 0.5, 0.7])
+        self.assertLessEqual(best["background_bi_bao_validation"], 0.05)
+
+    def test_evaluate_and_save(self):
+        df = labeled_frame()
+        m = BotnetDetector("logistic_regression", {"C": 1.0}).fit(labeled_part(df, "train"))
+        r = evaluate(m, df, "test")
+        self.assertEqual(set(r["theo_scenario"]), {1, 2})
+        self.assertIsNotNone(r["background_bi_bao"])
+        with TemporaryDirectory() as d:
+            path = save_model(m, Path(d) / "b.joblib")
+            again = load_model(path)
+            np.testing.assert_allclose(again.score(df), m.score(df))
+            import joblib
+            joblib.dump({"x": 1}, Path(d) / "x.joblib")
+            with self.assertRaises(TypeError):
+                load_model(Path(d) / "x.joblib")
 
 
 if __name__ == "__main__":

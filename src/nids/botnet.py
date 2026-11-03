@@ -125,6 +125,222 @@ def label_report(df, infos) -> dict:
             "background_theo_tap": {sp: int(((df[LABEL_COL] == BACKGROUND) & (df["split"] == sp)).sum()) for sp in SPLITS}}
 
 
+# ---- C08-T05: mô hình phát hiện botnet ----
+
+def feature_names() -> list:
+    from .graph_features import BEACON_FEATURES, GRAPH_FEATURES
+    return GRAPH_FEATURES + BEACON_FEATURES
+
+
+# Đặc trưng là tỷ lệ, entropy, CV: không log; còn lại là đếm, byte, giây: lệch phải mạnh
+LINEAR = {"ty_le_tuong_ho", "tap_trung_ra", "entropy_peer_ra", "tap_trung_vao", "entropy_peer_vao",
+          "ty_le_khong_tra_loi_ra", "ty_le_udp", "ty_le_peer_noi_bo", "ty_le_peer_moi", "beacon_cv_nho_nhat"}
+
+
+class BotnetDetector:
+    """Tiền xử lý (log, điền trung vị train + cột đánh dấu, chuẩn hóa) và một mô hình; dự đoán từ đặc trưng thô."""
+
+    def __init__(self, kind, params=None, seed=42):
+        self.kind, self.params, self.seed = kind, dict(params or {}), seed
+        self.features = feature_names()
+        self.pipeline = None
+        self.info = {}
+        self.threshold = 0.5
+
+    def _x(self, df):
+        X = df[self.features].astype(float).copy()
+        logc = [c for c in self.features if c not in LINEAR]
+        X[logc] = np.log1p(X[logc].clip(lower=0))
+        return X.to_numpy()
+
+    def fit(self, train):
+        from sklearn.impute import SimpleImputer
+        from sklearn.pipeline import Pipeline
+        from sklearn.preprocessing import StandardScaler
+
+        from .classifier import make_estimator
+
+        self.pipeline = Pipeline([("dien_o_trong", SimpleImputer(strategy="median", add_indicator=True,
+                                                                  keep_empty_features=True)),
+                                  ("chuan_hoa", StandardScaler()),
+                                  ("mo_hinh", make_estimator(self.kind, self.params, self.seed))])
+        self.pipeline.fit(self._x(train), train[LABEL_COL].to_numpy())
+        self.info.update({"so_mau_train": len(train), "lop_train": {k: int(v) for k, v in
+                                                                    train[LABEL_COL].value_counts().items()}})
+        return self
+
+    def score(self, df) -> np.ndarray:
+        """Xác suất là ``suspect_host``."""
+        p = self.pipeline.predict_proba(self._x(df))
+        return p[:, list(self.pipeline.classes_).index(SUSPECT)]
+
+    def predict(self, df, threshold=None) -> np.ndarray:
+        th = self.threshold if threshold is None else threshold
+        return np.where(self.score(df) >= th, SUSPECT, NORMAL)
+
+
+def binary_report(y, pred) -> dict:
+    from .gaussian import binary_metrics
+    m = binary_metrics(np.asarray(y) == SUSPECT, np.asarray(pred) == SUSPECT)
+    return {"precision": m["precision"], "recall": m["recall"], "f1": m["f1"],
+            "ty_le_bao_nham": m["fpr"], "tp": m["tp"], "fp": m["fp"], "fn": m["fn"], "tn": m["tn"]}
+
+
+def labeled_part(df, split) -> pd.DataFrame:
+    return df[(df["split"] == split) & df[LABEL_COL].isin([SUSPECT, NORMAL])].reset_index(drop=True)
+
+
+def training_set(df, background_fraction=0.0, seed=42) -> pd.DataFrame:
+    """Train có nhãn, cộng thêm một phần cửa sổ Background của train làm mẫu âm yếu (QĐ-040).
+
+    Background chưa kiểm chứng nên không bao giờ là lớp dương; phần thêm vào mang nhãn ``normal_host``
+    chỉ khi học. Validation và test không đổi.
+    """
+    train = labeled_part(df, "train")
+    if not background_fraction:
+        return train
+    bg = df[(df["split"] == "train") & (df[LABEL_COL] == BACKGROUND)]
+    extra = bg.sample(frac=float(background_fraction), random_state=seed).assign(**{LABEL_COL: NORMAL})
+    return pd.concat([train, extra], ignore_index=True)
+
+
+def model_search(df, cfg=None, log=print) -> dict:
+    """Mỗi loại mô hình thử lưới (tỷ lệ Background làm mẫu âm × tham số × ngưỡng), chọn trên validation.
+
+    Tiêu chí: F1 của ``suspect_host`` lớn nhất trong các cấu hình có tỷ lệ cửa sổ Background validation
+    bị báo không quá ``max_background_alarm`` (QĐ-040).
+    """
+    from .classifier import _grid
+
+    b = botnet_config(cfg)
+    grid = b.get("search") or {"logistic_regression": {"C": [0.1, 1.0, 10.0], "class_weight": ["balanced", None]},
+                               "random_forest": {"n_estimators": [300], "max_depth": [None, 10],
+                                                 "min_samples_leaf": [5], "class_weight": [None]}}
+    fractions = b.get("background_negative_fractions", [0.0, 0.1, 0.3, 1.0])
+    seed = (cfg or {}).get("random_seed", 42)
+    val = labeled_part(df, "validation")
+    trains = {f: training_set(df, f, seed) for f in fractions}
+    thresholds = b.get("thresholds") or [round(x, 2) for x in np.arange(0.05, 0.96, 0.05)]
+    max_bg = float(b.get("max_background_alarm", 0.05))
+    bg_val = df[(df["split"] == "validation") & (df[LABEL_COL] == BACKGROUND)]
+    out = {}
+    for kind, space in grid.items():
+        rows = []
+        for frac, params in ((f, p) for f in fractions for p in _grid(space)):
+            m = BotnetDetector(kind, params, seed).fit(trains[frac])
+            sc, sb = m.score(val), m.score(bg_val) if len(bg_val) else np.array([])
+            best_th, r, best_bg = None, None, None
+            # Ngưỡng cũng chọn trên validation: F1 lớn nhất trong các ngưỡng có tỷ lệ cửa sổ Background
+            # bị báo <= max_bg; không ngưỡng nào đạt thì lấy ngưỡng báo Background ít nhất (QĐ-040).
+            for th in thresholds:
+                cand = binary_report(val[LABEL_COL], np.where(sc >= th, SUSPECT, NORMAL))
+                bg_rate = float((sb >= th).mean()) if len(sb) else 0.0
+                key = (bg_rate <= max_bg, cand["f1"] if bg_rate <= max_bg else -bg_rate)
+                if r is None or key > best_key:
+                    best_th, r, best_bg, best_key = th, cand, bg_rate, key
+            rows.append({"tham_so": params, "ty_le_background_lam_mau_am": frac, "nguong": best_th, "background_bi_bao_validation": round(best_bg, 4),
+                         **{f"{k}_validation": v for k, v in r.items()}})
+            log(f"  {kind} Background {frac} {params}: ngưỡng {best_th}, F1 validation {r['f1']} (P {r['precision']}, "
+                f"R {r['recall']}), Background bị báo {best_bg:.3f}")
+        best = max(rows, key=lambda r: (r["background_bi_bao_validation"] <= max_bg, r["f1_validation"]))
+        out[kind] = {"tot_nhat": best, "cac_lan_thu": rows}
+    out["chon"] = max((k for k in grid), key=lambda k: (out[k]["tot_nhat"]["background_bi_bao_validation"] <= max_bg,
+                                                         out[k]["tot_nhat"]["f1_validation"]))
+    out["gioi_han_background"] = max_bg
+    return out
+
+
+def evaluate(model, df, split="test") -> dict:
+    """Chỉ số mức host–cửa sổ: tổng, theo scenario; tỷ lệ cửa sổ Background bị báo (không phải FPR)."""
+    part = labeled_part(df, split)
+    pred = model.predict(part)
+    res = {"tong": binary_report(part[LABEL_COL], pred), "theo_scenario": {}}
+    bg = df[(df["split"] == split) & (df[LABEL_COL] == BACKGROUND)]
+    bg_pred = model.predict(bg) if len(bg) else np.array([])
+    for s in sorted(set(part["scenario"]) | set(bg["scenario"])):
+        m = (part["scenario"] == s).to_numpy()
+        mb = (bg["scenario"] == s).to_numpy()
+        res["theo_scenario"][int(s)] = {
+            "so_cua_so_bot": int((part.loc[m, LABEL_COL] == SUSPECT).sum()),
+            "so_cua_so_binh_thuong": int((part.loc[m, LABEL_COL] == NORMAL).sum()),
+            **binary_report(part.loc[m, LABEL_COL], pred[m]),
+            "background_bi_bao": round(float((bg_pred[mb] == SUSPECT).mean()), 4) if mb.any() else None,
+            "host_bot_bi_bat": int(part.loc[m & (pred == SUSPECT) & (part[LABEL_COL] == SUSPECT).to_numpy(), "host"].nunique()),
+            "so_host_bot": int(part.loc[m & (part[LABEL_COL] == SUSPECT).to_numpy(), "host"].nunique()),
+        }
+    res["background_bi_bao"] = round(float((bg_pred == SUSPECT).mean()), 4) if len(bg) else None
+    return res
+
+
+MODEL_FILES = {"logistic_regression": "botnet_lr.joblib", "random_forest": "botnet_rf.joblib"}
+
+
+def save_model(model, path, extra=None) -> Path:
+    import datetime
+    import joblib
+
+    from .feature_export import _git_version
+
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    joblib.dump(model, path, compress=3)
+    meta = {"mo_hinh": f"{model.kind} phát hiện host bot trên host–cửa sổ 120 giây (Chặng 8)", "loai": model.kind,
+            "tham_so": model.params, "dac_trung": model.features, "cot_khong_log": sorted(LINEAR),
+            **model.info, **(extra or {}), "ma_nguon": _git_version(),
+            "thoi_diem_tao": datetime.datetime.now().astimezone().isoformat(timespec="seconds")}
+    path.with_suffix(".json").write_text(json.dumps(meta, ensure_ascii=False, indent=2, default=str), encoding="utf-8")
+    return path
+
+
+def load_model(path) -> BotnetDetector:
+    import joblib
+
+    model = joblib.load(path)
+    if not isinstance(model, BotnetDetector):
+        raise TypeError(f"{path} không phải mô hình botnet của dự án")
+    return model
+
+
+def importance(model, top=10) -> dict:
+    est = model.pipeline.named_steps["mo_hinh"]
+    imp = model.pipeline.named_steps["dien_o_trong"]
+    names = model.features + [f"{model.features[i]}__trong" for i in imp.indicator_.features_]
+    vals = est.feature_importances_ if hasattr(est, "feature_importances_") else np.abs(est.coef_[0])
+    order = np.argsort(-vals)[:top]
+    return {names[i]: round(float(vals[i]), 4) for i in order}
+
+
+def cmd_train(args):
+    from .config import PROJECT_ROOT, load_config
+
+    cfg = load_config(args.config)
+    df = load_labeled(args.flows_dir, sorted(SCENARIOS), cfg)
+    res = model_search(df, cfg)
+    seed = cfg.get("random_seed", 42)
+    out_dir = Path(args.models or PROJECT_ROOT / cfg.get("paths", {}).get("model_dir", "models"))
+    for kind in MODEL_FILES:
+        best = res[kind]["tot_nhat"]
+        train = training_set(df, best["ty_le_background_lam_mau_am"], seed)
+        model = BotnetDetector(kind, best["tham_so"], seed).fit(train)
+        model.info["ty_le_background_lam_mau_am"] = best["ty_le_background_lam_mau_am"]
+        model.threshold = best["nguong"]
+        model.info["f1_validation"] = best["f1_validation"]
+        model.info["nguong"] = best["nguong"]
+        model.info["chon_tren_validation"] = kind == res["chon"]
+        res[kind]["validation_theo_scenario"] = evaluate(model, df, "validation")["theo_scenario"]
+        res[kind]["do_quan_trong"] = importance(model)
+        save_model(model, out_dir / MODEL_FILES[kind], {"chia_tap": botnet_config(cfg)["splits"]})
+    out = Path(args.out)
+    out.mkdir(parents=True, exist_ok=True)
+    (out / "botnet_mo_hinh.json").write_text(json.dumps(res, ensure_ascii=False, indent=2, default=str), encoding="utf-8")
+    for kind in MODEL_FILES:
+        b = res[kind]["tot_nhat"]
+        print(f"{kind}: Background {b['ty_le_background_lam_mau_am']} {b['tham_so']} ngưỡng {b['nguong']} F1 {b['f1_validation']} P {b['precision_validation']} R {b['recall_validation']}")
+        print("   ", res[kind]["validation_theo_scenario"])
+        print("   ", res[kind]["do_quan_trong"])
+    print("Chọn:", res["chon"])
+
+
 def cmd_labels(args):
     from .config import load_config
 
@@ -151,6 +367,12 @@ def main(argv=None):
     p.add_argument("--out", required=True)
     p.add_argument("--config", help="file cấu hình, mặc định config/default.yaml")
     p.set_defaults(func=cmd_labels)
+    p = sub.add_parser("huan-luyen", help="thử tham số, chọn trên validation, lưu LR và RF (C08-T05)")
+    p.add_argument("flows_dir")
+    p.add_argument("--out", required=True, help="thư mục ghi JSON")
+    p.add_argument("--models", help="thư mục lưu mô hình, mặc định models/")
+    p.add_argument("--config", help="file cấu hình, mặc định config/default.yaml")
+    p.set_defaults(func=cmd_train)
     args = parser.parse_args(argv)
     args.func(args)
     return 0
