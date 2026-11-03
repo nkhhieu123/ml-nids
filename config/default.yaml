@@ -75,6 +75,12 @@ botnet:                      # module botnet/topology (Chặng 8); cửa sổ đ
   ctu13_dir: data/ctu13      # file .binetflow gốc
   flows_dir: output/ctu13    # flow đã lọc theo host cần xét (python -m nids.ctu13 chuan-bi)
   background_sample: 20      # số host Background lấy mẫu mỗi scenario, chỉ để ước lượng báo động (QĐ-036)
+  local_nets: [147.32.0.0/16, 192.168.50.0/24]   # mạng nội bộ của CTU-13 và lab; dùng cho ty_le_peer_noi_bo (QĐ-037)
+  beaconing:                 # C08-T03 (QĐ-038)
+    lookback_s: 600          # nhìn ngược từ cuối cửa sổ; 120 giây với 5 quan sát chỉ thấy chu kỳ <= 30 giây
+    min_observations: 5      # ít hơn số lần bắt đầu flow này thì cặp không đủ quan sát, không tính
+    max_cv: 0.3              # CV khoảng cách <= mức này là đều (cho phép jitter khoảng ±30%)
+    min_period_s: 1.0        # khoảng cách trung bình nhỏ hơn là dồn dập (tấn công), không phải beacon
 
 lab:
   subnet: 192.168.50.0/24

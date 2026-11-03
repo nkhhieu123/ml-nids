@@ -274,6 +274,13 @@ Mẫu:
 - Quyết định: 19 đặc trưng: số peer, bậc ra/vào, flow/byte/gói mỗi hướng, tỷ lệ peer tương hỗ, mức tập trung (phần flow lớn nhất vào một peer, entropy chuẩn hóa) mỗi hướng, số cổng đích, tỷ lệ flow ra không được trả lời, tỷ lệ UDP, tỷ lệ peer nội bộ (`botnet.local_nets`), tỷ lệ peer mới so với cửa sổ không chồng lấn trước. Hướng không có flow thì mức tập trung, entropy, tỷ lệ không trả lời để trống.
 - Hệ quả: Mô hình phải điền ô trống (trung vị train và cột đánh dấu). Không có đặc trưng độ trung tâm toàn mạng; phần nhiều bot chung một máy điều khiển để cho bộ nhận diện topology. Chi tiết ở docs/46.
 
+## QĐ-038 — Beaconing nhìn ngược 600 giây, tối thiểu 5 quan sát, đều khi CV ≤ 0,3
+- Ngày: 03/11/2026
+- Trạng thái: Đã chốt (tham số chỉnh được trong `botnet.beaconing`)
+- Bối cảnh: C08-T03 cần đặc trưng beaconing có số quan sát tối thiểu. Trong cửa sổ 120 giây, 5 lần gọi chỉ thấy được chu kỳ ≤ 30 giây.
+- Quyết định: Cặp (host, peer, cổng, giao thức) theo flow host khởi tạo; quan sát là thời điểm bắt đầu flow trong 600 giây nhìn ngược từ cuối cửa sổ; cần ≥ 5 quan sát, nếu không thì CV và chu kỳ để trống. Cặp đều khi CV khoảng cách ≤ 0,3 và khoảng cách trung bình ≥ 1 giây.
+- Hệ quả: Trên CTU-13, 58,7% cửa sổ bot và 57,8% cửa sổ máy bình thường có cặp đều; cặp CC có CV trung vị 0,92. Beaconing không tách được bot khỏi máy bình thường trên CTU-13, giữ làm đặc trưng và kiểm tra trên dữ liệu giả lập, lab. Chi tiết ở docs/47.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.

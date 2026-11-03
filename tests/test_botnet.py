@@ -10,7 +10,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from nids.ctu13 import (FLOW_COLUMNS, extract, flow_group, from_project_flows, is_cc, load_flows,
                         pick_background, prepare_scenario, scan)
-from nids.graph_features import build_features, host_ports, in_networks, to_graph, window_edges
+from nids.graph_features import (build_features, host_ports, in_networks, pair_regularity, to_graph,
+                                 window_edges)
 
 BINETFLOW_HEADER = "StartTime,Dur,Proto,SrcAddr,Sport,Dir,DstAddr,Dport,State,sTos,dTos,TotPkts,TotBytes,SrcBytes,Label\n"
 
@@ -160,6 +161,40 @@ class HostFeatureTest(unittest.TestCase):
     def test_in_networks(self):
         self.assertEqual(list(in_networks(["147.32.1.1", "8.8.8.8", "khong-phai-ip", "::1"], ["147.32.0.0/16"])),
                          [True, False, False, False])
+
+
+class BeaconTest(unittest.TestCase):
+    """C08-T03: beaconing với số quan sát tối thiểu."""
+
+    def test_pair_regularity(self):
+        t = np.array([0, 10, 20, 30, 40, 50.0])
+        n, mean, cv = pair_regularity(t, [55.0, 25.0, 1000.0], lookback=600, min_obs=5)
+        self.assertEqual(list(n), [6, 3, 0])
+        self.assertEqual((mean[0], cv[0]), (10.0, 0.0))
+        self.assertTrue(np.isnan(mean[1]) and np.isnan(mean[2]))                  # chưa đủ quan sát
+        jitter = np.array([0, 9, 21, 30, 42, 50.0])
+        n, mean, cv = pair_regularity(jitter, [60.0], 600, 5)
+        d = np.diff(jitter)
+        self.assertAlmostEqual(cv[0], d.std() / d.mean())
+        n, mean, _ = pair_regularity(t, [55.0], lookback=30, min_obs=2)          # chỉ 30, 40, 50
+        self.assertEqual((n[0], mean[0]), (3, 10.0))
+
+    def test_host_window_features(self):
+        rows = [(float(s), "h", "p", 6667, "tcp", 10) for s in range(0, 60, 10)]          # đều, chu kỳ 10 giây
+        rows += [(70 + 0.1 * i, "h", "q", 80, "tcp", 0) for i in range(20)]                # dồn dập: không phải beacon
+        rows += [(1.0, "h", "r", 53, "udp", 10), (2.0, "h", "r", 53, "udp", 10)]           # quá ít quan sát
+        rows += [(5.0, "h", "p", 8080, "tcp", 10)]                                         # cổng khác: cặp khác
+        f = flows_frame(rows)
+        feats = build_features(f, ["h"])
+        r = feats[feats["window_start"] == 0].iloc[0]                                    # cuối cửa sổ 120 giây
+        self.assertEqual((r["beacon_so_cap_du_quan_sat"], r["beacon_so_cap_deu"]), (2, 1))
+        self.assertEqual((r["beacon_cv_nho_nhat"], r["beacon_chu_ky"]), (0.0, 10.0))
+        self.assertEqual(r["beacon_so_quan_sat_lon_nhat"], 20)
+        early = feats[feats["window_start"] == -100].iloc[0]                              # cuối 20 giây: 2 quan sát
+        self.assertEqual(early["beacon_so_cap_du_quan_sat"], 0)
+        self.assertTrue(np.isnan(early["beacon_cv_nho_nhat"]))
+        strict = build_features(f, ["h"], {"botnet": {"beaconing": {"min_observations": 7}}})
+        self.assertEqual(strict.loc[strict["window_start"] == 0, "beacon_so_cap_deu"].iloc[0], 0)
 
 
 if __name__ == "__main__":

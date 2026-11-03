@@ -4,6 +4,8 @@
   khởi tạo, trọng số là số flow, gói, byte, cổng (docs/45_do_thi_cua_so.md, QĐ-036).
 - C08-T02: đặc trưng host–cửa sổ: số peer, bậc vào/ra, tính tương hỗ, mức tập trung
   (docs/46_dac_trung_do_thi.md, QĐ-037).
+- C08-T03: beaconing: độ đều của khoảng cách giữa các flow tới cùng peer, với số quan sát tối
+  thiểu (docs/47_beaconing.md, QĐ-038).
 
 Đầu vào là bảng flow chung của ``nids.ctu13`` (CTU-13 hoặc flow của dự án đã đổi dạng).
 
@@ -191,12 +193,107 @@ def host_features(edges, ports=None, local_nets=None, size=120.0) -> pd.DataFram
     return out[HOST_KEYS + GRAPH_FEATURES]
 
 
+# ---- C08-T03: beaconing ----
+
+BEACON_FEATURES = ["beacon_so_cap_du_quan_sat", "beacon_so_cap_deu", "beacon_cv_nho_nhat", "beacon_chu_ky",
+                   "beacon_so_quan_sat_lon_nhat"]
+
+
+def beacon_config(cfg=None) -> dict:
+    b = dict((((cfg or {}).get("botnet") or {}).get("beaconing")) or {})
+    b.setdefault("lookback_s", 600.0)
+    b.setdefault("min_observations", 5)
+    b.setdefault("max_cv", 0.3)
+    b.setdefault("min_period_s", 1.0)
+    return b
+
+
+def pair_regularity(t, window_ends, lookback, min_obs) -> tuple:
+    """Với mỗi cuối cửa sổ ``we``: số lần bắt đầu flow trong ``[we - lookback, we)``, trung bình và CV
+    của khoảng cách giữa chúng. Dùng tổng tích lũy nên mỗi cửa sổ O(1). Ít hơn ``min_obs`` lần: NaN.
+    """
+    t = np.sort(np.asarray(t, float))
+    we = np.asarray(window_ends, float)
+    lo = np.searchsorted(t, we - lookback, "left")
+    hi = np.searchsorted(t, we, "left")
+    n = hi - lo
+    d = np.diff(t)
+    s1 = np.concatenate([[0.0], np.cumsum(d)])
+    s2 = np.concatenate([[0.0], np.cumsum(d * d)])
+    k = n - 1
+    ok = n >= max(min_obs, 2)
+    mean = np.full(len(we), np.nan)
+    cv = np.full(len(we), np.nan)
+    if ok.any():
+        a, b, kk = lo[ok], hi[ok] - 1, k[ok]
+        m = (s1[b] - s1[a]) / kk
+        var = np.maximum((s2[b] - s2[a]) / kk - m * m, 0.0)
+        mean[ok] = m
+        cv[ok] = np.where(m > 0, np.sqrt(var) / np.where(m > 0, m, 1), np.inf)
+    return n, mean, cv
+
+
+def beacon_features(flows, host_windows, cfg=None) -> pd.DataFrame:
+    """Đặc trưng beaconing của mỗi host–cửa sổ trong ``host_windows`` (cột session, window_start, host).
+
+    Cặp là (host, peer, cổng đích, giao thức) theo flow **host khởi tạo**. Với mỗi cặp, xét các lần
+    bắt đầu flow trong ``lookback_s`` giây tính ngược từ cuối cửa sổ; chỉ tính khi có ít nhất
+    ``min_observations`` lần. Cặp "đều" nếu CV của khoảng cách ≤ ``max_cv`` và khoảng cách trung bình
+    ≥ ``min_period_s`` (dồn dập nhanh hơn là tấn công, không phải gọi về định kỳ).
+    """
+    b = beacon_config(cfg)
+    size, _ = graph_window(cfg)
+    hw = host_windows[HOST_KEYS].drop_duplicates()
+    out = hw.copy()
+    out["beacon_so_cap_du_quan_sat"] = 0
+    out["beacon_so_cap_deu"] = 0
+    out["beacon_cv_nho_nhat"] = np.nan
+    out["beacon_chu_ky"] = np.nan
+    out["beacon_so_quan_sat_lon_nhat"] = 0
+    f = flows[flows["src"].isin(set(hw["host"]))]
+    if f.empty or hw.empty:
+        return out
+    f = f.assign(_port=f["dport"].fillna(-1))
+    records = []
+    windows_of = {k: g.sort_values("window_start") for k, g in hw.reset_index().groupby(["session", "host"])}
+    for (sess, host, peer, port, proto), g in f.groupby(["session", "src", "dst", "_port", "proto"], sort=False):
+        if len(g) < b["min_observations"] or (sess, host) not in windows_of:
+            continue
+        t = np.sort(g["ts"].to_numpy(float))
+        w = windows_of[(sess, host)]
+        we_all = w["window_start"].to_numpy(float) + size
+        sel = (we_all > t[0]) & (we_all - b["lookback_s"] <= t[-1])
+        if not sel.any():
+            continue
+        n, mean, cv = pair_regularity(t, we_all[sel], b["lookback_s"], b["min_observations"])
+        ok = ~np.isnan(mean)
+        if ok.any():
+            records.append(pd.DataFrame({"index": w["index"].to_numpy()[sel][ok], "n": n[ok], "mean": mean[ok],
+                                         "cv": cv[ok]}))
+    if not records:
+        return out
+    r = pd.concat(records, ignore_index=True)
+    r["deu"] = (r["cv"] <= b["max_cv"]) & (r["mean"] >= b["min_period_s"])
+    eligible = r[r["mean"] >= b["min_period_s"]]
+    agg = r.groupby("index").agg(beacon_so_cap_du_quan_sat=("n", "size"), beacon_so_cap_deu=("deu", "sum"),
+                                 beacon_so_quan_sat_lon_nhat=("n", "max"))
+    best = eligible.sort_values("cv").groupby("index").first()
+    hw_idx = out.index
+    for c in ("beacon_so_cap_du_quan_sat", "beacon_so_cap_deu", "beacon_so_quan_sat_lon_nhat"):
+        out.loc[agg.index.intersection(hw_idx), c] = agg[c]
+    out.loc[best.index.intersection(hw_idx), "beacon_cv_nho_nhat"] = best["cv"]
+    out.loc[best.index.intersection(hw_idx), "beacon_chu_ky"] = best["mean"]
+    return out
+
+
 def build_features(flows, hosts, cfg=None) -> pd.DataFrame:
-    """Đồ thị và đặc trưng host–cửa sổ cho các host cần xét."""
+    """Đồ thị, đặc trưng đồ thị (T02) và beaconing (T03) cho các host cần xét."""
     size, step = graph_window(cfg)
     nets = ((cfg or {}).get("botnet") or {}).get("local_nets", ["147.32.0.0/16"])
     edges = window_edges(flows, hosts, size, step)
-    return host_features(edges, host_ports(flows, hosts, size, step), nets, size)
+    feats = host_features(edges, host_ports(flows, hosts, size, step), nets, size).reset_index(drop=True)
+    beacon = beacon_features(flows, feats, cfg)
+    return feats.merge(beacon, on=HOST_KEYS, how="left")
 
 
 def edge_summary(edges) -> dict:
