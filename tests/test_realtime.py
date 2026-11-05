@@ -242,5 +242,101 @@ class LiveSourceTest(unittest.TestCase):
         self.assertEqual(rf.n_jobs, 1)
 
 
+class QueueStateTest(unittest.TestCase):
+    """C10-T04: hàng đợi giới hạn, nhịp thời gian, dọn state."""
+
+    def engine(self, **rt):
+        from nids.config import load_config
+        from nids.realtime import RealtimeEngine
+        from test_pipeline import fake_artifacts
+        cfg = load_config()
+        cfg["realtime"] = {**cfg.get("realtime", {}), **rt}
+        return RealtimeEngine(cfg, ["192.168.10.0/24"], arts=fake_artifacts(), mode="doc_lap", run_id="t")
+
+    def test_queue_drops_when_full(self):
+        from nids.realtime import ThreadedRunner
+        from test_pipeline import scan_pcap
+
+        class SlowEngine:
+            now_s = None
+            processed = 0
+
+            def process(self, raw):
+                import time
+                time.sleep(0.002)
+                self.processed += 1
+
+            def finish(self):
+                pass
+
+        from nids.nguon_goi import PcapReplaySource
+        with TemporaryDirectory() as d:
+            src = PcapReplaySource(scan_pcap(Path(d) / "s.pcap"))
+            eng = SlowEngine()
+            r = ThreadedRunner(src, eng, queue_size=5, tick_s=0.05, clock_rate=0)
+            n = r.run()
+        self.assertGreater(r.dropped, 0)                                           # đầy thì bỏ, không chặn
+        self.assertEqual(n + r.dropped, src.received)                              # mọi gói đều được đếm
+        self.assertLessEqual(r.max_depth, 5)
+
+    def test_tick_closes_windows_and_flows(self):
+        from nids.nguon_goi import PcapReplaySource
+        from test_pipeline import scan_pcap
+        eng = self.engine()
+        with TemporaryDirectory() as d:
+            for raw in PcapReplaySource(scan_pcap(Path(d) / "s.pcap")):
+                eng.process(raw)
+        before = eng.state_size()
+        self.assertGreater(before["flow_dang_mo"], 0)
+        self.assertGreater(before["cua_so_dang_mo"], 0)
+        eng.tick(eng.now_s + 1000)                                                  # mạng im lặng 1 000 giây
+        after = eng.state_size()
+        self.assertEqual((after["flow_dang_mo"], after["cua_so_dang_mo"]), (0, 0))  # hết hạn mà không cần gói mới
+        self.assertEqual(after["flow_gan_day"], 0)                                 # flow quá cũ bị dọn
+        self.assertEqual(after["su_kien_dang_mo"], 0)
+        self.assertGreater(eng.stats["cua_so_10s"], 0)
+        eng.tick(eng.now_s - 5)                                                    # thời gian lùi: bỏ qua
+        self.assertEqual(eng.stats["nhip"], 1)
+
+    def test_flow_cap(self):
+        from nids.nguon_goi import PcapReplaySource
+        from test_pipeline import scan_pcap
+        eng = self.engine(max_active_flows=10, max_flow_rows=50)
+        with TemporaryDirectory() as d:
+            for raw in PcapReplaySource(scan_pcap(Path(d) / "s.pcap")):
+                eng.process(raw)
+                self.assertLessEqual(eng.pipe.flows.active_count, 10)
+                self.assertLessEqual(len(eng.flow_rows), 50)
+        self.assertGreater(eng.stats["flow_ket_thuc_do_tran"], 0)
+        self.assertGreater(eng.stats["flow_bo_khoi_bang_do_tran"], 0)
+
+    def test_evicted_open_flows_reason(self):
+        """Flow chưa đóng bị ép kết thúc mang lý do gioi_han_bo_nho; flow cũ nhất bị ép trước."""
+        from nids.nguon_goi import PcapReplaySource
+        from test_pipeline import write_pcap
+        open_only = [p for i, p in enumerate(handshake_packets(n=20)) if i % 6 < 3]   # bỏ FIN: kết nối còn mở
+        eng = self.engine(max_active_flows=5)
+        with TemporaryDirectory() as d:
+            for raw in PcapReplaySource(write_pcap(Path(d) / "o.pcap", open_only)):
+                eng.process(raw)
+        evicted = [r for r in eng.flow_rows if r["end_reason"] == "gioi_han_bo_nho"]
+        self.assertEqual(len(evicted), 15)
+        self.assertEqual(sorted(int(r["fwd_port"]) for r in evicted), list(range(50000, 50015)))
+
+    def test_snapshot_counts_closing_flow_once(self):
+        """Flow đã đóng bằng FIN nhưng còn chờ gói cuối chỉ xuất hiện một lần trong bảng flow."""
+        from nids.nguon_goi import PcapReplaySource
+        from test_pipeline import write_pcap
+        from test_realtime import handshake_packets
+        eng = self.engine()
+        with TemporaryDirectory() as d:
+            p = write_pcap(Path(d) / "h.pcap", sorted(handshake_packets(n=1), key=lambda x: x[0]))
+            for raw in PcapReplaySource(p):
+                eng.process(raw)
+        self.assertEqual(len(eng.pipe.flows._closing), 1)
+        table = eng._flow_table(0)
+        self.assertEqual(len(table), 1)
+
+
 if __name__ == "__main__":
     unittest.main()

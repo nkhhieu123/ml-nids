@@ -124,7 +124,7 @@ Bảng CSV thêm hai cột so với C04-T01:
 | Cột | Ý nghĩa |
 |---|---|
 | `continuation` | 1 nếu chiều lấy từ flow trước cùng khóa (mục 3) |
-| `end_reason` | `fin`, `rst`, `idle_timeout`, `active_timeout`, `tai_su_dung`, `het_du_lieu` |
+| `end_reason` | `fin`, `rst`, `idle_timeout`, `active_timeout`, `tai_su_dung`, `het_du_lieu`; realtime thêm `gioi_han_bo_nho` khi quá số flow mở tối đa (C10-T04) |
 
 Thống kê JSON thêm số flow theo lý do kết thúc, số flow tiếp nối và bộ tham số
 đã dùng (`tham_so`), để biết bảng flow được tạo với cấu hình nào.

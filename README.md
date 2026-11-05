@@ -129,6 +129,7 @@ Báo cáo Chặng 9: [docs/Bao_cao_Chang_9.md](docs/Bao_cao_Chang_9.md)
 - [x] C10-T01: Clone và cài dự án trên Kali (script và kiểm tra môi trường; chưa chạy trên Kali thật) — `scripts/cai_dat_kali.sh`, `src/nids/moi_truong.py`, [docs/59_cai_dat_kali.md](docs/59_cai_dat_kali.md)
 - [x] C10-T02: Xác minh cảm biến thấy traffic hai chiều (công cụ; chưa chạy trên lab thật) — `src/nids/cam_bien.py`, [docs/60_cam_bien_hai_chieu.md](docs/60_cam_bien_hai_chieu.md)
 - [x] C10-T03: Nguồn packet live, tái sử dụng bộ trích xuất — `src/nids/nguon_goi.py`, `src/nids/realtime.py`, [docs/61_realtime.md](docs/61_realtime.md)
+- [x] C10-T04: Hàng đợi giới hạn và dọn state — `src/nids/realtime.py`, `src/nids/flows.py`, [docs/62_hang_doi_don_state.md](docs/62_hang_doi_don_state.md)
 
 Những gì còn thiếu sau Chặng 1–9 (việc đang dở, dữ liệu, lab, tham số chưa chốt): [docs/Viec_con_thieu.md](docs/Viec_con_thieu.md)
 

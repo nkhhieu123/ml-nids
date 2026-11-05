@@ -372,6 +372,13 @@ Mẫu:
 - Quyết định: Bắt gói bằng socket AF_PACKET (promiscuous, dấu thời gian kernel, đếm gói kernel bỏ), không dùng scapy hay libpcap; có nguồn phát lại PCAP cho máy không có card. Gói đi qua đúng `parse_packet` và `WindowPipeline` của offline. Cửa sổ 10 giây chấm khi đóng; cửa sổ 120 giây chấm mỗi bước 10 giây khi thời gian gói vượt cuối cửa sổ + 3 giây, trên flow đã kết thúc và ảnh chụp flow đang mở. Mô hình chạy với `n_jobs = 1`. Sự kiện gộp ngay khi chạy.
 - Hệ quả: Phát lại CIC cho cùng số cửa sổ với offline, cảnh báo lệch 0,3–3%; nhanh hơn nhịp thật 10–18 lần trên máy phát triển. Chi tiết ở docs/61.
 
+## QĐ-052 — Hàng đợi giới hạn bỏ gói mới khi đầy; nhịp thời gian khi im lặng; trần flow mở và bảng flow
+- Ngày: 05/11/2026
+- Trạng thái: Đã chốt (giá trị trần chỉnh trên Kali)
+- Bối cảnh: C10-T04. Xử lý không kịp thì gói dồn lại; mạng im lặng thì flow và cửa sổ không bao giờ đóng; state không có trần thì RAM tăng theo traffic.
+- Quyết định: Luồng đọc đẩy vào `Queue(realtime.queue_size)` bằng `put_nowait`, đầy thì bỏ gói mới và đếm. Không có gói trong `tick_s` thì đẩy thời gian (thời điểm gói cuối + thời gian thật × hệ số đồng hồ). Trần `max_active_flows` (kết thúc flow lâu nhất chưa có gói, lý do mới `gioi_han_bo_nho`) và `max_flow_rows`; offline không dùng trần.
+- Hệ quả: Mọi gói đều xử lý hoặc được đếm là bỏ; state về 0 sau khi im lặng. Hai luồng chậm hơn một luồng khi phát lại hết tốc độ (tranh GIL). Sửa lỗi đếm đôi flow đang đóng của C10-T03. Chi tiết ở docs/62.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.

@@ -3,6 +3,8 @@
 - C10-T03: nguồn gói live (``nids.nguon_goi``), dùng lại ``parse_packet`` và ``WindowPipeline`` của
   pipeline offline (B12); chấm cửa sổ 10 giây khi đóng, chấm botnet cho cửa sổ 120 giây theo từng bước
   (docs/61_realtime.md, QĐ-051).
+- C10-T04: hàng đợi giới hạn giữa luồng đọc gói và luồng xử lý (đầy thì bỏ gói và đếm), nhịp thời gian khi
+  mạng im lặng, trần số flow mở và bảng flow gần đây (docs/62_hang_doi_don_state.md, QĐ-052).
 
     python -m nids.realtime --iface eth1 --net 192.168.50.0/24 --out output/realtime
     python -m nids.realtime --pcap output/pcap/fri_quet.pcap --net 192.168.10.0/24 --out output/realtime
@@ -11,7 +13,9 @@ Cùng mô hình, cùng chế độ (``pipeline.mode``) như pipeline offline.
 """
 
 import argparse
+import queue
 import sys
+import threading
 import time
 from collections import deque
 from pathlib import Path
@@ -26,6 +30,15 @@ from .scope import MODULE_ANOMALY, MODULE_ATTACK, MODULE_BOTNET
 from .window_features import WindowPipeline, csv_row as window_row
 
 NS = 10**9
+
+
+def realtime_config(cfg=None) -> dict:
+    r = dict((cfg or {}).get("realtime") or {})
+    r.setdefault("queue_size", 100_000)        # gói chờ giữa luồng đọc và luồng xử lý
+    r.setdefault("tick_s", 1.0)                # nhịp đẩy thời gian khi không có gói
+    r.setdefault("max_active_flows", 200_000)  # trần flow đang mở
+    r.setdefault("max_flow_rows", 500_000)     # trần flow đã kết thúc giữ cho cửa sổ 120 giây
+    return r
 
 
 def _numeric(rows, keep_str=("host",)) -> pd.DataFrame:
@@ -136,6 +149,7 @@ class RealtimeEngine:
         self.lookback_s = beacon_config(cfg)["lookback_s"]
         self.rule = topology_rule(cfg)
         self.alert_sink, self.score_sink = alert_sink, score_sink
+        self.rt = realtime_config(cfg)
         self.events = EventMerger(pc["merge_gap_s"], event_sink)
         self.flow_rows = deque()            # flow đã kết thúc (dòng bảng flow), theo thứ tự kết thúc
         self.unexplained = {}               # host -> deque[(ws, we)] bất thường chưa giải thích
@@ -143,12 +157,15 @@ class RealtimeEngine:
         self.next_graph_end = None          # cuối cửa sổ 120 giây kế tiếp cần chấm (giây)
         self.now_s = None                   # thời điểm gói mới nhất (giây)
         self.stats = {"goi": 0, "goi_khong_phai_ip": 0, "cua_so_10s": 0, "cua_so_120s": 0, "canh_bao": 0,
-                      "su_kien": 0, "thoi_gian_cham_s": {MODULE_ANOMALY: 0.0, MODULE_ATTACK: 0.0, MODULE_BOTNET: 0.0}}
+                      "su_kien": 0, "flow_ket_thuc_do_tran": 0, "flow_bo_khoi_bang_do_tran": 0, "nhip": 0, "thoi_gian_cham_s": {MODULE_ANOMALY: 0.0, MODULE_ATTACK: 0.0, MODULE_BOTNET: 0.0}}
 
     # ---- nhận gói ----
 
     def _on_flow(self, flow):
         self.flow_rows.append(flow_row(flow))
+        if len(self.flow_rows) > self.rt["max_flow_rows"]:
+            self.flow_rows.popleft()
+            self.stats["flow_bo_khoi_bang_do_tran"] += 1
 
     def process(self, raw):
         rec = parse_packet(raw)
@@ -159,7 +176,32 @@ class RealtimeEngine:
         if rec.ts_ns is not None:
             self.now_s = rec.ts_ns / NS if self.now_s is None else max(self.now_s, rec.ts_ns / NS)
         self._windows(self.pipe.add(rec))
+        if self.pipe.flows.active_count > self.rt["max_active_flows"]:
+            self.stats["flow_ket_thuc_do_tran"] += self.pipe.flows.evict_oldest(self.rt["max_active_flows"])
+            self.pipe._drain_flows()
         self._graph_until(self.now_s)
+
+    def tick(self, now_s):
+        """Đẩy thời gian khi không có gói (mạng im lặng): flow hết hạn, cửa sổ đóng, botnet được chấm.
+
+        ``now_s`` là thời điểm hiện tại theo cùng đồng hồ với dấu thời gian gói.
+        """
+        if self.now_s is None or now_s <= self.now_s:
+            return
+        self.now_s = now_s
+        now_ns = int(now_s * NS)
+        self.stats["nhip"] += 1
+        self.pipe.flows.expire(now_ns)
+        self.pipe._drain_flows()
+        self.pipe.windows._close_until(now_ns)
+        self._windows(self.pipe.windows.pop_finished())
+        self._graph_until(now_s)
+
+    def state_size(self) -> dict:
+        """Kích thước state hiện tại (để đo ở C10-T05 và kiểm tra dọn state)."""
+        return {"flow_dang_mo": self.pipe.flows.active_count, "flow_gan_day": len(self.flow_rows),
+                "cua_so_dang_mo": sum(len(h) for h in self.pipe.windows._open.values()),
+                "host_bat_thuong": len(self.unexplained), "su_kien_dang_mo": len(self.events.open)}
 
     def finish(self):
         """Hết dữ liệu: đóng mọi flow, cửa sổ, chấm nốt botnet, đóng sự kiện."""
@@ -212,7 +254,7 @@ class RealtimeEngine:
     def _flow_table(self, since_s) -> pd.DataFrame:
         """Flow đã kết thúc và flow đang mở (ảnh chụp số đếm hiện tại) bắt đầu từ ``since_s``."""
         from .ctu13 import from_project_flows
-        active = list(self.pipe.flows._active.values()) + list(self.pipe.flows._closing.values())
+        active = self.pipe.flows.active_flows()      # gồm cả flow đang đóng (FIN/RST), không đếm hai lần
         rows = list(self.flow_rows) + [flow_row(f) for f in active]
         if not rows:
             return pd.DataFrame()
@@ -278,6 +320,69 @@ class RealtimeEngine:
         self.events.expire(now_s)
 
 
+_END = object()
+
+
+class ThreadedRunner:
+    """Luồng đọc gói → hàng đợi giới hạn → luồng xử lý (C10-T04).
+
+    - Hàng đợi đầy thì **bỏ gói mới và đếm** (``dropped``), không chặn luồng đọc: chặn sẽ làm bộ đệm socket
+      tràn và kernel bỏ gói mà không biết gói nào.
+    - Không có gói trong ``tick_s`` giây thì gọi ``engine.tick`` với thời điểm ước tính: thời điểm gói cuối +
+      thời gian thật đã trôi × ``clock_rate`` (1 khi bắt trực tiếp; hệ số khi phát lại theo nhịp; 0 là không
+      đẩy, khi phát lại nhanh nhất có thể).
+    """
+
+    def __init__(self, source, engine, queue_size=100_000, tick_s=1.0, clock_rate=1.0):
+        self.source, self.engine = source, engine
+        self.q = queue.Queue(maxsize=queue_size)
+        self.tick_s, self.clock_rate = tick_s, clock_rate
+        self.dropped = 0
+        self.enqueued = 0
+        self.max_depth = 0
+        self.error = None
+        self._reader = threading.Thread(target=self._read, name="doc-goi", daemon=True)
+
+    def _read(self):
+        try:
+            for raw in self.source:
+                try:
+                    self.q.put_nowait(raw)
+                    self.enqueued += 1
+                except queue.Full:
+                    self.dropped += 1
+        except Exception as exc:                    # lỗi nguồn: báo cho luồng xử lý rồi dừng
+            self.error = exc
+        finally:
+            self.q.put(_END)
+
+    def run(self, on_packet=None) -> int:
+        self._reader.start()
+        n = 0
+        last_wall = time.monotonic()
+        while True:
+            try:
+                raw = self.q.get(timeout=self.tick_s)
+            except queue.Empty:
+                if self.clock_rate and self.engine.now_s is not None:
+                    self.engine.tick(self.engine.now_s + (time.monotonic() - last_wall) * self.clock_rate)
+                    last_wall = time.monotonic()
+                continue
+            if raw is _END:
+                break
+            self.max_depth = max(self.max_depth, self.q.qsize() + 1)
+            self.engine.process(raw)
+            last_wall = time.monotonic()
+            n += 1
+            if on_packet:
+                on_packet(n)
+        self._reader.join(timeout=5)
+        self.engine.finish()
+        if self.error is not None:
+            raise self.error
+        return n
+
+
 def run(source, engine, on_packet=None):
     """Đưa từng gói của ``source`` vào ``engine`` (một luồng); trả số gói."""
     n = 0
@@ -331,13 +436,18 @@ def main(argv=None):
     with AlertSink(out / f"{name}.alerts.csv") as sink, open_source(a.iface, a.pcap, a.toc_do) as source:
         engine = RealtimeEngine(cfg, nets, mode=a.che_do, run_id=name, alert_sink=sink, score_sink=score_sink,
                                 event_sink=on_event)
+        rt = realtime_config(cfg)
+        rate = 1.0 if a.iface else (a.toc_do or 0.0)
+        runner = ThreadedRunner(source, engine, rt["queue_size"], rt["tick_s"], rate)
         t0 = time.perf_counter()
-        n = run(source, engine)
+        n = runner.run()
         dt = time.perf_counter() - t0
     if score_sink:
         score_sink.close()
     ev_file.close()
     s = engine.stats
+    print(f"Hàng đợi: bỏ {runner.dropped} gói, sâu nhất {runner.max_depth}; flow kết thúc do trần "
+          f"{s['flow_ket_thuc_do_tran']}; state cuối {engine.state_size()}")
     print(f"{n} gói trong {dt:.1f} s ({n / max(dt, 1e-9):.0f} gói/s); {s['cua_so_10s']} cửa sổ 10 s, "
           f"{s['cua_so_120s']} host–cửa sổ 120 s; {s['canh_bao']} cảnh báo, {engine.events.closed} sự kiện")
     return 0

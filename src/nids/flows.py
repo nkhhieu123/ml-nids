@@ -52,7 +52,8 @@ END_IDLE = "idle_timeout"            # không có gói mới trong idle_timeout_
 END_ACTIVE = "active_timeout"        # flow dài quá active_timeout_s
 END_REUSE = "tai_su_dung"            # SYN mới trên cùng 5-tuple khi flow chưa đóng
 END_OF_INPUT = "het_du_lieu"         # hết file khi flow còn mở
-END_REASONS = (END_FIN, END_RST, END_IDLE, END_ACTIVE, END_REUSE, END_OF_INPUT)
+END_LIMIT = "gioi_han_bo_nho"        # realtime: quá số flow mở tối đa, flow cũ nhất bị kết thúc (C10-T04)
+END_REASONS = (END_FIN, END_RST, END_IDLE, END_ACTIVE, END_REUSE, END_OF_INPUT, END_LIMIT)
 
 # Cổng dưới ngưỡng này coi là cổng dịch vụ (well-known ports, RFC 6335)
 SERVICE_PORT_LIMIT = 1024
@@ -481,6 +482,26 @@ class FlowAssigner:
             if now - next(iter(self._recent.values()))[3] <= self.memory_ns:
                 break
             self._recent.popitem(last=False)
+
+    def evict_oldest(self, max_active: int) -> int:
+        """Kết thúc flow lâu nhất chưa có gói cho tới khi còn ≤ ``max_active`` flow mở; trả số flow đã kết thúc.
+
+        Dùng khi chạy realtime để bộ nhớ có trần (C10-T04); lý do kết thúc là ``gioi_han_bo_nho``. Chạy
+        offline không gọi hàm này nên kết quả offline không đổi.
+        """
+        n = 0
+        while len(self._active) > max_active:
+            self._finish(next(iter(self._active.values())), END_LIMIT)
+            n += 1
+        return n
+
+    @property
+    def active_count(self) -> int:
+        return len(self._active)
+
+    def active_flows(self) -> list:
+        """Flow đang mở (gồm cả flow đã đóng bằng FIN/RST đang chờ gói cuối)."""
+        return list(self._active.values())
 
     def finish_all(self) -> None:
         """Hết dữ liệu: flow còn mở kết thúc với lý do ``het_du_lieu``."""
