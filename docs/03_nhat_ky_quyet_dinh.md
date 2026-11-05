@@ -358,6 +358,13 @@ Mẫu:
 - Quyết định: `scripts/cai_dat_kali.sh` cài gói hệ thống, clone repo vào `/opt/ml-nids`, tạo `.venv` bằng `--copies`, `pip install -e .`, chép mô hình từ máy huấn luyện, `setcap cap_net_raw,cap_net_admin` chỉ cho python trong `.venv` (không cho python hệ thống), rồi chạy `python -m nids.moi_truong` kiểm tra Python, thư viện, quyền, card, artifact, NTP, đĩa.
 - Hệ quả: Cảm biến chạy bằng user thường. Nâng cấp Python của hệ thống thì phải tạo lại `.venv`. Chi tiết ở docs/59.
 
+## QĐ-050 — Kiểm tra cảm biến hai chiều bằng bản bắt thử; nhân đôi nhận theo nội dung gói IP
+- Ngày: 05/11/2026
+- Trạng thái: Đã chốt (chưa chạy trên lab thật)
+- Bối cảnh: C10-T02, B13: Kali phải thấy cả hai chiều trước khi chạy mô hình. Mirror cấu hình sai có thể chỉ sao chép một hướng, hoặc sao chép hai lần mỗi gói.
+- Quyết định: `nids.cam_bien` đo phần flow TCP hai chiều, phần kết nối tới máy trong mạng có phản hồi (SYN+ACK hoặc RST), cặp một chiều, gói nhân đôi (cùng nội dung IP bỏ TTL và checksum, cách ≤ 1 ms), máy lab xuất hiện. `loi` khi một trong hai tỷ lệ chính < 50%; `canh_bao` khi < 90%, nhân đôi > 5% hoặc < 20 flow TCP.
+- Hệ quả: Trên CIC thấy đủ hai chiều (99–99,9%) nhưng PCAP có 0,7–11,8% gói nhân đôi mà bộ trích xuất chưa bỏ; cần đo trên lab và quyết định có khử trùng gói khi trích xuất. Chi tiết ở docs/60.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
