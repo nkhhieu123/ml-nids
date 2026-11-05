@@ -365,6 +365,13 @@ Mẫu:
 - Quyết định: `nids.cam_bien` đo phần flow TCP hai chiều, phần kết nối tới máy trong mạng có phản hồi (SYN+ACK hoặc RST), cặp một chiều, gói nhân đôi (cùng nội dung IP bỏ TTL và checksum, cách ≤ 1 ms), máy lab xuất hiện. `loi` khi một trong hai tỷ lệ chính < 50%; `canh_bao` khi < 90%, nhân đôi > 5% hoặc < 20 flow TCP.
 - Hệ quả: Trên CIC thấy đủ hai chiều (99–99,9%) nhưng PCAP có 0,7–11,8% gói nhân đôi mà bộ trích xuất chưa bỏ; cần đo trên lab và quyết định có khử trùng gói khi trích xuất. Chi tiết ở docs/60.
 
+## QĐ-051 — Realtime: AF_PACKET không thư viện ngoài; cùng bộ trích xuất; chấm khi cửa sổ đóng; botnet dùng ảnh chụp flow đang mở
+- Ngày: 05/11/2026
+- Trạng thái: Đã chốt (chưa chạy trên card thật)
+- Bối cảnh: C10-T03 cần nguồn gói live và dùng lại bộ trích xuất (B12). Cửa sổ 120 giây của module botnet cần flow, nhưng flow chỉ kết thúc sau timeout 60–120 giây.
+- Quyết định: Bắt gói bằng socket AF_PACKET (promiscuous, dấu thời gian kernel, đếm gói kernel bỏ), không dùng scapy hay libpcap; có nguồn phát lại PCAP cho máy không có card. Gói đi qua đúng `parse_packet` và `WindowPipeline` của offline. Cửa sổ 10 giây chấm khi đóng; cửa sổ 120 giây chấm mỗi bước 10 giây khi thời gian gói vượt cuối cửa sổ + 3 giây, trên flow đã kết thúc và ảnh chụp flow đang mở. Mô hình chạy với `n_jobs = 1`. Sự kiện gộp ngay khi chạy.
+- Hệ quả: Phát lại CIC cho cùng số cửa sổ với offline, cảnh báo lệch 0,3–3%; nhanh hơn nhịp thật 10–18 lần trên máy phát triển. Chi tiết ở docs/61.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.

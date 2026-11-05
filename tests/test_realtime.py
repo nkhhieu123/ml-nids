@@ -118,5 +118,129 @@ class SensorTest(unittest.TestCase):
         self.assertNotEqual(dg(f), dg(h))
 
 
+class FakeSocket:
+    """Socket giả cho AfPacketSource: trả các khung đã định rồi timeout."""
+
+    def __init__(self, frames, stats=(10, 3)):
+        import socket
+        self.frames = list(frames)
+        self.stats = stats
+        self.timeout = socket.timeout
+
+    def recvmsg(self, bufsize, ancbufsize, flags):
+        import socket
+        import struct
+        if not self.frames:
+            raise socket.timeout()
+        ts, data = self.frames.pop(0)
+        anc = [(socket.SOL_SOCKET, 35, struct.pack("qq", int(ts), int(round((ts % 1) * 1e9))))]
+        return data, anc, 0, None
+
+    def getsockopt(self, level, opt, size):
+        import struct
+        return struct.pack("II", *self.stats)
+
+    def close(self):
+        pass
+
+
+class LiveSourceTest(unittest.TestCase):
+    """C10-T03: nguồn gói live và bộ máy realtime dùng lại bộ trích xuất."""
+
+    def test_af_packet_with_fake_socket(self):
+        from nids.nguon_goi import AfPacketSource, parse_timestamp, promisc_mreq
+        from test_pipeline import frame
+        frames = [(1_500_000_000.25, frame("10.0.0.1", "10.0.0.2", 1, 80, 0x02))]
+        src = AfPacketSource("eth9", sock=FakeSocket(frames))
+        it = iter(src)
+        pkt = next(it)
+        self.assertEqual(pkt.ts_ns, 1_500_000_000_250_000_000)
+        self.assertEqual((pkt.linktype, pkt.caplen, pkt.origlen), (1, len(frames[0][1]), len(frames[0][1])))
+        self.assertEqual(src.kernel_drops(), 3)
+        self.assertEqual(src.dropped_total, 3)
+        src.stop()
+        self.assertEqual(list(it), [])                                          # dừng được khi đang chờ gói
+        self.assertEqual(len(promisc_mreq(2)), 16)
+        self.assertIsNone(parse_timestamp([]))
+
+    def test_replay_pacing_and_stop(self):
+        import time
+        from nids.nguon_goi import PcapReplaySource, open_source
+        from test_pipeline import frame, write_pcap
+        with TemporaryDirectory() as d:
+            p = write_pcap(Path(d) / "x.pcap", [(100.0 + 0.2 * i, frame("10.0.0.1", "10.0.0.2", 1, 80, 2))
+                                               for i in range(4)])
+            t = time.monotonic()
+            self.assertEqual(len(list(PcapReplaySource(p, speed=1.0))), 4)
+            self.assertGreaterEqual(time.monotonic() - t, 0.55)                  # theo nhịp thật: 0,6 giây
+            src = PcapReplaySource(p)
+            for i, _ in enumerate(src):
+                src.stop()
+            self.assertEqual(src.received, 1)
+            with self.assertRaises(ValueError):
+                open_source()
+
+    def test_engine_matches_offline_windows(self):
+        from nids.pipeline import extract, load_windows
+        from nids.config import load_config
+        from nids.nguon_goi import PcapReplaySource
+        from nids.realtime import RealtimeEngine, run
+        from test_pipeline import fake_artifacts, scan_pcap
+        with TemporaryDirectory() as d:
+            pcap = scan_pcap(Path(d) / "scan.pcap")
+            offline = load_windows(extract(pcap, Path(d) / "off", ["192.168.10.0/24"]))
+            got = []
+            sink = SimpleNamespace(emit=got.append)
+            eng = RealtimeEngine(load_config(), ["192.168.10.0/24"], arts=fake_artifacts(), mode="doc_lap",
+                                 run_id="t", alert_sink=sink)
+            run(PcapReplaySource(pcap), eng)
+        self.assertEqual(eng.stats["cua_so_10s"], len(offline))                # cùng số cửa sổ với offline
+        labels = {(a.module, a.label, a.src_ip) for a in got}
+        self.assertIn(("attack_classification", "port_scan", "192.168.10.5"), labels)
+        self.assertIn(("anomaly", "anomaly", "192.168.10.5"), labels)
+        self.assertIn(("botnet_topology", "suspect_host", "192.168.10.5"), labels)
+        self.assertFalse(any(a.src_ip == "192.168.10.7" and a.module == "attack_classification" for a in got))
+        self.assertGreater(eng.events.closed, 0)
+        self.assertEqual(eng.events.open, {})
+
+    def test_each_graph_window_scored_once(self):
+        """Mỗi (host, cửa sổ 120 giây) chỉ được chấm một lần (lỗi isclose với sai số tương đối)."""
+        from collections import Counter
+        from nids.config import load_config
+        from nids.nguon_goi import PcapReplaySource
+        from nids.realtime import RealtimeEngine, run
+        from test_pipeline import fake_artifacts, scan_pcap
+        with TemporaryDirectory() as d:
+            pcap = scan_pcap(Path(d) / "scan.pcap")
+            scores = []
+            eng = RealtimeEngine(load_config(), ["192.168.10.0/24"], arts=fake_artifacts(), mode="doc_lap",
+                                 run_id="t", score_sink=SimpleNamespace(emit=scores.append))
+            run(PcapReplaySource(pcap), eng)
+        host_rows = [(a.src_ip, a.window_start) for a in scores
+                     if a.module == "botnet_topology" and a.label in ("suspect_host", "normal_host")]
+        self.assertTrue(host_rows)
+        self.assertEqual(max(Counter(host_rows).values()), 1)
+        self.assertTrue(all((a.window_end - a.window_start) == 120 for a in scores if a.module == "botnet_topology"))
+
+    def test_event_merger_and_single_thread(self):
+        from nids.alerts import Alert
+        from nids.realtime import EventMerger, single_thread
+        closed = []
+        m = EventMerger(30, closed.append)
+        for s in (0, 2, 4, 100):
+            m.add(Alert("anomaly", "anomaly", s, s + 10, src_ip="a", score=float(s)))
+        m.add(Alert("anomaly", "normal", 0, 10, src_ip="a"))                   # không phải cảnh báo
+        self.assertEqual(len(closed), 1)                                          # 100 cách 14 tới 86 giây > 30: đóng sự kiện đầu
+        self.assertEqual((closed[0]["bat_dau"], closed[0]["ket_thuc"], closed[0]["so_canh_bao"]), (0, 14, 3))
+        m.expire(200)
+        self.assertEqual(len(closed), 2)
+        from sklearn.ensemble import RandomForestClassifier
+        from sklearn.pipeline import Pipeline
+        rf = RandomForestClassifier(n_jobs=4)
+        wrapped = SimpleNamespace(pipeline=Pipeline([("mo_hinh", rf)]))
+        self.assertEqual(single_thread(wrapped), 1)                              # Pipeline không có n_jobs; chỉ rừng
+        self.assertEqual(rf.n_jobs, 1)
+
+
 if __name__ == "__main__":
     unittest.main()
