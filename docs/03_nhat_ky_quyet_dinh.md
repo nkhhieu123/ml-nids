@@ -351,6 +351,13 @@ Mẫu:
 - Quyết định: Mỗi lần chạy ghi cảnh báo (`alerts.csv`), mọi dự đoán kèm điểm và ngưỡng (`diem.csv`, cơ chế `log_all`), sự kiện (`su_kien.csv`). Sự kiện gộp cảnh báo cùng module, nhãn, host khi cảnh báo sau bắt đầu không quá `pipeline.merge_gap_s` = 30 giây sau khi cảnh báo trước kết thúc; ghi giờ đầu, giờ cuối, số cảnh báo, điểm lớn nhất, trung bình, thời điểm tạo của cảnh báo đầu. Không gộp giữa các module.
 - Hệ quả: 378–1 189 cảnh báo mỗi đoạn còn 11–104 sự kiện; DoS liên tục thành vài sự kiện, quét theo lượt Nmap tách theo từng lượt. Chi tiết ở docs/58.
 
+## QĐ-049 — Cài trên Kali bằng script; môi trường ảo riêng có quyền bắt gói, không chạy bằng root
+- Ngày: 05/11/2026
+- Trạng thái: Đã chốt (chưa chạy trên Kali thật)
+- Bối cảnh: C10-T01 cần cài dự án trên Kali. Bắt gói thô cần root hoặc CAP_NET_RAW; mô hình không có trong git.
+- Quyết định: `scripts/cai_dat_kali.sh` cài gói hệ thống, clone repo vào `/opt/ml-nids`, tạo `.venv` bằng `--copies`, `pip install -e .`, chép mô hình từ máy huấn luyện, `setcap cap_net_raw,cap_net_admin` chỉ cho python trong `.venv` (không cho python hệ thống), rồi chạy `python -m nids.moi_truong` kiểm tra Python, thư viện, quyền, card, artifact, NTP, đĩa.
+- Hệ quả: Cảm biến chạy bằng user thường. Nâng cấp Python của hệ thống thì phải tạo lại `.venv`. Chi tiết ở docs/59.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
