@@ -19,8 +19,11 @@ class ManifestTest(unittest.TestCase):
             self.assertTrue(entries_for(module, rows), module)
 
     def test_ctu13_has_13_scenarios(self):
-        rows = [r for r in load_manifest() if r["nguon"] == "CTU-13"]
+        # 13 file flow có nhãn cho module botnet; bản thu PCAP của CTU-13 chỉ để đối chiếu, không tính
+        rows = [r for r in load_manifest() if r["nguon"] == "CTU-13" and "botnet_topology" in r["bai_toan"]]
         self.assertEqual(len(rows), 13)
+        refs = [r for r in load_manifest() if r["nguon"] == "CTU-13" and r["bai_toan"] == ["doi_chieu"]]
+        self.assertTrue(all(r["sha256"] for r in refs))
         self.assertEqual([r["id"] for r in rows if "p2p" in r["nhan_do_an"]], ["ctu13-s12"])
 
     def test_reference_data_has_no_split(self):
