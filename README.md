@@ -137,6 +137,8 @@ Báo cáo Chặng 9: [docs/Bao_cao_Chang_9.md](docs/Bao_cao_Chang_9.md)
 
 Báo cáo Chặng 10: [docs/Bao_cao_Chang_10.md](docs/Bao_cao_Chang_10.md)
 
+Script sinh traffic lab kịch bản 1–3: [docs/68_sinh_traffic_lab.md](docs/68_sinh_traffic_lab.md)
+
 Những gì còn thiếu sau Chặng 1–10 (việc đang dở, dữ liệu, lab, tham số chưa chốt): [docs/Viec_con_thieu.md](docs/Viec_con_thieu.md)
 
 ## Cấu trúc

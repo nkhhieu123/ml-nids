@@ -575,7 +575,7 @@ class ServiceTest(unittest.TestCase):
         import shutil
         import subprocess
         for name in ("deploy/nids-realtime.service", "deploy/nids-realtime.env", "scripts/cai_dich_vu.sh",
-                     "scripts/cai_dat_kali.sh"):
+                     "scripts/cai_dat_kali.sh", "scripts/sinh_traffic.py", "scripts/nhat_ky_sang_lich.py"):
             self.assertNotIn(b"\r\n", (self.ROOT / name).read_bytes(), name)       # Kali cần LF
         bash = shutil.which("bash")
         if bash:

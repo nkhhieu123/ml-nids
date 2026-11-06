@@ -123,6 +123,17 @@ lab:
     192.168.50.42: Client/Bot mô phỏng 2
     192.168.50.43: Client/Bot mô phỏng 3
     192.168.50.50: Server điều phối mô phỏng
+  may_chu_dich: 192.168.50.30   # đích của kịch bản 1–3 (máy chủ dịch vụ)
+  quet:                          # kịch bản 2: giãn cách giây giữa hai lần thử cổng (B15, chốt trước khi chạy)
+    cong_dau: 1
+    cong_cuoi: 1024
+    toc_do_cham_s: 0.5
+    toc_do_nhanh_s: 0.0
+  tai_ket_noi:                   # kịch bản 3: số kết nối TCP mỗi giây theo mức tải (B16); mỗi lần tối đa 60 giây
+    muc1_moi_giay: 50
+    muc2_moi_giay: 200
+    muc3_moi_giay: 600
+    thoi_gian_toi_da_s: 60
 
 paths:
   data_dir: data

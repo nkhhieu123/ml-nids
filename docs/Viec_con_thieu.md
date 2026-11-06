@@ -48,8 +48,9 @@ gom lại thành các việc sau (việc tải CIC-IDS2017 đã xong):
 2. ~~Tải 13 file `.binetflow` của CTU-13 (mục 0 và 2.2).~~ Xong 03/11/2026.
 3. Dựng mạng lab 7 node, kiểm tra mirror (mục 3).
 4. Chốt tham số kịch bản lab (mục 4).
-5. Chốt định dạng nhật ký lần chạy và viết script sinh traffic (mục 3). Đã có đề xuất cho
-   kịch bản botnet: `scripts/sinh_topology.py` và `data/run_logs/nhat_ky.jsonl` (docs/50).
+5. ~~Chốt định dạng nhật ký lần chạy và viết script sinh traffic (mục 3).~~ **Xong 06/11/2026**:
+   `scripts/sinh_traffic.py` (kịch bản 1–3) + `scripts/sinh_topology.py` (kịch bản 4–5); nhật ký
+   `data/run_logs/nhat_ky.jsonl`; `scripts/nhat_ky_sang_lich.py` đổi sang lịch gán nhãn (docs/68).
 6. Quyết định nguồn mẫu DoS kiểu SYN cho lớp `dos` (mục 4).
 
 ## 2. Dữ liệu
@@ -96,7 +97,7 @@ gom lại thành các việc sau (việc tải CIC-IDS2017 đã xong):
 | Dự án chưa cài thử trên Kali Linux (chỉ thử trên Windows, Python 3.13) | Quan trọng | Có thể lỗi thư viện hoặc quyền bắt gói khi triển khai | **Bạn** chạy; sửa lỗi làm được ngay |
 | Tên giao diện giám sát `eth0` trong cấu hình là giả định | Quan trọng | Bắt gói sai card mạng | **Bạn** cung cấp tên thật |
 | Chưa có quy trình đồng bộ đồng hồ giữa các máy | Quan trọng | Không ghép được log, PCAP và nhật ký lần chạy theo thời gian | **Bạn** cài NTP; ghi độ lệch vào nhật ký |
-| Định dạng file nhật ký lần chạy chưa chốt; script sinh traffic và ghi nhật ký chưa viết (`scripts/` còn trống, B23) | Chặn | Không có căn cứ gán nhãn cho dữ liệu lab | Làm được ngay (viết script), **Bạn** chạy trong lab |
+| ~~Định dạng file nhật ký lần chạy chưa chốt; script sinh traffic chưa viết (B23)~~ | Đã xong 06/11/2026 | `scripts/sinh_traffic.py`, `scripts/nhat_ky_sang_lich.py` (docs/68); **Bạn** vẫn cần chạy trong lab | |
 
 ## 4. Tham số và quyết định chưa chốt
 
@@ -188,8 +189,8 @@ thực nghiệm và chỉ số (Chặng 11), dashboard (tùy chọn T06).
    đã dùng ở Chặng 3 vào manifest; tải nhãn KU Leuven. (Tải 13 file `.binetflow` đã xong.)
 3. **Bạn:** dựng lab, kiểm tra mirror hai chiều, cài Nginx `nids`, đồng bộ đồng
    hồ, cài dự án trên Kali; chốt tham số ở mục 4.
-4. **Làm được ngay:** viết script sinh traffic và ghi nhật ký lần chạy cho các kịch bản
-   1–3 (bình thường, quét, DoS); kịch bản botnet đã có `scripts/sinh_topology.py`.
+4. ~~**Làm được ngay:** viết script sinh traffic cho kịch bản 1–3 (bình thường, quét, DoS).~~
+   Xong 06/11/2026: `scripts/sinh_traffic.py` (docs/68); kịch bản botnet đã có `scripts/sinh_topology.py`.
 5. ~~Khi CIC tải xong: xác định độ lệch giờ và địa chỉ NAT, khảo sát và đối chiếu
    Wireshark file thứ Tư, đối chiếu số flow CSV.~~ Xong 29/10/2026.
 6. Thu lab theo thứ tự ở [09_du_lieu_lab.md](09_du_lieu_lab.md); các lần `test`
