@@ -1,0 +1,5 @@
+# Script và file cấu hình chạy trên Kali luôn dùng LF, kể cả khi sửa trên Windows
+*.sh text eol=lf
+deploy/* text eol=lf
+*.py text eol=lf
+*.yaml text eol=lf

@@ -1,0 +1,46 @@
+# Cảm biến ml-nids chạy nền (C10-T07). Cài bằng scripts/cai_dich_vu.sh; hướng dẫn ở docs/65_chay_nen_systemd.md.
+[Unit]
+Description=ml-nids: cảm biến phát hiện tấn công mạng (realtime)
+Documentation=https://github.com/nkhhieu123/ml-nids/blob/main/docs/65_chay_nen_systemd.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=nids
+Group=nids
+WorkingDirectory=/opt/ml-nids
+EnvironmentFile=/etc/ml-nids/nids-realtime.env
+# $NIDS_IFACE, $NIDS_ARGS lấy từ file môi trường; $NIDS_ARGS không ngoặc nhọn nên được tách thành nhiều tham số
+ExecStartPre=/opt/ml-nids/.venv/bin/python -m nids.pipeline kiem-tra
+ExecStart=/opt/ml-nids/.venv/bin/python -m nids.realtime --iface ${NIDS_IFACE} --out /opt/ml-nids/output/realtime --im-lang $NIDS_ARGS
+
+# Bắt gói không cần root: chỉ cấp quyền đọc gói thô và bật promiscuous
+AmbientCapabilities=CAP_NET_RAW CAP_NET_ADMIN
+CapabilityBoundingSet=CAP_NET_RAW CAP_NET_ADMIN
+NoNewPrivileges=yes
+
+# Dừng êm: SIGTERM, chương trình xử lý nốt hàng đợi tối đa 30 giây (realtime.stop_timeout_s)
+KillSignal=SIGTERM
+KillMode=mixed
+TimeoutStopSec=45
+# Mã thoát 0 là dừng bình thường; lỗi thì khởi động lại sau 10 giây, tối đa 5 lần trong 10 phút
+Restart=on-failure
+RestartSec=10
+StartLimitIntervalSec=600
+StartLimitBurst=5
+
+# Giới hạn tài nguyên (đo ở docs/63: 200–400 MB RAM)
+MemoryMax=1500M
+CPUQuota=150%
+
+# Khóa hệ thống: chỉ ghi được thư mục kết quả và nhật ký lần chạy
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+ProtectKernelTunables=yes
+ProtectControlGroups=yes
+ReadWritePaths=/opt/ml-nids/output /opt/ml-nids/data/run_logs
+
+[Install]
+WantedBy=multi-user.target

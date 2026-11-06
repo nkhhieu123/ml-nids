@@ -393,6 +393,13 @@ Mẫu:
 - Quyết định: SIGINT, SIGTERM, SIGHUP: nguồn ngừng đọc, xử lý nốt hàng đợi trong tối đa `stop_timeout_s` = 30 giây (quá hạn thì bỏ và đếm), chấm nốt, đóng sự kiện, ghi số liệu, đóng file; tín hiệu thứ hai thì thoát ngay (mã 130). Log `RotatingFileHandler` 10 MB × 5 bản; `--im-lang` cho chạy nền. File kết quả trùng tên được đổi thành `.cu.` trước khi mở file mới.
 - Hệ quả: Mã thoát 0 khi dừng êm, 1 khi lỗi. Chi tiết ở docs/64.
 
+## QĐ-055 — Chạy nền bằng systemd với user riêng, chỉ hai quyền mạng; file chạy trên Kali luôn LF
+- Ngày: 06/11/2026
+- Trạng thái: Đã chốt (chưa cài trên Kali thật)
+- Bối cảnh: C10-T07 cần cảm biến chạy nền, khởi động/dừng theo hướng dẫn. Cảm biến đọc traffic không tin cậy.
+- Quyết định: Unit `nids-realtime.service` chạy bằng user hệ thống `nids` với `AmbientCapabilities=CAP_NET_RAW CAP_NET_ADMIN`, kiểm tra mô hình trước khi chạy, dừng bằng SIGTERM với `TimeoutStopSec=45` (> 30 giây dừng êm), khởi động lại khi lỗi, giới hạn RAM/CPU, chỉ ghi được thư mục kết quả. Tham số trong `/etc/ml-nids/nids-realtime.env`. `scripts/cai_dich_vu.sh` cài đặt và chặn máy tự ngủ. `.gitattributes` buộc LF cho script, unit, Python, YAML.
+- Hệ quả: Không cần `setcap` lên python khi chạy bằng dịch vụ. Chi tiết ở docs/65.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.

@@ -9,6 +9,8 @@
   (docs/63_do_hieu_nang.md, QĐ-053).
 - C10-T06: dừng êm khi nhận SIGINT/SIGTERM (xử lý nốt hàng đợi có giới hạn thời gian, chấm nốt cửa sổ, đóng
   file), log xoay vòng, mã thoát (docs/64_dung_va_log.md, QĐ-054).
+- C10-T07: chạy nền bằng systemd: ``deploy/nids-realtime.service``, ``scripts/cai_dich_vu.sh``
+  (docs/65_chay_nen_systemd.md, QĐ-055).
 
     python -m nids.realtime --iface eth1 --net 192.168.50.0/24 --out output/realtime
     python -m nids.realtime --pcap output/pcap/fri_quet.pcap --net 192.168.10.0/24 --out output/realtime
@@ -608,9 +610,7 @@ def run(source, engine, on_packet=None):
     return n
 
 
-def main(argv=None):
-    from .config import load_config
-
+def build_parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(description="Cảm biến realtime: ba module trên traffic trực tiếp hoặc PCAP phát lại.")
     src = ap.add_mutually_exclusive_group(required=True)
     src.add_argument("--iface", help="card mạng giám sát (Linux)")
@@ -624,7 +624,13 @@ def main(argv=None):
     ap.add_argument("--log-dir", help="thư mục log, mặc định realtime.log_dir")
     ap.add_argument("--im-lang", action="store_true", help="không in cảnh báo và log ra terminal (chạy nền)")
     ap.add_argument("--config", help="file cấu hình, mặc định config/default.yaml")
-    a = ap.parse_args(argv)
+    return ap
+
+
+def main(argv=None):
+    from .config import load_config
+
+    a = build_parser().parse_args(argv)
     cfg = load_config(a.config)
     rt = realtime_config(cfg)
     from .config import PROJECT_ROOT

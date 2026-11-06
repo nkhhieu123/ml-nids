@@ -480,5 +480,75 @@ class StopAndLogTest(unittest.TestCase):
         self.assertEqual(names, ["nids_realtime.log", "nids_realtime.log.1", "nids_realtime.log.2"])
 
 
+class ServiceTest(unittest.TestCase):
+    """C10-T07: unit systemd, file môi trường, script cài dịch vụ."""
+
+    ROOT = Path(__file__).resolve().parents[1]
+
+    def unit(self):
+        sections, cur = {}, None
+        for line in (self.ROOT / "deploy" / "nids-realtime.service").read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            if line.startswith("["):
+                cur = sections.setdefault(line.strip("[]"), {})
+                continue
+            k, v = line.split("=", 1)
+            cur.setdefault(k, []).append(v)
+        return sections
+
+    def env(self):
+        out = {}
+        for line in (self.ROOT / "deploy" / "nids-realtime.env").read_text(encoding="utf-8").splitlines():
+            if line and not line.startswith("#"):
+                k, v = line.split("=", 1)
+                out[k] = v
+        return out
+
+    def test_unit_settings(self):
+        u = self.unit()
+        svc = u["Service"]
+        self.assertEqual(svc["User"], ["nids"])                                    # không chạy bằng root
+        self.assertEqual(set(svc["AmbientCapabilities"][0].split()), {"CAP_NET_RAW", "CAP_NET_ADMIN"})
+        self.assertEqual(svc["KillSignal"], ["SIGTERM"])
+        self.assertEqual(svc["Restart"], ["on-failure"])
+        # dừng êm cần xử lý nốt tối đa stop_timeout_s; systemd phải chờ lâu hơn trước khi giết
+        from nids.config import load_config
+        from nids.realtime import realtime_config
+        stop = realtime_config(load_config())["stop_timeout_s"]
+        self.assertGreater(int(svc["TimeoutStopSec"][0]), stop)
+        self.assertIn("/opt/ml-nids/output", svc["ReadWritePaths"][0])
+        self.assertEqual(u["Install"]["WantedBy"], ["multi-user.target"])
+
+    def test_execstart_arguments_parse(self):
+        import shlex
+        from nids.realtime import build_parser
+        exec_start = self.unit()["Service"]["ExecStart"][0]
+        env = self.env()
+        line = exec_start.replace("${NIDS_IFACE}", env["NIDS_IFACE"]).replace("$NIDS_ARGS", env["NIDS_ARGS"])
+        argv = shlex.split(line)
+        self.assertEqual(argv[1:3], ["-m", "nids.realtime"])
+        a = build_parser().parse_args(argv[3:])
+        self.assertEqual(a.iface, env["NIDS_IFACE"])
+        self.assertEqual(a.net, ["192.168.50.0/24"])
+        self.assertTrue(a.im_lang)
+        self.assertEqual(a.che_do, "ket_hop")
+        pre = shlex.split(self.unit()["Service"]["ExecStartPre"][0])
+        self.assertEqual(pre[1:], ["-m", "nids.pipeline", "kiem-tra"])                # kiểm tra mô hình trước khi chạy
+
+    def test_scripts_lf_and_syntax(self):
+        import shutil
+        import subprocess
+        for name in ("deploy/nids-realtime.service", "deploy/nids-realtime.env", "scripts/cai_dich_vu.sh",
+                     "scripts/cai_dat_kali.sh"):
+            self.assertNotIn(b"\r\n", (self.ROOT / name).read_bytes(), name)       # Kali cần LF
+        bash = shutil.which("bash")
+        if bash:
+            for name in ("scripts/cai_dich_vu.sh", "scripts/cai_dat_kali.sh"):
+                r = subprocess.run([bash, "-n", str(self.ROOT / name)], capture_output=True)
+                self.assertEqual(r.returncode, 0, r.stderr)
+
+
 if __name__ == "__main__":
     unittest.main()
