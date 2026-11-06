@@ -16,7 +16,7 @@ việc**, không chạy song song.
 | 1 | Xuất lại bảng đặc trưng 3 ngày CIC từ mã đã commit (metadata hiện ghi `co_sua_chua_commit: true`) | **Bị dừng**; chỉ có một phần thứ Hai trong `output/features_v2/` | Trong `src/`: `python -m nids.feature_export ../data/pcap/cic-ids2017/<file>.pcap --net 192.168.10.0/24 --net 172.16.0.0/24 --name cic17_<ngày> --out ../output/features_v2`; so CSV với `output/features/`, giống thì thay file meta | Khoảng 1–1,5 giờ cho 3 ngày |
 | 2 | ~~Tải 13 file `.binetflow` CTU-13 vào `data/ctu13/`~~ | **Xong 03/11/2026**: đủ 13 file (2,6 GB), mã băm trong manifest, `nids.manifest --verify` khớp; đếm nhãn ở docs/48 | | |
 | 3 | ~~Tải lại 4 bản thu CTU-13 dùng ở Chặng 3, ghi vào manifest kèm mã băm~~ | **Xong 06/11/2026**: `data/ctu13/pcap/`, 4 dòng manifest, `--verify` khớp, số gói khớp docs/17 | | |
-| 4 | Tải bộ nhãn đã sửa của KU Leuven, đối chiếu với nhãn Chặng 5 | Chưa làm | `CICIDS2017_improved.zip` (328 MB) vào `data/cic-ids2017/`; flow "Attempted" coi là lành tính | 328 MB |
+| 4 | ~~Tải bộ nhãn đã sửa của KU Leuven, đối chiếu với nhãn Chặng 5~~ | **Xong 06/11/2026**: đồng ý 100% / 99,98% / 99,78% (bỏ flow `attempted`); không flow tấn công nào của KU bị gán lành tính (docs/67) | | |
 | 5 | Đối chiếu Wireshark toàn bộ file CIC (hiện mới so 1 triệu gói đầu) | Chưa làm, tùy chọn | `nids.wireshark_compare` không `--limit` | Vài giờ mỗi file |
 
 Sau khi xong mục 1 cần chạy lại nhãn, chia tập, tiền xử lý (Chặng 5) và kiểm tra lại kết quả
@@ -64,7 +64,7 @@ gom lại thành các việc sau (việc tải CIC-IDS2017 đã xong):
 | ~~Chưa có dung lượng và mã băm~~ | Đã xong 27/10/2026 | | | SHA-256 và MD5 trong manifest và docs/06 mục 7.1 (thứ Tư thêm khi tải xong) |
 | ~~Chưa xác định độ lệch giờ của lịch tấn công~~ | Đã xong 27/10/2026 | | | Lịch là giờ UTC−3, khớp dữ liệu tới từng phút (docs/06 mục 7.3) |
 | ~~Chưa kiểm tra địa chỉ bên tấn công thật~~ | Đã xong 27/10/2026 | | | Là `172.16.0.1` (NAT). Port scan và DDoS cùng IP nên phải tách theo giờ |
-| Chưa tải bộ nhãn đã sửa lỗi của KU Leuven | Nên có | Thiếu nguồn đối chiếu nhãn tốt hơn CSV gốc | Làm được ngay | https://intrusion-detection.distrinet-research.be/CNS2022/ |
+| ~~Chưa tải bộ nhãn đã sửa lỗi của KU Leuven~~ | Đã xong 06/11/2026 | | | docs/67, manifest `cic17-ku-leuven` |
 | Bộ đọc PCAP mới so 1 triệu gói đầu mỗi file CIC với Wireshark (0 lệch), chưa so hết | Nên có | Phần sau của file chưa đối chiếu từng gói (đã đọc hết không lỗi) | Làm được ngay | `nids.wireshark_compare` không `--limit`, mất vài giờ mỗi file |
 
 ### 2.2. CTU-13 — đã đủ file flow có nhãn

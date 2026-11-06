@@ -8,7 +8,8 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from nids.label_report import _key, compare_with_cic, parse_cic_timestamp, report
+from nids.label_report import (_key, compare_with_cic, compare_with_ku_leuven, ku_label, parse_cic_timestamp,
+                               parse_ku_timestamp, report)
 
 CSV_HEADER = ("Flow ID, Source IP, Source Port, Destination IP, Destination Port, Protocol, "
               "Timestamp, Flow Duration, Label\n")
@@ -65,6 +66,34 @@ class CompareTest(unittest.TestCase):
         self.assertEqual(r["theo_trang_thai"]["khop"], {"so_flow": 3, "so_goi": 9})
         self.assertEqual(r["nhom_mo_ho"], [])
         self.assertEqual(len(r["doi_chieu_cic"]), 1)
+
+
+class KuLeuvenTest(CompareTest):
+    """Bộ nhãn đã sửa của KU Leuven: giờ UTC chính xác, nhãn Attempted."""
+
+    def test_label_and_time(self):
+        self.assertEqual(ku_label("DoS Hulk - Attempted"), "attempted")
+        self.assertEqual(ku_label("Portscan"), "port_scan")
+        self.assertEqual(ku_label("Botnet"), "loai")
+        self.assertEqual(ku_label("BENIGN"), "benign")
+        self.assertEqual(parse_ku_timestamp("2017-07-05 13:00:00.500000"), utc("2017-07-05 13:00") + 0.5)
+
+    def test_cross_table(self):
+        head = "id,Flow ID,Src IP,Src Port,Dst IP,Dst Port,Protocol,Timestamp,Label,Attempted Category\n"
+        csv = self.dir / "ku.csv"
+        csv.write_text(head
+                       + "1,x,192.168.10.50,80,172.16.0.1,40000,6,2017-07-05 13:00:05.200000,DoS Hulk,-1\n"
+                       + "2,x,172.16.0.1,40001,192.168.10.50,80,6,2017-07-05 13:00:30.000000,DoS Hulk - Attempted,0\n"
+                       + "3,x,192.168.10.3,5353,8.8.8.8,53,17,2017-07-05 13:00:00.000000,BENIGN,-1\n"
+                       # cùng 5-tuple nhưng lệch giờ quá 2 giây: không ghép
+                       + "4,x,192.168.10.3,5353,8.8.8.8,53,17,2017-07-05 13:00:10.000000,BENIGN,-1\n",
+                       encoding="utf-8")
+        r = compare_with_ku_leuven(self.flows, self.labels, csv)
+        self.assertEqual(r["bang_cheo_csv_x_du_an"],
+                         {"dos": {"dos": 1}, "attempted": {"dos": 1}, "benign": {"benign": 1}})
+        self.assertEqual(r["so_flow_csv_khong_ghep_duoc"], {"benign": 1})
+        self.assertAlmostEqual(r["ty_le_dong_y"], 2 / 3, places=5)
+        self.assertAlmostEqual(r["ty_le_dong_y_attempted_la_benign"], 2 / 3, places=5)
 
 
 if __name__ == "__main__":

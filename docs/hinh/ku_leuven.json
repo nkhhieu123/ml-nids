@@ -1,0 +1,72 @@
+{
+  "monday": {
+    "file_csv": "data/cic-ids2017/ku_leuven/monday.csv",
+    "so_flow_csv_ghep_duoc": 371227,
+    "so_flow_csv_khong_ghep_duoc": {
+      "benign": 397
+    },
+    "bang_cheo_csv_x_du_an": {
+      "benign": {
+        "benign": 371227
+      }
+    },
+    "ty_le_dong_y": 1.0,
+    "ty_le_dong_y_attempted_la_benign": 1.0,
+    "ty_le_dong_y_bo_attempted": 1.0
+  },
+  "wednesday": {
+    "file_csv": "data/cic-ids2017/ku_leuven/wednesday.csv",
+    "so_flow_csv_ghep_duoc": 496299,
+    "so_flow_csv_khong_ghep_duoc": {
+      "benign": 342
+    },
+    "bang_cheo_csv_x_du_an": {
+      "benign": {
+        "benign": 318688,
+        "mo_ho": 11,
+        "dos": 79
+      },
+      "dos": {
+        "dos": 171634
+      },
+      "attempted": {
+        "dos": 5599,
+        "mo_ho": 277
+      },
+      "loai": {
+        "loai": 11
+      }
+    },
+    "ty_le_dong_y": 0.987979,
+    "ty_le_dong_y_attempted_la_benign": 0.987979,
+    "ty_le_dong_y_bo_attempted": 0.999816
+  },
+  "friday": {
+    "file_csv": "data/cic-ids2017/ku_leuven/friday.csv",
+    "so_flow_csv_ghep_duoc": 547087,
+    "so_flow_csv_khong_ghep_duoc": {
+      "benign": 444,
+      "port_scan": 26
+    },
+    "bang_cheo_csv_x_du_an": {
+      "benign": {
+        "benign": 286914,
+        "port_scan": 635,
+        "loai": 539,
+        "mo_ho": 12
+      },
+      "attempted": {
+        "loai": 4067
+      },
+      "loai": {
+        "loai": 95880
+      },
+      "port_scan": {
+        "port_scan": 159040
+      }
+    },
+    "ty_le_dong_y": 0.990398,
+    "ty_le_dong_y_attempted_la_benign": 0.990398,
+    "ty_le_dong_y_bo_attempted": 0.997816
+  }
+}

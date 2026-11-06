@@ -89,6 +89,8 @@ CSV có nhiều flow hơn dự án (thứ Hai: 529 442 dòng so với 381 707 fl
 khác nhau, nên một flow của dự án có thể ứng với nhiều dòng CSV. Một phần là do
 CICFlowMeter kết thúc flow ngay ở FIN (QĐ-017); chưa đo riêng từng nguyên nhân.
 
+Cập nhật 06/11/2026: đã đối chiếu thêm với bộ nhãn đã sửa của KU Leuven ([67_doi_chieu_nhan_ku_leuven.md](67_doi_chieu_nhan_ku_leuven.md)). Lỗi DDoS của CSV gốc biến mất; đồng ý 99,8–100% khi bỏ flow `attempted`.
+
 **Kết luận.** Hai nguồn nhãn độc lập đồng ý 99–100% ở mọi file dùng cho phân loại. Chỗ
 lệch còn lại có nguyên nhân rõ, phần lớn do lỗi đã biết của CSV gốc. Vì vậy nhãn của dự
 án (theo lịch) được dùng; CSV chỉ để đối chiếu, đúng như QĐ-009.

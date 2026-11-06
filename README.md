@@ -69,7 +69,7 @@ Báo cáo Chặng 4: [docs/Bao_cao_Chang_4.md](docs/Bao_cao_Chang_4.md)
 ### Chặng 5 — Gán nhãn, EDA và chia dữ liệu
 
 - [x] C05-T01: Ghép nhãn từ nguồn và metadata phù hợp — `src/nids/labeling.py`, `config/label_schedule.csv`, [docs/26_gan_nhan.md](docs/26_gan_nhan.md)
-- [x] C05-T02: Báo cáo mẫu khớp, không khớp và mơ hồ — `src/nids/label_report.py`, [docs/27_bao_cao_nhan.md](docs/27_bao_cao_nhan.md)
+- [x] C05-T02: Báo cáo mẫu khớp, không khớp và mơ hồ — `src/nids/label_report.py`, [docs/27_bao_cao_nhan.md](docs/27_bao_cao_nhan.md); đối chiếu thêm nhãn KU Leuven: [docs/67_doi_chieu_nhan_ku_leuven.md](docs/67_doi_chieu_nhan_ku_leuven.md)
 - [x] C05-T03: Định nghĩa nhãn cho cửa sổ chứa nhiều hành vi — `src/nids/labeling.py`, [docs/28_nhan_cua_so.md](docs/28_nhan_cua_so.md)
 - [x] C05-T04: Chia train/validation/test theo phiên hoặc scenario — `src/nids/splits.py`, [docs/29_chia_du_lieu.md](docs/29_chia_du_lieu.md)
 - [x] C05-T05: Kiểm tra thiếu, vô hạn, trùng và phân bố lớp — `src/nids/data_quality.py`, `src/nids/dataset.py`, [docs/30_kiem_tra_du_lieu.md](docs/30_kiem_tra_du_lieu.md)

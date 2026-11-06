@@ -407,6 +407,13 @@ Mẫu:
 - Quyết định: Cửa sổ 120 giây đầu tiên là cửa sổ sớm nhất chứa gói đầu tiên. Chấm cửa sổ 120 giây lúc cuối cửa sổ + 3 giây + `realtime.graph_delay_s` (mặc định 10 giây). Giữ ảnh chụp flow đang mở thay vì chờ flow kết thúc.
 - Hệ quả: Bốn đoạn CIC: cùng tập host–cửa sổ botnet; 6/1 558 nhãn khác (điểm sát ngưỡng, lệch ≤ 0,055); cảnh báo botnet muộn thêm 10 giây. Chi tiết ở docs/66.
 
+## QĐ-057 — Giữ nhãn theo lịch cho flow "Attempted" của bộ nhãn KU Leuven
+- Ngày: 06/11/2026
+- Trạng thái: Đã chốt
+- Bối cảnh: Bộ nhãn đã sửa của KU Leuven gán nhãn riêng `<tấn công> - Attempted` cho flow của bên tấn công không chở nội dung tấn công, và coi chúng là lành tính. Dự án gán các flow này là `dos` theo lịch và cặp IP (QĐ-009): 5 599 flow ở thứ Tư.
+- Quyết định: Giữ nhãn hiện tại. Dự án phát hiện theo cửa sổ host 10 giây; cửa sổ của bên tấn công trong khung DoS luôn có cả flow tấn công, nên đổi nhãn flow không đổi nhãn cửa sổ. Dùng KU Leuven để đối chiếu, không thay nhãn.
+- Hệ quả: Đồng ý với KU 100% / 99,98% / 99,78% (thứ Hai, Tư, Sáu) khi bỏ flow `attempted`; không flow tấn công nào của KU bị gán lành tính. Nếu sau này huấn luyện theo flow thì cần xét lại. Chi tiết ở docs/67.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
