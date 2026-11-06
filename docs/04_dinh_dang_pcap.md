@@ -232,6 +232,14 @@ gốc; dùng chung bảng mã LINKTYPE; không nén và không có chỉ mục.
 Phần mở rộng file không đáng tin, vì Wireshark có thể lưu PCAPNG với tên
 `.pcap`. Cách nhận biết chắc chắn là đọc 4 byte đầu file.
 
+Bản thu nén: nhiều nguồn (như CTU-13) phát hành PCAP/PCAPNG nén gzip hoặc bzip2.
+`PcapReader` của dự án nhận ra file nén qua magic (`1f 8b` cho gzip, `42 5a 68`
+= `BZh` cho bzip2, cũng không phụ thuộc tên file) và giải nén trong luồng, nên
+đọc thẳng `.pcap.gz` / `.pcap.bz2` mà không cần giải nén trước. Mọi module đọc
+gói (trích xuất đặc trưng, khảo sát, đối chiếu Wireshark, cảm biến) dùng chung
+bộ đọc này nên cũng đọc được file nén. Khi tính mã băm thì vẫn băm chính file
+nén trên đĩa.
+
 ## 8. Ghi chú cho dự án
 
 - Kiểm tra định dạng: `capinfos <file>` hoặc `file <file>`.

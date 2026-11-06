@@ -175,7 +175,7 @@ gom lại thành các việc sau (việc tải CIC-IDS2017 đã xong):
 | Không ghép mảnh IP; mảnh sau không có cổng | Nên có | Nếu dữ liệu lab có nhiều phân mảnh |
 | Đường hầm (IP trong IP, GRE, VXLAN) chỉ đọc header ngoài | Nên có | Nếu lab dùng đường hầm |
 | Gói ARP bị bỏ qua, nên không phát hiện được ARP spoofing | Nên có | Ngoài phạm vi ba lớp hiện tại |
-| Bộ đọc PCAP không đọc thẳng file nén `.gz`/`.bz2` | Nên có | Phải giải nén trước, như PCAP cắt ngắn của CTU-13 |
+| ~~Bộ đọc PCAP không đọc thẳng file nén `.gz`/`.bz2`~~ | Đã xong 06/11/2026 | `PcapReader` nhận magic gzip/bz2 và giải nén trong luồng (docs/04); đọc thẳng PCAP cắt ngắn `.bz2` của CTU-13 |
 | Tốc độ khoảng 300 000 packet/giây (đọc); đối chiếu Wireshark 4,48 triệu gói mất khoảng 14 phút | Quan trọng | Đo lại trên file CIC 10 GB; tối ưu nếu quá chậm |
 | ~~Chưa có phần bắt gói trực tiếp (live capture)~~ | Đã xong | Chặng 10 (`nids.nguon_goi`, AF_PACKET); chưa chạy trên card thật |
 

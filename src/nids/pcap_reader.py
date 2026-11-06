@@ -49,6 +49,42 @@ class PcapFormatError(ValueError):
     """File không phải PCAP/PCAPNG hoặc cấu trúc bị hỏng."""
 
 
+# Magic của file nén; dùng để nhận ra, không phụ thuộc phần mở rộng tên file.
+GZIP_MAGIC = b"\x1f\x8b"
+BZ2_MAGIC = b"BZh"
+
+
+class _PushbackReader:
+    """Bọc luồng đọc tuần tự để trả lại (``unread``) vài byte đã đọc.
+
+    Dùng cho luồng nén (gzip/bz2) vì không tua lui được rẻ: thay cho ``seek(-n, 1)``.
+    """
+
+    def __init__(self, stream):
+        self._s = stream
+        self._buf = b""
+
+    def read(self, n=-1):
+        if n is None or n < 0:
+            data = self._buf + self._s.read()
+            self._buf = b""
+            return data
+        if not self._buf:
+            return self._s.read(n)
+        if len(self._buf) >= n:
+            out, self._buf = self._buf[:n], self._buf[n:]
+            return out
+        out = self._buf + self._s.read(n - len(self._buf))
+        self._buf = b""
+        return out
+
+    def unread(self, data):
+        self._buf = data + self._buf
+
+    def close(self):
+        self._s.close()
+
+
 @dataclass(frozen=True)
 class RawPacket:
     index: int          # thứ tự trong file, bắt đầu từ 0
@@ -99,6 +135,7 @@ class PcapReader:
         self.packets_read = 0
         self.truncated_file = False
         self.skipped_blocks = 0
+        self.compression = None   # None, "gzip" hoặc "bz2": nhận ra qua magic, không qua tên file
         self._endian = "<"
 
     def __enter__(self):
@@ -109,13 +146,34 @@ class PcapReader:
         self.close()
 
     def open(self):
-        self._f = self.path.open("rb")
+        self._f = self._open_maybe_compressed()
         try:
             self._read_file_header()
         except BaseException:
             self.close()
             raise
         return self
+
+    def _open_maybe_compressed(self):
+        """Mở file; nếu là gzip/bz2 thì giải nén trong luồng (đọc thẳng .gz/.bz2, không cần giải nén trước)."""
+        with self.path.open("rb") as probe:
+            head = probe.read(3)
+        if head[:2] == GZIP_MAGIC:
+            import gzip
+            self.compression = "gzip"
+            return _PushbackReader(gzip.open(self.path, "rb"))
+        if head[:3] == BZ2_MAGIC:
+            import bz2
+            self.compression = "bz2"
+            return _PushbackReader(bz2.open(self.path, "rb"))
+        return self.path.open("rb")   # file thường: giữ seek() nhanh, không bọc
+
+    def _rewind4(self, four):
+        """Tua lui 4 byte vừa đọc; luồng nén dùng unread, file thường dùng seek."""
+        if self.compression:
+            self._f.unread(four)
+        else:
+            self._f.seek(-4, 1)
 
     def _read_file_header(self):
         head = self._f.read(4)
@@ -216,7 +274,7 @@ class PcapReader:
                 self.truncated_file = True
                 return
             if struct.unpack("<I", raw[:4])[0] == PCAPNG_SHB:
-                self._f.seek(-4, 1)
+                self._rewind4(raw[4:8])
                 self._read_shb(raw[:4])
                 e = self._endian
                 continue

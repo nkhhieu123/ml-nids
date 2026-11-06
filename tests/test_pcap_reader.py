@@ -155,6 +155,58 @@ class PcapngTest(ReaderTestCase):
             list(read_packets(self.write(shb() + epb(0, 1, ARP), "t.pcapng")))
 
 
+class CompressedTest(ReaderTestCase):
+    """Đọc thẳng file PCAP/PCAPNG nén gzip/bz2, không cần giải nén trước."""
+
+    def _gz(self, data):
+        import gzip
+        return gzip.compress(data)
+
+    def _bz2(self, data):
+        import bz2
+        return bz2.compress(data)
+
+    def test_gzip_pcap(self):
+        data = pcap_bytes([(1, 0, ARP, 42), (2, 500000, ARP, 42)])
+        with PcapReader(self.write(self._gz(data), "t.pcap.gz")) as reader:
+            packets = list(reader)
+        self.assertEqual(reader.compression, "gzip")
+        self.assertEqual(reader.format, "pcap")
+        self.assertEqual([p.ts_ns for p in packets], [1_000_000_000, 2_500_000_000])
+        self.assertEqual(packets[0].data, ARP)
+
+    def test_bz2_pcap(self):
+        data = pcap_bytes([(5, 0, ARP, 42)])
+        with PcapReader(self.write(self._bz2(data), "t.pcap.bz2")) as reader:
+            packets = list(reader)
+        self.assertEqual(reader.compression, "bz2")
+        self.assertEqual(len(packets), 1)
+        self.assertEqual(packets[0].ts_ns, 5_000_000_000)
+
+    def test_gzip_pcapng_two_sections(self):
+        # Hai Section Header Block: buộc dùng đường unread trên luồng nén.
+        data = shb() + idb(1) + epb(0, 1, ARP) + shb() + idb(101) + epb(0, 2, ARP)
+        with PcapReader(self.write(self._gz(data), "t.pcapng.gz")) as reader:
+            packets = list(reader)
+        self.assertEqual(reader.compression, "gzip")
+        self.assertEqual(reader.format, "pcapng")
+        self.assertEqual([p.linktype for p in packets], [1, 101])
+        self.assertEqual([p.index for p in packets], [0, 1])
+
+    def test_compression_detected_by_magic_not_extension(self):
+        # Nội dung gzip nhưng tên .pcap: vẫn nhận ra nhờ magic.
+        data = pcap_bytes([(9, 0, ARP, 42)])
+        with PcapReader(self.write(self._gz(data), "nham_ten.pcap")) as reader:
+            packets = list(reader)
+        self.assertEqual(reader.compression, "gzip")
+        self.assertEqual(packets[0].ts_ns, 9_000_000_000)
+
+    def test_plain_file_has_no_compression(self):
+        with PcapReader(self.write(DOC_EXAMPLE)) as reader:
+            list(reader)
+        self.assertIsNone(reader.compression)
+
+
 class CliTest(ReaderTestCase):
     def test_prints_summary(self):
         out = io.StringIO()
