@@ -1,0 +1,26 @@
+[
+  {
+    "file": "../data/pcap/cic-ids2017/Monday-WorkingHours.pcap",
+    "tong_packet": 11709971,
+    "goi_ip_khop": 11655546,
+    "khop_theo_giao_thuc": {
+      "IPv4 TCP": 10718469,
+      "IPv4 UDP": 907299,
+      "IPv6 UDP": 27403,
+      "IPv6 ICMPv6": 1651,
+      "IPv4 ICMP": 671,
+      "IPv4 IGMP": 53
+    },
+    "khong_phai_ip_ca_hai_dong_y": {
+      "ARP": 46971,
+      "CDP": 7353,
+      "LLDP": 101
+    },
+    "khac_biet_co_chu_y": {
+      "icmp_chep_header_goc": 576
+    },
+    "lech": 0,
+    "lech_theo_truong": {},
+    "vi_du_lech": []
+  }
+]
