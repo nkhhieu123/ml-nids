@@ -15,7 +15,7 @@ việc**, không chạy song song.
 |---|---|---|---|---|
 | 1 | Xuất lại bảng đặc trưng 3 ngày CIC từ mã đã commit (metadata hiện ghi `co_sua_chua_commit: true`) | **Bị dừng**; chỉ có một phần thứ Hai trong `output/features_v2/` | Trong `src/`: `python -m nids.feature_export ../data/pcap/cic-ids2017/<file>.pcap --net 192.168.10.0/24 --net 172.16.0.0/24 --name cic17_<ngày> --out ../output/features_v2`; so CSV với `output/features/`, giống thì thay file meta | Khoảng 1–1,5 giờ cho 3 ngày |
 | 2 | ~~Tải 13 file `.binetflow` CTU-13 vào `data/ctu13/`~~ | **Xong 03/11/2026**: đủ 13 file (2,6 GB), mã băm trong manifest, `nids.manifest --verify` khớp; đếm nhãn ở docs/48 | | |
-| 3 | Tải lại 4 bản thu CTU-13 dùng ở Chặng 3 (donbot, sogou, fast-flux, PCAP cắt ngắn scenario 5), ghi vào manifest kèm mã băm | Chưa làm | Như mục 2.2 | Vài trăm MB |
+| 3 | ~~Tải lại 4 bản thu CTU-13 dùng ở Chặng 3, ghi vào manifest kèm mã băm~~ | **Xong 06/11/2026**: `data/ctu13/pcap/`, 4 dòng manifest, `--verify` khớp, số gói khớp docs/17 | | |
 | 4 | Tải bộ nhãn đã sửa của KU Leuven, đối chiếu với nhãn Chặng 5 | Chưa làm | `CICIDS2017_improved.zip` (328 MB) vào `data/cic-ids2017/`; flow "Attempted" coi là lành tính | 328 MB |
 | 5 | Đối chiếu Wireshark toàn bộ file CIC (hiện mới so 1 triệu gói đầu) | Chưa làm, tùy chọn | `nids.wireshark_compare` không `--limit` | Vài giờ mỗi file |
 
@@ -77,7 +77,7 @@ gom lại thành các việc sau (việc tải CIC-IDS2017 đã xong):
 | Chưa xác định múi giờ của cột `StartTime` | Nên có (chỉ cần khi ghép với PCAP; Chặng 8 chỉ dùng khoảng cách thời gian) | Lệch giờ khi ghép với PCAP | Làm được ngay | So `StartTime` với timestamp của PCAP cắt ngắn cùng scenario |
 | Scenario validation **tạm chọn 4 và 13** (QĐ-039), chờ nhóm xác nhận | Quan trọng | Chưa chia được dữ liệu ở Chặng 5 | **Bạn** quyết định | Chọn 1–2 scenario trong nhóm train làm validation |
 | ~~Topology của scenario 6 và 8 chưa xác định~~ | Đã xong: có flow CC, xếp `centralized` (docs/48) | Hai scenario này không có nhãn topology | Làm được ngay | Xem nhãn kênh điều khiển (`CC`) trong file flow |
-| 4 bản thu CTU-13 đã dùng ở Chặng 3 (donbot, sogou, Virut, PCAP cắt ngắn scenario 5) chỉ nằm trong thư mục tạm, chưa có trong `data/` và manifest | Nên có | Người khác không tái lập được phép đối chiếu Wireshark | Làm được ngay | Thêm dòng manifest, ghi link tải và mã băm |
+| ~~4 bản thu CTU-13 đã dùng ở Chặng 3 chỉ nằm trong thư mục tạm~~ | Đã xong 06/11/2026 (manifest `ctu13-s0x-pcap-*`) | Người khác không tái lập được phép đối chiếu Wireshark | Làm được ngay | Thêm dòng manifest, ghi link tải và mã băm |
 
 ### 2.3. Dữ liệu lab — chưa thu lần nào
 

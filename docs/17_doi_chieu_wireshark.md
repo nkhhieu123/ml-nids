@@ -66,6 +66,11 @@ nhóm tự sinh, nó có gói NTP và một kết nối TCP của Ubuntu tới m
 Canonical (hệ điều hành tự đồng bộ giờ). Các file thu chỉ lưu trong thư mục tạm,
 không đưa lên git.
 
+Cập nhật 06/11/2026: bốn bản thu CTU-13 ở bảng trên (donbot, sogou, fast-flux, PCAP cắt ngắn scenario 5)
+đã tải lại vào `data/ctu13/pcap/`, có dòng trong manifest kèm SHA-256 (`ctu13-s05-pcap-bot`,
+`ctu13-s05-pcap-cat-ngan`, `ctu13-s06-pcap-bot`, `ctu13-s07-pcap-bot`); số gói khớp bảng mục 3. Bản thu
+WSL và file tự tạo vẫn không lưu.
+
 ## 3. Kết quả
 
 | File | Packet | Gói IP khớp | Không phải IP (hai bên đồng ý) | Khác biệt có chủ ý | Lệch |
