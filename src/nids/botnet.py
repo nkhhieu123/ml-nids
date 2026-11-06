@@ -256,13 +256,51 @@ def model_search(df, cfg=None, log=print) -> dict:
     return out
 
 
-def evaluate(model, df, split="test") -> dict:
-    """Chỉ số mức host–cửa sổ: tổng, theo scenario; tỷ lệ cửa sổ Background bị báo (không phải FPR)."""
+def host_aggregation_config(cfg=None) -> dict:
+    """Tham số gộp theo host (C09); chọn trên validation (docs/69). ``min_strong`` 0 nghĩa là tắt."""
+    r = dict((botnet_config(cfg).get("host_aggregation")) or {})
+    r.setdefault("min_strong", 500)
+    r.setdefault("min_frac", 0.13)
+    return r
+
+
+def confirmed_bot_hosts(df, scores, threshold, min_strong, min_frac) -> set:
+    """Tập (session, host) được xác nhận là bot trong run: đủ nhiều cửa sổ điểm ≥ ngưỡng.
+
+    Gộp theo (session, host) = một lần thu. Host được xác nhận nếu số cửa sổ có điểm ≥ ``threshold``
+    đạt ít nhất ``min_strong`` VÀ chiếm ít nhất ``min_frac`` tổng số cửa sổ của host (C09, docs/69).
+    """
+    strong = np.asarray(scores) >= threshold
+    t = pd.DataFrame({"session": df["session"].to_numpy(), "host": df["host"].to_numpy(), "s": strong})
+    agg = t.groupby(["session", "host"])["s"].agg(["sum", "size"])
+    ok = agg[(agg["sum"] >= min_strong) & (agg["sum"] >= min_frac * agg["size"])]
+    return set(ok.index)
+
+
+def aggregate_host(df, pred, confirmed):
+    """Nâng dự đoán lên ``suspect_host`` cho mọi cửa sổ thuộc host đã được xác nhận (C09)."""
+    keys = zip(df["session"].to_numpy(), df["host"].to_numpy())
+    return np.array([SUSPECT if k in confirmed else p for k, p in zip(keys, pred)], dtype=object)
+
+
+def evaluate(model, df, split="test", host_agg=None) -> dict:
+    """Chỉ số mức host–cửa sổ: tổng, theo scenario; tỷ lệ cửa sổ Background bị báo (không phải FPR).
+
+    ``host_agg`` (dict ``min_strong``/``min_frac``) bật lớp gộp theo host của C09 (docs/69): xác nhận host
+    là bot trong run rồi nâng mọi cửa sổ của host lên suspect. Mặc định None: giữ nguyên hành vi C08.
+    """
     part = labeled_part(df, split)
     pred = model.predict(part)
-    res = {"tong": binary_report(part[LABEL_COL], pred), "theo_scenario": {}}
     bg = df[(df["split"] == split) & (df[LABEL_COL] == BACKGROUND)]
     bg_pred = model.predict(bg) if len(bg) else np.array([])
+    if host_agg:
+        full = df[df["split"] == split]
+        confirmed = confirmed_bot_hosts(full, model.score(full), model.threshold,
+                                        host_agg["min_strong"], host_agg["min_frac"])
+        pred = aggregate_host(part, pred, confirmed)
+        if len(bg):
+            bg_pred = aggregate_host(bg, bg_pred, confirmed)
+    res = {"tong": binary_report(part[LABEL_COL], pred), "theo_scenario": {}}
     for s in sorted(set(part["scenario"]) | set(bg["scenario"])):
         m = (part["scenario"] == s).to_numpy()
         mb = (bg["scenario"] == s).to_numpy()
@@ -506,6 +544,33 @@ def cmd_evaluate(args):
     print(f"Đã ghi: {out / 'botnet_danh_gia.json'}")
 
 
+def cmd_host_agg(args):
+    """C09: đo tác dụng của lớp gộp theo host (vớt bot chậm), so với baseline C08."""
+    from .config import load_config
+
+    cfg = load_config(args.config)
+    ha = host_aggregation_config(cfg)
+    df = load_labeled(args.flows_dir, sorted(SCENARIOS), cfg)
+    model = load_model(args.model)
+    res = {"tham_so": ha, "nguong": model.threshold}
+    for split in ("validation", "test"):
+        res[split] = {"baseline": evaluate(model, df, split), "gop_host": evaluate(model, df, split, host_agg=ha)}
+    out = Path(args.out)
+    out.mkdir(parents=True, exist_ok=True)
+    path = out / "botnet_gop_host.json"
+    path.write_text(json.dumps(res, ensure_ascii=False, indent=2, default=str), encoding="utf-8")
+    for split in ("validation", "test"):
+        b0, b1 = res[split]["baseline"]["tong"], res[split]["gop_host"]["tong"]
+        print(f"[{split}] baseline: R {b0['recall']} P {b0['precision']} F1 {b0['f1']} "
+              f"bg {res[split]['baseline']['background_bi_bao']}")
+        print(f"[{split}] gộp host: R {b1['recall']} P {b1['precision']} F1 {b1['f1']} "
+              f"bg {res[split]['gop_host']['background_bi_bao']}")
+        for s, v in res[split]["gop_host"]["theo_scenario"].items():
+            v0 = res[split]["baseline"]["theo_scenario"][s]
+            print(f"   s{s}: R {v0['recall']}→{v['recall']} P {v0['precision']}→{v['precision']}")
+    print(f"Đã ghi: {path}")
+
+
 def cmd_labels(args):
     from .config import load_config
 
@@ -546,6 +611,12 @@ def main(argv=None):
     p.add_argument("--out", required=True)
     p.add_argument("--config", help="file cấu hình, mặc định config/default.yaml")
     p.set_defaults(func=cmd_evaluate)
+    p = sub.add_parser("gop-host", help="C09: đo lớp gộp theo host (vớt bot chậm), so baseline (docs/69)")
+    p.add_argument("flows_dir")
+    p.add_argument("--model", required=True, help="file joblib của bộ phát hiện (thường botnet_rf.joblib)")
+    p.add_argument("--out", required=True)
+    p.add_argument("--config", help="file cấu hình, mặc định config/default.yaml")
+    p.set_defaults(func=cmd_host_agg)
     args = parser.parse_args(argv)
     args.func(args)
     return 0

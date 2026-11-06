@@ -140,7 +140,7 @@ gom lại thành các việc sau (việc tải CIC-IDS2017 đã xong):
 | Thiếu | Mức | Ảnh hưởng | Ai làm |
 |---|---|---|---|
 | Chỉ 4 máy bình thường đã xác nhận, giống nhau ở mọi tập; mô hình dễ học danh tính máy (docs/49 mục 2) | Quan trọng | Báo nhầm 1,6% chưa đại diện mạng lạ; Background test bị báo 11,9% | Cần dữ liệu lab có nhiều máy bình thường |
-| Bot chậm (Murlo, scenario 8) bị bỏ sót: cửa sổ chỉ có 2–3 flow botnet (docs/52) | Quan trọng | Recall scenario 8 chỉ 0,15 | Làm được ngay: gộp cảnh báo theo host qua nhiều cửa sổ (Chặng 9) hoặc cửa sổ dài hơn |
+| ~~Bot chậm (Murlo, scenario 8) bị bỏ sót~~ | Đã xong 06/11/2026 (tùy chọn, mặc định tắt) | Lớp gộp theo host: recall scenario 8 0,154→1,0, F1 chung 0,798→0,990, báo nhầm máy bình thường không đổi (docs/69) |
 | Mô hình học từ CTU-13 không phát hiện bot giả lập (recall 0,017) | Quan trọng | Không dùng thẳng được cho lab | Học lại trên dữ liệu lab (Chặng 11) |
 | Chỉ một scenario P2P (12), nằm ở train; test CTU-13 không có P2P | Quan trọng | Nhận diện P2P chỉ kiểm tra trên giả lập | **Bạn** thu lab kịch bản 5 (B18) |
 | Quy tắc topology không phân biệt đối chứng tập trung lành tính; P2P chu kỳ dài hoặc dùng TCP dễ bị xếp tập trung | Nên có | Sai topology khi bộ phát hiện báo nhầm | Thêm đặc trưng nhóm khi có đồ thị lab |

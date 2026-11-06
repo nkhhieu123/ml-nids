@@ -414,6 +414,13 @@ Mẫu:
 - Quyết định: Giữ nhãn hiện tại. Dự án phát hiện theo cửa sổ host 10 giây; cửa sổ của bên tấn công trong khung DoS luôn có cả flow tấn công, nên đổi nhãn flow không đổi nhãn cửa sổ. Dùng KU Leuven để đối chiếu, không thay nhãn.
 - Hệ quả: Đồng ý với KU 100% / 99,98% / 99,78% (thứ Hai, Tư, Sáu) khi bỏ flow `attempted`; không flow tấn công nào của KU bị gán lành tính. Nếu sau này huấn luyện theo flow thì cần xét lại. Chi tiết ở docs/67.
 
+## QĐ-058 — Lớp gộp cảnh báo botnet theo host (tùy chọn, Chặng 9) để vớt bot chậm
+- Ngày: 06/11/2026
+- Trạng thái: Đã chốt
+- Bối cảnh: C08-T08 cho recall scenario 8 (Murlo) chỉ 0,154 vì phần lớn cửa sổ bot chỉ có 1–3 flow, điểm gần 0; hạ ngưỡng vô ích. Nhưng host đó có 1 034 cửa sổ điểm cao trong cùng run.
+- Quyết định: Thêm lớp gộp theo host (mặc định TẮT): xác nhận host là bot trong một run nếu số cửa sổ điểm ≥ ngưỡng đạt ≥ `min_strong` và chiếm ≥ `min_frac`, rồi nâng mọi cửa sổ của host lên suspect. Chọn `min_strong=500`, `min_frac=0,13` trên validation (Background validation giữ ≤ 5%, QĐ-040). Dùng số tuyệt đối vì nó tách bot (≥728) khỏi máy bình thường (≤268).
+- Hệ quả: Test recall 0,678→1,0, F1 0,798→0,990, scenario 8 recall 0,154→1,0; báo nhầm máy bình thường không đổi (1,58%); Background test 11,9%→20,3% (không phải FPR). Mặc định tắt nên C08-T08 và C10-T08 không đổi. Bản realtime cần xác nhận theo luồng (để sau). Chi tiết docs/69.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.

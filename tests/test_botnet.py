@@ -9,9 +9,10 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from nids.botnet import (BotnetDetector, binary_report, botnet_config, evaluate, feature_names, label_host_windows,
-                         labeled_part, load_model, model_search, recognize_topology, run_topology, save_model,
-                         scenario_split, scenario_topology, topology_confusion, topology_tables, training_set)
+from nids.botnet import (BotnetDetector, aggregate_host, binary_report, botnet_config, confirmed_bot_hosts, evaluate,
+                         feature_names, host_aggregation_config, label_host_windows, labeled_part, load_model,
+                         model_search, recognize_topology, run_topology, save_model, scenario_split,
+                         scenario_topology, topology_confusion, topology_tables, training_set)
 from nids.topology_sim import default_runs, label_runs, simulate
 from nids.ctu13 import (FLOW_COLUMNS, extract, flow_group, from_project_flows, is_cc, load_flows,
                         pick_background, prepare_scenario, scan)
@@ -305,6 +306,65 @@ class DetectorTest(unittest.TestCase):
             joblib.dump({"x": 1}, Path(d) / "x.joblib")
             with self.assertRaises(TypeError):
                 load_model(Path(d) / "x.joblib")
+
+
+class HostAggregationTest(unittest.TestCase):
+    """C09: gộp theo host qua nhiều cửa sổ để vớt bot chậm (docs/69)."""
+
+    def _df(self, scores, labels, hosts, sessions=None):
+        n = len(scores)
+        return pd.DataFrame({
+            "session": sessions or (["s"] * n), "host": hosts, "window_start": list(range(n)),
+            "label_host": labels, "split": ["test"] * n, "scenario": [8] * n,
+            "score": scores,
+        })
+
+    def test_confirmed_bot_hosts(self):
+        # host "cham": 3 cửa sổ mạnh trong 20 (frac 0.15) -> đủ min_strong=3, min_frac=0.13
+        # host "tho": 2 mạnh / 4 (frac 0.5) nhưng chỉ 2 < min_strong -> không xác nhận
+        # host "nhieu": 3 mạnh / 100 (frac 0.03) -> đủ số nhưng dưới min_frac -> không xác nhận
+        scores, hosts = [], []
+        for h, strong, total in [("cham", 3, 20), ("tho", 2, 4), ("nhieu", 3, 100)]:
+            scores += [0.9] * strong + [0.0] * (total - strong)
+            hosts += [h] * total
+        df = self._df(scores, ["suspect_host"] * len(scores), hosts)
+        conf = confirmed_bot_hosts(df, df["score"].to_numpy(), 0.1, min_strong=3, min_frac=0.13)
+        self.assertEqual(conf, {("s", "cham")})
+
+    def test_aggregate_host_upgrades_only_confirmed(self):
+        df = self._df([0.0, 0.0, 0.9], ["suspect_host"] * 3, ["a", "a", "b"])
+        pred = np.array(["normal_host", "normal_host", "suspect_host"], dtype=object)
+        out = aggregate_host(df, pred, {("s", "a")})
+        self.assertEqual(list(out), ["suspect_host", "suspect_host", "suspect_host"])  # a được nâng, b giữ
+
+    def test_evaluate_with_aggregation_raises_recall(self):
+        # Bot chậm "b": chỉ vài cửa sổ điểm cao, phần lớn điểm 0 -> baseline bỏ sót, gộp vớt lại.
+        strong = [0.9] * 6
+        weak = [0.0] * 40
+        df = self._df(strong + weak + [0.0] * 10,
+                      ["suspect_host"] * 46 + ["normal_host"] * 10,
+                      ["b"] * 46 + ["n"] * 10)
+
+        class FakeModel:
+            threshold = 0.1
+
+            def score(self, d):
+                return d["score"].to_numpy()
+
+            def predict(self, d, threshold=None):
+                th = self.threshold if threshold is None else threshold
+                return np.where(d["score"].to_numpy() >= th, "suspect_host", "normal_host")
+
+        m = FakeModel()
+        base = evaluate(m, df, "test")["tong"]
+        agg = evaluate(m, df, "test", host_agg={"min_strong": 3, "min_frac": 0.1})["tong"]
+        self.assertAlmostEqual(base["recall"], 6 / 46, places=3)
+        self.assertEqual(agg["recall"], 1.0)
+        self.assertEqual(agg["precision"], 1.0)   # host bình thường không bị nâng
+
+    def test_config_defaults(self):
+        r = host_aggregation_config({})
+        self.assertEqual((r["min_strong"], r["min_frac"]), (500, 0.13))
 
 
 class TopologyRuleTest(unittest.TestCase):
