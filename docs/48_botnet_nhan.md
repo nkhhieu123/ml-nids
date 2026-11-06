@@ -40,7 +40,11 @@ So với README:
 - Máy bình thường: ba máy của docs/07, cộng **`147.32.1.20`** có nhãn `From-Normal` ở scenario 8, 9,
   10. Không có trong danh sách README nhưng tác giả gán `From-Normal`, nên vẫn dùng.
 - `StartTime` là giờ địa phương; chỉ dùng khoảng cách thời gian trong cùng scenario nên không cần
-  xác định múi giờ.
+  xác định múi giờ. Đã xác định (06/11/2026) để ghi lại: **`StartTime` là UTC+2** (giờ mùa hè Praha,
+  CEST). Cách làm: khớp 5-tuple có hướng giữa PCAP chỉ-bot (dấu thời gian UTC) và binetflow của cùng
+  scenario, lấy hiệu giữa thời điểm gói đầu và `StartTime`. Ba scenario (5 Virut, 6 DonBot, 7 Sogou,
+  bot `147.32.84.165`) đều cho trung vị đúng −7 203 giây = −2,00 giờ; riêng DonBot có 4 426/4 468 flow
+  lệch dưới 5 giây quanh trung vị. Vậy để đổi `StartTime` sang UTC thì **trừ 2 giờ**.
 
 ## 2. Nhãn host–cửa sổ
 
