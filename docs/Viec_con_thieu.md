@@ -11,9 +11,11 @@ khoảng 3 phút). Chỉ còn file dở dang, **chưa dùng được**, không �
 dùng trong `output/features/` không bị ảnh hưởng. Nên đóng bớt ứng dụng rồi chạy **lần lượt từng
 việc**, không chạy song song.
 
+**Cập nhật 07/11/2026:** việc 1 (xuất lại đặc trưng 3 ngày) **đã xong**: chạy lần lượt từng ngày ở foreground, cả ba byte giống hệt bản cũ, metadata nay sạch. Việc 2 đã xong trước đó. Mục 0 này không còn việc dở.
+
 | # | Việc | Trạng thái | Cách làm | Thời gian |
 |---|---|---|---|---|
-| 1 | Xuất lại bảng đặc trưng 3 ngày CIC từ mã đã commit (metadata hiện ghi `co_sua_chua_commit: true`) | **Đang làm 07/11/2026, từng ngày một.** Thứ Hai, Thứ Tư: XONG — xuất lại từ cây sạch, flows+windows byte giống hệt bản cũ (SHA-256 khớp), meta mới ghi `co_sua_chua_commit: false`, đã thay meta/schema sạch vào `output/features`. Thứ Sáu: đang chạy. | foreground từng ngày để `git` có trên PATH; so CSV rồi thay file meta nếu giống | Mỗi ngày ~40–48 phút |
+| 1 | ~~Xuất lại bảng đặc trưng 3 ngày CIC từ mã đã commit~~ | **XONG 07/11/2026.** Cả ba ngày (Hai, Tư, Sáu) xuất lại từ cây git sạch: flows+windows byte giống hệt bản cũ (SHA-256 khớp từng file) → mã trên git tái lập đúng bảng đang dùng. Meta mới ghi `co_sua_chua_commit: false` (commit `3d26b76`/`c7c42fc`/`91ed0ca`), đã thay meta/schema sạch vào `output/features`. | | |
 | 2 | ~~Tải 13 file `.binetflow` CTU-13 vào `data/ctu13/`~~ | **Xong 03/11/2026**: đủ 13 file (2,6 GB), mã băm trong manifest, `nids.manifest --verify` khớp; đếm nhãn ở docs/48 | | |
 | 3 | ~~Tải lại 4 bản thu CTU-13 dùng ở Chặng 3, ghi vào manifest kèm mã băm~~ | **Xong 06/11/2026**: `data/ctu13/pcap/`, 4 dòng manifest, `--verify` khớp, số gói khớp docs/17 | | |
 | 4 | ~~Tải bộ nhãn đã sửa của KU Leuven, đối chiếu với nhãn Chặng 5~~ | **Xong 06/11/2026**: đồng ý 100% / 99,98% / 99,78% (bỏ flow `attempted`); không flow tấn công nào của KU bị gán lành tính (docs/67) | | |
@@ -115,7 +117,7 @@ gom lại thành các việc sau (việc tải CIC-IDS2017 đã xong):
 
 | Thiếu | Mức | Ảnh hưởng | Ai làm |
 |---|---|---|---|
-| Bảng đặc trưng xuất khi mã chưa commit (mục 0, việc 1) | Quan trọng | Chưa chứng minh được bảng tái lập từ mã trên git | Làm được ngay khi máy rảnh |
+| ~~Bảng đặc trưng xuất khi mã chưa commit~~ | Đã xong 07/11/2026 | Xuất lại từ cây sạch, byte giống hệt → đã chứng minh tái lập; meta ghi `co_sua_chua_commit: false` | |
 | Tham số flow tạm thời: timeout 60/120/10 giây, quan sát bắt tay 3 giây (QĐ-017, QĐ-023) chưa chỉnh trên validation | Nên có | Đặc trưng có thể chưa tối ưu | Làm được ngay |
 | Tốc độ xuất bảng khoảng 9 600 gói/giây trên máy phát triển, chưa đo trên Kali | Quan trọng | Có thể không kịp realtime | **Bạn** chạy trên Kali |
 | Mọi traffic tấn công CIC đi qua NAT `172.16.0.1`: đặc trưng cửa sổ của "máy tấn công" gộp nhiều máy | Nên có | Kết quả theo host phía tấn công không đại diện | Cần dữ liệu lab |
