@@ -13,7 +13,7 @@ việc**, không chạy song song.
 
 | # | Việc | Trạng thái | Cách làm | Thời gian |
 |---|---|---|---|---|
-| 1 | Xuất lại bảng đặc trưng 3 ngày CIC từ mã đã commit (metadata hiện ghi `co_sua_chua_commit: true`) | **Bị dừng**; chỉ có một phần thứ Hai trong `output/features_v2/` | Trong `src/`: `python -m nids.feature_export ../data/pcap/cic-ids2017/<file>.pcap --net 192.168.10.0/24 --net 172.16.0.0/24 --name cic17_<ngày> --out ../output/features_v2`; so CSV với `output/features/`, giống thì thay file meta | Khoảng 1–1,5 giờ cho 3 ngày |
+| 1 | Xuất lại bảng đặc trưng 3 ngày CIC từ mã đã commit (metadata hiện ghi `co_sua_chua_commit: true`) | **Thứ Hai đã xuất lại 06/11/2026 và byte giống hệt bản cũ (SHA-256 flows+windows khớp) → mã commit tái tạo đúng bảng cũ.** Thứ Tư, Thứ Sáu hoãn: máy đang thiếu bộ nhớ (Thứ Hai mất 2h35 thay vì ~11 phút). Khi chạy lại: foreground từng ngày một để `git` có trên PATH (chạy nền làm metadata ghi `commit: null`); so CSV với `output/features/`, giống thì thay file meta | Khoảng 1 giờ/ngày khi máy rảnh |
 | 2 | ~~Tải 13 file `.binetflow` CTU-13 vào `data/ctu13/`~~ | **Xong 03/11/2026**: đủ 13 file (2,6 GB), mã băm trong manifest, `nids.manifest --verify` khớp; đếm nhãn ở docs/48 | | |
 | 3 | ~~Tải lại 4 bản thu CTU-13 dùng ở Chặng 3, ghi vào manifest kèm mã băm~~ | **Xong 06/11/2026**: `data/ctu13/pcap/`, 4 dòng manifest, `--verify` khớp, số gói khớp docs/17 | | |
 | 4 | ~~Tải bộ nhãn đã sửa của KU Leuven, đối chiếu với nhãn Chặng 5~~ | **Xong 06/11/2026**: đồng ý 100% / 99,98% / 99,78% (bỏ flow `attempted`); không flow tấn công nào của KU bị gán lành tính (docs/67) | | |
