@@ -1,0 +1,114 @@
+{
+  "fri_quet_x4": {
+    "thoi_gian_chay_s": 442.8,
+    "goi_nhan": 373396,
+    "goi_xu_ly": 359195,
+    "goi_bo_hang_doi": 14201,
+    "goi_bo_kernel": 0,
+    "ty_le_bo": 0.038032,
+    "toc_do_trung_binh_goi_s": 811.2,
+    "cpu_trung_binh_phan_tram": 93.3,
+    "ram_lon_nhat_mb": 400.2,
+    "hang_doi_sau_nhat": 100000,
+    "do_tre_xu_ly_s": {
+      "p50": 61.0694,
+      "p95": 101.2917,
+      "p99": 105.0742,
+      "lon_nhat": 106.99
+    },
+    "cua_so_10s": 7446,
+    "cua_so_120s": 732,
+    "canh_bao": 1151,
+    "su_kien": 107,
+    "flow_ket_thuc_do_tran": 0,
+    "thoi_gian_cham_s": {
+      "anomaly": 12.3,
+      "attack_classification": 61.13,
+      "botnet_topology": 258.38
+    }
+  },
+  "wed_hulk_x1": {
+    "thoi_gian_chay_s": 196.4,
+    "goi_nhan": 559307,
+    "goi_xu_ly": 559307,
+    "goi_bo_hang_doi": 0,
+    "goi_bo_kernel": 0,
+    "ty_le_bo": 0.0,
+    "toc_do_trung_binh_goi_s": 2848.5,
+    "cpu_trung_binh_phan_tram": 32.4,
+    "ram_lon_nhat_mb": 346.7,
+    "hang_doi_sau_nhat": 10092,
+    "do_tre_xu_ly_s": {
+      "p50": 0.0012,
+      "p95": 0.0572,
+      "p99": 0.5165,
+      "lon_nhat": 0.6913
+    },
+    "cua_so_10s": 1406,
+    "cua_so_120s": 66,
+    "canh_bao": 348,
+    "su_kien": 18,
+    "flow_ket_thuc_do_tran": 0,
+    "thoi_gian_cham_s": {
+      "anomaly": 0.67,
+      "attack_classification": 2.26,
+      "botnet_topology": 10.83
+    }
+  },
+  "wed_slowloris_x1": {
+    "thoi_gian_chay_s": 320.8,
+    "goi_nhan": 73284,
+    "goi_xu_ly": 73284,
+    "goi_bo_hang_doi": 0,
+    "goi_bo_kernel": 0,
+    "ty_le_bo": 0.0,
+    "toc_do_trung_binh_goi_s": 228.4,
+    "cpu_trung_binh_phan_tram": 7.3,
+    "ram_lon_nhat_mb": 207.2,
+    "hang_doi_sau_nhat": 1104,
+    "do_tre_xu_ly_s": {
+      "p50": 0.0008,
+      "p95": 0.0165,
+      "p99": 0.0562,
+      "lon_nhat": 0.2992
+    },
+    "cua_so_10s": 1964,
+    "cua_so_120s": 30,
+    "canh_bao": 654,
+    "su_kien": 9,
+    "flow_ket_thuc_do_tran": 0,
+    "thoi_gian_cham_s": {
+      "anomaly": 1.05,
+      "attack_classification": 3.62,
+      "botnet_topology": 4.85
+    }
+  },
+  "wed_slowloris_x16": {
+    "thoi_gian_chay_s": 21.0,
+    "goi_nhan": 73284,
+    "goi_xu_ly": 73284,
+    "goi_bo_hang_doi": 0,
+    "goi_bo_kernel": 0,
+    "ty_le_bo": 0.0,
+    "toc_do_trung_binh_goi_s": 3487.9,
+    "cpu_trung_binh_phan_tram": 70.5,
+    "ram_lon_nhat_mb": 209.5,
+    "hang_doi_sau_nhat": 7642,
+    "do_tre_xu_ly_s": {
+      "p50": 0.0491,
+      "p95": 0.3596,
+      "p99": 0.4409,
+      "lon_nhat": 0.5193
+    },
+    "cua_so_10s": 1964,
+    "cua_so_120s": 30,
+    "canh_bao": 654,
+    "su_kien": 9,
+    "flow_ket_thuc_do_tran": 0,
+    "thoi_gian_cham_s": {
+      "anomaly": 0.91,
+      "attack_classification": 3.41,
+      "botnet_topology": 4.73
+    }
+  }
+}

@@ -379,6 +379,13 @@ Mẫu:
 - Quyết định: Luồng đọc đẩy vào `Queue(realtime.queue_size)` bằng `put_nowait`, đầy thì bỏ gói mới và đếm. Không có gói trong `tick_s` thì đẩy thời gian (thời điểm gói cuối + thời gian thật × hệ số đồng hồ). Trần `max_active_flows` (kết thúc flow lâu nhất chưa có gói, lý do mới `gioi_han_bo_nho`) và `max_flow_rows`; offline không dùng trần.
 - Hệ quả: Mọi gói đều xử lý hoặc được đếm là bỏ; state về 0 sau khi im lặng. Hai luồng chậm hơn một luồng khi phát lại hết tốc độ (tranh GIL). Sửa lỗi đếm đôi flow đang đóng của C10-T03. Chi tiết ở docs/62.
 
+## QĐ-053 — Số liệu vận hành ghi định kỳ; đo theo nhịp thật, loại phép đo bị nhiễu
+- Ngày: 06/11/2026
+- Trạng thái: Đã chốt (chưa đo trên Kali)
+- Bối cảnh: C10-T05 cần đo gói xử lý, gói bỏ và tài nguyên. Hai lần đo đầu bị nhiễu: máy vào chế độ ngủ, và một script đo cũ chạy song song.
+- Quyết định: `Metrics` ghi mỗi 10 giây (giờ thật) gói nhận/xử lý/bỏ (hàng đợi, kernel), tốc độ, hàng đợi, CPU, RAM, độ trễ xử lý (p50/p95/lớn nhất), state, kết quả; tổng kết khi dừng. Đo bằng phát lại theo nhịp thật, giữ máy thức trong lúc đo, chạy từng phép đo một, kiểm tra không có sự kiện ngủ.
+- Hệ quả: Ở nhịp thật không bỏ gói, độ trễ xử lý < 0,7 giây (kể cả DoS khoảng 2 850 gói/s). Quét cổng ×4 quá tải vì module botnet dựng lại đồ thị 600 giây mỗi bước: bỏ 3,8% gói. Chi tiết ở docs/63.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.

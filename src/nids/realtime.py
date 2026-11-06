@@ -5,6 +5,8 @@
   (docs/61_realtime.md, QĐ-051).
 - C10-T04: hàng đợi giới hạn giữa luồng đọc gói và luồng xử lý (đầy thì bỏ gói và đếm), nhịp thời gian khi
   mạng im lặng, trần số flow mở và bảng flow gần đây (docs/62_hang_doi_don_state.md, QĐ-052).
+- C10-T05: đo gói nhận, xử lý, bỏ (hàng đợi, kernel), tốc độ, độ trễ xử lý, CPU, RAM, state; ghi định kỳ
+  (docs/63_do_hieu_nang.md, QĐ-053).
 
     python -m nids.realtime --iface eth1 --net 192.168.50.0/24 --out output/realtime
     python -m nids.realtime --pcap output/pcap/fri_quet.pcap --net 192.168.10.0/24 --out output/realtime
@@ -38,7 +40,120 @@ def realtime_config(cfg=None) -> dict:
     r.setdefault("tick_s", 1.0)                # nhịp đẩy thời gian khi không có gói
     r.setdefault("max_active_flows", 200_000)  # trần flow đang mở
     r.setdefault("max_flow_rows", 500_000)     # trần flow đã kết thúc giữ cho cửa sổ 120 giây
+    r.setdefault("metrics_interval_s", 10.0)   # ghi số liệu mỗi khoảng này (giờ thật)
     return r
+
+
+def rss_mb() -> float | None:
+    """RAM thường trú của tiến trình (MB): psutil nếu có, nếu không đọc /proc/self/status (Linux)."""
+    try:
+        import psutil
+        return round(psutil.Process().memory_info().rss / 2**20, 1)
+    except ImportError:
+        pass
+    try:
+        for line in Path("/proc/self/status").read_text().splitlines():
+            if line.startswith("VmRSS:"):
+                return round(int(line.split()[1]) / 1024, 1)
+    except OSError:
+        pass
+    return None
+
+
+def _percentile(values, q):
+    if not values:
+        return None
+    v = sorted(values)
+    return round(v[min(len(v) - 1, int(q * (len(v) - 1) + 0.5))], 4)
+
+
+class Metrics:
+    """Số liệu vận hành của cảm biến (C10-T05), ghi mỗi ``interval_s`` giây thật thành một dòng JSON.
+
+    CPU tính từ ``os.times()`` (user + system) chia thời gian thật: 100% là một lõi bận hoàn toàn.
+    Độ trễ xử lý là thời gian một gói chờ từ lúc tới (theo nhịp nguồn) tới lúc được xử lý.
+    """
+
+    def __init__(self, runner, path=None, interval_s=10.0, clock=time.monotonic):
+        import os
+        self.runner, self.path, self.interval_s, self.clock = runner, path, interval_s, clock
+        self.t0 = self.t_last = clock()
+        self.cpu0 = self.cpu_last = sum(os.times()[:2])
+        self.processed_last = 0
+        self.kernel_drops = 0
+        self.lags = []
+        self.rows = []
+        self.peak_rss = None
+        if path is not None:
+            Path(path).parent.mkdir(parents=True, exist_ok=True)
+            self._fh = open(path, "w", encoding="utf-8")
+        else:
+            self._fh = None
+
+    def lag(self, seconds):
+        self.lags.append(seconds)
+
+    def maybe_report(self, force=False):
+        now = self.clock()
+        if not force and now - self.t_last < self.interval_s:
+            return None
+        return self.report(now)
+
+    def report(self, now=None):
+        import json
+        import os
+        now = self.clock() if now is None else now
+        r, eng = self.runner, self.runner.engine
+        cpu = sum(os.times()[:2])
+        dt = max(now - self.t_last, 1e-9)
+        self.kernel_drops += r.source.kernel_drops() if hasattr(r.source, "kernel_drops") else 0
+        rss = rss_mb()
+        if rss is not None:
+            self.peak_rss = rss if self.peak_rss is None else max(self.peak_rss, rss)
+        processed = r.processed
+        row = {"thoi_gian_chay_s": round(now - self.t0, 1), "goi_nhan": getattr(r.source, "received", None),
+               "goi_xu_ly": processed, "goi_bo_hang_doi": r.dropped, "goi_bo_kernel": self.kernel_drops,
+               "goi_khong_phai_ip": eng.stats["goi_khong_phai_ip"],
+               "toc_do_goi_s": round((processed - self.processed_last) / dt, 1),
+               "hang_doi_hien_tai": r.q.qsize(), "hang_doi_sau_nhat": r.max_depth,
+               "cpu_phan_tram": round(100 * (cpu - self.cpu_last) / dt, 1), "ram_mb": rss,
+               "do_tre_xu_ly_s": {"p50": _percentile(self.lags, 0.5), "p95": _percentile(self.lags, 0.95),
+                                  "lon_nhat": round(max(self.lags), 4) if self.lags else None},
+               "canh_bao": eng.stats["canh_bao"], "su_kien": eng.events.closed, **eng.state_size()}
+        self.t_last, self.cpu_last, self.processed_last = now, cpu, processed
+        self._all_lags = getattr(self, "_all_lags", []) + self.lags
+        self.lags = []
+        self.rows.append(row)
+        if self._fh:
+            self._fh.write(json.dumps(row, ensure_ascii=False) + "\n")
+            self._fh.flush()
+        return row
+
+    def summary(self) -> dict:
+        import os
+        now = self.clock()
+        lags = getattr(self, "_all_lags", []) + self.lags
+        r, eng = self.runner, self.runner.engine
+        wall = max(now - self.t0, 1e-9)
+        received = getattr(r.source, "received", None)
+        lost = r.dropped + self.kernel_drops
+        return {"thoi_gian_chay_s": round(wall, 1), "goi_nhan": received, "goi_xu_ly": r.processed,
+                "goi_bo_hang_doi": r.dropped, "goi_bo_kernel": self.kernel_drops,
+                "ty_le_bo": round(lost / max((received or 0) + self.kernel_drops, 1), 6),
+                "toc_do_trung_binh_goi_s": round(r.processed / wall, 1),
+                "cpu_trung_binh_phan_tram": round(100 * (sum(os.times()[:2]) - self.cpu0) / wall, 1),
+                "ram_lon_nhat_mb": self.peak_rss, "hang_doi_sau_nhat": r.max_depth,
+                "do_tre_xu_ly_s": {"p50": _percentile(lags, 0.5), "p95": _percentile(lags, 0.95),
+                                   "p99": _percentile(lags, 0.99), "lon_nhat": round(max(lags), 4) if lags else None},
+                "cua_so_10s": eng.stats["cua_so_10s"], "cua_so_120s": eng.stats["cua_so_120s"],
+                "canh_bao": eng.stats["canh_bao"], "su_kien": eng.events.closed,
+                "flow_ket_thuc_do_tran": eng.stats["flow_ket_thuc_do_tran"],
+                "thoi_gian_cham_s": {k: round(v, 2) for k, v in eng.stats["thoi_gian_cham_s"].items()}}
+
+    def close(self):
+        if self._fh:
+            self._fh.close()
+            self._fh = None
 
 
 def _numeric(rows, keep_str=("host",)) -> pd.DataFrame:
@@ -339,15 +454,17 @@ class ThreadedRunner:
         self.tick_s, self.clock_rate = tick_s, clock_rate
         self.dropped = 0
         self.enqueued = 0
+        self.processed = 0
         self.max_depth = 0
         self.error = None
+        self.metrics = None
         self._reader = threading.Thread(target=self._read, name="doc-goi", daemon=True)
 
     def _read(self):
         try:
             for raw in self.source:
                 try:
-                    self.q.put_nowait(raw)
+                    self.q.put_nowait((raw, time.monotonic()))
                     self.enqueued += 1
                 except queue.Full:
                     self.dropped += 1
@@ -362,22 +479,31 @@ class ThreadedRunner:
         last_wall = time.monotonic()
         while True:
             try:
-                raw = self.q.get(timeout=self.tick_s)
+                item = self.q.get(timeout=self.tick_s)
             except queue.Empty:
                 if self.clock_rate and self.engine.now_s is not None:
                     self.engine.tick(self.engine.now_s + (time.monotonic() - last_wall) * self.clock_rate)
                     last_wall = time.monotonic()
+                if self.metrics:
+                    self.metrics.maybe_report()
                 continue
-            if raw is _END:
+            if item is _END:
                 break
+            raw, arrived = item
             self.max_depth = max(self.max_depth, self.q.qsize() + 1)
             self.engine.process(raw)
             last_wall = time.monotonic()
+            if self.metrics:
+                self.metrics.lag(last_wall - arrived)     # chờ trong hàng đợi + thời gian xử lý gói
+                self.metrics.maybe_report()
             n += 1
+            self.processed = n
             if on_packet:
                 on_packet(n)
         self._reader.join(timeout=5)
         self.engine.finish()
+        if self.metrics:
+            self.metrics.report()
         if self.error is not None:
             raise self.error
         return n
@@ -439,13 +565,19 @@ def main(argv=None):
         rt = realtime_config(cfg)
         rate = 1.0 if a.iface else (a.toc_do or 0.0)
         runner = ThreadedRunner(source, engine, rt["queue_size"], rt["tick_s"], rate)
+        runner.metrics = Metrics(runner, out / f"{name}.so_lieu.jsonl", rt["metrics_interval_s"])
         t0 = time.perf_counter()
         n = runner.run()
         dt = time.perf_counter() - t0
+        summary = runner.metrics.summary()
+        runner.metrics.close()
     if score_sink:
         score_sink.close()
     ev_file.close()
     s = engine.stats
+    import json
+    (out / f"{name}.so_lieu_tong.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
+    print("Số liệu:", json.dumps(summary, ensure_ascii=False))
     print(f"Hàng đợi: bỏ {runner.dropped} gói, sâu nhất {runner.max_depth}; flow kết thúc do trần "
           f"{s['flow_ket_thuc_do_tran']}; state cuối {engine.state_size()}")
     print(f"{n} gói trong {dt:.1f} s ({n / max(dt, 1e-9):.0f} gói/s); {s['cua_so_10s']} cửa sổ 10 s, "

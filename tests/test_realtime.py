@@ -338,5 +338,58 @@ class QueueStateTest(unittest.TestCase):
         self.assertEqual(len(table), 1)
 
 
+class MetricsTest(unittest.TestCase):
+    """C10-T05: đo gói xử lý, gói bỏ, tốc độ, độ trễ, tài nguyên."""
+
+    def fake_runner(self):
+        import queue
+        engine = SimpleNamespace(stats={"goi_khong_phai_ip": 2, "canh_bao": 7, "cua_so_10s": 3, "cua_so_120s": 1,
+                                        "flow_ket_thuc_do_tran": 0,
+                                        "thoi_gian_cham_s": {"anomaly": 0.1, "attack_classification": 0.2,
+                                                             "botnet_topology": 0.3}},
+                                 events=SimpleNamespace(closed=4), state_size=lambda: {"flow_dang_mo": 5})
+        source = SimpleNamespace(received=120, kernel_drops=lambda: 3)
+        return SimpleNamespace(engine=engine, source=source, q=queue.Queue(), processed=0, dropped=0, max_depth=9)
+
+    def test_report_interval_rate_and_drops(self):
+        import json
+        from nids.realtime import Metrics
+        t = [0.0]
+        r = self.fake_runner()
+        with TemporaryDirectory() as d:
+            m = Metrics(r, Path(d) / "m.jsonl", interval_s=10, clock=lambda: t[0])
+            r.processed = 50
+            t[0] = 5.0
+            self.assertIsNone(m.maybe_report())                                   # chưa tới 10 giây
+            t[0] = 10.0
+            m.lag(0.1)
+            m.lag(0.3)
+            row = m.maybe_report()
+            self.assertEqual(row["toc_do_goi_s"], 5.0)                            # 50 gói / 10 giây
+            self.assertEqual(row["goi_bo_kernel"], 3)
+            self.assertEqual(row["do_tre_xu_ly_s"]["lon_nhat"], 0.3)
+            self.assertEqual(row["flow_dang_mo"], 5)
+            r.processed, r.dropped = 110, 10
+            t[0] = 20.0
+            m.report()
+            s = m.summary()
+            m.close()
+            lines = (Path(d) / "m.jsonl").read_text(encoding="utf-8").splitlines()
+        self.assertEqual(len(lines), 2)
+        self.assertEqual(json.loads(lines[1])["toc_do_goi_s"], 6.0)
+        self.assertEqual(s["goi_bo_kernel"], 6)                                   # cộng dồn hai lần đọc
+        self.assertAlmostEqual(s["ty_le_bo"], (10 + 6) / (120 + 6), places=5)
+        self.assertEqual(s["toc_do_trung_binh_goi_s"], 5.5)
+        self.assertEqual(s["do_tre_xu_ly_s"]["p50"], 0.3)                         # trung vị của 0,1 và 0,3 (làm tròn lên)
+
+    def test_rss_and_percentile(self):
+        from nids.realtime import _percentile, rss_mb
+        mb = rss_mb()
+        self.assertTrue(mb is None or mb > 1)
+        self.assertEqual(_percentile([1, 2, 3, 4, 5], 0.5), 3)
+        self.assertEqual(_percentile([1, 2, 3, 4, 5], 0.95), 5)
+        self.assertIsNone(_percentile([], 0.5))
+
+
 if __name__ == "__main__":
     unittest.main()

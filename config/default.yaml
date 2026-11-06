@@ -106,6 +106,7 @@ realtime:                    # cảm biến realtime (Chặng 10, QĐ-052)
   tick_s: 1.0                # không có gói trong khoảng này thì đẩy thời gian (flow hết hạn, cửa sổ đóng)
   max_active_flows: 200000   # trần flow đang mở; vượt thì kết thúc flow lâu nhất chưa có gói (gioi_han_bo_nho)
   max_flow_rows: 500000      # trần flow đã kết thúc giữ cho cửa sổ 120 giây và beaconing
+  metrics_interval_s: 10     # ghi số liệu vận hành (gói, bỏ, CPU, RAM, độ trễ) mỗi khoảng này (QĐ-053)
 
 lab:
   subnet: 192.168.50.0/24
