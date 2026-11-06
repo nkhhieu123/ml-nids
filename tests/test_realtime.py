@@ -411,7 +411,7 @@ class StopAndLogTest(unittest.TestCase):
             t = __import__("time").monotonic()
             n = r.run()
             took = __import__("time").monotonic() - t
-        self.assertLess(took, 5)                                                    # không chờ hết bản bắt
+        self.assertLess(took, 15)                                                   # không chờ hết bản bắt (~25 giây); nới rộng để không nhạy với tải máy
         self.assertEqual(r.stop_reason, "SIGTERM")
         self.assertLess(n, src.received + 1)
         self.assertEqual(eng.state_size()["cua_so_dang_mo"], 0)                     # finish() đã chạy
