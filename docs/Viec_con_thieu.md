@@ -13,7 +13,7 @@ việc**, không chạy song song.
 
 | # | Việc | Trạng thái | Cách làm | Thời gian |
 |---|---|---|---|---|
-| 1 | Xuất lại bảng đặc trưng 3 ngày CIC từ mã đã commit (metadata hiện ghi `co_sua_chua_commit: true`) | **Thứ Hai đã xuất lại 06/11/2026 và byte giống hệt bản cũ (SHA-256 flows+windows khớp) → mã commit tái tạo đúng bảng cũ.** Thứ Tư, Thứ Sáu hoãn: máy đang thiếu bộ nhớ (Thứ Hai mất 2h35 thay vì ~11 phút). Khi chạy lại: foreground từng ngày một để `git` có trên PATH (chạy nền làm metadata ghi `commit: null`); so CSV với `output/features/`, giống thì thay file meta | Khoảng 1 giờ/ngày khi máy rảnh |
+| 1 | Xuất lại bảng đặc trưng 3 ngày CIC từ mã đã commit (metadata hiện ghi `co_sua_chua_commit: true`) | **Đang làm 07/11/2026, từng ngày một.** Thứ Hai: XONG — xuất lại từ commit `3d26b76` (cây sạch), flows+windows byte giống hệt bản cũ (SHA-256 khớp), meta mới ghi `co_sua_chua_commit: false`, đã thay meta/schema sạch vào `output/features`. Thứ Tư, Thứ Sáu: đang chạy. | foreground từng ngày để `git` có trên PATH; so CSV rồi thay file meta nếu giống | Mỗi ngày ~40 phút |
 | 2 | ~~Tải 13 file `.binetflow` CTU-13 vào `data/ctu13/`~~ | **Xong 03/11/2026**: đủ 13 file (2,6 GB), mã băm trong manifest, `nids.manifest --verify` khớp; đếm nhãn ở docs/48 | | |
 | 3 | ~~Tải lại 4 bản thu CTU-13 dùng ở Chặng 3, ghi vào manifest kèm mã băm~~ | **Xong 06/11/2026**: `data/ctu13/pcap/`, 4 dòng manifest, `--verify` khớp, số gói khớp docs/17 | | |
 | 4 | ~~Tải bộ nhãn đã sửa của KU Leuven, đối chiếu với nhãn Chặng 5~~ | **Xong 06/11/2026**: đồng ý 100% / 99,98% / 99,78% (bỏ flow `attempted`); không flow tấn công nào của KU bị gán lành tính (docs/67) | | |
