@@ -1,8 +1,8 @@
-# Những gì còn thiếu sau Chặng 1–9
+# Những gì còn thiếu sau Chặng 1–10
 
-Tài liệu gom mọi thứ **chưa có** hoặc **chưa kiểm chứng** trong phạm vi Chặng 1–9, rút từ các
+Tài liệu gom mọi thứ **chưa có** hoặc **chưa kiểm chứng** trong phạm vi Chặng 1–10, rút từ các
 tài liệu task, báo cáo chặng và nhật ký quyết định. Lập ngày 23/10/2026 (Chặng 1–3), cập nhật
-27/10, 29/10, 02/11 và 03/11/2026 (mở rộng tới Chặng 9).
+27/10, 29/10, 02/11, 03/11 và 06/11/2026 (mở rộng tới Chặng 10).
 
 ## 0. VIỆC ĐANG DỞ — CẦN CHẠY LẠI (đọc trước)
 
@@ -41,7 +41,7 @@ Dữ liệu thật hiện có: **CIC-IDS2017 đủ** (PCAP thứ Hai, thứ Tư,
 | **Quan trọng** | Làm tiếp được, nhưng kết quả chưa đáng tin cho tới khi bổ sung | 15 |
 | **Nên có** | Hoàn thiện, kiểm tra thêm | 10 |
 
-Số mục ở mục 2–4b (chưa tính 4c–4e), tính đến 02/11/2026, không tính các mục đã gạch (đã xong). 8 mục **chặn**
+Số mục ở mục 2–4b (chưa tính 4c–4f), tính đến 02/11/2026, không tính các mục đã gạch (đã xong). 8 mục **chặn**
 gom lại thành các việc sau (việc tải CIC-IDS2017 đã xong):
 
 1. ~~Tải nốt CIC-IDS2017: PCAP thứ Tư và CSV có nhãn (mục 2.1).~~ Xong 29/10/2026.
@@ -156,6 +156,15 @@ gom lại thành các việc sau (việc tải CIC-IDS2017 đã xong):
 | Trích xuất khoảng 22 000 gói/giây, chiếm 90–99% thời gian | Quan trọng | Có thể không kịp realtime khi lưu lượng lớn | Đo trên Kali (Chặng 10) |
 | Mỗi lần sửa `src/` hoặc `config/` cần chạy `pipeline kiem-tra`; mô hình tạo khi mã chưa commit chỉ bị cảnh báo | Nên có | Dễ dùng nhầm mô hình cũ | Làm được ngay khi có thay đổi |
 
+## 4f. Chặng 10: việc còn thiếu hoặc hạn chế đã biết
+
+| Thiếu | Mức | Ảnh hưởng | Ai làm |
+|---|---|---|---|
+| Chưa cài trên Kali, chưa bắt gói từ card thật, chưa chạy systemd thật (docs/59, 60, 65) | Chặn với Chặng 11 | Chưa biết lỗi quyền, card, gói kernel bỏ trên máy thật | **Bạn** dựng lab; chạy `cai_dat_kali.sh`, `cam_bien`, `cai_dich_vu.sh` |
+| PCAP CIC có 0,7–11,8% gói nhân đôi; bộ trích xuất chưa bỏ bản sao (docs/60) | Quan trọng | Đặc trưng đếm gói lệch nếu mạng lab nhân đôi khác CIC | Đo trên lab rồi quyết định; khử trùng làm được ngay nếu cần |
+| Module botnet dựng lại đồ thị 600 giây mỗi bước: quá tải khi nhiều host bất thường (quét cổng ×4 bỏ 3,8% gói, docs/63) | Quan trọng | Bỏ gói khi tải cao | Làm được ngay: tính tăng dần theo ô 10 giây |
+| Hiệu năng mới đo trên laptop Windows bằng phát lại; số gói kernel bỏ chưa đo | Quan trọng | Chưa biết năng lực trên Kali | **Bạn** chạy trên Kali (Chặng 11) |
+
 ## 5. Giới hạn của mã nguồn hiện có
 
 Đây không phải lỗi, mà là phạm vi đã chọn; ghi lại để biết khi nào cần làm thêm.
@@ -167,9 +176,9 @@ gom lại thành các việc sau (việc tải CIC-IDS2017 đã xong):
 | Gói ARP bị bỏ qua, nên không phát hiện được ARP spoofing | Nên có | Ngoài phạm vi ba lớp hiện tại |
 | Bộ đọc PCAP không đọc thẳng file nén `.gz`/`.bz2` | Nên có | Phải giải nén trước, như PCAP cắt ngắn của CTU-13 |
 | Tốc độ khoảng 300 000 packet/giây (đọc); đối chiếu Wireshark 4,48 triệu gói mất khoảng 14 phút | Quan trọng | Đo lại trên file CIC 10 GB; tối ưu nếu quá chậm |
-| Chưa có phần bắt gói trực tiếp (live capture) | — | Thuộc Chặng 10 |
+| ~~Chưa có phần bắt gói trực tiếp (live capture)~~ | Đã xong | Chặng 10 (`nids.nguon_goi`, AF_PACKET); chưa chạy trên card thật |
 
-Các phần chưa có vì **thuộc chặng sau**, không tính là thiếu của Chặng 1–9: realtime (Chặng 10), kiểm thử
+Các phần chưa có vì **thuộc chặng sau**, không tính là thiếu của Chặng 1–10: kiểm thử
 thực nghiệm và chỉ số (Chặng 11), dashboard (tùy chọn T06).
 
 ## 6. Thứ tự nên làm
