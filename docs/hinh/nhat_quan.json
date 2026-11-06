@@ -1,0 +1,296 @@
+{
+  "fri_binh_thuong": {
+    "pcap": "../output/pcap/fri_binh_thuong.pcap",
+    "che_do": "ket_hop",
+    "cua_so_10s": {
+      "offline": 4633,
+      "realtime": 4633,
+      "chung": 4633,
+      "chi_offline": 0,
+      "chi_realtime": 0,
+      "dac_trung_lech_lon_nhat": 0.0,
+      "dac_trung_lech": {}
+    },
+    "anomaly": {
+      "offline": 4633,
+      "realtime": 4633,
+      "chung": 4633,
+      "chi_offline": 0,
+      "chi_realtime": 0,
+      "nhan_khop": 1.0,
+      "nhan_khac": 0,
+      "diem_lech_lon_nhat": 0.0,
+      "diem_lech_trung_binh": 0.0
+    },
+    "attack_classification": {
+      "offline": 4633,
+      "realtime": 4633,
+      "chung": 4633,
+      "chi_offline": 0,
+      "chi_realtime": 0,
+      "nhan_khop": 1.0,
+      "nhan_khac": 0,
+      "diem_lech_lon_nhat": 0.0,
+      "diem_lech_trung_binh": 0.0
+    },
+    "botnet_topology": {
+      "offline": 633,
+      "realtime": 633,
+      "chung": 633,
+      "chi_offline": 0,
+      "chi_realtime": 0,
+      "nhan_khop": 0.99842,
+      "nhan_khac": 1,
+      "diem_lech_lon_nhat": 0.03576308876308873,
+      "diem_lech_trung_binh": 0.00026110883171407394
+    },
+    "topology": {
+      "offline": 633,
+      "realtime": 633,
+      "chung": 633,
+      "chi_offline": 0,
+      "chi_realtime": 0,
+      "nhan_khop": 0.99842,
+      "nhan_khac": 1
+    },
+    "canh_bao": {
+      "offline": {
+        "botnet_topology:centralized": 25,
+        "botnet_topology:suspect_host": 25,
+        "anomaly:anomaly": 421,
+        "attack_classification:port_scan": 34
+      },
+      "realtime": {
+        "anomaly:anomaly": 421,
+        "botnet_topology:suspect_host": 24,
+        "botnet_topology:centralized": 24,
+        "attack_classification:port_scan": 34
+      }
+    },
+    "su_kien": {
+      "offline": 85,
+      "realtime": 89
+    }
+  },
+  "fri_quet": {
+    "pcap": "../output/pcap/fri_quet.pcap",
+    "che_do": "ket_hop",
+    "cua_so_10s": {
+      "offline": 7464,
+      "realtime": 7464,
+      "chung": 7464,
+      "chi_offline": 0,
+      "chi_realtime": 0,
+      "dac_trung_lech_lon_nhat": 0.0,
+      "dac_trung_lech": {}
+    },
+    "anomaly": {
+      "offline": 7464,
+      "realtime": 7464,
+      "chung": 7464,
+      "chi_offline": 0,
+      "chi_realtime": 0,
+      "nhan_khop": 1.0,
+      "nhan_khac": 0,
+      "diem_lech_lon_nhat": 0.0,
+      "diem_lech_trung_binh": 0.0
+    },
+    "attack_classification": {
+      "offline": 7464,
+      "realtime": 7464,
+      "chung": 7464,
+      "chi_offline": 0,
+      "chi_realtime": 0,
+      "nhan_khop": 1.0,
+      "nhan_khac": 0,
+      "diem_lech_lon_nhat": 0.0,
+      "diem_lech_trung_binh": 0.0
+    },
+    "botnet_topology": {
+      "offline": 785,
+      "realtime": 785,
+      "chung": 785,
+      "chi_offline": 0,
+      "chi_realtime": 0,
+      "nhan_khop": 0.997452,
+      "nhan_khac": 2,
+      "diem_lech_lon_nhat": 0.0546078042328042,
+      "diem_lech_trung_binh": 0.0012211474320823167
+    },
+    "topology": {
+      "offline": 785,
+      "realtime": 785,
+      "chung": 785,
+      "chi_offline": 0,
+      "chi_realtime": 0,
+      "nhan_khop": 0.997452,
+      "nhan_khac": 2
+    },
+    "canh_bao": {
+      "offline": {
+        "botnet_topology:centralized": 75,
+        "botnet_topology:suspect_host": 75,
+        "anomaly:anomaly": 814,
+        "attack_classification:port_scan": 220,
+        "attack_classification:dos": 5
+      },
+      "realtime": {
+        "anomaly:anomaly": 814,
+        "attack_classification:port_scan": 220,
+        "botnet_topology:suspect_host": 73,
+        "botnet_topology:centralized": 73,
+        "attack_classification:dos": 5
+      }
+    },
+    "su_kien": {
+      "offline": 104,
+      "realtime": 111
+    }
+  },
+  "wed_slowloris": {
+    "pcap": "../output/pcap/wed_slowloris.pcap",
+    "che_do": "ket_hop",
+    "cua_so_10s": {
+      "offline": 1964,
+      "realtime": 1964,
+      "chung": 1964,
+      "chi_offline": 0,
+      "chi_realtime": 0,
+      "dac_trung_lech_lon_nhat": 0.0,
+      "dac_trung_lech": {}
+    },
+    "anomaly": {
+      "offline": 1964,
+      "realtime": 1964,
+      "chung": 1964,
+      "chi_offline": 0,
+      "chi_realtime": 0,
+      "nhan_khop": 1.0,
+      "nhan_khac": 0,
+      "diem_lech_lon_nhat": 0.0,
+      "diem_lech_trung_binh": 0.0
+    },
+    "attack_classification": {
+      "offline": 1964,
+      "realtime": 1964,
+      "chung": 1964,
+      "chi_offline": 0,
+      "chi_realtime": 0,
+      "nhan_khop": 1.0,
+      "nhan_khac": 0,
+      "diem_lech_lon_nhat": 0.0,
+      "diem_lech_trung_binh": 0.0
+    },
+    "botnet_topology": {
+      "offline": 41,
+      "realtime": 41,
+      "chung": 41,
+      "chi_offline": 0,
+      "chi_realtime": 0,
+      "nhan_khop": 1.0,
+      "nhan_khac": 0,
+      "diem_lech_lon_nhat": 0.005994708994708997,
+      "diem_lech_trung_binh": 0.0004446380178087493
+    },
+    "topology": {
+      "offline": 41,
+      "realtime": 41,
+      "chung": 41,
+      "chi_offline": 0,
+      "chi_realtime": 0,
+      "nhan_khop": 1.0,
+      "nhan_khac": 0
+    },
+    "canh_bao": {
+      "offline": {
+        "botnet_topology:centralized": 13,
+        "botnet_topology:suspect_host": 13,
+        "anomaly:anomaly": 319,
+        "attack_classification:dos": 311
+      },
+      "realtime": {
+        "anomaly:anomaly": 319,
+        "attack_classification:dos": 311,
+        "botnet_topology:suspect_host": 13,
+        "botnet_topology:centralized": 13
+      }
+    },
+    "su_kien": {
+      "offline": 11,
+      "realtime": 11
+    }
+  },
+  "wed_hulk": {
+    "pcap": "../output/pcap/wed_hulk.pcap",
+    "che_do": "ket_hop",
+    "cua_so_10s": {
+      "offline": 1406,
+      "realtime": 1406,
+      "chung": 1406,
+      "chi_offline": 0,
+      "chi_realtime": 0,
+      "dac_trung_lech_lon_nhat": 0.0,
+      "dac_trung_lech": {}
+    },
+    "anomaly": {
+      "offline": 1406,
+      "realtime": 1406,
+      "chung": 1406,
+      "chi_offline": 0,
+      "chi_realtime": 0,
+      "nhan_khop": 1.0,
+      "nhan_khac": 0,
+      "diem_lech_lon_nhat": 0.0,
+      "diem_lech_trung_binh": 0.0
+    },
+    "attack_classification": {
+      "offline": 1406,
+      "realtime": 1406,
+      "chung": 1406,
+      "chi_offline": 0,
+      "chi_realtime": 0,
+      "nhan_khop": 1.0,
+      "nhan_khac": 0,
+      "diem_lech_lon_nhat": 0.0,
+      "diem_lech_trung_binh": 0.0
+    },
+    "botnet_topology": {
+      "offline": 99,
+      "realtime": 99,
+      "chung": 99,
+      "chi_offline": 0,
+      "chi_realtime": 0,
+      "nhan_khop": 0.969697,
+      "nhan_khac": 3,
+      "diem_lech_lon_nhat": 0.023436507936507922,
+      "diem_lech_trung_binh": 0.001850291568389792
+    },
+    "topology": {
+      "offline": 99,
+      "realtime": 99,
+      "chung": 99,
+      "chi_offline": 0,
+      "chi_realtime": 0,
+      "nhan_khop": 0.969697,
+      "nhan_khac": 3
+    },
+    "canh_bao": {
+      "offline": {
+        "botnet_topology:centralized": 22,
+        "botnet_topology:suspect_host": 22,
+        "anomaly:anomaly": 179,
+        "attack_classification:dos": 155
+      },
+      "realtime": {
+        "anomaly:anomaly": 179,
+        "attack_classification:dos": 155,
+        "botnet_topology:suspect_host": 19,
+        "botnet_topology:centralized": 19
+      }
+    },
+    "su_kien": {
+      "offline": 20,
+      "realtime": 22
+    }
+  }
+}

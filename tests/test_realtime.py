@@ -4,6 +4,9 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from types import SimpleNamespace
 
+import numpy as np
+import pandas as pd
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
@@ -478,6 +481,37 @@ class StopAndLogTest(unittest.TestCase):
                 h.close()
         self.assertEqual(path.name, "nids_realtime.log")
         self.assertEqual(names, ["nids_realtime.log", "nids_realtime.log.1", "nids_realtime.log.2"])
+
+
+class ConsistencyTest(unittest.TestCase):
+    """C10-T08: offline và realtime cho cùng kết quả trên cùng PCAP."""
+
+    def test_offline_equals_realtime(self):
+        from unittest import mock
+        from nids.config import load_config
+        from nids.nhat_quan import check
+        from test_pipeline import fake_artifacts, scan_pcap
+        with TemporaryDirectory() as d:
+            pcap = scan_pcap(Path(d) / "scan.pcap")
+            with mock.patch("nids.pipeline.load_artifacts", lambda cfg=None, modules=None: fake_artifacts()), \
+                    mock.patch("nids.pipeline.check_artifact", lambda a: []):
+                r = check(pcap, ["192.168.10.0/24"], Path(d) / "off", load_config(), "doc_lap")
+        w = r["cua_so_10s"]
+        self.assertEqual((w["chi_offline"], w["chi_realtime"]), (0, 0))
+        self.assertEqual(w["dac_trung_lech_lon_nhat"], 0.0)                           # cùng bộ trích xuất
+        for m in ("anomaly", "attack_classification", "botnet_topology", "topology"):
+            self.assertEqual((r[m]["chi_offline"], r[m]["chi_realtime"], r[m]["nhan_khac"]), (0, 0, 0), m)
+        self.assertEqual(r["canh_bao"]["offline"], r["canh_bao"]["realtime"])
+        self.assertEqual(r["su_kien"]["offline"], r["su_kien"]["realtime"])
+
+    def test_compare_helpers(self):
+        from nids.nhat_quan import compare_predictions, compare_windows
+        a = pd.DataFrame({"host": ["a", "b"], "window_start": [0.0, 2.0], "x": [1.0, np.nan], "du_doan": ["n", "y"]})
+        b = pd.DataFrame({"host": ["a", "c"], "window_start": [0.0, 4.0], "x": [1.5, 2.0], "du_doan": ["y", "y"]})
+        w = compare_windows(a[["host", "window_start", "x"]], b[["host", "window_start", "x"]], ["x"])
+        self.assertEqual((w["chung"], w["chi_offline"], w["chi_realtime"], w["dac_trung_lech_lon_nhat"]), (1, 1, 1, 0.5))
+        p = compare_predictions(a, b)
+        self.assertEqual((p["nhan_khac"], p["nhan_khop"]), (1, 0.0))
 
 
 class ServiceTest(unittest.TestCase):

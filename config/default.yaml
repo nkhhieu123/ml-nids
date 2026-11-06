@@ -108,6 +108,7 @@ realtime:                    # cảm biến realtime (Chặng 10, QĐ-052)
   max_flow_rows: 500000      # trần flow đã kết thúc giữ cho cửa sổ 120 giây và beaconing
   metrics_interval_s: 10     # ghi số liệu vận hành (gói, bỏ, CPU, RAM, độ trễ) mỗi khoảng này (QĐ-053)
   stop_timeout_s: 30         # khi nhận SIGINT/SIGTERM: tối đa bấy nhiêu giây xử lý nốt hàng đợi (QĐ-054)
+  graph_delay_s: 10          # chấm cửa sổ 120 giây muộn thêm một cửa sổ 10 giây để biết đủ bất thường như offline (QĐ-056)
   log_dir: output/realtime/log   # log xoay vòng nids_realtime.log
   log_max_mb: 10
   log_backups: 5

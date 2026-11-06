@@ -133,6 +133,7 @@ Báo cáo Chặng 9: [docs/Bao_cao_Chang_9.md](docs/Bao_cao_Chang_9.md)
 - [x] C10-T05: Đo packet xử lý, packet bị bỏ và tài nguyên — `src/nids/realtime.py`, [docs/63_do_hieu_nang.md](docs/63_do_hieu_nang.md)
 - [x] C10-T06: Xử lý dừng chương trình và quản lý log — `src/nids/realtime.py`, [docs/64_dung_va_log.md](docs/64_dung_va_log.md)
 - [x] C10-T07: Cấu hình chạy nền bằng systemd (chưa cài trên Kali thật) — `deploy/nids-realtime.service`, `scripts/cai_dich_vu.sh`, [docs/65_chay_nen_systemd.md](docs/65_chay_nen_systemd.md)
+- [x] C10-T08: Kiểm tra tính nhất quán offline/realtime — `src/nids/nhat_quan.py`, [docs/66_nhat_quan_offline_realtime.md](docs/66_nhat_quan_offline_realtime.md)
 
 Những gì còn thiếu sau Chặng 1–9 (việc đang dở, dữ liệu, lab, tham số chưa chốt): [docs/Viec_con_thieu.md](docs/Viec_con_thieu.md)
 

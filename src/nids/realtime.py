@@ -11,6 +11,8 @@
   file), log xoay vòng, mã thoát (docs/64_dung_va_log.md, QĐ-054).
 - C10-T07: chạy nền bằng systemd: ``deploy/nids-realtime.service``, ``scripts/cai_dich_vu.sh``
   (docs/65_chay_nen_systemd.md, QĐ-055).
+- C10-T08: cùng kết quả với pipeline offline: chấm cửa sổ 120 giây từ cửa sổ đầu tiên chứa gói đầu, chờ thêm
+  ``graph_delay_s`` (docs/66_nhat_quan_offline_realtime.md, QĐ-056).
 
     python -m nids.realtime --iface eth1 --net 192.168.50.0/24 --out output/realtime
     python -m nids.realtime --pcap output/pcap/fri_quet.pcap --net 192.168.10.0/24 --out output/realtime
@@ -46,6 +48,7 @@ def realtime_config(cfg=None) -> dict:
     r.setdefault("max_active_flows", 200_000)  # trần flow đang mở
     r.setdefault("max_flow_rows", 500_000)     # trần flow đã kết thúc giữ cho cửa sổ 120 giây
     r.setdefault("metrics_interval_s", 10.0)   # ghi số liệu mỗi khoảng này (giờ thật)
+    r.setdefault("graph_delay_s", float(((cfg or {}).get("windows") or {}).get("flow", {}).get("size_s", 10)))
     r.setdefault("stop_timeout_s", 30.0)       # khi dừng: tối đa bấy nhiêu giây để xử lý nốt hàng đợi
     r.setdefault("log_dir", "output/realtime/log")
     r.setdefault("log_max_mb", 10)
@@ -281,7 +284,7 @@ class RealtimeEngine:
     """Nhận ``RawPacket`` từng gói; trả cảnh báo qua ``alert_sink`` (và mọi dự đoán qua ``score_sink``)."""
 
     def __init__(self, cfg, networks, arts=None, mode=None, run_id="realtime", alert_sink=None, score_sink=None,
-                 event_sink=None):
+                 event_sink=None, window_sink=None):
         from .botnet import topology_rule
         from .graph_features import beacon_config, graph_window
         from .pipeline import load_artifacts, pipeline_config
@@ -307,10 +310,12 @@ class RealtimeEngine:
         self.alert_sink, self.score_sink = alert_sink, score_sink
         self.rt = realtime_config(cfg)
         self.events = EventMerger(pc["merge_gap_s"], event_sink)
+        self.window_sink = window_sink          # nhận bảng cửa sổ 10 giây vừa đóng (kiểm tra nhất quán, C10-T08)
         self.flow_rows = deque()            # flow đã kết thúc (dòng bảng flow), theo thứ tự kết thúc
         self.unexplained = {}               # host -> deque[(ws, we)] bất thường chưa giải thích
         self.seen_hosts = {}                # host -> lần cuối có flow (giây)
         self.next_graph_end = None          # cuối cửa sổ 120 giây kế tiếp cần chấm (giây)
+        self.first_s = None                 # thời điểm gói đầu tiên (giây)
         self.now_s = None                   # thời điểm gói mới nhất (giây)
         self.stats = {"goi": 0, "goi_khong_phai_ip": 0, "cua_so_10s": 0, "cua_so_120s": 0, "canh_bao": 0,
                       "su_kien": 0, "flow_ket_thuc_do_tran": 0, "flow_bo_khoi_bang_do_tran": 0, "nhip": 0, "thoi_gian_cham_s": {MODULE_ANOMALY: 0.0, MODULE_ATTACK: 0.0, MODULE_BOTNET: 0.0}}
@@ -331,6 +336,8 @@ class RealtimeEngine:
             return
         if rec.ts_ns is not None:
             self.now_s = rec.ts_ns / NS if self.now_s is None else max(self.now_s, rec.ts_ns / NS)
+            if self.first_s is None:
+                self.first_s = rec.ts_ns / NS
         self._windows(self.pipe.add(rec))
         if self.pipe.flows.active_count > self.rt["max_active_flows"]:
             self.stats["flow_ket_thuc_do_tran"] += self.pipe.flows.evict_oldest(self.rt["max_active_flows"])
@@ -384,6 +391,8 @@ class RealtimeEngine:
             return
         df = _numeric([window_row(w) for w in windows])
         df.insert(0, "session", self.run_id)
+        if self.window_sink is not None:
+            self.window_sink(df)
         self.stats["cua_so_10s"] += len(df)
         t = time.perf_counter()
         an = score_anomaly(self.arts[MODULE_ANOMALY], df)
@@ -401,9 +410,10 @@ class RealtimeEngine:
             at_flag = at if self.mode == "tuan_tu" else at[flagged]
             for r in at_flag[at_flag["du_doan"] == "benign"].itertuples(index=False):
                 self.unexplained.setdefault(str(r.host), deque()).append((float(r.window_start), float(r.window_end)))
-        if self.next_graph_end is None:
-            first = float(df["window_start"].min())
-            self.next_graph_end = (np.floor(first / self.g_step) + 1) * self.g_step + self.g_size - self.g_step
+        if self.next_graph_end is None and self.first_s is not None:
+            # Cửa sổ 120 giây sớm nhất có chứa gói đầu tiên (bắt đầu trước gói đầu, chỉ có một phần dữ liệu),
+            # như pipeline offline; kết thúc của nó là bội của bước ngay sau gói đầu (C10-T08).
+            self.next_graph_end = (np.floor(self.first_s / self.g_step) + 1) * self.g_step
 
     # ---- cửa sổ 120 giây: botnet, topology ----
 
@@ -422,10 +432,13 @@ class RealtimeEngine:
         return from_project_flows(df, self.run_id)
 
     def _graph_until(self, now_s, final=False):
-        """Chấm mọi cửa sổ 120 giây đã đủ dữ liệu: cuối cửa sổ + thời gian quan sát ≤ thời điểm hiện tại."""
+        """Chấm mọi cửa sổ 120 giây đã đủ dữ liệu: cuối cửa sổ + thời gian quan sát + graph_delay_s ≤ hiện tại."""
         if self.next_graph_end is None or now_s is None:
             return
-        while self.next_graph_end + self.observe_s <= now_s or (final and self.next_graph_end <= now_s):
+        # Chờ thêm graph_delay_s (mặc định một cửa sổ 10 giây): mọi cửa sổ 10 giây chồng lên cửa sổ 120 giây
+        # đều đã đóng và đã được chấm, nên biết đủ bất thường chưa giải thích như pipeline offline (C10-T08).
+        wait = self.observe_s + self.rt["graph_delay_s"]
+        while self.next_graph_end + wait <= now_s or (final and self.next_graph_end <= now_s):
             self._score_graph_window(self.next_graph_end - self.g_size, self.next_graph_end)
             self.next_graph_end += self.g_step
         self._prune(now_s)
