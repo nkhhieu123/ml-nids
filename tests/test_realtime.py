@@ -391,5 +391,94 @@ class MetricsTest(unittest.TestCase):
         self.assertIsNone(_percentile([], 0.5))
 
 
+class StopAndLogTest(unittest.TestCase):
+    """C10-T06: dừng êm, giới hạn thời gian xử lý nốt, tín hiệu, log xoay vòng."""
+
+    def test_stop_midway_finishes_cleanly(self):
+        import threading
+        from nids.config import load_config
+        from nids.nguon_goi import PcapReplaySource
+        from nids.realtime import RealtimeEngine, ThreadedRunner
+        from test_pipeline import fake_artifacts, scan_pcap
+        with TemporaryDirectory() as d:
+            src = PcapReplaySource(scan_pcap(Path(d) / "s.pcap"), speed=1.0)       # bản bắt dài khoảng 25 giây
+            eng = RealtimeEngine(load_config(), ["192.168.10.0/24"], arts=fake_artifacts(), mode="doc_lap", run_id="t")
+            r = ThreadedRunner(src, eng, tick_s=0.1, clock_rate=1.0)
+            threading.Timer(1.0, r.stop, args=("SIGTERM",)).start()
+            t = __import__("time").monotonic()
+            n = r.run()
+            took = __import__("time").monotonic() - t
+        self.assertLess(took, 5)                                                    # không chờ hết bản bắt
+        self.assertEqual(r.stop_reason, "SIGTERM")
+        self.assertLess(n, src.received + 1)
+        self.assertEqual(eng.state_size()["cua_so_dang_mo"], 0)                     # finish() đã chạy
+        self.assertEqual(eng.state_size()["su_kien_dang_mo"], 0)
+
+    def test_stop_timeout_discards_rest(self):
+        from nids.realtime import ThreadedRunner
+
+        class Src:
+            received = 0
+            stopped = False
+
+            def __iter__(self):
+                for i in range(50):
+                    self.received += 1
+                    yield i
+
+            def stop(self):
+                self.stopped = True
+
+        class Slow:
+            now_s = None
+
+            def process(self, raw):
+                __import__("time").sleep(0.05)
+
+            def finish(self):
+                self.finished = True
+
+        eng = Slow()
+        r = ThreadedRunner(Src(), eng, queue_size=100, tick_s=0.05, clock_rate=0)
+        r.stop_timeout_s = 0.0
+        r._reader.start()
+        __import__("time").sleep(0.2)                                               # hàng đợi đã đầy 50 gói
+        r.stop("SIGINT")
+        r._reader = __import__("threading").Thread(target=lambda: None)
+        n = r.run()
+        self.assertEqual(n + r.discarded_on_stop, 50)
+        self.assertGreater(r.discarded_on_stop, 40)                                 # hết hạn: bỏ phần còn lại
+        self.assertTrue(eng.finished)
+
+    def test_signal_handler(self):
+        import signal
+        from nids.realtime import install_signal_handlers
+        runner = SimpleNamespace(stop_reason=None, stop_timeout_s=1.0)
+        runner.stop = lambda reason: setattr(runner, "stop_reason", reason)
+        old = {s: signal.getsignal(s) for s in (signal.SIGINT, signal.SIGTERM)}
+        try:
+            names = install_signal_handlers(runner)
+            self.assertIn("SIGTERM", names)
+            signal.raise_signal(signal.SIGINT)
+            self.assertEqual(runner.stop_reason, "SIGINT")
+        finally:
+            for s, h in old.items():
+                signal.signal(s, h)
+
+    def test_rotating_log(self):
+        import logging
+        from nids.realtime import LOG, setup_logging
+        with TemporaryDirectory() as d:
+            path = setup_logging(d, max_mb=0.001, backups=2, console=False)          # khoảng 1 KB mỗi file
+            for i in range(200):
+                LOG.info("dòng %d %s", i, "x" * 40)
+            names = sorted(p.name for p in Path(d).iterdir())
+            for h in list(LOG.handlers):
+                LOG.removeHandler(h)
+                h.close()
+        self.assertEqual(path.name, "nids_realtime.log")
+        self.assertEqual(names, ["nids_realtime.log", "nids_realtime.log.1", "nids_realtime.log.2"])
+
+
 if __name__ == "__main__":
     unittest.main()

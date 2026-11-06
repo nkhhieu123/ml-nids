@@ -386,6 +386,13 @@ Mẫu:
 - Quyết định: `Metrics` ghi mỗi 10 giây (giờ thật) gói nhận/xử lý/bỏ (hàng đợi, kernel), tốc độ, hàng đợi, CPU, RAM, độ trễ xử lý (p50/p95/lớn nhất), state, kết quả; tổng kết khi dừng. Đo bằng phát lại theo nhịp thật, giữ máy thức trong lúc đo, chạy từng phép đo một, kiểm tra không có sự kiện ngủ.
 - Hệ quả: Ở nhịp thật không bỏ gói, độ trễ xử lý < 0,7 giây (kể cả DoS khoảng 2 850 gói/s). Quét cổng ×4 quá tải vì module botnet dựng lại đồ thị 600 giây mỗi bước: bỏ 3,8% gói. Chi tiết ở docs/63.
 
+## QĐ-054 — Dừng êm theo tín hiệu, có hạn xử lý nốt; log xoay vòng; không ghi lẫn file kết quả
+- Ngày: 06/11/2026
+- Trạng thái: Đã chốt
+- Bối cảnh: C10-T06. Dừng đột ngột làm mất cửa sổ đang mở, sự kiện chưa đóng và số liệu cuối; log không giới hạn sẽ đầy đĩa; chạy lại cùng tên làm lẫn kết quả.
+- Quyết định: SIGINT, SIGTERM, SIGHUP: nguồn ngừng đọc, xử lý nốt hàng đợi trong tối đa `stop_timeout_s` = 30 giây (quá hạn thì bỏ và đếm), chấm nốt, đóng sự kiện, ghi số liệu, đóng file; tín hiệu thứ hai thì thoát ngay (mã 130). Log `RotatingFileHandler` 10 MB × 5 bản; `--im-lang` cho chạy nền. File kết quả trùng tên được đổi thành `.cu.` trước khi mở file mới.
+- Hệ quả: Mã thoát 0 khi dừng êm, 1 khi lỗi. Chi tiết ở docs/64.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.

@@ -7,6 +7,8 @@
   mạng im lặng, trần số flow mở và bảng flow gần đây (docs/62_hang_doi_don_state.md, QĐ-052).
 - C10-T05: đo gói nhận, xử lý, bỏ (hàng đợi, kernel), tốc độ, độ trễ xử lý, CPU, RAM, state; ghi định kỳ
   (docs/63_do_hieu_nang.md, QĐ-053).
+- C10-T06: dừng êm khi nhận SIGINT/SIGTERM (xử lý nốt hàng đợi có giới hạn thời gian, chấm nốt cửa sổ, đóng
+  file), log xoay vòng, mã thoát (docs/64_dung_va_log.md, QĐ-054).
 
     python -m nids.realtime --iface eth1 --net 192.168.50.0/24 --out output/realtime
     python -m nids.realtime --pcap output/pcap/fri_quet.pcap --net 192.168.10.0/24 --out output/realtime
@@ -15,6 +17,7 @@ Cùng mô hình, cùng chế độ (``pipeline.mode``) như pipeline offline.
 """
 
 import argparse
+import logging
 import queue
 import sys
 import threading
@@ -41,7 +44,37 @@ def realtime_config(cfg=None) -> dict:
     r.setdefault("max_active_flows", 200_000)  # trần flow đang mở
     r.setdefault("max_flow_rows", 500_000)     # trần flow đã kết thúc giữ cho cửa sổ 120 giây
     r.setdefault("metrics_interval_s", 10.0)   # ghi số liệu mỗi khoảng này (giờ thật)
+    r.setdefault("stop_timeout_s", 30.0)       # khi dừng: tối đa bấy nhiêu giây để xử lý nốt hàng đợi
+    r.setdefault("log_dir", "output/realtime/log")
+    r.setdefault("log_max_mb", 10)
+    r.setdefault("log_backups", 5)
     return r
+
+
+LOG = logging.getLogger("nids.realtime")
+LOG.addHandler(logging.NullHandler())        # chưa gọi setup_logging thì không in gì (ví dụ khi kiểm thử)
+
+
+def setup_logging(log_dir, max_mb=10, backups=5, level=logging.INFO, console=True) -> Path:
+    """Log ra file xoay vòng (``nids_realtime.log``, tối đa ``max_mb`` MB × ``backups`` bản cũ) và ra stderr."""
+    from logging.handlers import RotatingFileHandler
+    log_dir = Path(log_dir)
+    log_dir.mkdir(parents=True, exist_ok=True)
+    path = log_dir / "nids_realtime.log"
+    LOG.setLevel(level)
+    for h in list(LOG.handlers):
+        LOG.removeHandler(h)
+        h.close()
+    fmt = logging.Formatter("%(asctime)s %(levelname)s %(message)s")
+    fh = RotatingFileHandler(path, maxBytes=int(max_mb * 2**20), backupCount=backups, encoding="utf-8")
+    fh.setFormatter(fmt)
+    LOG.addHandler(fh)
+    if console:
+        sh = logging.StreamHandler()
+        sh.setFormatter(fmt)
+        LOG.addHandler(sh)
+    LOG.propagate = False
+    return path
 
 
 def rss_mb() -> float | None:
@@ -124,6 +157,12 @@ class Metrics:
         self._all_lags = getattr(self, "_all_lags", []) + self.lags
         self.lags = []
         self.rows.append(row)
+        LOG.info("số liệu: %s gói/s, xử lý %s, bỏ hàng đợi %s, bỏ kernel %s, hàng đợi %s, CPU %s%%, RAM %s MB, "
+                 "độ trễ p95 %s s, cảnh báo %s", row["toc_do_goi_s"], processed, r.dropped, self.kernel_drops,
+                 row["hang_doi_hien_tai"], row["cpu_phan_tram"], rss, row["do_tre_xu_ly_s"]["p95"], row["canh_bao"])
+        if r.dropped > getattr(self, "_dropped_logged", 0):
+            LOG.warning("đã bỏ %d gói vì hàng đợi đầy: xử lý không kịp lưu lượng", r.dropped)
+            self._dropped_logged = r.dropped
         if self._fh:
             self._fh.write(json.dumps(row, ensure_ascii=False) + "\n")
             self._fh.flush()
@@ -458,7 +497,19 @@ class ThreadedRunner:
         self.max_depth = 0
         self.error = None
         self.metrics = None
+        self.stop_reason = None
+        self.stop_timeout_s = 30.0
+        self.discarded_on_stop = 0
+        self._stop_deadline = None
         self._reader = threading.Thread(target=self._read, name="doc-goi", daemon=True)
+
+    def stop(self, reason="dung"):
+        """Yêu cầu dừng (gọi từ trình xử lý tín hiệu): nguồn ngừng đọc; gói còn trong hàng đợi được xử lý nốt
+        trong tối đa ``stop_timeout_s`` giây, phần còn lại bị bỏ và đếm."""
+        if self.stop_reason is None:
+            self.stop_reason = reason
+            self._stop_deadline = time.monotonic() + self.stop_timeout_s
+            self.source.stop()
 
     def _read(self):
         try:
@@ -489,6 +540,9 @@ class ThreadedRunner:
                 continue
             if item is _END:
                 break
+            if self._stop_deadline is not None and time.monotonic() > self._stop_deadline:
+                self.discarded_on_stop += 1 + self._drain_discard()
+                break
             raw, arrived = item
             self.max_depth = max(self.max_depth, self.q.qsize() + 1)
             self.engine.process(raw)
@@ -509,6 +563,39 @@ class ThreadedRunner:
         return n
 
 
+def _drain_discard_impl(q) -> int:
+    n = 0
+    while True:
+        try:
+            item = q.get_nowait()
+        except queue.Empty:
+            return n
+        if item is not _END:
+            n += 1
+
+
+ThreadedRunner._drain_discard = lambda self: _drain_discard_impl(self.q)
+
+
+def install_signal_handlers(runner):
+    """SIGINT, SIGTERM (và SIGHUP trên Linux): dừng êm; tín hiệu thứ hai trong lúc đang dừng thì thoát ngay."""
+    import os
+    import signal
+
+    def handler(signum, frame):
+        name = signal.Signals(signum).name
+        if runner.stop_reason is not None:
+            LOG.warning("nhận %s lần nữa trong lúc đang dừng: thoát ngay, không xử lý nốt", name)
+            os._exit(130)
+        LOG.info("nhận %s: dừng đọc gói, xử lý nốt hàng đợi (tối đa %.0f s)", name, runner.stop_timeout_s)
+        runner.stop(name)
+
+    names = ["SIGINT", "SIGTERM"] + (["SIGHUP"] if hasattr(signal, "SIGHUP") else [])
+    for n in names:
+        signal.signal(getattr(signal, n), handler)
+    return names
+
+
 def run(source, engine, on_packet=None):
     """Đưa từng gói của ``source`` vào ``engine`` (một luồng); trả số gói."""
     n = 0
@@ -523,8 +610,6 @@ def run(source, engine, on_packet=None):
 
 def main(argv=None):
     from .config import load_config
-    from .nguon_goi import open_source
-    from .pipeline import EVENT_COLUMNS
 
     ap = argparse.ArgumentParser(description="Cảm biến realtime: ba module trên traffic trực tiếp hoặc PCAP phát lại.")
     src = ap.add_mutually_exclusive_group(required=True)
@@ -536,13 +621,42 @@ def main(argv=None):
     ap.add_argument("--ten", default=None, help="tiền tố file ra và run_id; mặc định realtime_<giờ bắt đầu>")
     ap.add_argument("--che-do", choices=("doc_lap", "tuan_tu", "ket_hop"))
     ap.add_argument("--ghi-diem", action="store_true", help="ghi mọi dự đoán kèm điểm (file lớn)")
+    ap.add_argument("--log-dir", help="thư mục log, mặc định realtime.log_dir")
+    ap.add_argument("--im-lang", action="store_true", help="không in cảnh báo và log ra terminal (chạy nền)")
     ap.add_argument("--config", help="file cấu hình, mặc định config/default.yaml")
     a = ap.parse_args(argv)
     cfg = load_config(a.config)
+    rt = realtime_config(cfg)
+    from .config import PROJECT_ROOT
+    log_dir = Path(a.log_dir or rt["log_dir"])
+    if not log_dir.is_absolute() and not a.log_dir:         # giá trị trong cấu hình: tính từ thư mục dự án
+        log_dir = PROJECT_ROOT / log_dir
+    log_path = setup_logging(log_dir, rt["log_max_mb"], rt["log_backups"], console=not a.im_lang)
+    try:
+        return _main(a, cfg, rt, log_path)
+    except Exception:
+        LOG.exception("cảm biến dừng vì lỗi")
+        return 1
+
+
+def _main(a, cfg, rt, log_path):
+    from .feature_export import _git_version
+    from .nguon_goi import open_source
+    from .pipeline import EVENT_COLUMNS
+
     nets = a.net or [cfg["lab"]["subnet"]]
     name = a.ten or time.strftime("realtime_%Y%m%d_%H%M%S")
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
+    LOG.info("khởi động %s: nguồn %s, mạng %s, chế độ %s, commit %s, log %s", name,
+             f"card {a.iface}" if a.iface else f"pcap {a.pcap}", nets, a.che_do or "theo cấu hình",
+             str(_git_version().get("commit"))[:8], log_path)
+    for suffix in ("alerts.csv", "diem.csv", "su_kien.csv", "so_lieu.jsonl", "so_lieu_tong.json"):
+        old = out / f"{name}.{suffix}"
+        if old.exists():                 # cùng tên với lần chạy trước: giữ bản cũ, không ghi lẫn (trước khi mở file nào)
+            backup = old.with_name(f"{name}.cu.{suffix}")
+            old.replace(backup)
+            LOG.warning("đã có %s từ lần chạy trước: đổi tên thành %s", old.name, backup.name)
     import csv
 
     from .alerts import _iso
@@ -559,17 +673,21 @@ def main(argv=None):
 
     score_sink = AlertSink(out / f"{name}.diem.csv", stream=open(Path("nul" if sys.platform == "win32" else "/dev/null"), "w"),
                            log_all=True) if a.ghi_diem else None
-    with AlertSink(out / f"{name}.alerts.csv") as sink, open_source(a.iface, a.pcap, a.toc_do) as source:
+    stream = open(Path("nul" if sys.platform == "win32" else "/dev/null"), "w") if a.im_lang else None
+    with AlertSink(out / f"{name}.alerts.csv", stream=stream) as sink, open_source(a.iface, a.pcap, a.toc_do) as source:
         engine = RealtimeEngine(cfg, nets, mode=a.che_do, run_id=name, alert_sink=sink, score_sink=score_sink,
                                 event_sink=on_event)
-        rt = realtime_config(cfg)
         rate = 1.0 if a.iface else (a.toc_do or 0.0)
         runner = ThreadedRunner(source, engine, rt["queue_size"], rt["tick_s"], rate)
+        runner.stop_timeout_s = rt["stop_timeout_s"]
+        install_signal_handlers(runner)
         runner.metrics = Metrics(runner, out / f"{name}.so_lieu.jsonl", rt["metrics_interval_s"])
         t0 = time.perf_counter()
         n = runner.run()
         dt = time.perf_counter() - t0
         summary = runner.metrics.summary()
+        summary["ly_do_dung"] = runner.stop_reason or "het_nguon"
+        summary["goi_bo_khi_dung"] = runner.discarded_on_stop
         runner.metrics.close()
     if score_sink:
         score_sink.close()
@@ -578,6 +696,8 @@ def main(argv=None):
     import json
     (out / f"{name}.so_lieu_tong.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
     print("Số liệu:", json.dumps(summary, ensure_ascii=False))
+    LOG.info("dừng (%s): %s gói, %s cảnh báo, %s sự kiện, bỏ khi dừng %s gói", summary["ly_do_dung"], n,
+             s["canh_bao"], engine.events.closed, runner.discarded_on_stop)
     print(f"Hàng đợi: bỏ {runner.dropped} gói, sâu nhất {runner.max_depth}; flow kết thúc do trần "
           f"{s['flow_ket_thuc_do_tran']}; state cuối {engine.state_size()}")
     print(f"{n} gói trong {dt:.1f} s ({n / max(dt, 1e-9):.0f} gói/s); {s['cua_so_10s']} cửa sổ 10 s, "

@@ -131,6 +131,7 @@ Báo cáo Chặng 9: [docs/Bao_cao_Chang_9.md](docs/Bao_cao_Chang_9.md)
 - [x] C10-T03: Nguồn packet live, tái sử dụng bộ trích xuất — `src/nids/nguon_goi.py`, `src/nids/realtime.py`, [docs/61_realtime.md](docs/61_realtime.md)
 - [x] C10-T04: Hàng đợi giới hạn và dọn state — `src/nids/realtime.py`, `src/nids/flows.py`, [docs/62_hang_doi_don_state.md](docs/62_hang_doi_don_state.md)
 - [x] C10-T05: Đo packet xử lý, packet bị bỏ và tài nguyên — `src/nids/realtime.py`, [docs/63_do_hieu_nang.md](docs/63_do_hieu_nang.md)
+- [x] C10-T06: Xử lý dừng chương trình và quản lý log — `src/nids/realtime.py`, [docs/64_dung_va_log.md](docs/64_dung_va_log.md)
 
 Những gì còn thiếu sau Chặng 1–9 (việc đang dở, dữ liệu, lab, tham số chưa chốt): [docs/Viec_con_thieu.md](docs/Viec_con_thieu.md)
 
