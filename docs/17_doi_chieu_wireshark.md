@@ -95,6 +95,24 @@ mọi file ở bảng trên, gồm cả PCAP toàn mạng scenario 5: vẫn 0 l�
 thêm `payload_len`; chạy lại vẫn 0 lệch, có 1 gói UDP hỏng ở scenario 5 được đếm
 là `udp_length_khac_ip` (xem [20_dac_trung_flow_co_ban.md](20_dac_trung_flow_co_ban.md)).
 
+### 3.1. CIC-IDS2017 — đối chiếu TOÀN BỘ file (07/11/2026)
+
+Trước đây mới đối chiếu 1 triệu gói đầu mỗi file CIC (0 lệch). Ngày 07/11/2026 chạy
+`nids.wireshark_compare` **không giới hạn** trên cả ba file (báo cáo ở `docs/hinh/wireshark_cic_*.json`):
+
+| File CIC | Tổng packet | Gói IP khớp | Không phải IP (hai bên đồng ý) | Khác biệt có chủ ý | Lệch |
+|---|---|---|---|---|---|
+| Thứ Hai | 11 709 971 | 11 655 546 | 54 425 (ARP 46 971, CDP 7 353, LLDP 101) | 576 ICMP chép header gốc | **0** |
+| Thứ Tư | 13 788 878 | 13 732 433 | 56 445 (ARP 48 910, CDP 7 441, LLDP 94) | 234 ICMP chép header gốc | **0** |
+| Thứ Sáu | 9 997 874 | 9 944 187 | 53 687 (ARP 46 408, CDP 7 177, LLDP 102) | 835 ICMP chép header gốc | **0** |
+| **Cộng** | **35 496 723** | **35 332 166** | **164 557** | 1 645 ICMP | **0** |
+
+Theo giao thức (gói IP khớp): chủ yếu IPv4 TCP (tổng ~32,85 triệu) và UDP (~2,39 triệu), kèm IPv6 UDP,
+IPv6 ICMPv6, IPv4 ICMP, IGMP; **thứ Sáu có 62 gói SCTP** — khớp. Mọi gói bộ trích xuất bỏ qua đều là gói
+tshark cũng không coi là IP (ARP, CDP, LLDP). Khác biệt có chủ ý duy nhất trên dữ liệu thật vẫn là gói lỗi
+ICMP chép lại header gói gốc (tshark báo cổng của header bên trong). **Không còn giới hạn 1 triệu gói**:
+toàn bộ 35,5 triệu gói của ba file khớp Wireshark, 0 lệch.
+
 ## 4. Nhận xét
 
 - Mọi trường của mọi packet đều khớp với Wireshark trên các file trên, gồm cả
@@ -110,8 +128,8 @@ là `udp_length_khac_ip` (xem [20_dac_trung_flow_co_ban.md](20_dac_trung_flow_co
   Chưa gặp TSO và đường hầm IP trong dữ liệu thật; hai trường hợp này mới được
   thử bằng kiểm thử tự động.
 - IPv6 thật mới có 1 gói đầy đủ (ICMPv6 Router Solicitation của WSL) và 2 gói bị cắt. Phần IPv6 còn lại
-  được kiểm tra bằng dữ liệu tổng hợp. Cần chạy lại công cụ trên PCAP lab và
-  CIC-IDS2017 khi có.
+  được kiểm tra bằng dữ liệu tổng hợp. Đã chạy lại trên **toàn bộ** ba file
+  CIC-IDS2017 (mục 3.1, 0 lệch); còn PCAP lab sẽ chạy khi có.
 
 **Kiểm thử tự động** (11 ca, tổng 103 ca của dự án): đọc dòng `tshark` cho
 IPv4, gói không phải IP, gói ICMP lỗi có hai header IP, IPv6 có header mở rộng;
