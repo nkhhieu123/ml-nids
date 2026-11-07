@@ -162,8 +162,8 @@ Cấu hình mới: mục `realtime` gồm:
 
 ## 6. Kiểm thử
 
-`python -m unittest discover -s tests`: **386/386 ca đạt** (Chặng 9 kết thúc ở 356). `tests/test_realtime.py`
-có 30 ca:
+`python -m unittest discover -s tests`: **408/408 ca đạt** (Chặng 9 kết thúc ở 356; Chặng 10 đưa lên 386; các
+việc bổ sung sau — xem mục 10 — đưa lên 408). `tests/test_realtime.py` có 30 ca:
 
 | Task | Số ca | Nội dung |
 |---|---|---|
@@ -203,10 +203,29 @@ cd src && python -m nids.nhat_quan ../output/pcap/wed_slowloris.pcap --net 192.1
 ## 9. Việc tiếp theo
 
 **Chặng 11 — Kiểm thử thực nghiệm** (cần lab):
-- nhật ký ground truth (đã có `scripts/sinh_topology.py` cho botnet);
+- nhật ký ground truth (đã có `scripts/sinh_topology.py` cho botnet, `scripts/sinh_traffic.py` cho kịch bản 1–3);
 - các kịch bản bình thường, quét, DoS, botnet;
 - độ trễ phát hiện tính cả thời gian tích lũy cửa sổ;
 - bỏ sót, báo nhầm.
+
+## 10. Việc bổ sung làm sau báo cáo (07/11/2026)
+
+Các việc rút gọn từ `docs/Viec_con_thieu.md`, làm sau khi báo cáo này viết xong; **không thuộc Chặng 10** nhưng
+chạm tới mã/kết quả liên quan, ghi lại để báo cáo khớp mã hiện tại:
+
+| Việc | Kết quả | Tài liệu |
+|---|---|---|
+| Đối chiếu nhãn Chặng 5 với bộ nhãn đã sửa KU Leuven | Đồng ý 100% / 99,98% / 99,78% (bỏ `attempted`); không flow tấn công nào bị gán lành tính | docs/67, QĐ-057 |
+| Script sinh traffic lab kịch bản 1–3 | `sinh_traffic.py` + `nhat_ky_sang_lich.py` (chỉ trong mạng lab, DoS ≤ 60 s) | docs/68 |
+| Bộ đọc PCAP đọc thẳng file nén `.gz`/`.bz2` | Nhận qua magic, giải nén trong luồng; mọi module đọc gói hưởng theo | docs/04 |
+| Múi giờ `StartTime` của CTU-13 | Xác định là UTC+2 bằng khớp 5-tuple PCAP bot ↔ binetflow (3 scenario) | docs/48 |
+| Gộp cảnh báo botnet theo host (vớt bot chậm, **tùy chọn, mặc định tắt**) | Recall scenario 8 (Murlo) 0,154 → 1,0; F1 chung 0,798 → 0,990; báo nhầm máy bình thường không đổi | docs/69, QĐ-058 |
+| Xuất lại bảng đặc trưng 3 ngày CIC từ cây git sạch | Cả 3 ngày byte giống hệt bản cũ (SHA-256 khớp) → tái lập được; meta ghi `co_sua_chua_commit: false` | — |
+| Đối chiếu Wireshark **toàn bộ** 3 file CIC | 35,5 triệu gói, **0 lệch** (trước chỉ so 1 triệu gói đầu) | docs/17 mục 3.1 |
+
+Lưu ý: lớp gộp theo host (QĐ-058) **mặc định tắt**, nên không đổi số liệu đã khóa của Chặng 8 và không phá
+tính nhất quán offline/realtime của C10-T08. Bản realtime muốn dùng lớp này cần xác nhận host theo luồng
+(để lại cho sau).
 
 ## Thuật ngữ
 
