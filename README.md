@@ -141,6 +141,8 @@ Script sinh traffic lab kịch bản 1–3: [docs/68_sinh_traffic_lab.md](docs/6
 
 Gộp cảnh báo botnet theo host (vớt bot chậm, tùy chọn Chặng 9): [docs/69_gop_canh_bao_theo_host.md](docs/69_gop_canh_bao_theo_host.md)
 
+Tăng tốc module botnet realtime (QĐ-059): [docs/63_do_hieu_nang.md](docs/63_do_hieu_nang.md) mục 3.1
+
 Những gì còn thiếu sau Chặng 1–10 (việc đang dở, dữ liệu, lab, tham số chưa chốt): [docs/Viec_con_thieu.md](docs/Viec_con_thieu.md)
 
 ## Cấu trúc

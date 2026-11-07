@@ -45,11 +45,14 @@ def incident(flows, hosts) -> pd.DataFrame:
     return pd.concat([a, b], ignore_index=True)
 
 
-def window_edges(flows, hosts, size=120.0, step=10.0) -> pd.DataFrame:
+def window_edges(flows, hosts, size=120.0, step=10.0, windows=None) -> pd.DataFrame:
     """Cạnh của đồ thị từng cửa sổ, nhìn từ mỗi host cần xét (đồ thị một bước quanh host).
 
     Flow thuộc mọi cửa sổ ``[ws, ws + size)`` chứa thời điểm bắt đầu của nó; ``ws`` là bội của
     ``step``. Gộp theo ô ``step`` giây trước rồi mới trải ra ``size / step`` cửa sổ để tiết kiệm bộ nhớ.
+
+    ``windows`` (tập ``window_start``): chỉ tạo cạnh cho các cửa sổ này (realtime, C10). Giá trị mỗi cửa
+    sổ vẫn y hệt khi tính hết mọi cửa sổ, vì cạnh của một cửa sổ chỉ phụ thuộc các ô nằm trong nó.
     """
     if int(round(size / step)) * step != size:
         raise ValueError("size phải là bội của step")
@@ -67,6 +70,11 @@ def window_edges(flows, hosts, size=120.0, step=10.0) -> pd.DataFrame:
     k = int(round(size / step))
     rep = cell.loc[cell.index.repeat(k)].reset_index(drop=True)
     rep["window_start"] = (rep["o"] - np.tile(np.arange(k), len(cell))) * step
+    if windows is not None:
+        rep = rep[rep["window_start"].isin(windows)]
+        if rep.empty:
+            return pd.DataFrame(columns=EDGE_KEYS + ["so_flow", "so_goi", "so_byte", "so_cong", "so_flow_udp",
+                                                     "so_flow_khong_tra_loi", "cong"])
     edges = rep.groupby(EDGE_KEYS, sort=False).agg(
         so_flow=("so_flow", "sum"), so_goi=("so_goi", "sum"), so_byte=("so_byte", "sum"),
         so_cong=("port", "nunique"), so_flow_udp=("so_flow_udp", "sum"),
@@ -74,8 +82,11 @@ def window_edges(flows, hosts, size=120.0, step=10.0) -> pd.DataFrame:
     return edges.sort_values(["session", "host", "window_start", "huong", "peer"]).reset_index(drop=True)
 
 
-def host_ports(flows, hosts, size=120.0, step=10.0) -> pd.DataFrame:
-    """Số cổng đích khác nhau mỗi host dùng khi khởi tạo flow, theo cửa sổ (không cộng được qua peer)."""
+def host_ports(flows, hosts, size=120.0, step=10.0, windows=None) -> pd.DataFrame:
+    """Số cổng đích khác nhau mỗi host dùng khi khởi tạo flow, theo cửa sổ (không cộng được qua peer).
+
+    ``windows``: chỉ tính cho các ``window_start`` này (realtime, C10); giá trị không đổi.
+    """
     inc = incident(flows, hosts)
     inc = inc[inc["huong"] == OUT]
     if inc.empty:
@@ -85,6 +96,10 @@ def host_ports(flows, hosts, size=120.0, step=10.0) -> pd.DataFrame:
     k = int(round(size / step))
     rep = cell.loc[cell.index.repeat(k)].reset_index(drop=True)
     rep["window_start"] = (rep["o"] - np.tile(np.arange(k), len(cell))) * step
+    if windows is not None:
+        rep = rep[rep["window_start"].isin(windows)]
+        if rep.empty:
+            return pd.DataFrame(columns=["session", "window_start", "host", "so_cong_ra"])
     return rep.groupby(["session", "window_start", "host"])["port"].nunique().rename("so_cong_ra").reset_index()
 
 
@@ -286,12 +301,23 @@ def beacon_features(flows, host_windows, cfg=None) -> pd.DataFrame:
     return out
 
 
-def build_features(flows, hosts, cfg=None) -> pd.DataFrame:
-    """Đồ thị, đặc trưng đồ thị (T02) và beaconing (T03) cho các host cần xét."""
+def build_features(flows, hosts, cfg=None, windows=None) -> pd.DataFrame:
+    """Đồ thị, đặc trưng đồ thị (T02) và beaconing (T03) cho các host cần xét.
+
+    ``windows`` (tập ``window_start``): chỉ trả về các cửa sổ này (realtime, C10) thay vì mọi cửa sổ có
+    trong ``flows``. Kết quả cho mỗi cửa sổ yêu cầu **y hệt** khi tính hết: nội bộ vẫn dựng thêm cửa sổ
+    liền trước (``window_start - size``) để tính ``ty_le_peer_moi`` cho đúng, rồi bỏ đi trước khi trả về.
+    """
     size, step = graph_window(cfg)
     nets = ((cfg or {}).get("botnet") or {}).get("local_nets", ["147.32.0.0/16"])
-    edges = window_edges(flows, hosts, size, step)
-    feats = host_features(edges, host_ports(flows, hosts, size, step), nets, size).reset_index(drop=True)
+    expand = None
+    if windows is not None:
+        windows = set(windows)
+        expand = windows | {w - size for w in windows}   # cửa sổ liền trước cho ty_le_peer_moi
+    edges = window_edges(flows, hosts, size, step, expand)
+    feats = host_features(edges, host_ports(flows, hosts, size, step, expand), nets, size).reset_index(drop=True)
+    if windows is not None:
+        feats = feats[feats["window_start"].isin(windows)].reset_index(drop=True)
     beacon = beacon_features(flows, feats, cfg)
     return feats.merge(beacon, on=HOST_KEYS, how="left")
 

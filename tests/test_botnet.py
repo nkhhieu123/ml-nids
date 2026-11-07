@@ -164,6 +164,23 @@ class HostFeatureTest(unittest.TestCase):
         self.assertTrue(np.isnan(only_in["tap_trung_ra"]).all())                  # không có flow ra: để trống
         self.assertTrue(np.isnan(only_in["ty_le_khong_tra_loi_ra"]).all())
 
+    def test_windows_restriction_identical(self):
+        # C10: build_features(windows=...) cho cửa sổ yêu cầu phải y hệt khi tính hết mọi cửa sổ,
+        # kể cả ty_le_peer_moi (phụ thuộc cửa sổ liền trước) và beacon.
+        f = pd.concat([self.frame(), self.frame(shift=120.0), flows_frame([(130.0, "h", "z", 80, "tcp", 1)])])
+        full = build_features(f, ["h"]).sort_values("window_start").reset_index(drop=True)
+        for w in sorted(full["window_start"].unique()):
+            sub = build_features(f, ["h"], windows={w}).reset_index(drop=True)
+            ref = full[full["window_start"] == w].reset_index(drop=True)
+            self.assertEqual(len(sub), len(ref))
+            for c in sub.columns:
+                a = pd.to_numeric(sub[c], errors="coerce").to_numpy(float)
+                b = pd.to_numeric(ref[c], errors="coerce").to_numpy(float)
+                self.assertTrue(((np.isnan(a) & np.isnan(b)) | (a == b)).all(), f"cột {c} khác ở cửa sổ {w}")
+        # window 120 vẫn ra ty_le_peer_moi = 1/3 khi chỉ tính riêng nó
+        only = build_features(f, ["h"], windows={120.0})
+        self.assertAlmostEqual(only[only["window_start"] == 120].iloc[0]["ty_le_peer_moi"], 1 / 3)
+
     def test_in_networks(self):
         self.assertEqual(list(in_networks(["147.32.1.1", "8.8.8.8", "khong-phai-ip", "::1"], ["147.32.0.0/16"])),
                          [True, False, False, False])

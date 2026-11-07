@@ -312,6 +312,9 @@ class RealtimeEngine:
         self.events = EventMerger(pc["merge_gap_s"], event_sink)
         self.window_sink = window_sink          # nhận bảng cửa sổ 10 giây vừa đóng (kiểm tra nhất quán, C10-T08)
         self.flow_rows = deque()            # flow đã kết thúc (dòng bảng flow), theo thứ tự kết thúc
+        self._fin_next_id = 0               # mã tăng dần gán cho flow kết thúc (để cache chuyển đổi C10)
+        self._fin_cache = None              # DataFrame flow kết thúc đã chuyển sang bảng flow chung (cache)
+        self._fin_cache_hi = -1             # mã lớn nhất đã có trong cache
         self.unexplained = {}               # host -> deque[(ws, we)] bất thường chưa giải thích
         self.seen_hosts = {}                # host -> lần cuối có flow (giây)
         self.next_graph_end = None          # cuối cửa sổ 120 giây kế tiếp cần chấm (giây)
@@ -323,7 +326,10 @@ class RealtimeEngine:
     # ---- nhận gói ----
 
     def _on_flow(self, flow):
-        self.flow_rows.append(flow_row(flow))
+        row = flow_row(flow)
+        row["_id"] = self._fin_next_id       # mã tăng dần, liên tục; để cache chuyển đổi tăng dần (C10)
+        self._fin_next_id += 1
+        self.flow_rows.append(row)
         if len(self.flow_rows) > self.rt["max_flow_rows"]:
             self.flow_rows.popleft()
             self.stats["flow_bo_khoi_bang_do_tran"] += 1
@@ -417,19 +423,56 @@ class RealtimeEngine:
 
     # ---- cửa sổ 120 giây: botnet, topology ----
 
-    def _flow_table(self, since_s) -> pd.DataFrame:
-        """Flow đã kết thúc và flow đang mở (ảnh chụp số đếm hiện tại) bắt đầu từ ``since_s``."""
+    def _convert_rows(self, rows) -> pd.DataFrame:
+        """Dòng flow_row -> bảng flow chung (như đoạn cũ trong _flow_table); dùng cho cả cache lẫn flow đang mở."""
         from .ctu13 import from_project_flows
-        active = self.pipe.flows.active_flows()      # gồm cả flow đang đóng (FIN/RST), không đếm hai lần
-        rows = list(self.flow_rows) + [flow_row(f) for f in active]
-        if not rows:
-            return pd.DataFrame()
         df = _numeric(rows, keep_str=("fwd_ip", "bwd_ip", "direction_basis", "end_reason"))
-        df = df[df["first_ts"] >= since_s]
-        if df.empty:
-            return df
         df["protocol"] = df["protocol"].astype("Int64").astype(str)
         return from_project_flows(df, self.run_id)
+
+    def _refresh_fin_cache(self):
+        """Cập nhật cache flow đã kết thúc: bỏ flow bị prune (mã < mã nhỏ nhất), chuyển đổi flow mới ở cuối.
+
+        Mã (_id) liên tục tăng dần, flow mới thêm ở cuối, prune bỏ ở đầu, nên cache luôn là một dải mã
+        liên tục. Chuyển đổi tăng dần cho kết quả y hệt chuyển đổi lại toàn bộ mỗi lần (C10).
+        """
+        rows = self.flow_rows
+        if not rows:
+            self._fin_cache, self._fin_cache_hi = None, -1
+            return
+        lo = rows[0]["_id"]
+        if self._fin_cache is not None and len(self._fin_cache):
+            self._fin_cache = self._fin_cache[self._fin_cache["_id"] >= lo]
+        hi = rows[-1]["_id"]
+        if hi > self._fin_cache_hi:
+            new = [r for r in rows if r["_id"] > self._fin_cache_hi]
+            conv = self._convert_rows(new)
+            conv["_id"] = [r["_id"] for r in new]
+            self._fin_cache = conv if self._fin_cache is None or not len(self._fin_cache) else \
+                pd.concat([self._fin_cache, conv], ignore_index=True)
+            self._fin_cache_hi = hi
+
+    def _flow_table(self, since_s) -> pd.DataFrame:
+        """Flow đã kết thúc (cache chuyển đổi tăng dần) và flow đang mở (ảnh chụp số đếm hiện tại) từ ``since_s``.
+
+        Giữ đúng thứ tự cũ (flow kết thúc trước, rồi flow đang mở) và cùng phép lọc ``first_ts >= since_s``,
+        nên bảng trả về y hệt bản dựng lại toàn bộ mỗi lần — chỉ nhanh hơn (C10).
+        """
+        self._refresh_fin_cache()
+        frames = []
+        if self._fin_cache is not None and len(self._fin_cache):
+            fin = self._fin_cache[self._fin_cache["ts"] >= since_s]
+            if len(fin):
+                frames.append(fin.drop(columns="_id"))
+        active = self.pipe.flows.active_flows()      # gồm cả flow đang đóng (FIN/RST), không đếm hai lần
+        if active:
+            adf = self._convert_rows([flow_row(f) for f in active])
+            adf = adf[adf["ts"] >= since_s]
+            if len(adf):
+                frames.append(adf)
+        if not frames:
+            return pd.DataFrame()
+        return pd.concat(frames, ignore_index=True)
 
     def _graph_until(self, now_s, final=False):
         """Chấm mọi cửa sổ 120 giây đã đủ dữ liệu: cuối cửa sổ + thời gian quan sát + graph_delay_s ≤ hiện tại."""
@@ -459,7 +502,8 @@ class RealtimeEngine:
         hosts = self._graph_hosts(ws, we, flows) if len(flows) else []
         if hosts:
             flows = flows[flows["ts"] < we]
-            feats = build_features(flows, hosts, self.cfg)
+            # Chỉ tính đúng cửa sổ 120 giây đang xét (C10): nhanh hơn nhiều mà giá trị y hệt tính hết mọi cửa sổ.
+            feats = build_features(flows, hosts, self.cfg, windows={ws})
             # so tuyệt đối: isclose mặc định có sai số tương đối 1e-5, tức khoảng 15 000 giây với epoch hiện nay
             feats = feats[np.isclose(feats["window_start"], ws, rtol=0, atol=1e-3)].reset_index(drop=True)
             if len(feats):

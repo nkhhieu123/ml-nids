@@ -421,6 +421,13 @@ Mẫu:
 - Quyết định: Thêm lớp gộp theo host (mặc định TẮT): xác nhận host là bot trong một run nếu số cửa sổ điểm ≥ ngưỡng đạt ≥ `min_strong` và chiếm ≥ `min_frac`, rồi nâng mọi cửa sổ của host lên suspect. Chọn `min_strong=500`, `min_frac=0,13` trên validation (Background validation giữ ≤ 5%, QĐ-040). Dùng số tuyệt đối vì nó tách bot (≥728) khỏi máy bình thường (≤268).
 - Hệ quả: Test recall 0,678→1,0, F1 0,798→0,990, scenario 8 recall 0,154→1,0; báo nhầm máy bình thường không đổi (1,58%); Background test 11,9%→20,3% (không phải FPR). Mặc định tắt nên C08-T08 và C10-T08 không đổi. Bản realtime cần xác nhận theo luồng (để sau). Chi tiết docs/69.
 
+## QĐ-059 — Tăng tốc module botnet realtime: chỉ tính cửa sổ đang xét và cache chuyển đổi flow
+- Ngày: 07/11/2026
+- Trạng thái: Đã chốt
+- Bối cảnh: Module botnet là điểm nghẽn realtime (docs/63): mỗi bước 10 giây dựng lại đồ thị + beaconing từ 600 giây flow, quét cổng ×4 bỏ 3,8% gói. Đo trên fri_quet: _flow_table 49,5s và build_features 32,2s trong 84,5s chấm botnet.
+- Quyết định: (1) Thêm tham số `windows` cho `build_features`/`window_edges`/`host_ports` để chỉ tính đúng cửa sổ đang xét (và cửa sổ liền trước cho `ty_le_peer_moi`). (2) Cache bảng flow chung đã chuyển đổi của flow kết thúc, cập nhật tăng dần theo mã `_id` liên tục. Mặc định bật, không đổi API người dùng.
+- Hệ quả: Chấm botnet 84,5 → 40,9 giây (−52%) trên fri_quet; _flow_table 49,5→11,5s, build_features 32,2→25,9s. Chứng minh y hệt: kiểm tra đặc trưng lệch 0 trên scenario 1; `nids.nhat_quan` 4 đoạn y hệt baseline đã khóa. Chi tiết docs/63 mục 3.1.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.

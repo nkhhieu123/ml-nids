@@ -65,10 +65,27 @@ Thời gian chấm (giây) theo module:
   giây gần nhất của các host đó, chiếm 258 giây.
   - Ở ×4 thì quá tải: hàng đợi đầy, bỏ 3,8% gói (đều được đếm và ghi log).
   - Ở nhịp thật (×1), tổng thời gian chấm vẫn dưới thời lượng traffic, nên không quá tải.
-  - Cách cải thiện (chưa làm): tính đặc trưng 120 giây **tăng dần** theo ô 10 giây thay vì dựng lại cả
-    600 giây; hoặc chấm botnet ít thường xuyên hơn (bước 30 giây) khi hàng đợi dài.
+  - Cách cải thiện (**đã làm 07/11/2026**, mục 3.1): chỉ tính đúng cửa sổ 120 giây đang xét và dùng cache
+    chuyển đổi flow tăng dần, thay vì dựng lại toàn bộ mỗi bước.
 - RAM 200–400 MB, chủ yếu là mô hình (Random Forest 300 cây) và bảng flow gần đây.
 - Chưa đo trên Kali và card thật: số gói kernel bỏ luôn là 0 khi phát lại.
+
+## 3.1. Tăng tốc module botnet (07/11/2026, QĐ-059)
+
+Hai chỗ lãng phí ở mỗi bước chấm cửa sổ 120 giây (`_score_graph_window`), đo trên `fri_quet` (phát lại
+nhanh nhất, 137 lần chấm, 785 host–cửa sổ):
+
+1. **`build_features` dựng mọi cửa sổ 10 giây trong 600 giây flow rồi bỏ hết trừ một.** Thêm tham số
+   `windows` cho `build_features`/`window_edges`/`host_ports`: chỉ tạo đúng cửa sổ đang xét (và cửa sổ liền
+   trước để tính `ty_le_peer_moi`). Giá trị **y hệt** tính hết (kiểm tra trên scenario 1: lệch 0 ở mọi đặc
+   trưng, gồm beacon). 32,2 → 25,9 giây (phần còn lại là `incident`/beacon trên toàn bộ 600 giây — vốn phải thế).
+2. **`_flow_table` dựng lại DataFrame ~16 000 dòng mỗi lần.** Flow kết thúc có mã tăng dần liên tục (thêm ở
+   cuối, prune ở đầu) nên cache bảng flow chung đã chuyển đổi, mỗi lần chỉ chuyển đổi flow mới ở cuối và bỏ
+   flow bị prune ở đầu. 49,5 → 11,5 giây.
+
+Kết quả trên `fri_quet`: thời gian chấm botnet **84,5 → 40,9 giây** (−52%), tổng chạy 130,7 → 86,4 giây.
+Bằng chứng không đổi hành vi: `nids.nhat_quan` trên cả 4 đoạn cho kết quả **y hệt** `docs/hinh/nhat_quan.json`
+đã khóa (realtime vẫn khớp offline như trước). Mặc định bật; không có tham số mới cho người dùng.
 
 ## 4. Kiểm thử
 

@@ -165,7 +165,7 @@ gom lại thành các việc sau (việc tải CIC-IDS2017 đã xong):
 |---|---|---|---|
 | Chưa cài trên Kali, chưa bắt gói từ card thật, chưa chạy systemd thật (docs/59, 60, 65) | Chặn với Chặng 11 | Chưa biết lỗi quyền, card, gói kernel bỏ trên máy thật | **Bạn** dựng lab; chạy `cai_dat_kali.sh`, `cam_bien`, `cai_dich_vu.sh` |
 | PCAP CIC có 0,7–11,8% gói nhân đôi; bộ trích xuất chưa bỏ bản sao (docs/60) | Quan trọng | Đặc trưng đếm gói lệch nếu mạng lab nhân đôi khác CIC | Đo trên lab rồi quyết định; khử trùng làm được ngay nếu cần |
-| Module botnet dựng lại đồ thị 600 giây mỗi bước: quá tải khi nhiều host bất thường (quét cổng ×4 bỏ 3,8% gói, docs/63) | Quan trọng | Bỏ gói khi tải cao | Làm được ngay: tính tăng dần theo ô 10 giây |
+| ~~Module botnet dựng lại đồ thị 600 giây mỗi bước~~ | Đã xong 07/11/2026 | Chỉ tính cửa sổ đang xét + cache chuyển đổi flow: chấm botnet −52% trên fri_quet, đặc trưng y hệt (docs/63 mục 3.1, QĐ-059) | |
 | Hiệu năng mới đo trên laptop Windows bằng phát lại; số gói kernel bỏ chưa đo | Quan trọng | Chưa biết năng lực trên Kali | **Bạn** chạy trên Kali (Chặng 11) |
 
 ## 5. Giới hạn của mã nguồn hiện có
