@@ -49,11 +49,21 @@ làm phần train chứa chủ yếu quét TCP, còn phần test có **quét SCT
 gói, nhiều cổng lạ). Bảng đặc trưng cửa sổ đếm "lần thử" và "kết nối không hoàn tất" chỉ cho TCP
 (docs/24), nên một lượt quét UDP hay SCTP chỉ hiện ra như vài gói lẻ, trông như benign.
 
-Hệ quả và cách sửa (chưa làm, vì phải làm lại từ Chặng 4–5 và chọn lại trên validation):
-- Thêm đặc trưng không phụ thuộc TCP: số cổng đích UDP/SCTP khác nhau, số gói ICMP "port unreachable"
-  nhận về.
-- Hoặc chia port_scan theo **lượt Nmap** thay vì theo thời gian, để mỗi kiểu quét có ở cả ba tập.
-- Ghi rõ trong báo cáo: mô hình hiện bắt được **quét TCP**, chưa bắt được quét UDP/SCTP.
+Hệ quả và cách sửa:
+- **Đã thử thêm đặc trưng UDP/SCTP — KHÔNG phải nguyên nhân.** Đo lại (07/11/2026) cho thấy `dst_ports`/
+  `dst_port_entropy` **đã đếm cả UDP và SCTP** (`PORT_PROTOCOLS` gồm SCTP). Cửa sổ port_scan dù TCP, UDP hay
+  SCTP đều **ít hoạt động**: trung vị `dst_ports` 3–4 (benign 2), `tcp_attempts_out` = 0. Tín hiệu phân biệt
+  (`new_conn_out` 5–12 so với 0; `dst_port_entropy` 1,5 so với 0,67) **đã có sẵn**; mô hình chỉ chưa học
+  được cho UDP/SCTP vì chia theo thời gian làm chúng **chỉ có ở test**.
+- **Đã sửa bằng cách chia port_scan theo lượt Nmap** (QĐ-060): mỗi cửa sổ port_scan gán giao thức quét chủ
+  đạo (từ flow bên tấn công khởi tạo) rồi chia 60/20/20 theo thời gian **trong từng giao thức**, nên TCP/UDP/
+  SCTP đều có ở cả ba tập (`src/nids/splits.py`, `config.split.stratify_scan_proto`).
+- **Kết quả (RF, test, chọn lại trên validation mới):** recall port_scan **0,448 → 0,736**, F1 **0,612 →
+  0,829**, precision giữ 0,947, macro-F1 test **0,831 → 0,908**, báo nhầm benign 0,04%. Theo kiểu quét:
+  **SCTP 0,02 → 0,84**, TCP ~0,83 giữ nguyên, **UDP 0,01 → 0,14** (tín hiệu quét UDP vốn yếu, cải thiện ít).
+  `docs/hinh/phan_loai_test.json`.
+- Host-aggregation (như botnet QĐ-058) **không dùng được** ở đây: host nạn nhân có 229 cửa sổ port_scan
+  nhưng 3 344 cửa sổ benign, nâng cả host sẽ phá precision.
 
 ## 3. DoS bị bỏ sót
 

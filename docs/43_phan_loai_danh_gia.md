@@ -110,6 +110,23 @@ docs/30 mục 5).
 - Đợt tấn công của một cửa sổ chỉ tìm trong các đợt cùng lớp (sửa ở bước này: trước đó một cửa sổ
   có thể bị gán vào đợt của lớp khác hoặc đợt bị loại nếu lịch trùng giờ).
 
+## Cập nhật 07/11/2026 — chia port_scan theo lượt Nmap (QĐ-060)
+
+Sau báo cáo này, port_scan được chia theo giao thức quét thay vì thuần thời gian (QĐ-060, docs/44), rồi
+**chọn lại mô hình trên validation mới và đọc test một lần**. Bảng kết quả ở `docs/hinh/phan_loai_test.json`
+đã cập nhật theo bản này:
+
+| | RF cũ (chia theo thời gian) | RF mới (chia theo lượt Nmap) |
+|---|---|---|
+| Macro-F1 test | 0,831 | **0,908** |
+| port_scan P / R / F1 | 0,967 / 0,448 / 0,612 | 0,947 / **0,736** / **0,829** |
+| trong đó SCTP / UDP / TCP (recall) | 0,02 / 0,01 / 0,83 | **0,84** / 0,14 / 0,83 |
+| dos R | 0,813 | 0,838 |
+| benign bị báo | thấp | 0,04% |
+
+Kết luận cũ (chọn RF) không đổi. Quét UDP cải thiện ít vì tín hiệu mỗi cửa sổ 10 giây vốn yếu; cửa sổ dài
+hơn là hướng về sau.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.

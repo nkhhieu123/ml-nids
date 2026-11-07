@@ -32,6 +32,7 @@ split:                       # chia theo thời gian trong từng khối tấn c
   validation: 0.2
   test: 0.2
   embargo_s: 10              # bỏ mẫu cách ranh giới giữa hai tập dưới khoảng này (bằng độ dài cửa sổ)
+  stratify_scan_proto: true  # chia cửa sổ port_scan theo giao thức quét (lượt Nmap) để mỗi kiểu quét có ở cả ba tập (QĐ-060, docs/44)
 
 preprocess:                  # chỉ fit và cân bằng trên train (QĐ-028)
   drop_train_duplicates: true  # module phân loại: bỏ mẫu train trùng hệt đặc trưng và nhãn (docs/30 mục 5)

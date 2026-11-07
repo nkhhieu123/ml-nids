@@ -131,6 +131,13 @@ công; các đợt cùng khối gộp lại, đợt không có khối bị bỏ 
 quay về cắt theo thời gian khi quá ít mẫu; khối ngoài phiên bị bỏ qua; gán mẫu trong đoạn, vắt qua ranh giới, trong vùng đệm, ở cuối phiên; không có vùng
 đệm; dòng lệnh ghi hai file chia.
 
+## Cập nhật 07/11/2026 — chia port_scan theo lượt Nmap (QĐ-060)
+
+Tùy chọn `split.stratify_scan_proto` (mặc định bật): với cửa sổ port_scan, gán giao thức quét chủ đạo
+(TCP/UDP/SCTP, lấy từ flow bên tấn công khởi tạo trong cửa sổ) rồi cắt 60/20/20 theo thời gian **trong
+từng giao thức**, để mỗi kiểu quét Nmap có ở cả ba tập. Chỉ đổi cửa sổ port_scan; phần còn lại giữ nguyên
+cách chia theo thời gian (QĐ-027). Lý do và kết quả ở docs/44, docs/43.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.

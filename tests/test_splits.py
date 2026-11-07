@@ -11,7 +11,7 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from nids.labeling import Rule, labels_path
-from nids.splits import DROPPED, assign, build_segments, main
+from nids.splits import DROPPED, assign, build_segments, main, port_scan_proto, stratify_by_proto
 
 
 def rule(start, end, block="b1", label="dos"):
@@ -86,6 +86,38 @@ class CliTest(unittest.TestCase):
         self.assertEqual(list(f["split"][:2]), ["train", "train"])
         self.assertEqual(f["split"].iloc[-1], "test")
         self.assertEqual(list(w["split"]), ["train", "train", "test"])
+
+
+class StratifyScanTest(unittest.TestCase):
+    """QĐ-060: chia cửa sổ port_scan theo giao thức quét để mỗi kiểu có ở cả ba tập."""
+
+    def setUp(self):
+        # Bên tấn công 'a' quét TCP ở các cửa sổ sớm, UDP ở các cửa sổ muộn (như lượt Nmap nối tiếp).
+        self.windows = pd.DataFrame({
+            "host": ["a"] * 10, "window_start": np.arange(10) * 10.0,
+            "window_end": np.arange(10) * 10.0 + 10.0})
+        self.rules = [rule(0, 200, block="scan", label="port_scan")]
+        protos = [6, 6, 6, 6, 6, 17, 17, 17, 17, 17]       # 5 TCP rồi 5 UDP
+        self.flows = pd.DataFrame({
+            "first_ts": np.arange(10) * 10.0 + 1, "last_ts": np.arange(10) * 10.0 + 2,
+            "fwd_ip": ["a"] * 10, "protocol": protos})
+
+    def test_proto_detection(self):
+        proto = port_scan_proto(self.windows, self.flows, self.rules)
+        self.assertEqual(list(proto), ["tcp"] * 5 + ["udp"] * 5)
+        # host không thuộc lịch quét -> NaN
+        other = self.windows.assign(host="z")
+        self.assertTrue(port_scan_proto(other, self.flows, self.rules).isna().all())
+
+    def test_stratify_spreads_each_proto(self):
+        proto = port_scan_proto(self.windows, self.flows, self.rules)
+        base = np.array(["test"] * 10, dtype=object)          # thời gian sẽ dồn hết vào test
+        out = stratify_by_proto(self.windows, base, proto, (0.6, 0.2, 0.2), embargo_s=0)
+        # mỗi giao thức được cắt theo thời gian trong nhóm của nó -> cả train lẫn test đều có mỗi kiểu
+        tcp_splits = set(out[:5]); udp_splits = set(out[5:])
+        self.assertIn("train", tcp_splits)
+        self.assertIn("train", udp_splits)                    # UDP không còn chỉ nằm ở test
+        self.assertIn("test", tcp_splits)
 
 
 if __name__ == "__main__":

@@ -428,6 +428,13 @@ Mẫu:
 - Quyết định: (1) Thêm tham số `windows` cho `build_features`/`window_edges`/`host_ports` để chỉ tính đúng cửa sổ đang xét (và cửa sổ liền trước cho `ty_le_peer_moi`). (2) Cache bảng flow chung đã chuyển đổi của flow kết thúc, cập nhật tăng dần theo mã `_id` liên tục. Mặc định bật, không đổi API người dùng.
 - Hệ quả: Chấm botnet 84,5 → 40,9 giây (−52%) trên fri_quet; _flow_table 49,5→11,5s, build_features 32,2→25,9s. Chứng minh y hệt: kiểm tra đặc trưng lệch 0 trên scenario 1; `nids.nhat_quan` 4 đoạn y hệt baseline đã khóa. Chi tiết docs/63 mục 3.1.
 
+## QĐ-060 — Chia port_scan theo lượt Nmap (giao thức quét) để mỗi kiểu quét có ở cả ba tập
+- Ngày: 07/11/2026
+- Trạng thái: Đã chốt
+- Bối cảnh: Recall port_scan test chỉ 0,448 (SCTP 0,02, UDP 0,01) dù quét TCP bắt 0,83 (docs/44). Đo lại: không thiếu đặc trưng (dst_ports đã đếm UDP/SCTP); nguyên nhân là chia theo thời gian (QĐ-027) dồn quét SCTP/UDP vào test nên mô hình chưa học. Host-aggregation phá precision (host nạn nhân 93% cửa sổ benign). Thêm đặc trưng UDP/SCTP không giúp (tín hiệu mỗi cửa sổ vốn yếu).
+- Quyết định: Chia cửa sổ port_scan theo giao thức quét chủ đạo (TCP/UDP/SCTP, lấy từ flow bên tấn công khởi tạo), cắt 60/20/20 theo thời gian trong từng giao thức. Bật bằng `split.stratify_scan_proto` (mặc định true), chỉ đổi cửa sổ port_scan. Chọn lại mô hình trên validation mới rồi đọc test một lần.
+- Hệ quả: RF test recall port_scan 0,448 → 0,736, F1 0,612 → 0,829, precision giữ 0,947, macro-F1 0,831 → 0,908; SCTP 0,02 → 0,84, UDP 0,01 → 0,14 (quét UDP vốn yếu). DoS không đổi. Chi tiết docs/44, docs/43.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.

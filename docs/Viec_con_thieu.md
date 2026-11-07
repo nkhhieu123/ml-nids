@@ -131,8 +131,8 @@ gom lại thành các việc sau (việc tải CIC-IDS2017 đã xong):
 
 | Thiếu | Mức | Ảnh hưởng | Ai làm |
 |---|---|---|---|
-| Đặc trưng cửa sổ chỉ đếm lần thử TCP: quét UDP và SCTP trông như benign (recall 0,01–0,02; docs/44 mục 2) | Quan trọng | Recall port_scan test 0,45 dù quét TCP bắt 97,8% | Làm được ngay: thêm đặc trưng cổng UDP/SCTP, ICMP unreachable (Chặng 4), xuất lại, chọn lại trên validation |
-| Port_scan chia theo thời gian nên kiểu quét SCTP chỉ có ở test; validation chỉ 50 cửa sổ, toàn quét TCP | Quan trọng | Validation không báo trước được lỗi | Làm được ngay: chia theo lượt Nmap (Chặng 5) |
+| ~~Đặc trưng cửa sổ chỉ đếm lần thử TCP~~ | Đã xử lý 07/11/2026 | Đo lại: `dst_ports` đã đếm UDP/SCTP; không thiếu đặc trưng. Nguyên nhân là chia theo thời gian — sửa bằng QĐ-060 (xem dưới) |
+| ~~Port_scan chia theo thời gian nên kiểu quét SCTP chỉ có ở test~~ | **Xong 07/11/2026 (QĐ-060)** | Chia port_scan theo giao thức quét: recall test 0,448→0,736, F1 0,612→0,829, SCTP 0,02→0,84, precision giữ (docs/44) | |
 | DoS HTTP chậm (Slowhttptest recall 0,61) cần đặc trưng kết nối giữ lâu, dài hơn cửa sổ 10 giây | Nên có | Bỏ sót DoS chậm | Làm được ngay (cửa sổ dài, Chặng 8–9) |
 | DoS kiểu SYN, brute-force, exploit chưa có dữ liệu; DDoS chỉ một đợt | Quan trọng | Ba lớp hiện tại chưa đủ cho lab; chưa biết SYN flood được nhận ra không | **Bạn** thu lab; tải CIC thứ Ba, thứ Năm nếu muốn thêm lớp |
 | RF báo 224 cửa sổ Bot là `port_scan` | Nên có | Cảnh báo sai loại | Quy tắc kết hợp ở Chặng 9 |
