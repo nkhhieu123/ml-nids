@@ -155,7 +155,7 @@ gom lại thành các việc sau (việc tải CIC-IDS2017 đã xong):
 |---|---|---|---|
 | Pipeline mới chạy trên 4 đoạn PCAP CIC ngắn (3–21 phút), chưa chạy trên PCAP lab | Quan trọng | So sánh chế độ và khoảng gộp sự kiện chưa kiểm chứng trên mạng sẽ triển khai | **Bạn** thu lab; chạy `nids.pipeline chay` |
 | Module botnet trong pipeline dùng mô hình học từ CTU-13; trên CIC báo nhầm nhiều khi chạy độc lập | Quan trọng | Cảnh báo botnet chưa đáng tin trên mạng mới | Học lại trên dữ liệu lab (Chặng 11) |
-| `created_at` của cảnh báo offline là lúc chạy pipeline, chưa đo được độ trễ phát hiện | Nên có | Độ trễ đo ở realtime | Chặng 10 |
+| ~~`created_at` offline chưa đo được độ trễ phát hiện~~ | Đã có bộ đo 09/11/2026 | `nids.thuc_nghiem` đo độ trễ = cuối cửa sổ đầu − bắt đầu đợt (gồm tích lũy cửa sổ); số lab cần PCAP thật (Bao_cao_Chang_11) | |
 | Trích xuất khoảng 22 000 gói/giây, chiếm 90–99% thời gian | Quan trọng | Có thể không kịp realtime khi lưu lượng lớn | Đo trên Kali (Chặng 10) |
 | Mỗi lần sửa `src/` hoặc `config/` cần chạy `pipeline kiem-tra`; mô hình tạo khi mã chưa commit chỉ bị cảnh báo | Nên có | Dễ dùng nhầm mô hình cũ | Làm được ngay khi có thay đổi |
 

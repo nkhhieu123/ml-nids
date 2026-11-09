@@ -137,6 +137,11 @@ Báo cáo Chặng 9: [docs/Bao_cao_Chang_9.md](docs/Bao_cao_Chang_9.md)
 
 Báo cáo Chặng 10: [docs/Bao_cao_Chang_10.md](docs/Bao_cao_Chang_10.md)
 
+- [x] C11-T08: Bộ đo thực nghiệm (độ trễ, bỏ sót, báo động giả, hiệu năng) — `src/nids/thuc_nghiem.py`
+  (C11-T02..T07 chạy thử trên đoạn CIC và giả lập; số liệu cuối cần PCAP lab thật)
+
+Báo cáo Chặng 11: [docs/Bao_cao_Chang_11.md](docs/Bao_cao_Chang_11.md)
+
 Script sinh traffic lab kịch bản 1–3: [docs/68_sinh_traffic_lab.md](docs/68_sinh_traffic_lab.md)
 
 Gộp cảnh báo botnet theo host (vớt bot chậm, tùy chọn Chặng 9): [docs/69_gop_canh_bao_theo_host.md](docs/69_gop_canh_bao_theo_host.md)
