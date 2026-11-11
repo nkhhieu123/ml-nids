@@ -141,6 +141,28 @@ Kết quả (`docs/hinh/thuc_nghiem/lab/k4.json`, `botnet_doc_lap.json`, `botnet
 Việc cần làm: thu các lần chạy `train` và `val` của kịch bản 4, 5 và học lại module botnet trên dữ liệu lab;
 xét lại việc module botnet phụ thuộc vào anomaly ở chế độ `ket_hop`, vì beaconing chậm không làm host bất thường.
 
+## 5. C11-T06 — Giao tiếp ngang hàng mô phỏng
+
+Ba bot `.41`–`.43` gửi thông điệp UDP vô hại cho nhau qua cổng 40000 trong 10 phút, đồng thời vẫn duyệt web.
+Chu kỳ và danh sách peer đổi giữa các lần (B18).
+
+| Lần | Chu kỳ, jitter | Danh sách peer | Phát hiện (`suspect_host`) | Anomaly báo bot | Điểm botnet cao nhất của bot |
+|---|---|---|---|---|---|
+| `k5-p2p-test-01` | 8 s, ±30% | lưới đầy đủ (mỗi bot gọi hai bot kia) | ✗ bỏ sót | không | 0,084 |
+| `k5-p2p-test-02` | 20 s, ±50% | vòng (41→42→43→41) | ✗ bỏ sót | không | — |
+| `k5-p2p-test-03` | 30 s, ±40% | lưới đầy đủ | ✗ bỏ sót | không | — |
+
+Kết quả (`docs/hinh/thuc_nghiem/lab/k5.json`, `botnet_doc_lap.json`, `botnet_diem.json`):
+
+- **Bỏ sót 3/3 đợt**, ở cả chế độ `ket_hop` lẫn `doc_lap`. Điểm cao nhất của bot 0,074–0,084, dưới ngưỡng 0,1.
+- Không có nhãn topology `p2p` nào. Quy tắc nhận diện ngang hàng (QĐ-042) đòi ít nhất 5 peer gọi vào một host;
+  lab chỉ có 3 bot nên mỗi bot nhiều nhất có 2 peer. **Với 7 node, quy tắc này không thể thỏa** dù bộ phát
+  hiện có báo.
+- Anomaly cũng không báo bot: vài gói UDP nhỏ mỗi 8–30 giây không làm host lệch khỏi bình thường.
+
+Việc cần làm: như mục 4, cộng thêm hạ ngưỡng số peer của quy tắc topology cho phù hợp quy mô lab (chọn trên
+lần chạy `val`).
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
