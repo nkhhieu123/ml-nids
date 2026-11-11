@@ -146,7 +146,9 @@ Báo cáo Chặng 10: [docs/Bao_cao_Chang_10.md](docs/Bao_cao_Chang_10.md)
 - [x] C11-T05: Kiểm thử giao tiếp tập trung mô phỏng — [docs/71_ket_qua_lab.md](docs/71_ket_qua_lab.md) mục 4
 - [x] C11-T06: Kiểm thử giao tiếp ngang hàng mô phỏng — [docs/71_ket_qua_lab.md](docs/71_ket_qua_lab.md) mục 5
 - [x] C11-T07: Đối chứng lành tính và lặp lại tình huống — [docs/71_ket_qua_lab.md](docs/71_ket_qua_lab.md) mục 6
-- [x] C11-T08: Bộ đo thực nghiệm (độ trễ, bỏ sót, báo động giả, hiệu năng) — `src/nids/thuc_nghiem.py`
+- [x] C11-T08: Tổng hợp độ trễ, bỏ sót, báo động giả, hiệu năng — `src/nids/thuc_nghiem.py`, `src/nids/do_tre_realtime.py`, `src/nids/thuc_nghiem_lab.py`, [docs/Bao_cao_Chang_11.md](docs/Bao_cao_Chang_11.md) mục 4
+
+Kết quả trên lab ảo (33 lần `test`): port scan 6/6, DoS 9/9, botnet 0/9 (bỏ sót, cần học lại trên dữ liệu lab); độ trễ realtime trung vị 4,6 giây; 11,7 sự kiện báo động giả mỗi giờ.
 
 Báo cáo Chặng 11: [docs/Bao_cao_Chang_11.md](docs/Bao_cao_Chang_11.md)
 

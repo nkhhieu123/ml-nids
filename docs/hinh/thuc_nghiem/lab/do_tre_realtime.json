@@ -1,0 +1,257 @@
+{
+  "theo_dot": [
+    {
+      "pcap": "k2-quet-cham-test-01.pcap",
+      "goi": 11597,
+      "goi_hang_doi_bo": 0,
+      "thoi_gian_phat_lai_s": 712.6,
+      "kich_ban": "k2-quet-cham-test-01",
+      "loai": "port_scan",
+      "phat_hien": true,
+      "so_canh_bao": 521,
+      "do_tre_realtime_s": 5.1,
+      "do_tre_cuoi_cua_so_s": 1.8,
+      "cho_sau_cua_so_s": 3.3,
+      "host": "192.168.50.20"
+    },
+    {
+      "pcap": "k2-quet-cham-test-02.pcap",
+      "goi": 11249,
+      "goi_hang_doi_bo": 0,
+      "thoi_gian_phat_lai_s": 708.6,
+      "kich_ban": "k2-quet-cham-test-02",
+      "loai": "port_scan",
+      "phat_hien": true,
+      "so_canh_bao": 520,
+      "do_tre_realtime_s": 5.6,
+      "do_tre_cuoi_cua_so_s": 2.5,
+      "cho_sau_cua_so_s": 3.1,
+      "host": "192.168.50.20"
+    },
+    {
+      "pcap": "k2-quet-cham-test-03.pcap",
+      "goi": 10987,
+      "goi_hang_doi_bo": 0,
+      "thoi_gian_phat_lai_s": 665.6,
+      "kich_ban": "k2-quet-cham-test-03",
+      "loai": "port_scan",
+      "phat_hien": true,
+      "so_canh_bao": 522,
+      "do_tre_realtime_s": 4.6,
+      "do_tre_cuoi_cua_so_s": 1.4,
+      "cho_sau_cua_so_s": 3.2,
+      "host": "192.168.50.20"
+    },
+    {
+      "pcap": "k2-quet-nhanh-test-01.pcap",
+      "goi": 9959,
+      "goi_hang_doi_bo": 0,
+      "thoi_gian_phat_lai_s": 601.2,
+      "kich_ban": "k2-quet-nhanh-test-01",
+      "loai": "port_scan",
+      "phat_hien": true,
+      "so_canh_bao": 10,
+      "do_tre_realtime_s": 6.3,
+      "do_tre_cuoi_cua_so_s": 1.8,
+      "cho_sau_cua_so_s": 4.5,
+      "host": "192.168.50.20"
+    },
+    {
+      "pcap": "k2-quet-nhanh-test-02.pcap",
+      "goi": 10436,
+      "goi_hang_doi_bo": 0,
+      "thoi_gian_phat_lai_s": 599.3,
+      "kich_ban": "k2-quet-nhanh-test-02",
+      "loai": "port_scan",
+      "phat_hien": true,
+      "so_canh_bao": 10,
+      "do_tre_realtime_s": 4.3,
+      "do_tre_cuoi_cua_so_s": 0.9,
+      "cho_sau_cua_so_s": 3.4,
+      "host": "192.168.50.20"
+    },
+    {
+      "pcap": "k2-quet-nhanh-test-03.pcap",
+      "goi": 10139,
+      "goi_hang_doi_bo": 0,
+      "thoi_gian_phat_lai_s": 598.2,
+      "kich_ban": "k2-quet-nhanh-test-03",
+      "loai": "port_scan",
+      "phat_hien": true,
+      "so_canh_bao": 10,
+      "do_tre_realtime_s": 4.6,
+      "do_tre_cuoi_cua_so_s": 1.5,
+      "cho_sau_cua_so_s": 3.2,
+      "host": "192.168.50.20"
+    },
+    {
+      "pcap": "k3-dos-muc1-test-01.pcap",
+      "goi": 22097,
+      "goi_hang_doi_bo": 0,
+      "thoi_gian_phat_lai_s": 301.7,
+      "kich_ban": "k3-dos-muc1-test-01",
+      "loai": "dos",
+      "phat_hien": true,
+      "so_canh_bao": 34,
+      "do_tre_realtime_s": 5.6,
+      "do_tre_cuoi_cua_so_s": 2.5,
+      "cho_sau_cua_so_s": 3.1,
+      "host": "192.168.50.20"
+    },
+    {
+      "pcap": "k3-dos-muc1-test-02.pcap",
+      "goi": 21989,
+      "goi_hang_doi_bo": 0,
+      "thoi_gian_phat_lai_s": 301.5,
+      "kich_ban": "k3-dos-muc1-test-02",
+      "loai": "dos",
+      "phat_hien": true,
+      "so_canh_bao": 34,
+      "do_tre_realtime_s": 5.9,
+      "do_tre_cuoi_cua_so_s": 2.9,
+      "cho_sau_cua_so_s": 3.1,
+      "host": "192.168.50.20"
+    },
+    {
+      "pcap": "k3-dos-muc1-test-03.pcap",
+      "goi": 22198,
+      "goi_hang_doi_bo": 0,
+      "thoi_gian_phat_lai_s": 301.4,
+      "kich_ban": "k3-dos-muc1-test-03",
+      "loai": "dos",
+      "phat_hien": true,
+      "so_canh_bao": 34,
+      "do_tre_realtime_s": 4.7,
+      "do_tre_cuoi_cua_so_s": 1.7,
+      "cho_sau_cua_so_s": 3.0,
+      "host": "192.168.50.20"
+    },
+    {
+      "pcap": "k3-dos-muc2-test-01.pcap",
+      "goi": 76304,
+      "goi_hang_doi_bo": 0,
+      "thoi_gian_phat_lai_s": 302.9,
+      "kich_ban": "k3-dos-muc2-test-01",
+      "loai": "dos",
+      "phat_hien": true,
+      "so_canh_bao": 64,
+      "do_tre_realtime_s": 5.3,
+      "do_tre_cuoi_cua_so_s": 2.2,
+      "cho_sau_cua_so_s": 3.1,
+      "host": "192.168.50.20"
+    },
+    {
+      "pcap": "k3-dos-muc2-test-02.pcap",
+      "goi": 76748,
+      "goi_hang_doi_bo": 0,
+      "thoi_gian_phat_lai_s": 300.0,
+      "kich_ban": "k3-dos-muc2-test-02",
+      "loai": "dos",
+      "phat_hien": true,
+      "so_canh_bao": 64,
+      "do_tre_realtime_s": 4.0,
+      "do_tre_cuoi_cua_so_s": 1.0,
+      "cho_sau_cua_so_s": 3.0,
+      "host": "192.168.50.20"
+    },
+    {
+      "pcap": "k3-dos-muc2-test-03.pcap",
+      "goi": 76046,
+      "goi_hang_doi_bo": 0,
+      "thoi_gian_phat_lai_s": 300.4,
+      "kich_ban": "k3-dos-muc2-test-03",
+      "loai": "dos",
+      "phat_hien": true,
+      "so_canh_bao": 65,
+      "do_tre_realtime_s": 3.6,
+      "do_tre_cuoi_cua_so_s": 0.6,
+      "cho_sau_cua_so_s": 3.0,
+      "host": "192.168.50.20"
+    },
+    {
+      "pcap": "k3-dos-muc3-test-01.pcap",
+      "goi": 173795,
+      "goi_hang_doi_bo": 0,
+      "thoi_gian_phat_lai_s": 301.5,
+      "kich_ban": "k3-dos-muc3-test-01",
+      "loai": "dos",
+      "phat_hien": true,
+      "so_canh_bao": 56,
+      "do_tre_realtime_s": 4.2,
+      "do_tre_cuoi_cua_so_s": 1.1,
+      "cho_sau_cua_so_s": 3.0,
+      "host": "192.168.50.20"
+    },
+    {
+      "pcap": "k3-dos-muc3-test-02.pcap",
+      "goi": 173545,
+      "goi_hang_doi_bo": 0,
+      "thoi_gian_phat_lai_s": 301.2,
+      "kich_ban": "k3-dos-muc3-test-02",
+      "loai": "dos",
+      "phat_hien": true,
+      "so_canh_bao": 56,
+      "do_tre_realtime_s": 4.2,
+      "do_tre_cuoi_cua_so_s": 1.2,
+      "cho_sau_cua_so_s": 3.0,
+      "host": "192.168.50.20"
+    },
+    {
+      "pcap": "k3-dos-muc3-test-03.pcap",
+      "goi": 173252,
+      "goi_hang_doi_bo": 0,
+      "thoi_gian_phat_lai_s": 301.7,
+      "kich_ban": "k3-dos-muc3-test-03",
+      "loai": "dos",
+      "phat_hien": true,
+      "so_canh_bao": 56,
+      "do_tre_realtime_s": 3.5,
+      "do_tre_cuoi_cua_so_s": 0.4,
+      "cho_sau_cua_so_s": 3.1,
+      "host": "192.168.50.20"
+    }
+  ],
+  "tom_tat": {
+    "k2-quet-cham": {
+      "so_mau": 3,
+      "nho_nhat": 4.6,
+      "trung_vi": 5.1,
+      "lon_nhat": 5.6
+    },
+    "k2-quet-nhanh": {
+      "so_mau": 3,
+      "nho_nhat": 4.3,
+      "trung_vi": 4.6,
+      "lon_nhat": 6.3
+    },
+    "k3-dos-muc1": {
+      "so_mau": 3,
+      "nho_nhat": 4.7,
+      "trung_vi": 5.6,
+      "lon_nhat": 5.9
+    },
+    "k3-dos-muc2": {
+      "so_mau": 3,
+      "nho_nhat": 3.6,
+      "trung_vi": 4.0,
+      "lon_nhat": 5.3
+    },
+    "k3-dos-muc3": {
+      "so_mau": 3,
+      "nho_nhat": 3.5,
+      "trung_vi": 4.2,
+      "lon_nhat": 4.2
+    },
+    "tat_ca": {
+      "so_mau": 15,
+      "nho_nhat": 3.5,
+      "trung_vi": 4.6,
+      "lon_nhat": 6.3
+    }
+  },
+  "cho_sau_cua_so_s": {
+    "nho_nhat": 3.0,
+    "trung_vi": 3.1,
+    "lon_nhat": 4.5
+  }
+}

@@ -1,8 +1,8 @@
-# Những gì còn thiếu sau Chặng 1–10
+# Những gì còn thiếu sau Chặng 1–11
 
 Tài liệu gom mọi thứ **chưa có** hoặc **chưa kiểm chứng** trong phạm vi Chặng 1–10, rút từ các
 tài liệu task, báo cáo chặng và nhật ký quyết định. Lập ngày 23/10/2026 (Chặng 1–3), cập nhật
-27/10, 29/10, 02/11, 03/11 và 06/11/2026 (mở rộng tới Chặng 10).
+27/10, 29/10, 02/11, 03/11, 06/11 và 11/11/2026 (mở rộng tới Chặng 11).
 
 ## 0. VIỆC ĐANG DỞ — CẦN CHẠY LẠI (đọc trước)
 
@@ -33,7 +33,7 @@ QĐ-039; đổi trong `botnet.splits` nếu muốn); chọn nguồn mẫu DoS ki
 ngay** là việc làm được bằng mã hoặc tải dữ liệu công khai mà không cần thêm gì.
 
 Dữ liệu thật hiện có: **CIC-IDS2017 đủ** (PCAP thứ Hai, thứ Tư, thứ Sáu và CSV có nhãn) và
-**CTU-13 đủ 13 file `.binetflow`**. Chưa có dữ liệu lab.
+**CTU-13 đủ 13 file `.binetflow`**. Dữ liệu lab: 33 lần `test` trên lab ảo (11/11/2026), chưa có `train`/`val`.
 
 ## 1. Tóm tắt mức độ
 
@@ -82,11 +82,11 @@ gom lại thành các việc sau (việc tải CIC-IDS2017 đã xong):
 | ~~Topology của scenario 6 và 8 chưa xác định~~ | Đã xong: có flow CC, xếp `centralized` (docs/48) | Hai scenario này không có nhãn topology | Làm được ngay | Xem nhãn kênh điều khiển (`CC`) trong file flow |
 | ~~4 bản thu CTU-13 đã dùng ở Chặng 3 chỉ nằm trong thư mục tạm~~ | Đã xong 06/11/2026 (manifest `ctu13-s0x-pcap-*`) | Người khác không tái lập được phép đối chiếu Wireshark | Làm được ngay | Thêm dòng manifest, ghi link tải và mã băm |
 
-### 2.3. Dữ liệu lab — chưa thu lần nào
+### 2.3. Dữ liệu lab — đã thu 33 lần `test` trên lab ảo; chưa có `train`, `val`
 
 | Thiếu | Mức | Ảnh hưởng | Ai làm | Cách bổ sung |
 |---|---|---|---|---|
-| 0/55 lần chạy (cả 12 dòng manifest đều `chua_thu`) | Chặn | Không có DoS SYN, botnet ngang hàng, đối chứng lành tính, và không có dữ liệu thật của mạng sẽ triển khai | **Bạn** | Làm theo [09_du_lieu_lab.md](09_du_lieu_lab.md) sau khi có mục 3 và 4 |
+| **Cập nhật 11/11/2026:** đã thu 33/55 lần chạy (11 biến thể × 3 lần `test`) trên lab ảo WSL2 (docs/70, docs/71). Còn thiếu 22 lần `train` và `val`, và chưa có lần nào trên lab vật lý | Quan trọng | Không có DoS SYN, botnet ngang hàng, đối chứng lành tính, và không có dữ liệu thật của mạng sẽ triển khai | **Bạn** | Làm theo [09_du_lieu_lab.md](09_du_lieu_lab.md) sau khi có mục 3 và 4 |
 | Chưa có access log Nginx của máy chủ dịch vụ thật | Quan trọng | Parser log mới thử trên Nginx Windows (CRLF, một worker) | **Bạn** dựng; kiểm tra làm được ngay | Cài Nginx với `log_format nids`, chạy `nids.service_log` và `nids.log_compare` |
 | IPv6 thật gần như không có (1 gói đầy đủ, 2 gói bị cắt); TSO và đường hầm IP chưa gặp trên dữ liệu thật | Nên có | Các nhánh này mới kiểm tra bằng dữ liệu tổng hợp | Làm được ngay khi có PCAP lab | Chạy `nids.wireshark_compare` trên PCAP lab, nhất là khi bắt trên chính máy gửi |
 
@@ -167,6 +167,22 @@ gom lại thành các việc sau (việc tải CIC-IDS2017 đã xong):
 | PCAP CIC có 0,7–11,8% gói nhân đôi; bộ trích xuất chưa bỏ bản sao (docs/60) | Quan trọng | Đặc trưng đếm gói lệch nếu mạng lab nhân đôi khác CIC | Đo trên lab rồi quyết định; khử trùng làm được ngay nếu cần |
 | ~~Module botnet dựng lại đồ thị 600 giây mỗi bước~~ | Đã xong 07/11/2026 | Chỉ tính cửa sổ đang xét + cache chuyển đổi flow: chấm botnet −52% trên fri_quet, đặc trưng y hệt (docs/63 mục 3.1, QĐ-059) | |
 | Hiệu năng mới đo trên laptop Windows bằng phát lại; số gói kernel bỏ chưa đo | Quan trọng | Chưa biết năng lực trên Kali | **Bạn** chạy trên Kali (Chặng 11) |
+
+## 4g. Chặng 11: việc còn thiếu hoặc hạn chế đã biết
+
+Kết quả Chặng 11 ở [Bao_cao_Chang_11.md](Bao_cao_Chang_11.md) và [71_ket_qua_lab.md](71_ket_qua_lab.md).
+
+| Thiếu | Mức | Ảnh hưởng | Ai làm |
+|---|---|---|---|
+| Module botnet bỏ sót 9/9 đợt trên lab (tập trung 6, ngang hàng 3); điểm bot cao nhất 0,084, ngưỡng 0,1 | Chặn với yêu cầu botnet | Module botnet chưa dùng được trên lab | Thu lần `train`, `val` của kịch bản 4, 5 (`bash scripts/chay_chang_11.sh train 1`, `val 1`) rồi học lại theo Chặng 8 |
+| Ở chế độ `ket_hop`, module botnet chỉ xét host bị anomaly báo; beaconing chậm không làm host bất thường nên bot không bao giờ được xét | Quan trọng | Dù học lại, bot chậm vẫn lọt nếu giữ cách ghép này | Xét lại QĐ-047 trên lần chạy `val` của lab |
+| Quy tắc topology `p2p` đòi 5 peer gọi vào; lab chỉ có 3 bot | Quan trọng | Không thể ra nhãn `p2p` trên lab 7 node | Chọn lại `botnet.topology_rule.min_peer_vao` trên `val` |
+| Anomaly báo máy chủ dịch vụ `.30` suốt 100% thời gian ở cả 33 lần | Quan trọng | Cảnh báo anomaly trên máy chủ vô nghĩa | Fit lại Gaussian trên lần `train` của kịch bản 1 |
+| Bộ phân loại báo nhầm `dos` khi các máy chia sẻ khối dữ liệu lớn (24 sự kiện trong 3 lần `k5-doi-chung`) | Quan trọng | Báo động giả khi có truyền file nội bộ | Thêm mẫu lành tính này vào train của bộ phân loại (lần `train` của `k5-doi-chung`) |
+| Lab là lab ảo (namespace trên WSL2): đường truyền không trễ, không mất gói, các máy chung đồng hồ, máy giám sát không phải Kali | Quan trọng | Độ trễ, gói nhân bỏ và độ lệch đồng hồ chưa phản ánh thiết bị thật | **Bạn**: khi có máy thật, chạy lại các kịch bản bằng `sinh_traffic.py`, `sinh_topology.py` trên lab vật lý và so số |
+| Tải kết nối mức 3 (600 kết nối mỗi giây) không làm chậm dịch vụ trên lab ảo | Nên có | Chưa đo được ảnh hưởng của DoS lên dịch vụ (B16) | Thử trên máy chủ thật có tài nguyên hạn chế |
+| Độ trễ realtime đo bằng phát lại PCAP trên laptop Windows, chưa đo trên cảm biến bắt trực tiếp | Nên có | Thiếu phần trễ của card mạng và nhân | Chạy `nids.realtime --iface` trong namespace giám sát hoặc trên Kali |
+| Nguồn tấn công `.20` không có traffic bình thường xen kẽ | Nên có | Chưa biết bộ phân loại có nhận ra khi máy tấn công cũng là máy làm việc | Thêm biến thể có nền trên `.20` |
 
 ## 5. Giới hạn của mã nguồn hiện có
 

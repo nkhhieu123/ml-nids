@@ -1,0 +1,21 @@
+{
+  "pcap": "k2-quet-cham-test-01.pcap",
+  "che_do": "ket_hop",
+  "toc_do": 1.0,
+  "goi": 11597,
+  "goi_hang_doi_bo": 0,
+  "thoi_gian_phat_lai_s": 712.6,
+  "so_canh_bao": 1131,
+  "theo_dot": [
+    {
+      "kich_ban": "k2-quet-cham-test-01",
+      "loai": "port_scan",
+      "phat_hien": true,
+      "so_canh_bao": 521,
+      "do_tre_realtime_s": 5.1,
+      "do_tre_cuoi_cua_so_s": 1.8,
+      "cho_sau_cua_so_s": 3.3,
+      "host": "192.168.50.20"
+    }
+  ]
+}

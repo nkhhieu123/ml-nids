@@ -1,0 +1,21 @@
+{
+  "pcap": "k3-dos-muc2-test-02.pcap",
+  "che_do": "ket_hop",
+  "toc_do": 1.0,
+  "goi": 76748,
+  "goi_hang_doi_bo": 0,
+  "thoi_gian_phat_lai_s": 300.0,
+  "so_canh_bao": 209,
+  "theo_dot": [
+    {
+      "kich_ban": "k3-dos-muc2-test-02",
+      "loai": "dos",
+      "phat_hien": true,
+      "so_canh_bao": 64,
+      "do_tre_realtime_s": 4.0,
+      "do_tre_cuoi_cua_so_s": 1.0,
+      "cho_sau_cua_so_s": 3.0,
+      "host": "192.168.50.20"
+    }
+  ]
+}

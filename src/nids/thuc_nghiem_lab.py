@@ -86,7 +86,7 @@ def plot(rows, out_dir) -> list:
                 transform=ax.get_yaxis_transform(), va="center", fontsize=9,
                 color="#d62728" if r["bo_sot"] else "black")
     ax.set_yticks(range(len(atk)), [r["bien_the"] for r in atk])
-    ax.invert_yaxis()
+    ax.set_ylim(len(atk) - 0.5, -0.5)
     ax.set_xlim(left=0)
     ax.set_xlabel("Độ trễ phát hiện (giây, gồm thời gian tích lũy cửa sổ)")
     ax.set_title("Lab: độ trễ phát hiện của từng đợt tấn công")

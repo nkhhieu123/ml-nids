@@ -1,0 +1,21 @@
+{
+  "pcap": "k2-quet-nhanh-test-03.pcap",
+  "che_do": "ket_hop",
+  "toc_do": 1.0,
+  "goi": 10139,
+  "goi_hang_doi_bo": 0,
+  "thoi_gian_phat_lai_s": 598.2,
+  "so_canh_bao": 295,
+  "theo_dot": [
+    {
+      "kich_ban": "k2-quet-nhanh-test-03",
+      "loai": "port_scan",
+      "phat_hien": true,
+      "so_canh_bao": 10,
+      "do_tre_realtime_s": 4.6,
+      "do_tre_cuoi_cua_so_s": 1.5,
+      "cho_sau_cua_so_s": 3.2,
+      "host": "192.168.50.20"
+    }
+  ]
+}
