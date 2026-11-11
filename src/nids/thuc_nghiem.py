@@ -190,10 +190,12 @@ def latency_summary(rows) -> dict:
     return {"so_mau": len(vals), "nho_nhat": vals[0], "trung_vi": pct(0.5), "p95": pct(0.95), "lon_nhat": vals[-1]}
 
 
-def run_scenario(pcap, networks, cfg=None, mode="ket_hop", name=None, rules=None, runlog=None, keep=None) -> dict:
+def run_scenario(pcap, networks, cfg=None, mode="ket_hop", name=None, rules=None, runlog=None, keep=None,
+                 config_path=None) -> dict:
     """Chạy pipeline trên một PCAP, dựng ground truth, trả về chỉ số Chặng 11.
 
-    ``keep``: thư mục giữ lại file cảnh báo và sự kiện của lần chạy (bằng chứng); bỏ trống thì không giữ."""
+    ``keep``: thư mục giữ lại file cảnh báo và sự kiện của lần chạy (bằng chứng); bỏ trống thì không giữ.
+    ``config_path``: file cấu hình dùng khi trích xuất đặc trưng (phải cùng nội dung với ``cfg``)."""
     import tempfile
 
     import pandas as pd
@@ -202,7 +204,7 @@ def run_scenario(pcap, networks, cfg=None, mode="ket_hop", name=None, rules=None
     from .pipeline import load_windows, merge_events, run_alerts, run_pcap, write_alerts, write_events
 
     with tempfile.TemporaryDirectory() as d:
-        run = run_pcap(pcap, d, networks, cfg, mode=mode, name=name)
+        run = run_pcap(pcap, d, networks, cfg, config_path, mode=mode, name=name)
         alerts = run_alerts(run, run["artifact"])
         merged = merge_events(alerts)
         events = [_event_dict(e) for e in merged]

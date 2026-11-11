@@ -51,7 +51,7 @@ Mẫu:
 
 ## QĐ-006 — Tham số cửa sổ và timeout ban đầu
 - Ngày: 11/10/2026
-- Trạng thái: Tạm thời
+- Trạng thái: Tạm thời → đã khóa bởi QĐ-066 (12/11/2026)
 - Bối cảnh: Kịch bản cho giá trị cửa sổ ban đầu nhưng không cho giá trị timeout của flow.
 - Quyết định: Cửa sổ flow/host 10 giây bước 2 giây; cửa sổ beaconing/đồ thị 120 giây bước 10 giây (theo kịch bản). Timeout nhàn rỗi của flow đặt 60 giây (nhóm tự chọn).
 - Hệ quả: Các giá trị này được chỉnh trên tập validation rồi khóa lại trước khi kiểm thử; khi khóa phải thêm mục quyết định mới.
@@ -128,7 +128,7 @@ Mẫu:
 
 ## QĐ-017 — Kết thúc flow: FIN/RST có thời gian chờ, SYN mới, timeout nhàn rỗi và active timeout
 - Ngày: 26/10/2026
-- Trạng thái: Tạm thời (giá trị thời gian chỉnh trên validation như QĐ-006)
+- Trạng thái: Đã chốt (giá trị thời gian khóa bởi QĐ-066, 12/11/2026)
 - Bối cảnh: Một 5-tuple có thể chứa nhiều kết nối liên tiếp (bot Virut mở lại cùng cổng nguồn tới cùng máy chủ) hoặc một kết nối rất dài. CICFlowMeter đóng flow ngay ở FIN đầu tiên, làm gói ACK cuối thành flow một gói. Đo trên CTU-13: khoảng 97% gói tới sau khi TCP đóng nằm trong 10 giây.
 - Quyết định: Flow kết thúc, theo thứ tự ưu tiên, khi: (1) TCP đã đóng bằng FIN hai chiều hoặc RST và gói mới có cờ SYN hoặc tới sau `close_grace_s` = 10 giây; (2) nhàn rỗi quá `idle_timeout_s` = 60 giây; (3) có gói bắt tay mới (SYN, SYN+ACK) trên flow chưa đóng, phân biệt với gói gửi lại bằng số thứ tự TCP (trường `tcp_seq` thêm vào bảng packet); (4) dài quá `active_timeout_s` = 120 giây, như CICFlowMeter. Flow mở lại bằng gói không phải SYN/SYN+ACK trong vòng `direction_memory_s` = 3600 giây sau flow trước cùng khóa thì giữ chiều của flow trước (`continuation`). Mọi thời gian tính theo thời điểm trong gói (xem `docs/19_ket_thuc_flow.md`).
 - Hệ quả: Bảng flow có thêm `end_reason` và `continuation`. Đặc trưng theo flow là của từng đoạn tối đa 120 giây. Realtime dùng `pop_finished()`/`expire()` và cho cùng kết quả với đọc file. Thống kê flow ghi kèm bộ tham số đã dùng.
@@ -170,7 +170,7 @@ Mẫu:
 
 ## QĐ-023 — Kết nối không hoàn tất xét sau 3 giây quan sát; cửa sổ chờ thêm 3 giây
 - Ngày: 29/10/2026
-- Trạng thái: Tạm thời (giá trị 3 giây chỉnh trên validation như QĐ-006)
+- Trạng thái: Đã chốt (giá trị 3 giây khóa bởi QĐ-066, 12/11/2026)
 - Bối cảnh: Quét cổng và SYN flood để lại nhiều lần thử TCP không hoàn tất. Muốn biết một lần thử có hoàn tất không phải chờ trả lời, nhưng không được dùng gói tới quá xa (dữ liệu tương lai). Nghiệm thu Chặng 4 yêu cầu SYN thiếu phản hồi chỉ là dấu hiệu nghi vấn.
 - Quyết định: Lần thử là flow TCP mở bằng SYN của client, không phải phần tiếp nối. Chỉ xét các gói trong `flow.handshake_observe_s` = 3 giây sau SYN để xếp loại: `hoan_tat` (SYN+ACK rồi ACK của client), `do_dang`, `bi_tu_choi`, `khong_phan_hoi`. Tỷ lệ không hoàn tất tính cho host ra (client) và vào (server); trống khi không có lần thử. Cửa sổ host chờ thêm 3 giây sau `end` mới trả ra (xem `docs/24_ket_noi_khong_hoan_tat.md`).
 - Hệ quả: Flow ghi thêm thời điểm SYN+ACK, ACK của client, RST của server. Các cột này là đặc trưng, không dùng để gán nhãn. Cảnh báo realtime theo cửa sổ chậm thêm 3 giây.
@@ -184,14 +184,14 @@ Mẫu:
 
 ## QĐ-025 — Nhãn gán theo lịch tấn công, cặp IP và cổng nạn nhân; bốn trạng thái nhãn
 - Ngày: 29/10/2026
-- Trạng thái: Đã chốt (giá trị nới 60 giây tạm thời)
+- Trạng thái: Đã chốt (giá trị nới 60 giây khóa bởi QĐ-063, 12/11/2026)
 - Bối cảnh: QĐ-009 chọn gán nhãn CIC theo lịch tấn công thay vì cột nhãn của CSV (có lỗi). Cần một nguồn nhãn có thể kiểm tra, dùng được cho cả dữ liệu lab sau này, và không ép nhãn cho mẫu thiếu căn cứ.
 - Quyết định: Lịch ở `config/label_schedule.csv` (khung giờ địa phương, múi giờ, IP bên tấn công và nạn nhân như thấy trong PCAP, cổng nạn nhân, nhãn, khối). Mẫu khớp khi hai đầu là cặp tấn công (đúng cổng nếu có) và thời gian chạm khung giờ nới `labeling.tolerance_s` = 60 giây. Bốn trạng thái: `khop`, `loai` (tấn công ngoài ba lớp: chỉ dùng cho anomaly), `mo_ho` (cặp tấn công ngoài khung giờ cùng ngày, hoặc chạm hai đợt khác nhãn: không gán nhãn), `khong_khop` (benign/normal) (xem `docs/26_gan_nhan.md`).
 - Hệ quả: Nhãn ghi ra file riêng, nối với bảng đặc trưng bằng khóa. Đợt bị loại vẫn phải có trong lịch để không thành benign. Mẫu `mo_ho` bị bỏ khỏi huấn luyện và đánh giá, có báo số lượng.
 
 ## QĐ-026 — Nhãn cửa sổ theo phần flow tấn công; dưới 20% là mơ hồ
 - Ngày: 29/10/2026
-- Trạng thái: Tạm thời (ngưỡng 0,2 chỉnh trên validation)
+- Trạng thái: Đã chốt (ngưỡng 0,2 khóa bởi QĐ-063, 12/11/2026)
 - Bối cảnh: Cửa sổ 10 giây của nạn nhân hay bên tấn công thường lẫn flow tấn công và bình thường (81% cửa sổ tấn công của CIC thứ Tư). Quét cổng là flow một gói nên không thể đo theo thời gian.
 - Quyết định: Đếm flow của host chồng lên cửa sổ theo nhãn flow. Có flow bị loại thì cửa sổ là `loai`; một lớp tấn công với phần flow tấn công ≥ `labeling.window_min_attack_share` = 0,2 thì nhận lớp đó; dưới ngưỡng hoặc hai lớp thì `mo_ho` (vẫn `anomaly`); chỉ có flow mơ hồ thì `mo_ho`; còn lại benign (xem `docs/28_nhan_cua_so.md`).
 - Hệ quả: Cột `attack_share`, `n_flows`, `n_attack_flows` được giữ để thử ngưỡng khác mà không gán nhãn lại.
@@ -474,6 +474,13 @@ Mẫu:
   - **QĐ-012 (dữ liệu lab)**: giữ 11 biến thể của năm kịch bản, mỗi biến thể 1 lần `train`, 1 lần `val`, 3 lần `test`. Đã thu đủ **55/55 lần** trên lab ảo (QĐ-061): 33 lần `test` ngày 11/11, 11 lần `train` và 11 lần `val` ngày 12/11/2026. DoS là tải kết nối bằng socket thường thay cho SYN gói thô (B24). ICMP và DDoS nhiều nguồn không thu.
   - **QĐ-013 (bộ đọc PCAP tự viết)**: giữ, kể cả phần phân tích header tự viết (không đổi sang dpkt). Đối chiếu Wireshark trên 35,5 triệu gói của ba file CIC: lệch 0 (docs/17); đọc được PCAP lab do tcpdump ghi và file nén gzip/bz2.
 - Hệ quả: Không còn quyết định nào ở trạng thái "Tạm thời" ngoài nhóm tham số flow (QĐ-066). Hạn chế vẫn còn: validation CTU-13 chỉ có 1 IP bot nên phải giữ ràng buộc Background ≤ 5% (QĐ-040); các lần `test` của lab thu trước `train`/`val`, nên nếu học lại mô hình bằng dữ liệu lab thì phải thu lần `test` mới; lab là lab ảo.
+
+## QĐ-066 — Khóa cửa sổ và tham số flow: 10/2 và 120/10 giây; timeout 60/120/10 giây; chờ bắt tay 3 giây
+- Ngày: 12/11/2026
+- Trạng thái: Đã chốt (khóa QĐ-006 và phần tạm thời của QĐ-017, QĐ-023)
+- Bối cảnh: Cửa sổ, ba timeout của flow và thời gian quan sát bắt tay được đặt tạm, hẹn chỉnh trên validation rồi khóa trước khi kiểm thử.
+- Quyết định: Giữ nguyên: cửa sổ flow/host 10 giây bước 2 giây, cửa sổ đồ thị 120 giây bước 10 giây; `idle_timeout_s` 60, `active_timeout_s` 120, `close_grace_s` 10, `handshake_observe_s` 3. Thử trên 11 lần chạy `val` của lab, mỗi lần đổi một tham số (idle 30/120, active 60/300, grace 5/20, bắt tay 1/5), trích xuất lại và chấm bằng mô hình đã khóa: cả 9 cấu hình cho cùng số đợt phát hiện, cùng số cửa sổ cảnh báo và cùng số báo động giả.
+- Hệ quả: Không trích xuất hay huấn luyện lại. `handshake_observe_s` cộng thẳng vào độ trễ realtime (1 giây: 1,5–2,9 giây; 3 giây: 3,1–5,0 giây; 5 giây: 6,2–6,9 giây); giảm xuống 1 giây sẽ bớt khoảng 2 giây nhưng đòi trích xuất và huấn luyện lại toàn bộ (B12) và chưa kiểm chứng trên mạng có độ trễ thật, nên để lại như một lựa chọn cho lần học lại sau. Phép đo dùng mô hình đã khóa trên dữ liệu lab, cho biết kết quả không nhạy với tham số, không chứng minh tối ưu. Độ dài cửa sổ không được thử lại. Chi tiết docs/72 mục 2.
 
 ## Thuật ngữ
 

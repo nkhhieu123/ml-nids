@@ -117,7 +117,7 @@ gom lại thành các việc sau (việc tải CIC-IDS2017 đã xong):
 | Thiếu | Mức | Ảnh hưởng | Ai làm |
 |---|---|---|---|
 | ~~Bảng đặc trưng xuất khi mã chưa commit~~ | Đã xong 07/11/2026 | Xuất lại từ cây sạch, byte giống hệt → đã chứng minh tái lập; meta ghi `co_sua_chua_commit: false` | |
-| Tham số flow tạm thời: timeout 60/120/10 giây, quan sát bắt tay 3 giây (QĐ-017, QĐ-023) chưa chỉnh trên validation | Nên có | Đặc trưng có thể chưa tối ưu | Làm được ngay |
+| ~~Tham số flow tạm thời: timeout 60/120/10 giây, quan sát bắt tay 3 giây (QĐ-017, QĐ-023) chưa chỉnh trên validation~~ | Đã khóa 12/11/2026 (QĐ-066) | Thử 9 cấu hình trên 11 lần `val` của lab: kết quả phát hiện giống hệt nhau nên giữ nguyên. Chờ bắt tay 1 giây sẽ bớt khoảng 2 giây độ trễ realtime nhưng phải trích xuất và huấn luyện lại (docs/72 mục 2). Chưa thử bằng cách huấn luyện lại trên CIC | |
 | Tốc độ xuất bảng khoảng 9 600 gói/giây trên máy phát triển, chưa đo trên Kali | Quan trọng | Có thể không kịp realtime | **Bạn** chạy trên Kali |
 | ~~Mọi traffic tấn công CIC đi qua NAT `172.16.0.1`: đặc trưng cửa sổ của "máy tấn công" gộp nhiều máy~~ | Đã đo trên lab 12/11/2026 | Lab có máy tấn công là một host thật: recall theo cửa sổ của máy tấn công 1,000 (`port_scan`) và 0,987 (`dos`); máy nạn nhân 0,999 và 0,574 (docs/71 mục 7). Với CIC giới hạn này vẫn còn | |
 | Validation lớp `port_scan` ở bảng cửa sổ ít mẫu (50, sau QĐ-060 là 164); GoldenEye chỉ 24 cửa sổ test | Một phần, 12/11/2026 | Lab đã có lần `val`: 531 cửa sổ `port_scan`, 196 cửa sổ `dos` (docs/71 mục 7.1), dùng khi học lại trên lab. GoldenEye chỉ có trong CIC nên **không bổ sung được** | Dùng `val` của lab khi học lại |

@@ -1,0 +1,83 @@
+{
+  "toc_do": 1.0,
+  "cac_lan_do": [
+    {
+      "handshake_observe_s": 1,
+      "pcap": "k2-quet-nhanh-val-01.pcap",
+      "goi_hang_doi_bo": 0,
+      "kich_ban": "k2-quet-nhanh-val-01",
+      "loai": "port_scan",
+      "phat_hien": true,
+      "so_canh_bao": 10,
+      "do_tre_realtime_s": 1.5,
+      "do_tre_cuoi_cua_so_s": 0.0,
+      "cho_sau_cua_so_s": 1.4,
+      "host": "192.168.50.20"
+    },
+    {
+      "handshake_observe_s": 1,
+      "pcap": "k3-dos-muc2-val-01.pcap",
+      "goi_hang_doi_bo": 0,
+      "kich_ban": "k3-dos-muc2-val-01",
+      "loai": "dos",
+      "phat_hien": true,
+      "so_canh_bao": 64,
+      "do_tre_realtime_s": 2.9,
+      "do_tre_cuoi_cua_so_s": 1.9,
+      "cho_sau_cua_so_s": 1.0,
+      "host": "192.168.50.20"
+    },
+    {
+      "handshake_observe_s": 3,
+      "pcap": "k2-quet-nhanh-val-01.pcap",
+      "goi_hang_doi_bo": 0,
+      "kich_ban": "k2-quet-nhanh-val-01",
+      "loai": "port_scan",
+      "phat_hien": true,
+      "so_canh_bao": 10,
+      "do_tre_realtime_s": 3.1,
+      "do_tre_cuoi_cua_so_s": 0.0,
+      "cho_sau_cua_so_s": 3.1,
+      "host": "192.168.50.20"
+    },
+    {
+      "handshake_observe_s": 3,
+      "pcap": "k3-dos-muc2-val-01.pcap",
+      "goi_hang_doi_bo": 0,
+      "kich_ban": "k3-dos-muc2-val-01",
+      "loai": "dos",
+      "phat_hien": true,
+      "so_canh_bao": 64,
+      "do_tre_realtime_s": 5.0,
+      "do_tre_cuoi_cua_so_s": 1.9,
+      "cho_sau_cua_so_s": 3.0,
+      "host": "192.168.50.20"
+    },
+    {
+      "handshake_observe_s": 5,
+      "pcap": "k2-quet-nhanh-val-01.pcap",
+      "goi_hang_doi_bo": 0,
+      "kich_ban": "k2-quet-nhanh-val-01",
+      "loai": "port_scan",
+      "phat_hien": true,
+      "so_canh_bao": 10,
+      "do_tre_realtime_s": 6.2,
+      "do_tre_cuoi_cua_so_s": 0.0,
+      "cho_sau_cua_so_s": 6.1,
+      "host": "192.168.50.20"
+    },
+    {
+      "handshake_observe_s": 5,
+      "pcap": "k3-dos-muc2-val-01.pcap",
+      "goi_hang_doi_bo": 0,
+      "kich_ban": "k3-dos-muc2-val-01",
+      "loai": "dos",
+      "phat_hien": true,
+      "so_canh_bao": 64,
+      "do_tre_realtime_s": 6.9,
+      "do_tre_cuoi_cua_so_s": 1.9,
+      "cho_sau_cua_so_s": 5.0,
+      "host": "192.168.50.20"
+    }
+  ]
+}

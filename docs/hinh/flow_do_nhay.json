@@ -1,0 +1,426 @@
+{
+  "hien_tai": {
+    "idle_timeout_s": 60,
+    "active_timeout_s": 120,
+    "close_grace_s": 10,
+    "handshake_observe_s": 3
+  },
+  "pcap": [
+    "k1-binh-thuong-val-01.pcap",
+    "k2-quet-cham-val-01.pcap",
+    "k2-quet-nhanh-val-01.pcap",
+    "k3-dos-muc1-val-01.pcap",
+    "k3-dos-muc2-val-01.pcap",
+    "k3-dos-muc3-val-01.pcap",
+    "k4-bien-thien-val-01.pcap",
+    "k4-co-dinh-val-01.pcap",
+    "k4-doi-chung-val-01.pcap",
+    "k5-doi-chung-val-01.pcap",
+    "k5-p2p-val-01.pcap"
+  ],
+  "cac_lan_thu": [
+    {
+      "tham_so": {
+        "idle_timeout_s": 60,
+        "active_timeout_s": 120,
+        "close_grace_s": 10,
+        "handshake_observe_s": 3
+      },
+      "doi": {},
+      "theo_loai": {
+        "port_scan": {
+          "so_dot": 2,
+          "phat_hien": 2,
+          "cua_so_canh_bao": 532,
+          "do_tre_s": [
+            0.9,
+            0.0
+          ]
+        },
+        "dos": {
+          "so_dot": 3,
+          "phat_hien": 3,
+          "cua_so_canh_bao": 152,
+          "do_tre_s": [
+            3.0,
+            1.9,
+            1.7
+          ]
+        },
+        "botnet": {
+          "so_dot": 3,
+          "phat_hien": 0,
+          "cua_so_canh_bao": 0,
+          "do_tre_s": []
+        }
+      },
+      "bao_gia": 24,
+      "bao_gia_theo_module": {
+        "anomaly": 12,
+        "attack_classification": 12
+      },
+      "flow": 52537,
+      "cua_so": 15726
+    },
+    {
+      "tham_so": {
+        "idle_timeout_s": 30,
+        "active_timeout_s": 120,
+        "close_grace_s": 10,
+        "handshake_observe_s": 3
+      },
+      "doi": {
+        "idle_timeout_s": 30
+      },
+      "theo_loai": {
+        "port_scan": {
+          "so_dot": 2,
+          "phat_hien": 2,
+          "cua_so_canh_bao": 532,
+          "do_tre_s": [
+            0.9,
+            0.0
+          ]
+        },
+        "dos": {
+          "so_dot": 3,
+          "phat_hien": 3,
+          "cua_so_canh_bao": 152,
+          "do_tre_s": [
+            3.0,
+            1.9,
+            1.7
+          ]
+        },
+        "botnet": {
+          "so_dot": 3,
+          "phat_hien": 0,
+          "cua_so_canh_bao": 0,
+          "do_tre_s": []
+        }
+      },
+      "bao_gia": 24,
+      "bao_gia_theo_module": {
+        "anomaly": 12,
+        "attack_classification": 12
+      },
+      "flow": 52641,
+      "cua_so": 15726
+    },
+    {
+      "tham_so": {
+        "idle_timeout_s": 120,
+        "active_timeout_s": 120,
+        "close_grace_s": 10,
+        "handshake_observe_s": 3
+      },
+      "doi": {
+        "idle_timeout_s": 120
+      },
+      "theo_loai": {
+        "port_scan": {
+          "so_dot": 2,
+          "phat_hien": 2,
+          "cua_so_canh_bao": 532,
+          "do_tre_s": [
+            0.9,
+            0.0
+          ]
+        },
+        "dos": {
+          "so_dot": 3,
+          "phat_hien": 3,
+          "cua_so_canh_bao": 152,
+          "do_tre_s": [
+            3.0,
+            1.9,
+            1.7
+          ]
+        },
+        "botnet": {
+          "so_dot": 3,
+          "phat_hien": 0,
+          "cua_so_canh_bao": 0,
+          "do_tre_s": []
+        }
+      },
+      "bao_gia": 24,
+      "bao_gia_theo_module": {
+        "anomaly": 12,
+        "attack_classification": 12
+      },
+      "flow": 52532,
+      "cua_so": 15726
+    },
+    {
+      "tham_so": {
+        "idle_timeout_s": 60,
+        "active_timeout_s": 60,
+        "close_grace_s": 10,
+        "handshake_observe_s": 3
+      },
+      "doi": {
+        "active_timeout_s": 60
+      },
+      "theo_loai": {
+        "port_scan": {
+          "so_dot": 2,
+          "phat_hien": 2,
+          "cua_so_canh_bao": 532,
+          "do_tre_s": [
+            0.9,
+            0.0
+          ]
+        },
+        "dos": {
+          "so_dot": 3,
+          "phat_hien": 3,
+          "cua_so_canh_bao": 152,
+          "do_tre_s": [
+            3.0,
+            1.9,
+            1.7
+          ]
+        },
+        "botnet": {
+          "so_dot": 3,
+          "phat_hien": 0,
+          "cua_so_canh_bao": 0,
+          "do_tre_s": []
+        }
+      },
+      "bao_gia": 24,
+      "bao_gia_theo_module": {
+        "anomaly": 12,
+        "attack_classification": 12
+      },
+      "flow": 52634,
+      "cua_so": 15726
+    },
+    {
+      "tham_so": {
+        "idle_timeout_s": 60,
+        "active_timeout_s": 300,
+        "close_grace_s": 10,
+        "handshake_observe_s": 3
+      },
+      "doi": {
+        "active_timeout_s": 300
+      },
+      "theo_loai": {
+        "port_scan": {
+          "so_dot": 2,
+          "phat_hien": 2,
+          "cua_so_canh_bao": 532,
+          "do_tre_s": [
+            0.9,
+            0.0
+          ]
+        },
+        "dos": {
+          "so_dot": 3,
+          "phat_hien": 3,
+          "cua_so_canh_bao": 152,
+          "do_tre_s": [
+            3.0,
+            1.9,
+            1.7
+          ]
+        },
+        "botnet": {
+          "so_dot": 3,
+          "phat_hien": 0,
+          "cua_so_canh_bao": 0,
+          "do_tre_s": []
+        }
+      },
+      "bao_gia": 24,
+      "bao_gia_theo_module": {
+        "anomaly": 12,
+        "attack_classification": 12
+      },
+      "flow": 52519,
+      "cua_so": 15726
+    },
+    {
+      "tham_so": {
+        "idle_timeout_s": 60,
+        "active_timeout_s": 120,
+        "close_grace_s": 5,
+        "handshake_observe_s": 3
+      },
+      "doi": {
+        "close_grace_s": 5
+      },
+      "theo_loai": {
+        "port_scan": {
+          "so_dot": 2,
+          "phat_hien": 2,
+          "cua_so_canh_bao": 532,
+          "do_tre_s": [
+            0.9,
+            0.0
+          ]
+        },
+        "dos": {
+          "so_dot": 3,
+          "phat_hien": 3,
+          "cua_so_canh_bao": 152,
+          "do_tre_s": [
+            3.0,
+            1.9,
+            1.7
+          ]
+        },
+        "botnet": {
+          "so_dot": 3,
+          "phat_hien": 0,
+          "cua_so_canh_bao": 0,
+          "do_tre_s": []
+        }
+      },
+      "bao_gia": 24,
+      "bao_gia_theo_module": {
+        "anomaly": 12,
+        "attack_classification": 12
+      },
+      "flow": 52537,
+      "cua_so": 15726
+    },
+    {
+      "tham_so": {
+        "idle_timeout_s": 60,
+        "active_timeout_s": 120,
+        "close_grace_s": 20,
+        "handshake_observe_s": 3
+      },
+      "doi": {
+        "close_grace_s": 20
+      },
+      "theo_loai": {
+        "port_scan": {
+          "so_dot": 2,
+          "phat_hien": 2,
+          "cua_so_canh_bao": 532,
+          "do_tre_s": [
+            0.9,
+            0.0
+          ]
+        },
+        "dos": {
+          "so_dot": 3,
+          "phat_hien": 3,
+          "cua_so_canh_bao": 152,
+          "do_tre_s": [
+            3.0,
+            1.9,
+            1.7
+          ]
+        },
+        "botnet": {
+          "so_dot": 3,
+          "phat_hien": 0,
+          "cua_so_canh_bao": 0,
+          "do_tre_s": []
+        }
+      },
+      "bao_gia": 24,
+      "bao_gia_theo_module": {
+        "anomaly": 12,
+        "attack_classification": 12
+      },
+      "flow": 52537,
+      "cua_so": 15726
+    },
+    {
+      "tham_so": {
+        "idle_timeout_s": 60,
+        "active_timeout_s": 120,
+        "close_grace_s": 10,
+        "handshake_observe_s": 1
+      },
+      "doi": {
+        "handshake_observe_s": 1
+      },
+      "theo_loai": {
+        "port_scan": {
+          "so_dot": 2,
+          "phat_hien": 2,
+          "cua_so_canh_bao": 532,
+          "do_tre_s": [
+            0.9,
+            0.0
+          ]
+        },
+        "dos": {
+          "so_dot": 3,
+          "phat_hien": 3,
+          "cua_so_canh_bao": 152,
+          "do_tre_s": [
+            3.0,
+            1.9,
+            1.7
+          ]
+        },
+        "botnet": {
+          "so_dot": 3,
+          "phat_hien": 0,
+          "cua_so_canh_bao": 0,
+          "do_tre_s": []
+        }
+      },
+      "bao_gia": 24,
+      "bao_gia_theo_module": {
+        "anomaly": 12,
+        "attack_classification": 12
+      },
+      "flow": 52537,
+      "cua_so": 15726
+    },
+    {
+      "tham_so": {
+        "idle_timeout_s": 60,
+        "active_timeout_s": 120,
+        "close_grace_s": 10,
+        "handshake_observe_s": 5
+      },
+      "doi": {
+        "handshake_observe_s": 5
+      },
+      "theo_loai": {
+        "port_scan": {
+          "so_dot": 2,
+          "phat_hien": 2,
+          "cua_so_canh_bao": 532,
+          "do_tre_s": [
+            0.9,
+            0.0
+          ]
+        },
+        "dos": {
+          "so_dot": 3,
+          "phat_hien": 3,
+          "cua_so_canh_bao": 152,
+          "do_tre_s": [
+            3.0,
+            1.9,
+            1.7
+          ]
+        },
+        "botnet": {
+          "so_dot": 3,
+          "phat_hien": 0,
+          "cua_so_canh_bao": 0,
+          "do_tre_s": []
+        }
+      },
+      "bao_gia": 24,
+      "bao_gia_theo_module": {
+        "anomaly": 12,
+        "attack_classification": 12
+      },
+      "flow": 52537,
+      "cua_so": 15726
+    }
+  ]
+}
