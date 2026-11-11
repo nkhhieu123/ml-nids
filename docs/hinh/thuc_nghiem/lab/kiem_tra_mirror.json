@@ -1,0 +1,18 @@
+{
+  "so_goi": 382,
+  "goi_nhan_doi": 3,
+  "ty_le_nhan_doi": 0.0079,
+  "thoi_luong_s": 64.3,
+  "flow_tcp": 21,
+  "ty_le_flow_tcp_hai_chieu": 1.0,
+  "ket_noi_co_syn": 21,
+  "ty_le_co_phan_hoi": 1.0,
+  "ket_noi_toi_may_trong_mang": 21,
+  "ty_le_co_phan_hoi_trong_mang": 1.0,
+  "cap_mot_chieu": [],
+  "so_cap_mot_chieu": 0,
+  "ket_luan": "dat",
+  "ly_do": [
+    "thấy traffic hai chiều"
+  ]
+}

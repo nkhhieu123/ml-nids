@@ -435,6 +435,13 @@ Mẫu:
 - Quyết định: Chia cửa sổ port_scan theo giao thức quét chủ đạo (TCP/UDP/SCTP, lấy từ flow bên tấn công khởi tạo), cắt 60/20/20 theo thời gian trong từng giao thức. Bật bằng `split.stratify_scan_proto` (mặc định true), chỉ đổi cửa sổ port_scan. Chọn lại mô hình trên validation mới rồi đọc test một lần.
 - Hệ quả: RF test recall port_scan 0,448 → 0,736, F1 0,612 → 0,829, precision giữ 0,947, macro-F1 0,831 → 0,908; SCTP 0,02 → 0,84, UDP 0,01 → 0,14 (quét UDP vốn yếu). DoS không đổi. Chi tiết docs/44, docs/43.
 
+## QĐ-061 — Chặng 11 chạy trên lab ảo bằng network namespace
+- Ngày: 11/11/2026
+- Trạng thái: Đã chốt
+- Bối cảnh: Kế hoạch (docs/09) cần mạng lab 7 node với cổng mirror; nhóm chưa có 7 máy thật nên Chặng 11 mới chỉ đo thử trên đoạn CIC. Cần PCAP của đúng các kịch bản lab, có nhật ký ground truth.
+- Quyết định: Dựng lab ảo trên một máy Linux (WSL2): mỗi máy là một network namespace, switch là bridge, cổng mirror là `tc mirred` sao khung đi vào từng cổng sang máy giám sát (không cắm vào switch). Traffic là gói thật của nhân Linux, Nginx, Nmap và script sinh traffic. Mỗi lần chạy do `scripts/lab_ao.py` điều khiển và ghi nhật ký `data/run_logs/<run_id>.json`; bộ chạy không đọc kết quả mô hình (B10). PCAP không đưa lên git, nhật ký thì có.
+- Hệ quả: Có số liệu Chặng 11 trên đúng kịch bản lab. Giới hạn phải ghi kèm: đường truyền không trễ, không mất gói; các máy chung đồng hồ; máy giám sát không phải Kali vật lý. Chi tiết docs/70.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.

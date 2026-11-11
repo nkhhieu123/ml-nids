@@ -147,7 +147,14 @@ class Capture:
         self.err = open(str(pcap) + ".tcpdump.txt", "w+")
         self.proc = subprocess.Popen(in_ns(lab, MONITOR, "tcpdump", "-i", "eth0", "-n", "-s", "0", "-B", "65536",
                                            "-w", str(pcap)), stderr=self.err, stdout=subprocess.DEVNULL)
-        time.sleep(2.0)
+        for _ in range(100):                     # chờ tcpdump mở xong card rồi mới sinh traffic
+            time.sleep(0.2)
+            self.err.seek(0)
+            if "listening on" in self.err.read():
+                break
+        else:
+            raise SystemExit("tcpdump không khởi động được")
+        time.sleep(1.0)
         self.start = time.time()
 
     def stop(self):
@@ -308,6 +315,8 @@ def run(lab, variant, role, lan, seed=None, out_root=ROOT, scale=1.0):
         q.wait()
     stats = cap.stop()
     stop_nginx(lab, work)
+    if not stats["goi_bat_duoc"]:
+        raise SystemExit(f"{run_id}: bản thu rỗng ({stats}); kiểm tra mirror bằng lệnh kiem-tra")
 
     pcap = work / f"{run_id}.pcap"
     gen = work / "may_sinh.jsonl"
@@ -347,9 +356,10 @@ def mirror_check(lab, out_root=ROOT):
     work.mkdir(parents=True)
     start_nginx(lab, work)
     cap = Capture(lab, work / "kiem_tra_mirror.pcap")
+    env = {**os.environ, "NIDS_NHAT_KY": str(work / "may_sinh.jsonl")}
     for h in (TESTER, *CLIENTS, CC):
         sh(*in_ns(lab, h, "ping", "-c", "3", "-i", "0.2", ip(SERVER)), check=False)
-        sh(*in_ns(lab, h, *benign(15, h)), check=False)
+        subprocess.run(in_ns(lab, h, *benign(15, h)), env=env, capture_output=True)
     stats = cap.stop()
     stop_nginx(lab, work)
     dst = out_root / "data/pcap/lab"

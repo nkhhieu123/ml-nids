@@ -9,7 +9,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from nids.alerts import Alert
 from nids.labeling import Rule
 from nids.thuc_nghiem import (Attack, attacks_from_rules, attacks_from_runlog, detect, false_alarms,
-                              latency_summary)
+                              latency_summary, load_runlog)
 
 NET = ["192.168.10.0/24", "172.16.0.0/24"]
 
@@ -40,7 +40,39 @@ class GroundTruthTest(unittest.TestCase):
                  "ip_dich": "192.168.50.30", "bat_dau": "2026-11-06T13:00:00+00:00",
                  "ket_thuc": "2026-11-06T13:01:00+00:00"}]
         a = attacks_from_runlog(logs, ["192.168.50.0/24"])
-        self.assertEqual((a[0].loai, set(a[0].hosts)), ("dos", {"192.168.50.20"}))
+        self.assertEqual((a[0].loai, set(a[0].hosts)), ("dos", {"192.168.50.20", "192.168.50.30"}))  # nguồn ∪ nạn nhân
+
+    def test_lab_run_log(self):
+        import json
+        import tempfile
+        log = {"ma_lan_chay": "k4-co-dinh-test-01", "hanh_vi": [
+            {"kieu": "tap-trung", "nhan": "botnet", "ip_nguon": ["192.168.50.41", "192.168.50.42"],
+             "ip_dich": ["192.168.50.50"], "bat_dau": "x", "ket_thuc": "x",
+             "bat_dau_epoch": 1000.5, "ket_thuc_epoch": 1600.5},
+            {"kieu": "doi-chung-tap-trung", "nhan": "benign", "ip_nguon": ["192.168.50.43"],
+             "ip_dich": ["192.168.50.30"], "bat_dau_epoch": 1000.0, "ket_thuc_epoch": 1600.0}]}
+        with tempfile.TemporaryDirectory() as d:
+            Path(d, "k4-co-dinh-test-01.json").write_text(json.dumps(log), encoding="utf-8")
+            entries = load_runlog(d, "data/pcap/lab/k4-co-dinh-test-01.pcap")       # thư mục -> file theo tên PCAP
+        atks = attacks_from_runlog(entries, ["192.168.50.0/24"])
+        self.assertEqual(len(atks), 1)                                              # đối chứng benign không thành đợt
+        a = atks[0]
+        self.assertEqual((a.kich_ban, a.loai, a.t0), ("k4-co-dinh-test-01", "botnet", 1000.5))   # dùng epoch
+        self.assertEqual(set(a.hosts), {"192.168.50.41", "192.168.50.42"})          # chỉ bot
+        self.assertEqual(set(a.lien_quan), {"192.168.50.50"})                       # máy điều khiển
+        self.assertEqual(attacks_from_runlog(entries, ["192.168.50.0/24"], 0, 500), [])   # ngoài khoảng PCAP
+
+    def test_controller_alert_explained_not_detection(self):
+        a = Attack("r", "botnet", frozenset({"192.168.50.41"}), 100.0, 700.0, frozenset({"192.168.50.50"}))
+        cc = alert("botnet_topology", "suspect_host", "192.168.50.50", 200, 320)
+        self.assertEqual(detect([a], [cc])["phat_hien"], 0)                         # cảnh báo trên máy điều khiển không tính
+        ev = [{"module": cc.module, "label": cc.label, "src_ip": cc.src_ip, "bat_dau": 200.0, "ket_thuc": 320.0}]
+        self.assertEqual(false_alarms(ev, [a], 1.0)["so_su_kien_bao_gia"], 0)       # nhưng không phải báo giả
+
+    def test_anomaly_recorded_separately(self):
+        a = Attack("r", "dos", frozenset({"192.168.50.20"}), 100.0, 160.0)
+        r = detect([a], [alert("anomaly", "anomaly", "192.168.50.20", 104, 114)])["theo_dot"][0]
+        self.assertEqual((r["phat_hien"], r["anomaly_do_tre_s"]), (False, 14.0))
 
 
 class DetectTest(unittest.TestCase):

@@ -137,10 +137,10 @@ Báo cáo Chặng 9: [docs/Bao_cao_Chang_9.md](docs/Bao_cao_Chang_9.md)
 
 Báo cáo Chặng 10: [docs/Bao_cao_Chang_10.md](docs/Bao_cao_Chang_10.md)
 
-- [x] C11-T08: Bộ đo thực nghiệm (độ trễ, bỏ sót, báo động giả, hiệu năng) — `src/nids/thuc_nghiem.py`
-  (C11-T02..T07 chạy thử trên đoạn CIC và giả lập; số liệu cuối cần PCAP lab thật)
+### Chặng 11 — Kiểm thử thực nghiệm
 
-Lab ảo 7 node trên Linux/WSL2 và runner cho C11-T01..T07: [scripts/lab_ao.py](scripts/lab_ao.py). Hướng dẫn, kết quả smoke test và phần còn lại: [docs/Bao_cao_Chang_11.md](docs/Bao_cao_Chang_11.md).
+- [x] C11-T01: Lab ảo 7 node và nhật ký ground truth độc lập với dự đoán — `scripts/lab_ao.py`, `scripts/chay_chang_11.sh`, [docs/70_lab_ao.md](docs/70_lab_ao.md)
+- [x] C11-T08: Bộ đo thực nghiệm (độ trễ, bỏ sót, báo động giả, hiệu năng) — `src/nids/thuc_nghiem.py`
 
 Báo cáo Chặng 11: [docs/Bao_cao_Chang_11.md](docs/Bao_cao_Chang_11.md)
 
