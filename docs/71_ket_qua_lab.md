@@ -55,6 +55,33 @@ nối HTTP ngắn từ vài client như máy chủ của lab. Đây đúng là t
 trên CIC không mô tả được trạng thái bình thường của lab"). Việc cần làm: fit lại Gaussian trên các lần chạy
 `train` của kịch bản 1.
 
+## 2. C11-T03 — Port scan
+
+Máy thử nghiệm `.20` chạy **Nmap 7.98 connect scan** (`-sT`) tới 1 024 cổng đầu của máy chủ `.30`, có traffic
+bình thường của ba client trước, trong và sau. Chậm: `--scan-delay 500ms` (2 cổng mỗi giây, quét mất 512 giây).
+Nhanh: `-T4` (cả 1 024 cổng trong chưa tới 0,1 giây).
+
+| Lần | Bắt đầu quét sau | Thời gian quét | Phát hiện | Độ trễ | Cửa sổ cảnh báo `port_scan` | Host bị báo |
+|---|---|---|---|---|---|---|
+| `k2-quet-cham-test-01` | 119 s | 512,3 s | ✓ | **1,8 s** | 521 | `.20` và `.30` |
+| `k2-quet-cham-test-02` | 98 s | 512,4 s | ✓ | **2,5 s** | 520 | `.20` và `.30` |
+| `k2-quet-cham-test-03` | 94 s | 512,4 s | ✓ | **1,4 s** | 522 | `.20` và `.30` |
+| `k2-quet-nhanh-test-01` | 167 s | 0,05 s | ✓ | **1,8 s** | 10 | `.20` và `.30` |
+| `k2-quet-nhanh-test-02` | 236 s | 0,06 s | ✓ | **0,9 s** | 10 | `.20` và `.30` |
+| `k2-quet-nhanh-test-03` | 132 s | 0,06 s | ✓ | **1,5 s** | 10 | `.20` và `.30` |
+
+Kết quả (`docs/hinh/thuc_nghiem/lab/k2.json`):
+
+- **Phát hiện 6/6 lượt quét, 0 bỏ sót**, ở cả hai tốc độ. Bộ phân loại học từ quét cổng của CIC-IDS2017
+  (một máy quét một máy trên mạng khác) vẫn nhận ra Nmap trong lab.
+- **Độ trễ 0,9–2,5 giây** tính tới cuối cửa sổ đầu tiên có cảnh báo. Với quét chậm, cửa sổ đó mới chỉ chứa
+  3–5 lần thử cổng: bộ phân loại báo rất sớm vì `.20` không có traffic nào khác ngoài các kết nối bị từ chối.
+- Quét chậm được báo **liên tục suốt 512 giây** (520–522 cửa sổ); quét nhanh nằm trọn trong 10 cửa sổ (5 cửa
+  sổ trượt chồng lên thời điểm quét, trên mỗi host).
+- Cả bên quét `.20` lẫn nạn nhân `.30` đều được gán `port_scan`.
+- **Không có báo động giả nào từ bộ phân loại và module botnet.** Báo động giả duy nhất mỗi lần vẫn là sự kiện
+  anomaly kéo dài cả bản thu trên `.30` (mục 1).
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
