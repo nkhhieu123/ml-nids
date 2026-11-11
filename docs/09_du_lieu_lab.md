@@ -52,7 +52,7 @@ Lựa chọn đã chốt:
   Không dùng mã độc, không dùng các file mẫu của CTU-13 (B24).
 - **Không thu DDoS nhiều nguồn** (T01) trong đợt này.
 
-Chưa chốt, phải ghi vào `config/default.yaml` trước lần chạy đầu tiên:
+Đã chốt ngày 12/11/2026 (QĐ-062), ghi ở `config/default.yaml` mục `lab` (bảng giá trị ở docs/70 mục 3):
 
 - Tham số tốc độ Nmap của hai biến thể chậm và nhanh, và dải cổng quét.
 - Giá trị ba mức tải DoS. B16 yêu cầu xác định trước khi chạy.

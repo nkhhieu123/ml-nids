@@ -105,9 +105,9 @@ gom lại thành các việc sau (việc tải CIC-IDS2017 đã xong):
 
 | Thiếu | Mức | Ghi ở đâu khi chốt |
 |---|---|---|
-| Tốc độ Nmap của biến thể chậm và nhanh, dải cổng quét | Chặn với thu lab | `config/default.yaml` + nhật ký quyết định |
-| Ba mức tải DoS SYN (B16 bắt buộc xác định trước) | Chặn với thu lab | `config/default.yaml` |
-| Chu kỳ và độ biến thiên beaconing; số peer của kịch bản P2P | Chặn với thu lab | `config/default.yaml` |
+| ~~Tốc độ Nmap của biến thể chậm và nhanh, dải cổng quét~~ | Đã chốt 12/11/2026 (QĐ-062) | `-sT`, cổng 1–1024; chậm `--scan-delay 500ms`, nhanh `-T4`; `config/default.yaml` → `lab.quet` |
+| ~~Ba mức tải DoS SYN (B16 bắt buộc xác định trước)~~ | Đã chốt 12/11/2026 (QĐ-062) | 50/200/600 kết nối mỗi giây, tối đa 60 giây; `lab.tai_ket_noi` |
+| ~~Chu kỳ và độ biến thiên beaconing; số peer của kịch bản P2P~~ | Đã chốt 12/11/2026 (QĐ-062) | Chu kỳ 30/60/45 giây, jitter tới ±40%; 3 bot ngang hàng; `lab.tap_trung`, `lab.ngang_hang` |
 | Nguồn mẫu huấn luyện cho DoS kiểu SYN (CIC chỉ có DoS tầng HTTP); Chặng 7 tạm chỉ dùng DoS tầng HTTP | Quan trọng | Nhật ký quyết định |
 | Các quyết định còn **tạm thời**: QĐ-004 tên nhãn (nhất là `none` của topology), QĐ-006 cửa sổ và timeout 60 giây, QĐ-009 tập con CIC, QĐ-010 cách chia CTU-13, QĐ-012 dữ liệu lab, QĐ-013 bộ đọc PCAP tự viết | Quan trọng | Thêm mục quyết định mới khi khóa |
 | ~~Dùng `ip_len` hay `frame_len` cho đặc trưng byte~~ | Đã xong | Chốt `ip_len` kèm payload TCP/UDP ở C04-T03 (QĐ-018) |

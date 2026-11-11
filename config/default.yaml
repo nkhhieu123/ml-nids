@@ -128,16 +128,36 @@ lab:
     192.168.50.43: Client/Bot mô phỏng 3
     192.168.50.50: Server điều phối mô phỏng
   may_chu_dich: 192.168.50.30   # đích của kịch bản 1–3 (máy chủ dịch vụ)
-  quet:                          # kịch bản 2: giãn cách giây giữa hai lần thử cổng (B15, chốt trước khi chạy)
+  # Tham số kịch bản lab đã chốt trước lần chạy đầu tiên (QĐ-062). scripts/lab_ao.py dùng đúng các giá trị này;
+  # tests/test_lab_ao.py kiểm tra hai nơi khớp nhau. Danh sách ba phần tử là giá trị của lần chạy 1, 2, 3 (B19).
+  quet:                          # kịch bản 2: Nmap connect scan từ máy thử nghiệm tới máy chủ dịch vụ (B15)
     cong_dau: 1
     cong_cuoi: 1024
-    toc_do_cham_s: 0.5
+    toc_do_cham_s: 0.5           # giãn cách giữa hai lần thử cổng
     toc_do_nhanh_s: 0.0
+    nmap_chung: [-sT, -Pn, -n, --max-retries, "0"]
+    nmap_cham: [--scan-delay, 500ms]
+    nmap_nhanh: [-T4]
   tai_ket_noi:                   # kịch bản 3: số kết nối TCP mỗi giây theo mức tải (B16); mỗi lần tối đa 60 giây
     muc1_moi_giay: 50
     muc2_moi_giay: 200
     muc3_moi_giay: 600
     thoi_gian_toi_da_s: 60
+  tap_trung:                     # kịch bản 4: ba bot .41–.43 gọi máy điều khiển .50 (B17)
+    cong: 8080
+    thoi_gian_s: 600
+    chu_ky_s: [30, 60, 45]
+    jitter_co_dinh: [0, 0, 0]            # k4-co-dinh
+    jitter_bien_thien: [0.2, 0.4, 0.3]   # k4-bien-thien
+    jitter_doi_chung: [0, 0.1, 0.3]      # k4-doi-chung: gọi máy chủ dịch vụ .30:80
+  ngang_hang:                    # kịch bản 5: ba bot .41–.43 gửi UDP cho nhau (B18)
+    so_bot: 3
+    cong: 40000
+    thoi_gian_s: 600
+    chu_ky_s: [8, 20, 30]
+    jitter: [0.3, 0.5, 0.4]
+    peer: [luoi, vong, luoi]             # luoi: mỗi bot gọi hai bot kia; vong: 41→42→43→41
+    cong_doi_chung: 6881                 # k5-doi-chung: chia sẻ khối dữ liệu TCP
 
 paths:
   data_dir: data

@@ -442,6 +442,13 @@ Mẫu:
 - Quyết định: Dựng lab ảo trên một máy Linux (WSL2): mỗi máy là một network namespace, switch là bridge, cổng mirror là `tc mirred` sao khung đi vào từng cổng sang máy giám sát (không cắm vào switch). Traffic là gói thật của nhân Linux, Nginx, Nmap và script sinh traffic. Mỗi lần chạy do `scripts/lab_ao.py` điều khiển và ghi nhật ký `data/run_logs/<run_id>.json`; bộ chạy không đọc kết quả mô hình (B10). PCAP không đưa lên git, nhật ký thì có.
 - Hệ quả: Có số liệu Chặng 11 trên đúng kịch bản lab. Giới hạn phải ghi kèm: đường truyền không trễ, không mất gói; các máy chung đồng hồ; máy giám sát không phải Kali vật lý. Chi tiết docs/70.
 
+## QĐ-062 — Chốt tham số kịch bản lab: tốc độ Nmap, ba mức tải, beaconing, số peer
+- Ngày: 12/11/2026
+- Trạng thái: Đã chốt
+- Bối cảnh: QĐ-012 và docs/09 yêu cầu ghi tham số kịch bản vào cấu hình trước lần chạy đầu tiên (B15–B18). Các giá trị đã được dùng cho 33 lần `test` ngày 11/11/2026 nhưng mới nằm trong `scripts/lab_ao.py`.
+- Quyết định: Ghi vào `config/default.yaml` mục `lab`. Quét cổng: Nmap connect scan `-sT -Pn -n --max-retries 0`, cổng 1–1024; chậm `--scan-delay 500ms` (2 cổng mỗi giây), nhanh `-T4`. Tải kết nối: 50/200/600 kết nối mỗi giây, tối đa 60 giây. Tập trung: ba bot gọi `.50:8080` trong 600 giây, chu kỳ 30/60/45 giây theo lần chạy; jitter 0 (cố định), ±20/40/30% (biến thiên), 0/10/30% (đối chứng gọi `.30:80`). Ngang hàng: 3 bot, UDP cổng 40000, chu kỳ 8/20/30 giây, jitter ±30/50/40%, peer lưới/vòng/lưới; đối chứng chia sẻ dữ liệu TCP cổng 6881.
+- Hệ quả: `tests/test_lab_ao.py` kiểm tra kế hoạch của `lab_ao.py` khớp cấu hình. Đổi tham số thì các lần chạy cũ không còn so được với lần mới; phải đổi mã biến thể hoặc thu lại. Chi tiết docs/70.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
