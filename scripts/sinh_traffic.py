@@ -34,6 +34,7 @@ import argparse
 import datetime
 import ipaddress
 import json
+import os
 import random
 import socket
 import sys
@@ -42,7 +43,8 @@ import uuid
 from pathlib import Path
 
 LAB_NET = ipaddress.ip_network("192.168.50.0/24")
-LOG = Path(__file__).resolve().parents[1] / "data" / "run_logs" / "nhat_ky.jsonl"
+# NIDS_NHAT_KY: ghi nhật ký vào file khác (bộ chạy kịch bản lab_ao.py dùng một file cho mỗi lần chạy).
+LOG = Path(os.environ.get("NIDS_NHAT_KY") or Path(__file__).resolve().parents[1] / "data" / "run_logs" / "nhat_ky.jsonl")
 DOS_MAX_S = 60.0                 # B16: mỗi lần tải kết nối không quá 60 giây
 HTTP_GET = "GET /{path} HTTP/1.1\r\nHost: {host}\r\nUser-Agent: nids-lab\r\nConnection: close\r\n\r\n"
 # Ba mức tải: số kết nối mỗi giây nhắm tới máy chủ dịch vụ của lab (chốt trước khi chạy, B16).

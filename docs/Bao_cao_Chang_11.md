@@ -5,8 +5,8 @@
 | Mục | Thông tin |
 |---|---|
 | Kho mã nguồn | https://github.com/nkhhieu123/ml-nids (nhánh `main`) |
-| Thời gian | 09/11/2026 |
-| Trạng thái | **Bộ đo và phương pháp: xong.** Số liệu cuối cùng cần **PCAP lab thật** (chưa dựng lab) |
+| Thời gian | 11/11/2026 |
+| Trạng thái | **Đã dựng và chạy smoke test lab ảo 7 node trên WSL2.** Cần chạy đủ thời lượng/số lần theo giao thức và xác nhận lại trên lab Kali vật lý trước số liệu cuối. |
 | Chặng trước | [Bao_cao_Chang_10.md](Bao_cao_Chang_10.md) |
 
 ## 1. Tóm tắt
@@ -88,7 +88,22 @@ botnet. DDoS/Heartbleed chỉ tính ở anomaly (không nằm trong ba lớp ph�
 4. **Đo số gói kernel bỏ** khi bắt trực tiếp trên Kali (phát lại luôn cho 0, docs/63).
 5. Lưu ảnh (biểu đồ độ trễ, báo giả) khi có đủ số lần chạy lab.
 
-## 6. Kiểm thử
+## 6. Smoke test lab ảo (11/11/2026)
+
+Đã bổ sung `scripts/lab_ao.py`: tạo 7 network namespace Linux nối qua bridge riêng, không gán gateway/đường ra ngoài; dùng `tc mirred` sao chép traffic từ các cổng vào máy giám sát. Lab được dựng trên WSL2 Ubuntu (kernel `6.18.33.2-microsoft-standard-WSL2`), Nmap 7.98. Đây là kiểm tra tích hợp nhanh, không thay thế các lần chạy đủ 5–12 phút và ba lần lặp độc lập trong docs/09.
+
+| Bằng chứng | Kết quả |
+|---|---|
+| `kiem-tra-mirror` | 390 gói bắt được; 390 gói qua bộ lọc; 0 gói kernel bỏ |
+| `k2-quet-nhanh-test-01` | PCAP 232.430 byte, 2.234 gói; 0 gói kernel bỏ; 1 lượt Nmap connect scan tới 192.168.50.30:1–1024 |
+| Bộ đo Chặng 11 trên PCAP của runner | 1/1 lượt scan được phát hiện; độ trễ 0,4 giây; 2 sự kiện cảnh báo không giải thích được; lệnh chạy và JSON đo được lưu trong `output/c11-runner-results/` |
+| Đối chứng nền | Ba client sinh HTTP GET và gọi `/api/status`; traffic có mặt trong bản thu. Chỉ chạy trong lần smoke test, chưa đủ mẫu để ước lượng báo động giả ổn định. |
+
+PCAP và nhật ký/manifest lần chạy được lưu trong `data/pcap/lab/` và `data/run_logs/k2-quet-nhanh-test-01.json`; SHA-256 PCAP: `1b26e949255635d541c05183e2c73375311b4e356805ba7d25f1b6ac3368afb8`. scikit-learn trong WSL là 1.9.1, artifact được tạo bằng 1.8.0 và phát cảnh báo phiên bản; kết quả smoke chỉ kiểm tra đường đi end-to-end, cần chạy lại trong môi trường dependency đã khóa để chốt số liệu.
+
+Các tác vụ C11-T04–T07 có sẵn trong runner nhưng chưa được chạy ở smoke này. Chưa đánh dấu Chặng 11 hoàn tất: còn chạy đủ các biến thể, đối chứng và số lần lặp đã định, rồi tổng hợp tất cả PCAP lab.
+
+## 7. Kiểm thử
 
 `python -m unittest discover -s tests`: **418/418 ca đạt** (Chặng 10 kết thúc ở 408). `tests/test_thuc_nghiem.py`
 (7 ca): ánh xạ lịch nhãn sang đợt tấn công và lọc host ngoài mạng; đọc nhật ký lần chạy lab; độ trễ và bỏ

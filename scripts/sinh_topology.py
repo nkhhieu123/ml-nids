@@ -36,7 +36,8 @@ from pathlib import Path
 
 LAB_NET = ipaddress.ip_network("192.168.50.0/24")
 MESSAGE = b"nids-lab thong diep vo hai\n"
-LOG = Path(__file__).resolve().parents[1] / "data" / "run_logs" / "nhat_ky.jsonl"
+# NIDS_NHAT_KY: ghi nhật ký vào file khác (bộ chạy kịch bản lab_ao.py dùng một file cho mỗi lần chạy).
+LOG = Path(os.environ.get("NIDS_NHAT_KY") or Path(__file__).resolve().parents[1] / "data" / "run_logs" / "nhat_ky.jsonl")
 
 
 def check_target(ip, allowed=LAB_NET):
