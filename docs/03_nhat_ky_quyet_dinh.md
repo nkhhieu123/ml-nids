@@ -456,6 +456,13 @@ Mẫu:
 - Quyết định: Giữ nguyên hai giá trị. Thử nới lịch 0/30/60/120/300 giây và ngưỡng 0,05/0,1/0,2/0,3/0,5, mỗi lần đổi một tham số, fit lại Random Forest đã chọn và đo trên validation gán nhãn cố định: macro-F1 nằm trong 0,9341–0,9365 (hiện tại 0,9352). Nới lịch 0–60 giây cho cùng một bộ nhãn. Không đọc test.
 - Hệ quả: Không gán nhãn hay huấn luyện lại. Macro-F1 cao hơn ở ngưỡng 0,5 khi đo trên validation gán nhãn riêng (0,9473) là do bỏ cửa sổ khó khỏi validation, không dùng làm căn cứ. Chi tiết docs/72 mục 1.
 
+## QĐ-064 — Nguồn mẫu DoS kiểu SYN: lần chạy `train` kịch bản 3 của lab; chưa cần học lại
+- Ngày: 12/11/2026
+- Trạng thái: Đã chốt
+- Bối cảnh: CIC-IDS2017 chỉ có DoS tầng HTTP (QĐ-009), Chặng 7 tạm chỉ học loại này và để ngỏ nguồn mẫu cho DoS kiểu SYN của lab.
+- Quyết định: Không tìm dataset ngoài. Nguồn mẫu DoS kiểu SYN là các lần chạy `train` của kịch bản 3 trong lab (`k3-dos-muc1/2/3-train-01`, thu 12/11/2026, nhãn từ nhật ký lần chạy). Hiện **chưa học lại** bộ phân loại: mô hình chỉ học DoS tầng HTTP đã phát hiện 9/9 đợt tải kết nối của lab ở cả ba mức (Chặng 11, docs/71 mục 3). Chỉ đưa mẫu lab vào train khi học lại bộ phân loại vì lý do khác (ví dụ sửa báo nhầm `dos` trên chia sẻ dữ liệu).
+- Hệ quả: DoS trong lab là tải kết nối bằng socket thường (phần lớn bắt tay xong), không phải SYN flood gói thô giả mạo nguồn, vì B24 không cho tạo gói thô. SYN flood gói thô vẫn **chưa được thử**. Nếu học lại bằng mẫu lab thì phải thu lần `test` mới để báo cáo.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
