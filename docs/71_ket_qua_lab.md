@@ -251,6 +251,21 @@ Recall theo vai trò của host trong lab:
 
 Giới hạn: máy tấn công `.20` không có traffic bình thường xen kẽ, nên cửa sổ của nó "sạch" hơn thực tế.
 
+### 7.1. Lần chạy `train` và `val` (thu 12/11/2026)
+
+Mỗi biến thể có thêm một lần `train` và một lần `val` (22 lần, 0 gói nhân bỏ). Chấm bằng cùng mô hình đã khóa,
+**không dùng để chỉnh gì** (`docs/hinh/thuc_nghiem/lab/cua_so_train_val.json`):
+
+| Vai trò | Lần chạy | Cửa sổ | Macro-F1 | `port_scan` recall (số mẫu) | `dos` precision / recall (số mẫu) | `benign` bị báo |
+|---|---|---|---|---|---|---|
+| `train` | 11 | 15 795 | 0,916 | 1,000 (532) | 0,720 / 0,786 (196) | 60, đều ở `k5-doi-chung` |
+| `val` | 11 | 15 725 | 0,914 | 1,000 (531) | 0,717 / 0,776 (196) | 60, đều ở `k5-doi-chung` |
+| `test` | 33 | 46 411 | 0,923 | 0,999 (1 592) | 0,762 / 0,781 (593) | 144, đều ở `k5-doi-chung` |
+
+Ba vai trò cho cùng một bức tranh, tức kết quả không phụ thuộc lịch của từng lần chạy. Lần `val` của lab có
+**531 cửa sổ `port_scan` và 196 cửa sổ `dos`**, nhiều hơn validation `port_scan` của CIC (164 cửa sổ); khi học
+lại mô hình trên dữ liệu lab, việc chọn ngưỡng và tham số nên dùng thêm các cửa sổ này.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.

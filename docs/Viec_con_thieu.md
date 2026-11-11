@@ -120,7 +120,7 @@ gom lại thành các việc sau (việc tải CIC-IDS2017 đã xong):
 | Tham số flow tạm thời: timeout 60/120/10 giây, quan sát bắt tay 3 giây (QĐ-017, QĐ-023) chưa chỉnh trên validation | Nên có | Đặc trưng có thể chưa tối ưu | Làm được ngay |
 | Tốc độ xuất bảng khoảng 9 600 gói/giây trên máy phát triển, chưa đo trên Kali | Quan trọng | Có thể không kịp realtime | **Bạn** chạy trên Kali |
 | ~~Mọi traffic tấn công CIC đi qua NAT `172.16.0.1`: đặc trưng cửa sổ của "máy tấn công" gộp nhiều máy~~ | Đã đo trên lab 12/11/2026 | Lab có máy tấn công là một host thật: recall theo cửa sổ của máy tấn công 1,000 (`port_scan`) và 0,987 (`dos`); máy nạn nhân 0,999 và 0,574 (docs/71 mục 7). Với CIC giới hạn này vẫn còn | |
-| Validation lớp `port_scan` ở bảng cửa sổ chỉ 50 mẫu; GoldenEye chỉ 24 cửa sổ test | Quan trọng | Chọn ngưỡng/tham số và recall theo đợt dao động lớn | Cần thêm dữ liệu (lab) |
+| Validation lớp `port_scan` ở bảng cửa sổ ít mẫu (50, sau QĐ-060 là 164); GoldenEye chỉ 24 cửa sổ test | Một phần, 12/11/2026 | Lab đã có lần `val`: 531 cửa sổ `port_scan`, 196 cửa sổ `dos` (docs/71 mục 7.1), dùng khi học lại trên lab. GoldenEye chỉ có trong CIC nên **không bổ sung được** | Dùng `val` của lab khi học lại |
 | ~~Train, validation, test cùng mạng và cùng đợt tấn công; chưa đo trên công cụ hay mạng chưa thấy~~ | Đã đo trên lab 11–12/11/2026 | Mô hình học từ CIC, chấm trên lab ảo (Nmap, tải kết nối): phát hiện 15/15 đợt; macro-F1 theo cửa sổ 0,923 so với 0,908 trên test CIC (docs/71 mục 7). Còn thiếu: lab vật lý, SYN flood gói thô | |
 | ~~Tham số gán nhãn tạm thời: nới lịch 60 giây, ngưỡng cửa sổ 0,2, tỷ lệ cân bằng 10~~ | Đã khóa 12/11/2026 (QĐ-063) | Thử trên validation: macro-F1 chỉ đổi trong 0,9341–0,9365 nên giữ 60 giây và 0,2; tỷ lệ cân bằng đã chọn ở QĐ-035 (không giảm mẫu) (docs/72 mục 1) | |
 | Gaussian: ~17 đợt báo động giả mỗi giờ; Heartbleed recall 0, DDoS 0,50, Slowhttptest 0,28; ngưỡng χ² không dùng được | Quan trọng | Không đủ dùng một mình; cần Chặng 7 và kết hợp ở Chặng 9 | Đã ghi ở docs/37 |
@@ -173,7 +173,7 @@ Kết quả Chặng 11 ở [Bao_cao_Chang_11.md](Bao_cao_Chang_11.md) và [71_ke
 
 | Thiếu | Mức | Ảnh hưởng | Ai làm |
 |---|---|---|---|
-| Module botnet bỏ sót 9/9 đợt trên lab (tập trung 6, ngang hàng 3); điểm bot cao nhất 0,084, ngưỡng 0,1 | Chặn với yêu cầu botnet | Module botnet chưa dùng được trên lab | Thu lần `train`, `val` của kịch bản 4, 5 (`bash scripts/chay_chang_11.sh train 1`, `val 1`) rồi học lại theo Chặng 8 |
+| Module botnet bỏ sót 9/9 đợt trên lab (tập trung 6, ngang hàng 3); điểm bot cao nhất 0,084, ngưỡng 0,1 | Chặn với yêu cầu botnet | Module botnet chưa dùng được trên lab | Đã thu lần `train`, `val` (12/11/2026); còn việc học lại theo Chặng 8 rồi thu lần `test` mới |
 | Ở chế độ `ket_hop`, module botnet chỉ xét host bị anomaly báo; beaconing chậm không làm host bất thường nên bot không bao giờ được xét | Quan trọng | Dù học lại, bot chậm vẫn lọt nếu giữ cách ghép này | Xét lại QĐ-047 trên lần chạy `val` của lab |
 | Quy tắc topology `p2p` đòi 5 peer gọi vào; lab chỉ có 3 bot | Quan trọng | Không thể ra nhãn `p2p` trên lab 7 node | Chọn lại `botnet.topology_rule.min_peer_vao` trên `val` |
 | Anomaly báo máy chủ dịch vụ `.30` suốt 100% thời gian ở cả 33 lần | Quan trọng | Cảnh báo anomaly trên máy chủ vô nghĩa | Fit lại Gaussian trên lần `train` của kịch bản 1 |
