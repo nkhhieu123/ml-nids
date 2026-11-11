@@ -123,7 +123,7 @@ gom lại thành các việc sau (việc tải CIC-IDS2017 đã xong):
 | Mọi traffic tấn công CIC đi qua NAT `172.16.0.1`: đặc trưng cửa sổ của "máy tấn công" gộp nhiều máy | Nên có | Kết quả theo host phía tấn công không đại diện | Cần dữ liệu lab |
 | Validation lớp `port_scan` ở bảng cửa sổ chỉ 50 mẫu; GoldenEye chỉ 24 cửa sổ test | Quan trọng | Chọn ngưỡng/tham số và recall theo đợt dao động lớn | Cần thêm dữ liệu (lab) |
 | Train, validation, test cùng mạng và cùng đợt tấn công; chưa đo trên công cụ hay mạng chưa thấy | Quan trọng | Kết quả có thể lạc quan | Đo lại trên lab (Chặng 11) |
-| Tham số gán nhãn tạm thời: nới lịch 60 giây, ngưỡng cửa sổ 0,2, tỷ lệ cân bằng 10 | Nên có | Chỉnh trên validation khi cần | Làm được ngay |
+| ~~Tham số gán nhãn tạm thời: nới lịch 60 giây, ngưỡng cửa sổ 0,2, tỷ lệ cân bằng 10~~ | Đã khóa 12/11/2026 (QĐ-063) | Thử trên validation: macro-F1 chỉ đổi trong 0,9341–0,9365 nên giữ 60 giây và 0,2; tỷ lệ cân bằng đã chọn ở QĐ-035 (không giảm mẫu) (docs/72 mục 1) | |
 | Gaussian: ~17 đợt báo động giả mỗi giờ; Heartbleed recall 0, DDoS 0,50, Slowhttptest 0,28; ngưỡng χ² không dùng được | Quan trọng | Không đủ dùng một mình; cần Chặng 7 và kết hợp ở Chặng 9 | Đã ghi ở docs/37 |
 | Gaussian: đã xem test một lần khi chẩn đoán cách chọn ngưỡng (docs/36 mục 5) | Nên có | Cần ghi rõ trong báo cáo cuối | Đã ghi |
 

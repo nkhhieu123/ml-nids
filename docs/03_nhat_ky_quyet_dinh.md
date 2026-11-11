@@ -449,6 +449,13 @@ Mẫu:
 - Quyết định: Ghi vào `config/default.yaml` mục `lab`. Quét cổng: Nmap connect scan `-sT -Pn -n --max-retries 0`, cổng 1–1024; chậm `--scan-delay 500ms` (2 cổng mỗi giây), nhanh `-T4`. Tải kết nối: 50/200/600 kết nối mỗi giây, tối đa 60 giây. Tập trung: ba bot gọi `.50:8080` trong 600 giây, chu kỳ 30/60/45 giây theo lần chạy; jitter 0 (cố định), ±20/40/30% (biến thiên), 0/10/30% (đối chứng gọi `.30:80`). Ngang hàng: 3 bot, UDP cổng 40000, chu kỳ 8/20/30 giây, jitter ±30/50/40%, peer lưới/vòng/lưới; đối chứng chia sẻ dữ liệu TCP cổng 6881.
 - Hệ quả: `tests/test_lab_ao.py` kiểm tra kế hoạch của `lab_ao.py` khớp cấu hình. Đổi tham số thì các lần chạy cũ không còn so được với lần mới; phải đổi mã biến thể hoặc thu lại. Chi tiết docs/70.
 
+## QĐ-063 — Khóa tham số gán nhãn: nới lịch 60 giây, ngưỡng cửa sổ 0,2
+- Ngày: 12/11/2026
+- Trạng thái: Đã chốt (khóa phần tạm thời của QĐ-025, QĐ-026; tỷ lệ cân bằng đã chọn ở QĐ-035)
+- Bối cảnh: `labeling.tolerance_s` = 60 và `labeling.window_min_attack_share` = 0,2 được đặt tạm, hẹn chỉnh trên validation.
+- Quyết định: Giữ nguyên hai giá trị. Thử nới lịch 0/30/60/120/300 giây và ngưỡng 0,05/0,1/0,2/0,3/0,5, mỗi lần đổi một tham số, fit lại Random Forest đã chọn và đo trên validation gán nhãn cố định: macro-F1 nằm trong 0,9341–0,9365 (hiện tại 0,9352). Nới lịch 0–60 giây cho cùng một bộ nhãn. Không đọc test.
+- Hệ quả: Không gán nhãn hay huấn luyện lại. Macro-F1 cao hơn ở ngưỡng 0,5 khi đo trên validation gán nhãn riêng (0,9473) là do bỏ cửa sổ khó khỏi validation, không dùng làm căn cứ. Chi tiết docs/72 mục 1.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.

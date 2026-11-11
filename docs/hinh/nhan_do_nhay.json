@@ -1,0 +1,281 @@
+{
+  "hien_tai": {
+    "tolerance_s": 60,
+    "window_min_attack_share": 0.2
+  },
+  "mo_hinh": {
+    "loai": "random_forest",
+    "tham_so": {
+      "n_estimators": 300,
+      "max_depth": 20,
+      "min_samples_leaf": 1,
+      "max_features": "sqrt",
+      "class_weight": null
+    },
+    "ty_le_can_bang": null
+  },
+  "macro_f1_validation_luc_chon": 0.9352,
+  "cac_lan_thu": [
+    {
+      "tolerance_s": 60,
+      "window_min_attack_share": 0.2,
+      "lop_train": {
+        "benign": 83346,
+        "dos": 2165,
+        "port_scan": 478
+      },
+      "lop_validation": {
+        "benign": 53949,
+        "dos": 648,
+        "port_scan": 164
+      },
+      "rieng": {
+        "macro_f1": 0.9352,
+        "precision_port_scan": 0.9922,
+        "recall_port_scan": 0.7744,
+        "precision_dos": 0.961,
+        "recall_dos": 0.9136
+      },
+      "chuan": {
+        "macro_f1": 0.9352,
+        "precision_port_scan": 0.9922,
+        "recall_port_scan": 0.7744,
+        "precision_dos": 0.961,
+        "recall_dos": 0.9136
+      },
+      "giay": 11.5
+    },
+    {
+      "tolerance_s": 0,
+      "window_min_attack_share": 0.2,
+      "lop_train": {
+        "benign": 83346,
+        "dos": 2165,
+        "port_scan": 478
+      },
+      "lop_validation": {
+        "benign": 53949,
+        "dos": 648,
+        "port_scan": 164
+      },
+      "rieng": {
+        "macro_f1": 0.9352,
+        "precision_port_scan": 0.9922,
+        "recall_port_scan": 0.7744,
+        "precision_dos": 0.961,
+        "recall_dos": 0.9136
+      },
+      "chuan": {
+        "macro_f1": 0.9352,
+        "precision_port_scan": 0.9922,
+        "recall_port_scan": 0.7744,
+        "precision_dos": 0.961,
+        "recall_dos": 0.9136
+      },
+      "giay": 10.9
+    },
+    {
+      "tolerance_s": 30,
+      "window_min_attack_share": 0.2,
+      "lop_train": {
+        "benign": 83346,
+        "dos": 2165,
+        "port_scan": 478
+      },
+      "lop_validation": {
+        "benign": 53949,
+        "dos": 648,
+        "port_scan": 164
+      },
+      "rieng": {
+        "macro_f1": 0.9352,
+        "precision_port_scan": 0.9922,
+        "recall_port_scan": 0.7744,
+        "precision_dos": 0.961,
+        "recall_dos": 0.9136
+      },
+      "chuan": {
+        "macro_f1": 0.9352,
+        "precision_port_scan": 0.9922,
+        "recall_port_scan": 0.7744,
+        "precision_dos": 0.961,
+        "recall_dos": 0.9136
+      },
+      "giay": 10.2
+    },
+    {
+      "tolerance_s": 120,
+      "window_min_attack_share": 0.2,
+      "lop_train": {
+        "benign": 83346,
+        "dos": 2172,
+        "port_scan": 478
+      },
+      "lop_validation": {
+        "benign": 53949,
+        "dos": 648,
+        "port_scan": 164
+      },
+      "rieng": {
+        "macro_f1": 0.936,
+        "precision_port_scan": 0.9922,
+        "recall_port_scan": 0.7744,
+        "precision_dos": 0.9627,
+        "recall_dos": 0.9167
+      },
+      "chuan": {
+        "macro_f1": 0.936,
+        "precision_port_scan": 0.9922,
+        "recall_port_scan": 0.7744,
+        "precision_dos": 0.9627,
+        "recall_dos": 0.9167
+      },
+      "giay": 10.9
+    },
+    {
+      "tolerance_s": 300,
+      "window_min_attack_share": 0.2,
+      "lop_train": {
+        "benign": 83346,
+        "dos": 2209,
+        "port_scan": 478
+      },
+      "lop_validation": {
+        "benign": 53949,
+        "dos": 648,
+        "port_scan": 164
+      },
+      "rieng": {
+        "macro_f1": 0.9346,
+        "precision_port_scan": 0.9922,
+        "recall_port_scan": 0.7744,
+        "precision_dos": 0.9506,
+        "recall_dos": 0.9198
+      },
+      "chuan": {
+        "macro_f1": 0.9346,
+        "precision_port_scan": 0.9922,
+        "recall_port_scan": 0.7744,
+        "precision_dos": 0.9506,
+        "recall_dos": 0.9198
+      },
+      "giay": 10.4
+    },
+    {
+      "tolerance_s": 60,
+      "window_min_attack_share": 0.05,
+      "lop_train": {
+        "benign": 83346,
+        "dos": 2173,
+        "port_scan": 485
+      },
+      "lop_validation": {
+        "benign": 53949,
+        "dos": 648,
+        "port_scan": 164
+      },
+      "rieng": {
+        "macro_f1": 0.9341,
+        "precision_port_scan": 0.9921,
+        "recall_port_scan": 0.7683,
+        "precision_dos": 0.9611,
+        "recall_dos": 0.9151
+      },
+      "chuan": {
+        "macro_f1": 0.9341,
+        "precision_port_scan": 0.9921,
+        "recall_port_scan": 0.7683,
+        "precision_dos": 0.9611,
+        "recall_dos": 0.9151
+      },
+      "giay": 10.4
+    },
+    {
+      "tolerance_s": 60,
+      "window_min_attack_share": 0.1,
+      "lop_train": {
+        "benign": 83346,
+        "dos": 2171,
+        "port_scan": 485
+      },
+      "lop_validation": {
+        "benign": 53949,
+        "dos": 648,
+        "port_scan": 164
+      },
+      "rieng": {
+        "macro_f1": 0.9351,
+        "precision_port_scan": 0.9922,
+        "recall_port_scan": 0.7744,
+        "precision_dos": 0.9536,
+        "recall_dos": 0.9198
+      },
+      "chuan": {
+        "macro_f1": 0.9351,
+        "precision_port_scan": 0.9922,
+        "recall_port_scan": 0.7744,
+        "precision_dos": 0.9536,
+        "recall_dos": 0.9198
+      },
+      "giay": 10.4
+    },
+    {
+      "tolerance_s": 60,
+      "window_min_attack_share": 0.3,
+      "lop_train": {
+        "benign": 83346,
+        "dos": 2134,
+        "port_scan": 467
+      },
+      "lop_validation": {
+        "benign": 53949,
+        "dos": 648,
+        "port_scan": 161
+      },
+      "rieng": {
+        "macro_f1": 0.9395,
+        "precision_port_scan": 0.9922,
+        "recall_port_scan": 0.795,
+        "precision_dos": 0.9595,
+        "recall_dos": 0.9151
+      },
+      "chuan": {
+        "macro_f1": 0.936,
+        "precision_port_scan": 0.9922,
+        "recall_port_scan": 0.7805,
+        "precision_dos": 0.9565,
+        "recall_dos": 0.9151
+      },
+      "giay": 10.1
+    },
+    {
+      "tolerance_s": 60,
+      "window_min_attack_share": 0.5,
+      "lop_train": {
+        "benign": 83346,
+        "dos": 2113,
+        "port_scan": 435
+      },
+      "lop_validation": {
+        "benign": 53949,
+        "dos": 643,
+        "port_scan": 154
+      },
+      "rieng": {
+        "macro_f1": 0.9473,
+        "precision_port_scan": 1.0,
+        "recall_port_scan": 0.8247,
+        "precision_dos": 0.9594,
+        "recall_dos": 0.9191
+      },
+      "chuan": {
+        "macro_f1": 0.9365,
+        "precision_port_scan": 1.0,
+        "recall_port_scan": 0.7744,
+        "precision_dos": 0.9596,
+        "recall_dos": 0.9167
+      },
+      "giay": 10.0
+    }
+  ]
+}
