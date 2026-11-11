@@ -163,6 +163,52 @@ Kết quả (`docs/hinh/thuc_nghiem/lab/k5.json`, `botnet_doc_lap.json`, `botnet
 Việc cần làm: như mục 4, cộng thêm hạ ngưỡng số peer của quy tắc topology cho phù hợp quy mô lab (chọn trên
 lần chạy `val`).
 
+## 6. C11-T07 — Đối chứng lành tính và lặp lại tình huống
+
+### 6.1. Đối chứng lành tính
+
+| Biến thể | Hành vi lành tính | Báo động giả 3 lần | Từ module nào |
+|---|---|---|---|
+| `k1-binh-thuong` | Duyệt web + kiểm tra trạng thái định kỳ | 1 / 1 / 1 | anomaly trên `.30` (cả bản thu) |
+| `k4-doi-chung` | Ba máy gọi máy chủ dịch vụ `.30:80` theo chu kỳ 30/60/45 s (cùng hình dạng với bot tập trung) | 1 / 1 / 1 | anomaly trên `.30` (cả bản thu) |
+| `k5-doi-chung` | Ba máy chia sẻ khối dữ liệu 200 KB–2 MB qua TCP `:6881` theo đợt | **13 / 8 / 13** | bộ phân loại 10 / 5 / 9 (nhãn `dos`); anomaly 3 / 3 / 4 |
+
+- **`k4-doi-chung`: module botnet không báo nhầm** dịch vụ hợp lệ gọi định kỳ. Nhưng **không kết luận được**
+  rằng mô hình phân biệt được bot với đối chứng, vì nó cũng không báo bot thật (mục 4): điểm của hai bên đều
+  dưới ngưỡng (đối chứng cao nhất 0,087, bot 0,071).
+- **`k5-doi-chung`: bộ phân loại báo nhầm `dos` trên cả ba máy** mỗi khi có đợt truyền khối dữ liệu lớn: 24 sự
+  kiện trong ba lần (39,8–65,4 sự kiện mỗi giờ), phần lớn dài khoảng 18 giây. Truyền nhiều byte liên tiếp
+  giữa hai máy nội bộ trông giống DoS tầng HTTP của CIC-IDS2017 với bộ phân loại. Anomaly cũng báo các máy này
+  trong lúc truyền (7 sự kiện). **Đây là nguồn báo động giả chính của bộ phân loại trong lab.**
+- Tác vụ định kỳ hợp lệ (`api/status` ở kịch bản 1, gọi định kỳ ở `k4-doi-chung`) không gây báo động nào từ
+  bộ phân loại và module botnet.
+
+### 6.2. Lặp lại tình huống (B19)
+
+Mỗi biến thể chạy ba lần với lịch khác nhau: thời điểm bắt đầu hành vi và seed khác nhau ở mọi biến thể; chu
+kỳ, jitter và danh sách peer khác nhau ở kịch bản 4, 5 (docs/70 mục 3).
+
+| Biến thể | Bắt đầu hành vi sau (3 lần) | Kết quả 3 lần | Độ trễ 3 lần | Báo động giả 3 lần |
+|---|---|---|---|---|
+| `k1-binh-thuong` | — | — | — | 1 / 1 / 1 |
+| `k2-quet-cham` | 119 / 98 / 94 s | ✓ ✓ ✓ | 1,8 / 2,5 / 1,4 s | 1 / 1 / 1 |
+| `k2-quet-nhanh` | 167 / 236 / 132 s | ✓ ✓ ✓ | 1,8 / 0,9 / 1,5 s | 1 / 1 / 1 |
+| `k3-dos-muc1` | 92 / 120 / 96 s | ✓ ✓ ✓ | 2,5 / 2,9 / 1,7 s | 1 / 1 / 1 |
+| `k3-dos-muc2` | 98 / 122 / 117 s | ✓ ✓ ✓ | 2,2 / 1,0 / 0,6 s | 1 / 1 / 1 |
+| `k3-dos-muc3` | 111 / 148 / 106 s | ✓ ✓ ✓ | 1,1 / 1,2 / 0,4 s | 1 / 1 / 1 |
+| `k4-co-dinh` | 36 / 55 / 36 s | ✗ ✗ ✗ | — | 1 / 1 / 1 |
+| `k4-bien-thien` | 52 / 60 / 30 s | ✗ ✗ ✗ | — | 1 / 1 / 1 |
+| `k4-doi-chung` | 35 / 31 / 54 s | — | — | 1 / 1 / 1 |
+| `k5-p2p` | 53 / 44 / 44 s | ✗ ✗ ✗ | — | 1 / 1 / 1 |
+| `k5-doi-chung` | 52 / 55 / 37 s | — | — | 13 / 8 / 13 |
+
+**Kết quả lặp lại nhất quán**: trong mỗi biến thể, ba lần cho cùng kết luận (phát hiện cả ba hoặc bỏ sót cả
+ba). Độ trễ dao động trong khoảng 2 giây, đúng bằng bước trượt cửa sổ: nó phụ thuộc hành vi bắt đầu ở đâu so
+với lưới cửa sổ. Số báo động giả chỉ dao động ở `k5-doi-chung`, theo số đợt truyền dữ liệu của từng lần.
+
+Các lần chạy này đều có vai trò `test` và chỉ dùng để báo cáo: không tham số hay ngưỡng nào được chỉnh theo
+chúng.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
