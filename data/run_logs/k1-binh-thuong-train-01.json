@@ -1,0 +1,45 @@
+{
+  "ma_lan_chay": "k1-binh-thuong-train-01",
+  "bien_the": "k1-binh-thuong",
+  "vai_tro": "train",
+  "lan": 1,
+  "seed": 3269723967,
+  "moi_truong": {
+    "kieu": "lab ảo: network namespace + bridge + tc mirror",
+    "lab": 1,
+    "nhan": "6.18.33.2-microsoft-standard-WSL2",
+    "may": "shanley",
+    "nmap": "Nmap version 7.98 ( https://nmap.org )"
+  },
+  "ban_thu": {
+    "file": "data/pcap/lab/k1-binh-thuong-train-01.pcap",
+    "bat_dau": "2026-11-12T00:06:49.906+07:00",
+    "ket_thuc": "2026-11-12T00:16:51.912+07:00",
+    "bat_dau_epoch": 1794416809.907,
+    "ket_thuc_epoch": 1794417411.913,
+    "may_giam_sat": "192.168.50.10",
+    "byte": 3104396,
+    "sha256": "c409ed45f33266e52404e83bd0d821089bee7b0ecf61083124c2980844dbef62",
+    "goi_bat_duoc": 8072,
+    "goi_qua_bo_loc": 8072,
+    "goi_nhan_bo": 0
+  },
+  "lech_dong_ho_s": 0.0,
+  "nen": {
+    "kieu": "binh-thuong",
+    "nhan": "benign",
+    "ip_nguon": [
+      "192.168.50.41",
+      "192.168.50.42",
+      "192.168.50.43"
+    ],
+    "ip_dich": [
+      "192.168.50.30"
+    ],
+    "bat_dau": "2026-11-12T00:06:49.906+07:00",
+    "ket_thuc": "2026-11-12T00:16:49.907+07:00",
+    "mo_ta": "duyệt web nghỉ 1–6 giây, kiểm tra trạng thái api/status mỗi ~30 giây"
+  },
+  "hanh_vi": [],
+  "nhat_ky_may_sinh": []
+}

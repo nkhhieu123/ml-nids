@@ -1,0 +1,45 @@
+{
+  "ma_lan_chay": "k1-binh-thuong-val-01",
+  "bien_the": "k1-binh-thuong",
+  "vai_tro": "val",
+  "lan": 1,
+  "seed": 1093572415,
+  "moi_truong": {
+    "kieu": "lab ảo: network namespace + bridge + tc mirror",
+    "lab": 1,
+    "nhan": "6.18.33.2-microsoft-standard-WSL2",
+    "may": "shanley",
+    "nmap": "Nmap version 7.98 ( https://nmap.org )"
+  },
+  "ban_thu": {
+    "file": "data/pcap/lab/k1-binh-thuong-val-01.pcap",
+    "bat_dau": "2026-11-12T00:19:41.926+07:00",
+    "ket_thuc": "2026-11-12T00:29:43.928+07:00",
+    "bat_dau_epoch": 1794417581.927,
+    "ket_thuc_epoch": 1794418183.929,
+    "may_giam_sat": "192.168.50.10",
+    "byte": 3031576,
+    "sha256": "f4827178701258f1ba9fbb4c77e8f5e09c4b13f939b1daf0ce755cf4ae304769",
+    "goi_bat_duoc": 8080,
+    "goi_qua_bo_loc": 8080,
+    "goi_nhan_bo": 0
+  },
+  "lech_dong_ho_s": 0.0,
+  "nen": {
+    "kieu": "binh-thuong",
+    "nhan": "benign",
+    "ip_nguon": [
+      "192.168.50.41",
+      "192.168.50.42",
+      "192.168.50.43"
+    ],
+    "ip_dich": [
+      "192.168.50.30"
+    ],
+    "bat_dau": "2026-11-12T00:19:41.926+07:00",
+    "ket_thuc": "2026-11-12T00:29:41.926+07:00",
+    "mo_ta": "duyệt web nghỉ 1–6 giây, kiểm tra trạng thái api/status mỗi ~30 giây"
+  },
+  "hanh_vi": [],
+  "nhat_ky_may_sinh": []
+}

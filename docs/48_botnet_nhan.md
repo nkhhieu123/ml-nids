@@ -79,8 +79,7 @@ Mặc định trong `botnet.splits` (QĐ-039):
 | Validation | **4 (Rbot), 13 (Virut)** | Hai họ bot đã có ở train, đủ dài (4,5 và 16,4 giờ) |
 | Test | 1, 2, 6, 8, 9 | Như bài báo gốc; có Neris, DonBot, Murlo **chưa từng thấy ở train** |
 
-Scenario validation là **lựa chọn tạm thời** của tôi (việc này ghi là "bạn quyết định" ở
-`docs/Viec_con_thieu.md`); đổi trong `config/default.yaml` nếu muốn. Không scenario nào ở hai tập, nên
+Scenario validation 4 và 13 **đã khóa ngày 12/11/2026** (QĐ-065). Không scenario nào ở hai tập, nên
 không có cửa sổ chồng lấn giữa các tập.
 
 ## 4. Số mẫu

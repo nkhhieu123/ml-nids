@@ -37,7 +37,7 @@ Mẫu:
 
 ## QĐ-004 — Tên nhãn
 - Ngày: 10/10/2026
-- Trạng thái: Tạm thời
+- Trạng thái: Tạm thời → đã khóa bởi QĐ-065 (12/11/2026)
 - Bối cảnh: Kịch bản nêu các lớp nhưng không quy định tên trong dữ liệu.
 - Quyết định: Tên tiếng Anh viết thường: `normal`/`anomaly`; `benign`/`port_scan`/`dos`; `normal_host`/`suspect_host`; `centralized`/`p2p`/`none`.
 - Hệ quả: Nhãn của CIC-IDS2017 và CTU-13 phải ánh xạ về các tên này khi chuẩn bị dữ liệu. Nhãn topology `none` cần xem lại khi thu dữ liệu đối chứng.
@@ -72,14 +72,14 @@ Mẫu:
 
 ## QĐ-009 — Tập con CIC-IDS2017 cho phân loại
 - Ngày: 12/10/2026
-- Trạng thái: Tạm thời
+- Trạng thái: Tạm thời → đã khóa bởi QĐ-065 (12/11/2026)
 - Bối cảnh: Module phân loại có ba lớp `benign`, `port_scan`, `dos` (một nguồn); CIC-IDS2017 có nhiều loại tấn công khác.
 - Quyết định: Dùng phiên thứ Tư 05/07/2017 (bốn công cụ DoS, bỏ Heartbleed) và phần port scan của chiều thứ Sáu 07/07/2017 (bỏ DDoS LOIT). Dữ liệu chính là PCAP chạy qua bộ ghép flow của đồ án, nhãn gán theo lịch tấn công; CSV có nhãn dùng để đối chiếu (xem `docs/06_cic_ids2017.md`).
 - Hệ quả: Tách train/validation/test theo khối thời gian vì mỗi lớp tấn công chỉ nằm trong một ngày. DoS của CIC-IDS2017 là tầng HTTP, không khớp với SYN/ICMP của lab; nguồn mẫu `dos` cho loại này chưa được quyết định. Chưa tải file nên số liệu phải đối chiếu lại.
 
 ## QĐ-010 — Dùng flow hai chiều có nhãn của CTU-13
 - Ngày: 12/10/2026
-- Trạng thái: Tạm thời
+- Trạng thái: Tạm thời → đã khóa bởi QĐ-065 (12/11/2026)
 - Bối cảnh: Mỗi scenario CTU-13 phát hành nhiều dạng file với hai kiểu nhãn khác nhau; PCAP đầy đủ của toàn mạng không được công bố.
 - Quyết định: Dùng file `.binetflow` trong `detailed-bidirectional-flow-labels/` của cả 13 scenario. Chỉ flow `From-Botnet` là độc hại. Host bot có flow `From-Botnet` trong cửa sổ là `suspect_host`; ba máy bình thường đã xác nhận là `normal_host`; host Background không đưa vào đánh giá (xem `docs/07_ctu13.md`). Không tải các file mẫu mã độc.
 - Hệ quả: Đặc trưng của module botnet phải tính được từ bản ghi flow. Chỉ scenario 12 là P2P nên topology ngang hàng phải đánh giá bằng dữ liệu lab. Điểm xuất phát cho việc tách là cách chia của bài báo gốc; scenario làm validation chưa chốt.
@@ -93,14 +93,14 @@ Mẫu:
 
 ## QĐ-012 — Dữ liệu tự thu trong lab
 - Ngày: 14/10/2026
-- Trạng thái: Tạm thời
+- Trạng thái: Tạm thời → đã khóa bởi QĐ-065 (12/11/2026)
 - Bối cảnh: CIC-IDS2017 không có DoS kiểu SYN/ICMP và thuộc mạng khác; CTU-13 chỉ có một scenario ngang hàng; không dataset nào có đối chứng lành tính.
 - Quyết định: Thu 11 biến thể của năm kịch bản (xem `docs/09_du_lieu_lab.md`). DoS dùng SYN; ICMP và DDoS nhiều nguồn là tùy chọn. Mỗi biến thể tối thiểu 1 lần chạy `train`, 1 lần `val`, 3 lần `test`; vai trò ghi trước khi chạy. Mã lần chạy dạng `<mã biến thể>-<vai trò>-<số thứ tự>`.
 - Hệ quả: Tối thiểu 55 lần chạy, khoảng 8 giờ thu. Tham số tốc độ quét, ba mức tải DoS và chu kỳ beaconing chưa chốt, phải ghi vào cấu hình trước lần chạy đầu tiên. Các lần chạy `test` thu sau khi mô hình và ngưỡng đã khóa.
 
 ## QĐ-013 — Tự viết bộ đọc file PCAP/PCAPNG bằng thư viện chuẩn
 - Ngày: 17/10/2026
-- Trạng thái: Tạm thời
+- Trạng thái: Tạm thời → đã khóa bởi QĐ-065 (12/11/2026)
 - Bối cảnh: Kế hoạch gợi ý chọn giữa Scapy, PyShark và dpkt để đọc packet. File PCAP của CIC-IDS2017 cỡ 10 GB mỗi ngày; Scapy dựng đối tượng cho mọi tầng của từng gói nên chậm với file cỡ này; PyShark cần cài TShark trên mọi máy.
 - Quyết định: Bộ đọc file (`src/nids/pcap_reader.py`) tự viết bằng `struct`, đọc theo luồng, trả về bản ghi thô kèm `orig_len` và timestamp nano giây; hỗ trợ cả PCAPNG (xem `docs/11_bo_doc_pcap.md`). Scapy vẫn là thư viện bắt gói trực tiếp ở chặng 10.
 - Hệ quả: Chương trình offline và realtime phải đưa packet vào cùng một bước phân tích header (C03-T02, C03-T03) để giữ đúng yêu cầu B12. Có thể đổi sang dpkt cho bước phân tích header nếu tự viết tốn quá nhiều công; quyết định khi làm C03-T02.
@@ -283,7 +283,7 @@ Mẫu:
 
 ## QĐ-039 — Nhãn host–cửa sổ botnet; Background chỉ để ước lượng báo động; chia theo scenario
 - Ngày: 03/11/2026
-- Trạng thái: Đã chốt (scenario validation tạm thời, chờ nhóm xác nhận); phần "Background không học" sửa bởi QĐ-040
+- Trạng thái: Đã chốt (scenario validation 4 và 13 khóa bởi QĐ-065); phần "Background không học" sửa bởi QĐ-040
 - Bối cảnh: C08-T04 cần dữ liệu host–cửa sổ có nhãn và quy định cách xử lý Background, phần lớn traffic CTU-13 chưa được kiểm chứng.
 - Quyết định: `suspect_host` khi bot trong mạng khởi tạo ≥ 1 flow From-Botnet trong cửa sổ; `normal_host` khi máy bình thường đã xác nhận khởi tạo flow From-Normal; host Background lấy mẫu không học, không tính Precision/Recall, chỉ báo tỷ lệ bị báo; còn lại bỏ (gồm cửa sổ trước khi bị nhiễm). Flow Background vẫn giữ trong đồ thị. Chia theo scenario: train 3, 5, 7, 10, 11, 12; validation 4, 13; test 1, 2, 6, 8, 9.
 - Hệ quả: Train 9 575 bot / 32 827 bình thường, validation 6 555 / 10 453, test 19 188 / 24 880 host–cửa sổ, nhưng chỉ khoảng 10 IP bot và 4 IP bình thường. Scenario P2P duy nhất ở train. Chi tiết ở docs/48.
@@ -462,6 +462,18 @@ Mẫu:
 - Bối cảnh: CIC-IDS2017 chỉ có DoS tầng HTTP (QĐ-009), Chặng 7 tạm chỉ học loại này và để ngỏ nguồn mẫu cho DoS kiểu SYN của lab.
 - Quyết định: Không tìm dataset ngoài. Nguồn mẫu DoS kiểu SYN là các lần chạy `train` của kịch bản 3 trong lab (`k3-dos-muc1/2/3-train-01`, thu 12/11/2026, nhãn từ nhật ký lần chạy). Hiện **chưa học lại** bộ phân loại: mô hình chỉ học DoS tầng HTTP đã phát hiện 9/9 đợt tải kết nối của lab ở cả ba mức (Chặng 11, docs/71 mục 3). Chỉ đưa mẫu lab vào train khi học lại bộ phân loại vì lý do khác (ví dụ sửa báo nhầm `dos` trên chia sẻ dữ liệu).
 - Hệ quả: DoS trong lab là tải kết nối bằng socket thường (phần lớn bắt tay xong), không phải SYN flood gói thô giả mạo nguồn, vì B24 không cho tạo gói thô. SYN flood gói thô vẫn **chưa được thử**. Nếu học lại bằng mẫu lab thì phải thu lần `test` mới để báo cáo.
+
+## QĐ-065 — Khóa các quyết định còn tạm thời: QĐ-004, QĐ-009, QĐ-010, QĐ-012, QĐ-013
+- Ngày: 12/11/2026
+- Trạng thái: Đã chốt
+- Bối cảnh: Năm quyết định đầu dự án ghi "Tạm thời" vì lúc đó chưa có dữ liệu hay mã để kiểm chứng. Tới Chặng 11 mọi phần đã chạy và đo được. (QĐ-006, QĐ-017, QĐ-023 về cửa sổ và tham số flow khóa riêng ở QĐ-066.)
+- Quyết định:
+  - **QĐ-004 (tên nhãn)**: giữ nguyên. Nhãn topology `none` dùng cho mọi host không phải bot, gồm cả đối chứng lành tính (`k4-doi-chung`, `k5-doi-chung` ghi `topology: none` trong nhật ký lần chạy). Ba module, bộ đo và file cảnh báo đều dùng các tên này qua `src/nids/scope.py`; không phát sinh xung đột khi thu dữ liệu đối chứng.
+  - **QĐ-009 (tập con CIC-IDS2017)**: giữ thứ Tư (DoS tầng HTTP) và phần port scan của thứ Sáu cho bộ phân loại; thứ Hai cho Gaussian. Mô hình học từ tập con này đạt macro-F1 0,908 trên test CIC và 0,923 theo cửa sổ trên lab (docs/71 mục 7). Nguồn mẫu DoS kiểu SYN theo QĐ-064.
+  - **QĐ-010 (CTU-13)**: giữ flow hai chiều `.binetflow` của 13 scenario, chỉ `From-Botnet` là độc hại. Cách chia: train 3, 5, 7, 10, 11, 12; **validation 4 và 13**; test 1, 2, 6, 8, 9. Trong nhóm huấn luyện của bài báo gốc, 12 phải ở train (P2P duy nhất), 10 và 11 là nguồn duy nhất của IP bot khác ở train, 5, 7, 11 quá ngắn, 3 là phần lớn mẫu Rbot; còn lại 4 và 13. Không đổi vì test CTU-13 đã được đọc (docs/52).
+  - **QĐ-012 (dữ liệu lab)**: giữ 11 biến thể của năm kịch bản, mỗi biến thể 1 lần `train`, 1 lần `val`, 3 lần `test`. Đã thu đủ **55/55 lần** trên lab ảo (QĐ-061): 33 lần `test` ngày 11/11, 11 lần `train` và 11 lần `val` ngày 12/11/2026. DoS là tải kết nối bằng socket thường thay cho SYN gói thô (B24). ICMP và DDoS nhiều nguồn không thu.
+  - **QĐ-013 (bộ đọc PCAP tự viết)**: giữ, kể cả phần phân tích header tự viết (không đổi sang dpkt). Đối chiếu Wireshark trên 35,5 triệu gói của ba file CIC: lệch 0 (docs/17); đọc được PCAP lab do tcpdump ghi và file nén gzip/bz2.
+- Hệ quả: Không còn quyết định nào ở trạng thái "Tạm thời" ngoài nhóm tham số flow (QĐ-066). Hạn chế vẫn còn: validation CTU-13 chỉ có 1 IP bot nên phải giữ ràng buộc Background ≤ 5% (QĐ-040); các lần `test` của lab thu trước `train`/`val`, nên nếu học lại mô hình bằng dữ liệu lab thì phải thu lần `test` mới; lab là lab ảo.
 
 ## Thuật ngữ
 

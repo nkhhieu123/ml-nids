@@ -26,14 +26,13 @@ Chặng 6–7 (Gaussian, phân loại) nếu bảng mới khác bảng cũ.
 
 **Việc cần bạn** (không làm thay được): dựng lab 7 node và kiểm tra mirror hai chiều; cài dự án
 trên Kali, cho biết tên card mạng thật, cài NTP; chốt tham số kịch bản lab (tốc độ Nmap, ba mức
-DoS SYN, beaconing); **xác nhận scenario validation của CTU-13** (Chặng 8 tạm chọn 4 và 13,
-QĐ-039; đổi trong `botnet.splits` nếu muốn); chọn nguồn mẫu DoS kiểu SYN. Chi tiết ở mục 2–4.
+DoS SYN, beaconing); ~~xác nhận scenario validation của CTU-13~~ (đã khóa 4 và 13, QĐ-065); ~~chọn nguồn mẫu DoS kiểu SYN~~ (QĐ-064). Chi tiết ở mục 2–4.
 
 Ở các mục dưới, **Bạn** là việc cần bạn hoặc nhóm tự làm (dựng máy, quyết định); **Làm được
 ngay** là việc làm được bằng mã hoặc tải dữ liệu công khai mà không cần thêm gì.
 
 Dữ liệu thật hiện có: **CIC-IDS2017 đủ** (PCAP thứ Hai, thứ Tư, thứ Sáu và CSV có nhãn) và
-**CTU-13 đủ 13 file `.binetflow`**. Dữ liệu lab: 33 lần `test` trên lab ảo (11/11/2026), chưa có `train`/`val`.
+**CTU-13 đủ 13 file `.binetflow`**. Dữ liệu lab: đủ 55 lần chạy trên lab ảo (33 `test` ngày 11/11, 11 `train` và 11 `val` ngày 12/11/2026).
 
 ## 1. Tóm tắt mức độ
 
@@ -78,15 +77,15 @@ gom lại thành các việc sau (việc tải CIC-IDS2017 đã xong):
 | ~~Chưa đếm nhãn của 11 scenario~~ | Đã xong 03/11/2026 (docs/48 mục 1; scenario 4, 5, 6 bằng một nửa README) | Số flow botnet theo README chưa được xác nhận | Làm được ngay sau khi tải | Lặp lại phép đếm ở [07_ctu13.md](07_ctu13.md) mục 3 |
 | ~~Chưa xác định thời điểm bị nhiễm của từng scenario~~ | Không cần: cửa sổ bot chỉ là `suspect_host` khi có flow From-Botnet (QĐ-039) | Cửa sổ trước khi bot hoạt động có thể bị gán nhầm `suspect_host` | Làm được ngay | Đọc nhật ký thao tác trong README của từng scenario |
 | ~~Chưa xác định múi giờ của cột `StartTime`~~ | Đã xong 06/11/2026 | `StartTime` là UTC+2 (giờ mùa hè Praha), xác định bằng khớp 5-tuple PCAP bot ↔ binetflow ở 3 scenario (docs/48) | | |
-| Scenario validation **tạm chọn 4 và 13** (QĐ-039), chờ nhóm xác nhận | Quan trọng | Chưa chia được dữ liệu ở Chặng 5 | **Bạn** quyết định | Chọn 1–2 scenario trong nhóm train làm validation |
+| ~~Scenario validation tạm chọn 4 và 13 (QĐ-039), chờ nhóm xác nhận~~ | Đã khóa 12/11/2026 (QĐ-065) | Giữ 4 và 13; lý do ở QĐ-065 | | |
 | ~~Topology của scenario 6 và 8 chưa xác định~~ | Đã xong: có flow CC, xếp `centralized` (docs/48) | Hai scenario này không có nhãn topology | Làm được ngay | Xem nhãn kênh điều khiển (`CC`) trong file flow |
 | ~~4 bản thu CTU-13 đã dùng ở Chặng 3 chỉ nằm trong thư mục tạm~~ | Đã xong 06/11/2026 (manifest `ctu13-s0x-pcap-*`) | Người khác không tái lập được phép đối chiếu Wireshark | Làm được ngay | Thêm dòng manifest, ghi link tải và mã băm |
 
-### 2.3. Dữ liệu lab — đã thu 33 lần `test` trên lab ảo; chưa có `train`, `val`
+### 2.3. Dữ liệu lab — đã thu đủ 55 lần chạy trên lab ảo
 
 | Thiếu | Mức | Ảnh hưởng | Ai làm | Cách bổ sung |
 |---|---|---|---|---|
-| **Cập nhật 11/11/2026:** đã thu 33/55 lần chạy (11 biến thể × 3 lần `test`) trên lab ảo WSL2 (docs/70, docs/71). Còn thiếu 22 lần `train` và `val`, và chưa có lần nào trên lab vật lý | Quan trọng | Không có DoS SYN, botnet ngang hàng, đối chứng lành tính, và không có dữ liệu thật của mạng sẽ triển khai | **Bạn** | Làm theo [09_du_lieu_lab.md](09_du_lieu_lab.md) sau khi có mục 3 và 4 |
+| **Cập nhật 12/11/2026:** đã thu đủ 55/55 lần chạy (11 biến thể × 1 `train`, 1 `val`, 3 `test`) trên lab ảo WSL2 (docs/70, docs/71). Chưa có lần nào trên lab vật lý; chưa học lại mô hình nào bằng `train`/`val` | Quan trọng | Không có DoS SYN, botnet ngang hàng, đối chứng lành tính, và không có dữ liệu thật của mạng sẽ triển khai | **Bạn** | Làm theo [09_du_lieu_lab.md](09_du_lieu_lab.md) sau khi có mục 3 và 4 |
 | Chưa có access log Nginx của máy chủ dịch vụ thật | Quan trọng | Parser log mới thử trên Nginx Windows (CRLF, một worker) | **Bạn** dựng; kiểm tra làm được ngay | Cài Nginx với `log_format nids`, chạy `nids.service_log` và `nids.log_compare` |
 | IPv6 thật gần như không có (1 gói đầy đủ, 2 gói bị cắt); TSO và đường hầm IP chưa gặp trên dữ liệu thật | Nên có | Các nhánh này mới kiểm tra bằng dữ liệu tổng hợp | Làm được ngay khi có PCAP lab | Chạy `nids.wireshark_compare` trên PCAP lab, nhất là khi bắt trên chính máy gửi |
 
@@ -109,7 +108,7 @@ gom lại thành các việc sau (việc tải CIC-IDS2017 đã xong):
 | ~~Ba mức tải DoS SYN (B16 bắt buộc xác định trước)~~ | Đã chốt 12/11/2026 (QĐ-062) | 50/200/600 kết nối mỗi giây, tối đa 60 giây; `lab.tai_ket_noi` |
 | ~~Chu kỳ và độ biến thiên beaconing; số peer của kịch bản P2P~~ | Đã chốt 12/11/2026 (QĐ-062) | Chu kỳ 30/60/45 giây, jitter tới ±40%; 3 bot ngang hàng; `lab.tap_trung`, `lab.ngang_hang` |
 | ~~Nguồn mẫu huấn luyện cho DoS kiểu SYN (CIC chỉ có DoS tầng HTTP)~~ | Đã chốt 12/11/2026 (QĐ-064) | Nguồn là lần chạy `train` kịch bản 3 của lab; chưa cần học lại vì mô hình hiện tại phát hiện 9/9 đợt tải kết nối. SYN flood gói thô vẫn chưa thử |
-| Các quyết định còn **tạm thời**: QĐ-004 tên nhãn (nhất là `none` của topology), QĐ-006 cửa sổ và timeout 60 giây, QĐ-009 tập con CIC, QĐ-010 cách chia CTU-13, QĐ-012 dữ liệu lab, QĐ-013 bộ đọc PCAP tự viết | Quan trọng | Thêm mục quyết định mới khi khóa |
+| ~~Các quyết định còn **tạm thời**: QĐ-004, QĐ-006, QĐ-009, QĐ-010, QĐ-012, QĐ-013~~ | Đã khóa 12/11/2026 | QĐ-065 khóa QĐ-004, 009, 010, 012, 013; QĐ-066 khóa QĐ-006 cùng tham số flow |
 | ~~Dùng `ip_len` hay `frame_len` cho đặc trưng byte~~ | Đã xong | Chốt `ip_len` kèm payload TCP/UDP ở C04-T03 (QĐ-018) |
 | Dung sai thời gian khi ghép dòng log với flow | Nên có | Chốt khi làm phần ghép log–flow |
 
