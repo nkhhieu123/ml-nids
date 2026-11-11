@@ -82,6 +82,35 @@ Kết quả (`docs/hinh/thuc_nghiem/lab/k2.json`):
 - **Không có báo động giả nào từ bộ phân loại và module botnet.** Báo động giả duy nhất mỗi lần vẫn là sự kiện
   anomaly kéo dài cả bản thu trên `.30` (mục 1).
 
+## 3. C11-T04 — DoS có giới hạn trong lab
+
+Máy thử nghiệm `.20` chạy bộ sinh tải kết nối (`sinh_traffic.py tai-ket-noi`, docs/68) tới `.30:80` trong
+**đúng 60 giây** (B16; đo được 60,1–60,3 giây), ba mức tải, có traffic bình thường của ba client suốt bản thu
+5 phút.
+
+| Mức | Kết nối mỗi giây (đặt) | Kết nối đã thử trong 60 s | Nối được | Độ trễ phát hiện (3 lần) | Cửa sổ cảnh báo `dos` | Host bị báo |
+|---|---|---|---|---|---|---|
+| 1 | 50 | 3 000 | 3 000 | 2,5 / 2,9 / 1,7 s | 34 | chỉ `.20` |
+| 2 | 200 | 12 000 | 12 000 | 2,2 / 1,0 / 0,6 s | 64–65 | `.20` và `.30` |
+| 3 | 600 | khoảng 34 000 (570 mỗi giây) | khoảng 28 240 | 1,1 / 1,2 / 0,4 s | 56 | `.20` và `.30` |
+
+Kết quả (`docs/hinh/thuc_nghiem/lab/k3.json`, `access_log.json`):
+
+- **Phát hiện 9/9 đợt, 0 bỏ sót**, ở cả ba mức tải; **độ trễ 0,4–2,9 giây** tới cuối cửa sổ đầu tiên. Mức tải
+  cao hơn được báo sớm hơn một chút (trung vị 2,5 → 1,0 → 1,1 giây).
+- Ở mức 1, chỉ bên tấn công `.20` bị gán `dos`; nạn nhân `.30` không bị. Từ mức 2 thì cả hai.
+- Ở mức 3, máy tấn công chỉ đạt khoảng 570 kết nối mỗi giây và khoảng 17% lần thử không nối được (hết cổng
+  nguồn tạm thời), tức đã có kết nối không hoàn tất thật.
+- **Dịch vụ không bị ảnh hưởng**: trong 60 giây tấn công, client hợp lệ vẫn gửi 48–57 yêu cầu mỗi lần, tất cả
+  mã 200, thời gian phục vụ ghi trong access log không đổi (dưới 1 ms). Trên lab ảo, Nginx thừa sức nhận 600
+  kết nối rỗng mỗi giây; đây là **tải kết nối phát hiện được**, chưa phải DoS làm sập dịch vụ.
+- Không có báo động giả nào từ bộ phân loại và module botnet. Báo động giả mỗi lần vẫn là sự kiện anomaly cả
+  bản thu trên `.30` (11,4 sự kiện mỗi giờ vì bản thu chỉ dài 5 phút).
+
+Lưu ý khi đọc: bộ phân loại học DoS tầng HTTP của CIC-IDS2017 nhưng vẫn nhận ra kiểu tải kết nối của lab. Tuy
+vậy nguồn tấn công trong lab chỉ là một máy, và `.20` không có traffic bình thường xen kẽ; chưa thử trường hợp
+máy tấn công đồng thời là máy làm việc bình thường.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
