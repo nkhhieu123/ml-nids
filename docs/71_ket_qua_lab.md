@@ -209,6 +209,48 @@ với lưới cửa sổ. Số báo động giả chỉ dao động ở `k5-doi-
 Các lần chạy này đều có vai trò `test` và chỉ dùng để báo cáo: không tham số hay ngưỡng nào được chỉnh theo
 chúng.
 
+## 7. Bộ phân loại theo từng cửa sổ host (bổ sung 12/11/2026)
+
+Các mục trên chấm theo đợt tấn công. Mục này chấm theo **cửa sổ host**, đúng cách đã chấm trên CIC-IDS2017 ở
+Chặng 7 (docs/43), để so được hai mạng và để xem riêng máy tấn công với máy nạn nhân. Mã nguồn:
+`src/nids/lab_cua_so.py`; số liệu: `docs/hinh/thuc_nghiem/lab/cua_so_test.json`.
+
+```bash
+cd src
+python -m nids.lab_cua_so ../data/pcap/lab/k*-test-0*.pcap --nhat-ky ../data/run_logs \
+    --out ../docs/hinh/thuc_nghiem/lab --ten cua_so_test
+```
+
+Nhãn cửa sổ lấy từ nhật ký lần chạy bằng chính `nids.labeling` (cùng ngưỡng phần flow tấn công 0,2); 3 cửa sổ mơ
+hồ bị bỏ. Cửa sổ của bot mô phỏng và của đối chứng là `benign` với bộ phân loại ba lớp.
+
+| | CIC-IDS2017 test (docs/43) | Lab test (33 lần, 46 411 cửa sổ) |
+|---|---|---|
+| Macro-F1 | 0,908 | **0,923** |
+| `port_scan`: precision / recall (số mẫu) | 0,947 / 0,736 (220) | **1,000 / 0,999** (1 592) |
+| `dos`: precision / recall (số mẫu) | 0,964 / 0,838 (727) | 0,762 / 0,781 (593) |
+| `benign`: recall (số mẫu) | 0,9996 (67 713) | 0,9967 (44 226) |
+
+Recall theo vai trò của host trong lab:
+
+| Lớp | Máy tấn công `.20` | Máy nạn nhân `.30` |
+|---|---|---|
+| `port_scan` | **1,000** (797 cửa sổ) | 0,999 (795 cửa sổ) |
+| `dos` | **0,987** (297 cửa sổ) | 0,574 (296 cửa sổ) |
+
+Đọc kết quả:
+
+- **Kết quả không kém đi trên mạng và công cụ chưa từng thấy.** Bộ phân loại học từ CIC-IDS2017 đạt macro-F1
+  0,923 trên lab, so với 0,908 trên test của chính CIC. Quét cổng bằng Nmap trong lab còn dễ nhận hơn trên CIC.
+- **Máy tấn công là một host thật, không phải địa chỉ NAT gộp nhiều máy như ở CIC**, và được nhận ra gần như
+  mọi cửa sổ (1,000 và 0,987). Đây là con số theo host phía tấn công mà dữ liệu CIC không cho được.
+- **Máy nạn nhân của DoS chỉ được báo 57% số cửa sổ**: phần lớn cửa sổ sót nằm ở mức tải 1 (50 kết nối mỗi
+  giây), nơi nạn nhân không bị báo lần nào. Đợt tấn công vẫn được phát hiện nhờ cửa sổ của máy tấn công.
+- **Precision của `dos` giảm còn 0,762** vì 144 cửa sổ `benign` bị báo `dos`, **tất cả thuộc `k5-doi-chung`**
+  (chia sẻ khối dữ liệu lớn). Ngoài biến thể đó không có cửa sổ lành tính nào bị báo trong 30 lần chạy còn lại.
+
+Giới hạn: máy tấn công `.20` không có traffic bình thường xen kẽ, nên cửa sổ của nó "sạch" hơn thực tế.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
