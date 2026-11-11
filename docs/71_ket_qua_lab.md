@@ -111,6 +111,36 @@ Lưu ý khi đọc: bộ phân loại học DoS tầng HTTP của CIC-IDS2017 nh
 vậy nguồn tấn công trong lab chỉ là một máy, và `.20` không có traffic bình thường xen kẽ; chưa thử trường hợp
 máy tấn công đồng thời là máy làm việc bình thường.
 
+## 4. C11-T05 — Giao tiếp tập trung mô phỏng
+
+Ba bot `.41`–`.43` gọi máy điều khiển mô phỏng `.50:8080` bằng thông điệp vô hại trong 10 phút, đồng thời vẫn
+duyệt web bình thường; `.20` chỉ duyệt web. `k4-co-dinh`: chu kỳ 30/60/45 giây (lần 1/2/3), không jitter.
+`k4-bien-thien`: cùng chu kỳ, jitter ±20/40/30%.
+
+| Lần | Chu kỳ, jitter | Thời gian hành vi | Phát hiện (`suspect_host`) | Anomaly báo bot | Điểm botnet cao nhất của bot |
+|---|---|---|---|---|---|
+| `k4-co-dinh-test-01` | 30 s, 0 | 593 s | ✗ bỏ sót | không | 0,071 |
+| `k4-co-dinh-test-02` | 60 s, 0 | 594 s | ✗ bỏ sót | không | — |
+| `k4-co-dinh-test-03` | 45 s, 0 | 582 s | ✗ bỏ sót | không | — |
+| `k4-bien-thien-test-01` | 30 s, ±20% | 590 s | ✗ bỏ sót | không | — |
+| `k4-bien-thien-test-02` | 60 s, ±40% | 588 s | ✗ bỏ sót | không | 0,067 |
+| `k4-bien-thien-test-03` | 45 s, ±30% | 597 s | ✗ bỏ sót | không | — |
+
+Kết quả (`docs/hinh/thuc_nghiem/lab/k4.json`, `botnet_doc_lap.json`, `botnet_diem.json`):
+
+- **Bỏ sót 6/6 đợt.** Không có cảnh báo `suspect_host` nào trên ba bot trong cả sáu lần.
+- Ở chế độ `ket_hop`, module botnet chỉ xét host mà module anomaly đã báo (QĐ-047). Anomaly **không báo bot
+  lần nào**: mỗi 30–60 giây thêm một kết nối ngắn là quá ít để lệch khỏi "bình thường". Vì vậy module botnet
+  thậm chí không được hỏi.
+- Chạy lại ở chế độ `doc_lap` (module botnet chấm mọi host) vẫn **bỏ sót 6/6**: điểm cao nhất của bot là
+  0,061–0,071, dưới ngưỡng 0,1. Bot còn có điểm trung vị **thấp hơn** máy chỉ duyệt web `.20` (0,003 so với
+  0,052). Máy điều khiển `.50` có điểm 0.
+- Kết quả này khớp với dự báo từ Chặng 8: mô hình học trên CTU-13 không chuyển sang bot mô phỏng (recall
+  0,017 trên dữ liệu giả lập, docs/52). Chặng 11 xác nhận điều đó trên gói tin thật.
+
+Việc cần làm: thu các lần chạy `train` và `val` của kịch bản 4, 5 và học lại module botnet trên dữ liệu lab;
+xét lại việc module botnet phụ thuộc vào anomaly ở chế độ `ket_hop`, vì beaconing chậm không làm host bất thường.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.

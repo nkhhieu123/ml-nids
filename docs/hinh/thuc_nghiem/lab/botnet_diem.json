@@ -1,0 +1,148 @@
+{
+  "k4-co-dinh-test-01": {
+    "192.168.50.20": {
+      "so_cua_so": 84,
+      "diem_trung_vi": 0.052,
+      "diem_lon_nhat": 0.074
+    },
+    "192.168.50.30": {
+      "so_cua_so": 84,
+      "diem_trung_vi": 0.029,
+      "diem_lon_nhat": 0.076
+    },
+    "192.168.50.41": {
+      "so_cua_so": 84,
+      "diem_trung_vi": 0.002,
+      "diem_lon_nhat": 0.061
+    },
+    "192.168.50.42": {
+      "so_cua_so": 84,
+      "diem_trung_vi": 0.003,
+      "diem_lon_nhat": 0.061
+    },
+    "192.168.50.43": {
+      "so_cua_so": 84,
+      "diem_trung_vi": 0.003,
+      "diem_lon_nhat": 0.071
+    },
+    "192.168.50.50": {
+      "so_cua_so": 71,
+      "diem_trung_vi": 0.0,
+      "diem_lon_nhat": 0.0
+    }
+  },
+  "k4-bien-thien-test-02": {
+    "192.168.50.20": {
+      "so_cua_so": 85,
+      "diem_trung_vi": 0.057,
+      "diem_lon_nhat": 0.079
+    },
+    "192.168.50.30": {
+      "so_cua_so": 85,
+      "diem_trung_vi": 0.029,
+      "diem_lon_nhat": 0.066
+    },
+    "192.168.50.41": {
+      "so_cua_so": 85,
+      "diem_trung_vi": 0.003,
+      "diem_lon_nhat": 0.067
+    },
+    "192.168.50.42": {
+      "so_cua_so": 85,
+      "diem_trung_vi": 0.003,
+      "diem_lon_nhat": 0.062
+    },
+    "192.168.50.43": {
+      "so_cua_so": 85,
+      "diem_trung_vi": 0.006,
+      "diem_lon_nhat": 0.064
+    },
+    "192.168.50.50": {
+      "so_cua_so": 70,
+      "diem_trung_vi": 0.0,
+      "diem_lon_nhat": 0.0
+    }
+  },
+  "k5-p2p-test-01": {
+    "192.168.50.20": {
+      "so_cua_so": 86,
+      "diem_trung_vi": 0.051,
+      "diem_lon_nhat": 0.087
+    },
+    "192.168.50.30": {
+      "so_cua_so": 86,
+      "diem_trung_vi": 0.029,
+      "diem_lon_nhat": 0.083
+    },
+    "192.168.50.41": {
+      "so_cua_so": 86,
+      "diem_trung_vi": 0.014,
+      "diem_lon_nhat": 0.084
+    },
+    "192.168.50.42": {
+      "so_cua_so": 86,
+      "diem_trung_vi": 0.014,
+      "diem_lon_nhat": 0.074
+    },
+    "192.168.50.43": {
+      "so_cua_so": 86,
+      "diem_trung_vi": 0.015,
+      "diem_lon_nhat": 0.075
+    }
+  },
+  "k4-doi-chung-test-01": {
+    "192.168.50.20": {
+      "so_cua_so": 85,
+      "diem_trung_vi": 0.057,
+      "diem_lon_nhat": 0.07
+    },
+    "192.168.50.30": {
+      "so_cua_so": 85,
+      "diem_trung_vi": 0.029,
+      "diem_lon_nhat": 0.076
+    },
+    "192.168.50.41": {
+      "so_cua_so": 85,
+      "diem_trung_vi": 0.057,
+      "diem_lon_nhat": 0.077
+    },
+    "192.168.50.42": {
+      "so_cua_so": 85,
+      "diem_trung_vi": 0.054,
+      "diem_lon_nhat": 0.075
+    },
+    "192.168.50.43": {
+      "so_cua_so": 85,
+      "diem_trung_vi": 0.052,
+      "diem_lon_nhat": 0.087
+    }
+  },
+  "k5-doi-chung-test-01": {
+    "192.168.50.20": {
+      "so_cua_so": 82,
+      "diem_trung_vi": 0.055,
+      "diem_lon_nhat": 0.084
+    },
+    "192.168.50.30": {
+      "so_cua_so": 82,
+      "diem_trung_vi": 0.029,
+      "diem_lon_nhat": 0.068
+    },
+    "192.168.50.41": {
+      "so_cua_so": 82,
+      "diem_trung_vi": 0.039,
+      "diem_lon_nhat": 0.078
+    },
+    "192.168.50.42": {
+      "so_cua_so": 81,
+      "diem_trung_vi": 0.029,
+      "diem_lon_nhat": 0.081
+    },
+    "192.168.50.43": {
+      "so_cua_so": 82,
+      "diem_trung_vi": 0.027,
+      "diem_lon_nhat": 0.069
+    }
+  },
+  "nguong": 0.1
+}

@@ -143,6 +143,7 @@ Báo cáo Chặng 10: [docs/Bao_cao_Chang_10.md](docs/Bao_cao_Chang_10.md)
 - [x] C11-T02: Kiểm thử traffic bình thường, có tác vụ định kỳ — [docs/71_ket_qua_lab.md](docs/71_ket_qua_lab.md) mục 1
 - [x] C11-T03: Kiểm thử port scan (Nmap chậm, nhanh) — [docs/71_ket_qua_lab.md](docs/71_ket_qua_lab.md) mục 2
 - [x] C11-T04: Kiểm thử DoS có giới hạn (3 mức tải, 60 giây) — [docs/71_ket_qua_lab.md](docs/71_ket_qua_lab.md) mục 3
+- [x] C11-T05: Kiểm thử giao tiếp tập trung mô phỏng — [docs/71_ket_qua_lab.md](docs/71_ket_qua_lab.md) mục 4
 - [x] C11-T08: Bộ đo thực nghiệm (độ trễ, bỏ sót, báo động giả, hiệu năng) — `src/nids/thuc_nghiem.py`
 
 Báo cáo Chặng 11: [docs/Bao_cao_Chang_11.md](docs/Bao_cao_Chang_11.md)
