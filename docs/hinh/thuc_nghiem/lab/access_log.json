@@ -1,0 +1,305 @@
+{
+  "k1-binh-thuong-test-01": {
+    "yeu_cau": 521,
+    "api_status": 123,
+    "theo_ma": {
+      "200": 521
+    },
+    "status_gian_cach_tb_s": 14.7,
+    "status_cv": 0.62
+  },
+  "k1-binh-thuong-test-02": {
+    "yeu_cau": 516,
+    "api_status": 126,
+    "theo_ma": {
+      "200": 516
+    },
+    "status_gian_cach_tb_s": 14.1,
+    "status_cv": 0.69
+  },
+  "k1-binh-thuong-test-03": {
+    "yeu_cau": 521,
+    "api_status": 130,
+    "theo_ma": {
+      "200": 521
+    },
+    "status_gian_cach_tb_s": 16.4,
+    "status_cv": 0.61
+  },
+  "k2-quet-cham-test-01": {
+    "yeu_cau": 600,
+    "api_status": 156,
+    "theo_ma": {
+      "200": 600
+    }
+  },
+  "k2-quet-cham-test-02": {
+    "yeu_cau": 601,
+    "api_status": 157,
+    "theo_ma": {
+      "200": 601
+    }
+  },
+  "k2-quet-cham-test-03": {
+    "yeu_cau": 586,
+    "api_status": 152,
+    "theo_ma": {
+      "200": 586
+    }
+  },
+  "k2-quet-nhanh-test-01": {
+    "yeu_cau": 517,
+    "api_status": 141,
+    "theo_ma": {
+      "200": 517
+    }
+  },
+  "k2-quet-nhanh-test-02": {
+    "yeu_cau": 526,
+    "api_status": 132,
+    "theo_ma": {
+      "200": 526
+    }
+  },
+  "k2-quet-nhanh-test-03": {
+    "yeu_cau": 526,
+    "api_status": 141,
+    "theo_ma": {
+      "200": 526
+    }
+  },
+  "k3-dos-muc1-test-01": {
+    "yeu_cau": 256,
+    "api_status": 63,
+    "theo_ma": {
+      "200": 256
+    },
+    "tan_cong_yeu_cau": 0,
+    "client_trong_dos": 50,
+    "client_loi_trong_dos": 0,
+    "client_tg_phuc_vu_tb_ms_trong": 0.0,
+    "client_tg_phuc_vu_tb_ms_ngoai": 0.0,
+    "ket_noi_thu": 3000,
+    "ket_noi_duoc": 3000
+  },
+  "k3-dos-muc1-test-02": {
+    "yeu_cau": 247,
+    "api_status": 58,
+    "theo_ma": {
+      "200": 247
+    },
+    "tan_cong_yeu_cau": 0,
+    "client_trong_dos": 49,
+    "client_loi_trong_dos": 0,
+    "client_tg_phuc_vu_tb_ms_trong": 0.0,
+    "client_tg_phuc_vu_tb_ms_ngoai": 0.0,
+    "ket_noi_thu": 3000,
+    "ket_noi_duoc": 3000
+  },
+  "k3-dos-muc1-test-03": {
+    "yeu_cau": 262,
+    "api_status": 61,
+    "theo_ma": {
+      "200": 262
+    },
+    "tan_cong_yeu_cau": 0,
+    "client_trong_dos": 55,
+    "client_loi_trong_dos": 0,
+    "client_tg_phuc_vu_tb_ms_trong": 0.0,
+    "client_tg_phuc_vu_tb_ms_ngoai": 0.0,
+    "ket_noi_thu": 3000,
+    "ket_noi_duoc": 3000
+  },
+  "k3-dos-muc2-test-01": {
+    "yeu_cau": 261,
+    "api_status": 61,
+    "theo_ma": {
+      "200": 261
+    },
+    "tan_cong_yeu_cau": 0,
+    "client_trong_dos": 51,
+    "client_loi_trong_dos": 0,
+    "client_tg_phuc_vu_tb_ms_trong": 0.0,
+    "client_tg_phuc_vu_tb_ms_ngoai": 0.0,
+    "ket_noi_thu": 12000,
+    "ket_noi_duoc": 12000
+  },
+  "k3-dos-muc2-test-02": {
+    "yeu_cau": 266,
+    "api_status": 65,
+    "theo_ma": {
+      "200": 266
+    },
+    "tan_cong_yeu_cau": 0,
+    "client_trong_dos": 57,
+    "client_loi_trong_dos": 0,
+    "client_tg_phuc_vu_tb_ms_trong": 0.0,
+    "client_tg_phuc_vu_tb_ms_ngoai": 0.0,
+    "ket_noi_thu": 12000,
+    "ket_noi_duoc": 12000
+  },
+  "k3-dos-muc2-test-03": {
+    "yeu_cau": 259,
+    "api_status": 69,
+    "theo_ma": {
+      "200": 259
+    },
+    "tan_cong_yeu_cau": 0,
+    "client_trong_dos": 53,
+    "client_loi_trong_dos": 0,
+    "client_tg_phuc_vu_tb_ms_trong": 0.0,
+    "client_tg_phuc_vu_tb_ms_ngoai": 0.0,
+    "ket_noi_thu": 12000,
+    "ket_noi_duoc": 12000
+  },
+  "k3-dos-muc3-test-01": {
+    "yeu_cau": 253,
+    "api_status": 65,
+    "theo_ma": {
+      "200": 253
+    },
+    "tan_cong_yeu_cau": 0,
+    "client_trong_dos": 48,
+    "client_loi_trong_dos": 0,
+    "client_tg_phuc_vu_tb_ms_trong": 0.0,
+    "client_tg_phuc_vu_tb_ms_ngoai": 0.0,
+    "ket_noi_thu": 34153,
+    "ket_noi_duoc": 28254
+  },
+  "k3-dos-muc3-test-02": {
+    "yeu_cau": 251,
+    "api_status": 59,
+    "theo_ma": {
+      "200": 251
+    },
+    "tan_cong_yeu_cau": 0,
+    "client_trong_dos": 52,
+    "client_loi_trong_dos": 0,
+    "client_tg_phuc_vu_tb_ms_trong": 0.0,
+    "client_tg_phuc_vu_tb_ms_ngoai": 0.0,
+    "ket_noi_thu": 34277,
+    "ket_noi_duoc": 28239
+  },
+  "k3-dos-muc3-test-03": {
+    "yeu_cau": 251,
+    "api_status": 70,
+    "theo_ma": {
+      "200": 251
+    },
+    "tan_cong_yeu_cau": 0,
+    "client_trong_dos": 48,
+    "client_loi_trong_dos": 0,
+    "client_tg_phuc_vu_tb_ms_trong": 0.0,
+    "client_tg_phuc_vu_tb_ms_ngoai": 0.0,
+    "ket_noi_thu": 33852,
+    "ket_noi_duoc": 28236
+  },
+  "k4-bien-thien-test-01": {
+    "yeu_cau": 871,
+    "api_status": 223,
+    "theo_ma": {
+      "200": 871
+    }
+  },
+  "k4-bien-thien-test-02": {
+    "yeu_cau": 851,
+    "api_status": 208,
+    "theo_ma": {
+      "200": 851
+    }
+  },
+  "k4-bien-thien-test-03": {
+    "yeu_cau": 790,
+    "api_status": 193,
+    "theo_ma": {
+      "200": 790
+    }
+  },
+  "k4-co-dinh-test-01": {
+    "yeu_cau": 821,
+    "api_status": 197,
+    "theo_ma": {
+      "200": 821
+    }
+  },
+  "k4-co-dinh-test-02": {
+    "yeu_cau": 836,
+    "api_status": 213,
+    "theo_ma": {
+      "200": 836
+    }
+  },
+  "k4-co-dinh-test-03": {
+    "yeu_cau": 792,
+    "api_status": 236,
+    "theo_ma": {
+      "200": 792
+    }
+  },
+  "k4-doi-chung-test-01": {
+    "yeu_cau": 905,
+    "api_status": 223,
+    "theo_ma": {
+      "200": 845,
+      "400": 60
+    }
+  },
+  "k4-doi-chung-test-02": {
+    "yeu_cau": 872,
+    "api_status": 259,
+    "theo_ma": {
+      "200": 841,
+      "400": 31
+    }
+  },
+  "k4-doi-chung-test-03": {
+    "yeu_cau": 881,
+    "api_status": 234,
+    "theo_ma": {
+      "200": 840,
+      "400": 41
+    }
+  },
+  "k5-doi-chung-test-01": {
+    "yeu_cau": 790,
+    "api_status": 212,
+    "theo_ma": {
+      "200": 790
+    }
+  },
+  "k5-doi-chung-test-02": {
+    "yeu_cau": 802,
+    "api_status": 214,
+    "theo_ma": {
+      "200": 802
+    }
+  },
+  "k5-doi-chung-test-03": {
+    "yeu_cau": 796,
+    "api_status": 203,
+    "theo_ma": {
+      "200": 796
+    }
+  },
+  "k5-p2p-test-01": {
+    "yeu_cau": 849,
+    "api_status": 224,
+    "theo_ma": {
+      "200": 849
+    }
+  },
+  "k5-p2p-test-02": {
+    "yeu_cau": 797,
+    "api_status": 208,
+    "theo_ma": {
+      "200": 797
+    }
+  },
+  "k5-p2p-test-03": {
+    "yeu_cau": 816,
+    "api_status": 206,
+    "theo_ma": {
+      "200": 816
+    }
+  }
+}

@@ -28,6 +28,12 @@ from pathlib import Path
 from .scope import MODULE_ANOMALY, MODULE_ATTACK, MODULE_BOTNET
 
 # loại tấn công -> (module chịu trách nhiệm, các nhãn tính là phát hiện đúng loại)
+# Một sự kiện cảnh báo chỉ được coi là do đợt tấn công gây ra nếu nó bắt đầu không sớm hơn đầu đợt quá mức
+# này: độ dài cửa sổ của module (10 giây; module botnet 120 giây) + khoảng gộp sự kiện 30 giây. Sự kiện bắt
+# đầu từ lâu trước đợt (ví dụ cảnh báo kéo dài cả bản thu) là báo động giả dù có chồng lên đợt.
+LEAD_S = {MODULE_BOTNET: 150.0}
+LEAD_DEFAULT_S = 40.0
+
 DETECT = {
     "dos": (MODULE_ATTACK, {"dos"}),
     "port_scan": (MODULE_ATTACK, {"port_scan"}),
@@ -157,11 +163,15 @@ def detect(attacks, alerts) -> dict:
 
 
 def false_alarms(events, attacks, hours) -> dict:
-    """Sự kiện cảnh báo không giải thích được bằng đợt tấn công nào (cùng host, chồng thời gian)."""
+    """Sự kiện cảnh báo không giải thích được bằng đợt tấn công nào.
+
+    Được giải thích khi: cùng host với đợt, chồng thời gian, và không bắt đầu sớm hơn đầu đợt quá ``LEAD_S``."""
     fa = []
     for e in events:
         host = e["src_ip"]
-        covered = any(host in (a.hosts | a.lien_quan) and e["ket_thuc"] > a.t0 and e["bat_dau"] < a.t1 for a in attacks)
+        lead = LEAD_S.get(e["module"], LEAD_DEFAULT_S)
+        covered = any(host in (a.hosts | a.lien_quan) and e["ket_thuc"] > a.t0 and a.t0 - lead <= e["bat_dau"] < a.t1
+                      for a in attacks)
         if not covered:
             fa.append({"module": e["module"], "nhan": e["label"], "host": host,
                        "bat_dau": round(e["bat_dau"], 1), "thoi_luong_s": e.get("thoi_luong_s")})

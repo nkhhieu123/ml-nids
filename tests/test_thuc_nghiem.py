@@ -69,6 +69,13 @@ class GroundTruthTest(unittest.TestCase):
         ev = [{"module": cc.module, "label": cc.label, "src_ip": cc.src_ip, "bat_dau": 200.0, "ket_thuc": 320.0}]
         self.assertEqual(false_alarms(ev, [a], 1.0)["so_su_kien_bao_gia"], 0)       # nhưng không phải báo giả
 
+    def test_event_long_before_attack_is_false_alarm(self):
+        a = Attack("r", "dos", frozenset({"192.168.50.30"}), 100.0, 160.0)
+        ev = lambda start: [{"module": "anomaly", "label": "anomaly", "src_ip": "192.168.50.30",
+                             "bat_dau": start, "ket_thuc": 300.0}]
+        self.assertEqual(false_alarms(ev(0.0), [a], 1.0)["so_su_kien_bao_gia"], 1)    # báo từ đầu bản thu: báo giả
+        self.assertEqual(false_alarms(ev(92.0), [a], 1.0)["so_su_kien_bao_gia"], 0)   # cửa sổ chồng lên đầu đợt
+
     def test_anomaly_recorded_separately(self):
         a = Attack("r", "dos", frozenset({"192.168.50.20"}), 100.0, 160.0)
         r = detect([a], [alert("anomaly", "anomaly", "192.168.50.20", 104, 114)])["theo_dot"][0]
