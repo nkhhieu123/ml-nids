@@ -113,7 +113,7 @@ def tear_down(lab):
     sh("ip", "link", "del", f"nlb{lab}", check=False)
 
 
-def build(lab):
+def build(lab, delay_ms=0):
     tear_down(lab)
     for m in ("act_mirred", "sch_ingress", "cls_matchall"):
         sh("modprobe", m, check=False)
@@ -140,6 +140,11 @@ def build(lab):
             sh("tc", "qdisc", "add", "dev", port(lab, h), "clsact")
             sh("tc", "filter", "add", "dev", port(lab, h), "ingress", "matchall",
                "action", "mirred", "egress", "mirror", "dev", port(lab, MONITOR))
+    if delay_ms:              # thí nghiệm: trễ đường truyền trên mỗi chặng switch -> máy (khứ hồi = 2 lần giá trị này)
+        sh("modprobe", "sch_netem", check=False)
+        for h in HOSTS:
+            if h != MONITOR:
+                sh("tc", "qdisc", "add", "dev", port(lab, h), "root", "netem", "delay", f"{delay_ms}ms")
     print(f"Đã dựng lab {lab}: bridge {br}, {len(HOSTS)} máy {ip(HOSTS[0])}–{ip(HOSTS[-1])}, mirror -> {ip(MONITOR)}")
 
 
@@ -500,6 +505,8 @@ def main(argv=None):
     sub = ap.add_subparsers(dest="lenh", required=True)
     for name in ("dung", "go", "kiem-tra", "giao-thuc", "chay"):
         sub.add_parser(name).add_argument("--lab", type=int, default=1, help="số thứ tự lab (chạy song song nhiều lab)")
+    sub.choices["dung"].add_argument("--tre-ms", type=int, default=0,
+                                     help="thí nghiệm: thêm trễ đường truyền (mili giây) trên mỗi chặng switch -> máy")
     c = sub.choices["chay"]
     c.add_argument("--bien-the", required=True, choices=VARIANTS)
     c.add_argument("--vai-tro", required=True, choices=("train", "val", "test"), help="ghi trước khi chạy (B11, B19)")
@@ -512,7 +519,7 @@ def main(argv=None):
     if a.lenh != "go" and (not sys.platform.startswith("linux") or os.geteuid() != 0):
         raise SystemExit("Cần chạy bằng root trên Linux (network namespace, tc, tcpdump).")
     if a.lenh == "dung":
-        build(a.lab)
+        build(a.lab, a.tre_ms)
     elif a.lenh == "go":
         tear_down(a.lab)
     elif a.lenh == "kiem-tra":

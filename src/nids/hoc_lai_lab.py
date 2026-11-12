@@ -41,14 +41,14 @@ MIN_OVERLAP_S = 60.0          # host–cửa sổ 120 giây là của bot khi ch
 TOPOLOGY_GRID = {"min_peer_vao": (1, 2, 3, 5), "min_udp": (0.05, 0.1, 0.2, 0.3, 0.5), "min_entropy_vao": (0.0, 0.5, 0.8)}
 
 
-def prepare_run(pcap, entries, networks, cfg, cache) -> dict:
+def prepare_run(pcap, entries, networks, cfg, cache, config_path=None) -> dict:
     """Bảng cửa sổ 10 giây (đặc trưng + nhãn) và bảng host–cửa sổ 120 giây (đặc trưng + nhãn bot) của một lần chạy."""
     from .pipeline import extract, load_flows, load_windows, monitored_hosts
 
     run_id = Path(pcap).stem
     prefix = Path(cache) / run_id
     if not Path(f"{prefix}.windows.csv").exists():
-        extract(pcap, cache, networks)
+        extract(pcap, cache, networks, config_path)
     windows = load_windows(prefix)
     raw = load_flows_for_labels(f"{prefix}.flows.csv")
     labels = label_windows(load_windows_for_labels(f"{prefix}.windows.csv"), raw,
@@ -182,7 +182,7 @@ def retrain_botnet(train, val, cfg, out_dir) -> dict:
     return res
 
 
-def write_lab_config(model_dir, topology_rule, mode, path) -> None:
+def write_lab_config(model_dir, topology_rule, mode, path, flow=None) -> None:
     """config/lab.yaml = config/default.yaml với mô hình lab, quy tắc topology và chế độ chọn trên val."""
     raw = yaml.safe_load(Path(DEFAULT_CONFIG).read_text(encoding="utf-8"))
     rel = Path(model_dir).resolve().relative_to(PROJECT_ROOT).as_posix()
@@ -190,6 +190,7 @@ def write_lab_config(model_dir, topology_rule, mode, path) -> None:
                                  "attack_classification": f"{rel}/phan_loai_rf_windows.joblib",
                                  "botnet_topology": f"{rel}/botnet_rf.joblib"}
     raw["pipeline"]["mode"] = mode
+    raw["flow"].update(flow or {})       # tham số flow của bộ mô hình lab (mô hình được học với đúng các giá trị này, B12)
     raw["botnet"]["topology_rule"] = ({"kieu": "nhom"} if topology_rule.get("kieu") == "nhom" else
                                       {k: topology_rule[k] for k in ("min_peer_vao", "min_udp", "min_entropy_vao")})
     head = ("# Cấu hình cho mạng lab: sinh bởi `python -m nids.hoc_lai_lab` từ config/default.yaml (QĐ-068).\n"
@@ -207,11 +208,22 @@ def main(argv=None):
     ap.add_argument("--models", default=str(PROJECT_ROOT / "models" / "lab"))
     ap.add_argument("--cache", default=str(PROJECT_ROOT / "output" / "lab_features"))
     ap.add_argument("--che-do", default="doc_lap", help="pipeline.mode ghi vào config/lab.yaml")
+    ap.add_argument("--flow", action="append", default=[], metavar="KHOA=GIA_TRI",
+                    help="đổi tham số flow cho bộ mô hình lab, ví dụ handshake_observe_s=1; bảng CIC truyền ở --cic "
+                         "phải được trích xuất với cùng tham số")
+    ap.add_argument("--config-out", default=str(PROJECT_ROOT / "config" / "lab.yaml"))
+    ap.add_argument("--ten", default="lab_hoc_lai", help="tên file JSON kết quả trong --out")
     ap.add_argument("--out", required=True, help="thư mục ghi lab_hoc_lai.json")
     a = ap.parse_args(argv)
-    cfg = load_config()
+    flow = {k: float(v) if "." in v else int(v) for k, v in (item.split("=", 1) for item in a.flow)}
+    raw = yaml.safe_load(Path(DEFAULT_CONFIG).read_text(encoding="utf-8"))
+    raw["flow"].update(flow)
+    Path(a.cache).mkdir(parents=True, exist_ok=True)
+    base = Path(a.cache) / "cau_hinh_trich_xuat.yaml"            # cấu hình dùng khi trích xuất các lần chạy lab
+    base.write_text(yaml.safe_dump(raw, allow_unicode=True, sort_keys=False), encoding="utf-8")
+    cfg = load_config(base)
     nets = [cfg["lab"]["subnet"]]
-    runs = [prepare_run(p, load_runlog(a.nhat_ky, p), nets, cfg, a.cache) for p in a.pcap]
+    runs = [prepare_run(p, load_runlog(a.nhat_ky, p), nets, cfg, a.cache, str(base)) for p in a.pcap]
     if any(r["role"] == "test" for r in runs):
         raise SystemExit("Không đưa lần chạy test vào bước học lại.")
     part = lambda role, key: pd.concat([r[key] for r in runs if r["role"] == role], ignore_index=True)
@@ -219,10 +231,11 @@ def main(argv=None):
            "gaussian": retrain_gaussian(part("train", "windows"), part("val", "windows"), cfg, a.models),
            "phan_loai": retrain_classifier(part("train", "windows"), part("val", "windows"), a.cic, a.chon, cfg, a.models),
            "botnet": retrain_botnet(part("train", "graph"), part("val", "graph"), cfg, a.models)}
-    write_lab_config(a.models, out["botnet"]["topology"]["chon"], a.che_do, PROJECT_ROOT / "config" / "lab.yaml")
+    out["tham_so_flow"] = dict(cfg["flow"])
+    write_lab_config(a.models, out["botnet"]["topology"]["chon"], a.che_do, a.config_out, flow)
     od = Path(a.out)
     od.mkdir(parents=True, exist_ok=True)
-    (od / "lab_hoc_lai.json").write_text(json.dumps(out, ensure_ascii=False, indent=2, default=str), encoding="utf-8")
+    (od / f"{a.ten}.json").write_text(json.dumps(out, ensure_ascii=False, indent=2, default=str), encoding="utf-8")
     print(json.dumps({k: {n: v.get(n) for n in ("cu", "moi", "nguong", "topology") if n in v} for k, v in out.items()
                       if k != "lan_chay"}, ensure_ascii=False, default=str))
     return 0
