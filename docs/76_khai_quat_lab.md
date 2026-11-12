@@ -35,13 +35,14 @@ Mỗi lần học lại phải có lần `test` chưa từng xem. 33 lần này 
 | | Mô hình cũ (CIC, CTU-13) | Lab bộ đầu | **Lab hiện tại** |
 |---|---|---|---|
 | Đợt phát hiện | 15/24 | 24/24 | **24/24** |
-| Sự kiện báo động giả | 58 | 3 (`dos` nhầm trên `k5-doi-chung`) | **0** |
+| Sự kiện báo động giả | 58 | 3 (1 `dos` nhầm, 2 của module botnet; đều trên `k5-doi-chung`) | **0** |
 | Macro-F1 theo cửa sổ | — | — | **0,9989** |
 | Cửa sổ `benign` bị báo (44 505 cửa sổ) | — | — | **0** |
 | Topology `p2p` đúng trên bot ngang hàng | — | 92,0% (542/589) | **98,2%** (586/597) |
 | Topology `centralized` đúng trên bot tập trung | — | 100% | 100% (1 204/1 204) |
 
-- **Báo nhầm `dos` trên chia sẻ dữ liệu lớn đã hết** (24 → 4 → 0 sự kiện) nhờ ba lần `train` của `k5-doi-chung`.
+- **Báo nhầm trên chia sẻ dữ liệu lớn `k5-doi-chung` đã hết** nhờ ba lần `train` của biến thể này: mô hình CIC
+  gốc báo nhầm `dos` 24 sự kiện trong ba lần chạy, bộ lab đầu còn 3–4 sự kiện, bộ hiện tại 0.
 - Cả ba bot đều bị báo trong cả 9 lần chạy botnet; độ trễ tới cuối cửa sổ 3–35 giây.
 
 ## 3. Kiểm tra khái quát trong lab: đổi vai trò máy, cổng, chu kỳ
