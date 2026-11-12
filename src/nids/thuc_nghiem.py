@@ -250,7 +250,8 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description="Chặng 11: đo độ trễ, bỏ sót, báo động giả, hiệu năng.")
     parser.add_argument("pcap", nargs="+", help="PCAP kịch bản (CIC hoặc lab)")
     parser.add_argument("--net", action="append", required=True, help="dải mạng giám sát; lặp lại được")
-    parser.add_argument("--che-do", default="ket_hop", choices=("doc_lap", "tuan_tu", "ket_hop"))
+    parser.add_argument("--che-do", default=None, choices=("doc_lap", "tuan_tu", "ket_hop"),
+                        help="mặc định ket_hop; có --config thì lấy pipeline.mode của file đó")
     parser.add_argument("--nhat-ky", help="nhật ký lần chạy lab làm ground truth thay cho lịch nhãn: thư mục "
                                           "chứa <tên PCAP>.json, một file .json, hoặc .jsonl")
     parser.add_argument("--giu", help="thư mục giữ file cảnh báo và sự kiện của từng PCAP")
@@ -259,7 +260,8 @@ def main(argv=None):
     parser.add_argument("--out", help="thư mục ghi JSON kết quả")
     args = parser.parse_args(argv)
     cfg = load_config(args.config)
-    scenarios = [run_scenario(p, args.net, cfg, args.che_do, keep=args.giu,
+    args.che_do = args.che_do or (cfg["pipeline"]["mode"] if args.config else "ket_hop")
+    scenarios = [run_scenario(p, args.net, cfg, args.che_do, keep=args.giu, config_path=args.config,
                               runlog=load_runlog(args.nhat_ky, p) if args.nhat_ky else None) for p in args.pcap]
     out = {"kich_ban": scenarios, "tong_hop": summarize(scenarios)}
     for s in scenarios:
