@@ -513,7 +513,7 @@ class RealtimeEngine:
                 out["window_end"] = we
                 out["diem"] = score
                 out["du_doan"] = np.where(score >= art.threshold, SUSPECT, "normal_host")
-                out["topology"] = recognize_topology(feats, out["du_doan"] == SUSPECT, self.rule)
+                out["topology"] = recognize_topology(feats, out["du_doan"] == SUSPECT, self.rule, flows, self.g_size)
                 self.stats["cua_so_120s"] += len(out)
                 self._emit(module_alerts(MODULE_BOTNET, out, art, self.run_id, log_all=self.score_sink is not None))
         self.stats["thoi_gian_cham_s"][MODULE_BOTNET] += time.perf_counter() - t

@@ -472,5 +472,25 @@ class SimulationTest(unittest.TestCase):
             self.assertTrue((lab["window_start"] + 120 <= 5600).all())
 
 
+
+class GroupTopologyTest(unittest.TestCase):
+    """Quy tắc topology theo nhóm (QĐ-070): bot ngang hàng gọi lẫn nhau, bot tập trung chỉ gọi máy điều khiển."""
+
+    def test_group_rule(self):
+        import numpy as np
+        import pandas as pd
+        from nids.botnet import recognize_topology
+        df = pd.DataFrame({"host": ["a", "b", "c", "d", "a"], "window_start": [0.0, 0.0, 0.0, 0.0, 120.0]})
+        suspect = np.array([True, True, True, False, True])
+        flows = pd.DataFrame({"ts": [10.0, 20.0, 30.0, 130.0], "src": ["a", "c", "d", "a"],
+                              "dst": ["b", "x", "a", "b"]})      # a<->b trong cửa sổ 0; c chỉ gọi máy ngoài nhóm
+        got = recognize_topology(df, suspect, {"kieu": "nhom"}, flows, 120.0)
+        self.assertEqual(list(got), ["p2p", "p2p", "centralized", "none", "centralized"])   # cửa sổ 120: chỉ a bị nghi
+        # không có bảng flow thì quay về quy tắc ngưỡng
+        thr = pd.DataFrame({"so_peer_vao": [0], "ty_le_udp": [0.0], "entropy_peer_vao": [0.0]})
+        self.assertEqual(list(recognize_topology(thr, [True], {"kieu": "nhom", "min_peer_vao": 5, "min_udp": 0.5,
+                                                                "min_entropy_vao": 0.8})), ["centralized"])
+
+
 if __name__ == "__main__":
     unittest.main()

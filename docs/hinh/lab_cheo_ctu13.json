@@ -1,0 +1,114 @@
+{
+  "mo_hinh_ctu13": {
+    "nguong": 0.1,
+    "tong": {
+      "precision": 0.9706,
+      "recall": 0.6775,
+      "f1": 0.7979,
+      "ty_le_bao_nham": 0.01584,
+      "tp": 12999,
+      "fp": 394,
+      "fn": 6189,
+      "tn": 24486
+    },
+    "background_bi_bao": 0.1193,
+    "theo_scenario": {
+      "1": {
+        "so_cua_so_bot": 1718,
+        "recall": 0.9971,
+        "precision": 0.9789,
+        "background_bi_bao": 0.0458,
+        "host_bot_bi_bat": 1,
+        "so_host_bot": 1
+      },
+      "2": {
+        "so_cua_so_bot": 1243,
+        "recall": 0.9807,
+        "precision": 1.0,
+        "background_bi_bao": 0.1241,
+        "host_bot_bi_bat": 1,
+        "so_host_bot": 1
+      },
+      "6": {
+        "so_cua_so_bot": 746,
+        "recall": 0.9759,
+        "precision": 0.9932,
+        "background_bi_bao": 0.0319,
+        "host_bot_bi_bat": 1,
+        "so_host_bot": 1
+      },
+      "8": {
+        "so_cua_so_bot": 6723,
+        "recall": 0.1538,
+        "precision": 0.7699,
+        "background_bi_bao": 0.1666,
+        "host_bot_bi_bat": 1,
+        "so_host_bot": 1
+      },
+      "9": {
+        "so_cua_so_bot": 8758,
+        "recall": 0.9483,
+        "precision": 0.9948,
+        "background_bi_bao": 0.0941,
+        "host_bot_bi_bat": 10,
+        "so_host_bot": 10
+      }
+    }
+  },
+  "mo_hinh_lab": {
+    "nguong": 0.8567,
+    "tong": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "ty_le_bao_nham": 0.00406,
+      "tp": 0,
+      "fp": 101,
+      "fn": 19188,
+      "tn": 24779
+    },
+    "background_bi_bao": 0.0036,
+    "theo_scenario": {
+      "1": {
+        "so_cua_so_bot": 1718,
+        "recall": 0.0,
+        "precision": 0.0,
+        "background_bi_bao": 0.0037,
+        "host_bot_bi_bat": 0,
+        "so_host_bot": 1
+      },
+      "2": {
+        "so_cua_so_bot": 1243,
+        "recall": 0.0,
+        "precision": 0.0,
+        "background_bi_bao": 0.0084,
+        "host_bot_bi_bat": 0,
+        "so_host_bot": 1
+      },
+      "6": {
+        "so_cua_so_bot": 746,
+        "recall": 0.0,
+        "precision": 0.0,
+        "background_bi_bao": 0.017,
+        "host_bot_bi_bat": 0,
+        "so_host_bot": 1
+      },
+      "8": {
+        "so_cua_so_bot": 6723,
+        "recall": 0.0,
+        "precision": 0.0,
+        "background_bi_bao": 0.0007,
+        "host_bot_bi_bat": 0,
+        "so_host_bot": 1
+      },
+      "9": {
+        "so_cua_so_bot": 8758,
+        "recall": 0.0,
+        "precision": 0.0,
+        "background_bi_bao": 0.0031,
+        "host_bot_bi_bat": 0,
+        "so_host_bot": 10
+      }
+    }
+  }
+}

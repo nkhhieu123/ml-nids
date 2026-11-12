@@ -326,10 +326,40 @@ def topology_rule(cfg=None) -> dict:
     r.setdefault("min_peer_vao", 5)
     r.setdefault("min_udp", 0.5)
     r.setdefault("min_entropy_vao", 0.8)
+    r.setdefault("kieu", "nguong")       # nguong: ngưỡng trên từng host (QĐ-042); nhom: các host bị nghi gọi lẫn nhau (QĐ-070)
     return r
 
 
-def recognize_topology(df, suspect, rule=None) -> np.ndarray:
+def group_p2p(df, suspect, flows, size) -> np.ndarray:
+    """Host–cửa sổ bị nghi có flow trực tiếp với **ít nhất một host bị nghi khác** trong cùng cửa sổ.
+
+    Đây là đặc trưng nhóm: bot ngang hàng nói chuyện với nhau, còn bot tập trung chỉ nói chuyện với máy điều
+    khiển. Không phụ thuộc số peer hay tỷ lệ UDP của từng host, nên dùng được cho nhóm bot nhỏ và cho ngang hàng
+    chạy trên TCP. ``flows`` là bảng flow chung (cột ``ts``, ``src``, ``dst``); ``size`` là độ dài cửa sổ (giây).
+    """
+    suspect = np.asarray(suspect, bool)
+    out = np.zeros(len(df), bool)
+    if not suspect.any() or flows is None or not len(flows):
+        return out
+    ws_all = df["window_start"].to_numpy(float)
+    hosts = df["host"].astype(str).to_numpy()
+    f_ts = flows["ts"].to_numpy(float)
+    f_src, f_dst = flows["src"].astype(str).to_numpy(), flows["dst"].astype(str).to_numpy()
+    for ws in np.unique(ws_all[suspect]):
+        idx = np.flatnonzero(suspect & (ws_all == ws))
+        group = set(hosts[idx])
+        if len(group) < 2:
+            continue
+        m = (f_ts >= ws) & (f_ts < ws + size)
+        linked = set()
+        for a, b in zip(f_src[m], f_dst[m]):
+            if a != b and a in group and b in group:
+                linked.update((a, b))
+        out[idx] = [h in linked for h in hosts[idx]]
+    return out
+
+
+def recognize_topology(df, suspect, rule=None, flows=None, size=None) -> np.ndarray:
     """Topology của từng host–cửa sổ, bằng quy tắc (QĐ-042).
 
     - ``none`` nếu host–cửa sổ không bị nghi là bot (``suspect`` False).
@@ -341,6 +371,9 @@ def recognize_topology(df, suspect, rule=None) -> np.ndarray:
     """
     r = rule or topology_rule()
     suspect = np.asarray(suspect, bool)
+    if r.get("kieu") == "nhom" and flows is not None and size:
+        # Quy tắc nhóm (QĐ-070): p2p khi host bị nghi có flow trực tiếp với một host bị nghi khác trong cửa sổ.
+        return np.where(~suspect, "none", np.where(group_p2p(df, suspect, flows, size), "p2p", "centralized"))
     p2p = ((df["so_peer_vao"].fillna(0) >= r["min_peer_vao"]) & (df["ty_le_udp"].fillna(0) >= r["min_udp"])
            & (df["entropy_peer_vao"].fillna(0) >= r["min_entropy_vao"])).to_numpy()
     return np.where(~suspect, "none", np.where(p2p, "p2p", "centralized"))

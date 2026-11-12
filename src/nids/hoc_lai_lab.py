@@ -74,6 +74,8 @@ def prepare_run(pcap, entries, networks, cfg, cache) -> dict:
         label[is_bot & (overlap > 0) & (overlap < MIN_OVERLAP_S)] = None       # mơ hồ: bỏ
         label[feats["host"].isin(others).to_numpy()] = None                    # máy điều khiển: không học, không chấm
     feats = feats.assign(**{bn.LABEL_COL: label, bn.TOPOLOGY_COL: np.where(label == bn.SUSPECT, topo, "none")})
+    # quy tắc nhóm cần bảng flow của lần chạy, nên tính sẵn ở đây cho các cửa sổ bot thật
+    feats["topology_nhom"] = bn.recognize_topology(feats, label == bn.SUSPECT, {"kieu": "nhom"}, flows, size)
     role, variant = run_id.rsplit("-", 2)[1], run_id.rsplit("-", 2)[0]
     return {"run_id": run_id, "role": role, "variant": variant,
             "windows": windows.assign(run_id=run_id, variant=variant),
@@ -166,7 +168,12 @@ def retrain_botnet(train, val, cfg, out_dir) -> dict:
     # tốt nhất; bằng nhau thì lấy quy tắc chặt nhất (gần mặc định nhất)
     best = max(rows, key=lambda r: (r["dung"], r["min_peer_vao"], r["min_udp"], r["min_entropy_vao"]))
     default = next(r for r in rows if (r["min_peer_vao"], r["min_udp"], r["min_entropy_vao"]) == (5, 0.5, 0.8))
-    res["topology"] = {"mac_dinh": default, "chon": best, "so_cua_so_bot_val": len(bots),
+    nhom = bots["topology_nhom"].to_numpy()
+    group_rule = {"kieu": "nhom", "dung": round(float((nhom == truth).mean()), 4),
+                  "dung_p2p": round(float((nhom == truth)[truth == "p2p"].mean()), 4),
+                  "dung_centralized": round(float((nhom == truth)[truth == "centralized"].mean()), 4)}
+    res["topology"] = {"mac_dinh": default, "nguong_tot_nhat": best, "nhom": group_rule,
+                       "chon": group_rule if group_rule["dung"] >= best["dung"] else best, "so_cua_so_bot_val": len(bots),
                        "trung_vi_bot_p2p": {c: round(float(bots[truth == "p2p"][c].median()), 3)
                                             for c in ("so_peer_vao", "ty_le_udp", "entropy_peer_vao")}}
     new.info["du_lieu"] = "lab: host–cửa sổ 120 giây của các lần chạy train; ngưỡng chọn trên val"
@@ -183,7 +190,8 @@ def write_lab_config(model_dir, topology_rule, mode, path) -> None:
                                  "attack_classification": f"{rel}/phan_loai_rf_windows.joblib",
                                  "botnet_topology": f"{rel}/botnet_rf.joblib"}
     raw["pipeline"]["mode"] = mode
-    raw["botnet"]["topology_rule"] = {k: topology_rule[k] for k in ("min_peer_vao", "min_udp", "min_entropy_vao")}
+    raw["botnet"]["topology_rule"] = ({"kieu": "nhom"} if topology_rule.get("kieu") == "nhom" else
+                                      {k: topology_rule[k] for k in ("min_peer_vao", "min_udp", "min_entropy_vao")})
     head = ("# Cấu hình cho mạng lab: sinh bởi `python -m nids.hoc_lai_lab` từ config/default.yaml (QĐ-068).\n"
             "# Khác default.yaml ở: pipeline.models (mô hình học lại trên lab), pipeline.mode, botnet.topology_rule.\n"
             "# Không sửa tay; sửa default.yaml rồi chạy lại.\n")

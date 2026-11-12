@@ -47,8 +47,13 @@ NET = "192.168.50"
 MONITOR, TESTER, SERVER, CC = 10, 20, 30, 50
 CLIENTS = (41, 42, 43)
 HOSTS = (MONITOR, TESTER, SERVER, *CLIENTS, CC)
-VARIANTS = ("k1-binh-thuong", "k2-quet-cham", "k2-quet-nhanh", "k3-dos-muc1", "k3-dos-muc2", "k3-dos-muc3",
-            "k4-co-dinh", "k4-bien-thien", "k4-doi-chung", "k5-p2p", "k5-doi-chung")
+MAIN_VARIANTS = ("k1-binh-thuong", "k2-quet-cham", "k2-quet-nhanh", "k3-dos-muc1", "k3-dos-muc2", "k3-dos-muc3",
+                 "k4-co-dinh", "k4-bien-thien", "k4-doi-chung", "k5-p2p", "k5-doi-chung")
+# Biến thể kiểm tra khái quát (QĐ-069), chỉ dùng để chấm, không dùng để học:
+# - x4/x5 "đổi vai": bot, máy điều khiển, cổng và chu kỳ khác hẳn các biến thể k4/k5;
+# - x3-syn: SYN flood bằng hping3 (gói thô, không giả mạo nguồn), chỉ trong lab ảo cô lập, tối đa 60 giây.
+EXTRA_VARIANTS = ("x4-doi-vai", "x4-doi-chung-doi-vai", "x5-doi-vai", "x3-syn-muc1", "x3-syn-muc2", "x3-syn-muc3")
+VARIANTS = MAIN_VARIANTS + EXTRA_VARIANTS
 WEB_FILES = {"index.html": "<html><body><h1>nids-lab</h1><a href=about.html>about</a></body></html>\n" * 20,
              "about.html": "<html><body>May chu dich vu cua lab.</body></html>\n" * 40,
              "assets/app.css": "body{font-family:sans-serif}\n" * 300,
@@ -260,6 +265,39 @@ def plan(variant, lan, rng):
         p["hanh_vi"].append({"kieu": "ngang-hang" if bot else "doi-chung-ngang-hang", "nhan": "botnet" if bot else "benign",
                              "nguon": list(CLIENTS), "dich": list(CLIENTS), "bat_dau_sau_s": rng.uniform(30, 60),
                              "lenh": lenh, "tham_so": tham_so})
+    elif variant.startswith("x3-syn-muc"):
+        muc = int(variant[-1])
+        rate = {1: 50, 2: 200, 3: 600}[muc]
+        p["thoi_luong_s"] = 300
+        cmd = ["hping3", "-S", "-p", "80", "-q", "-i", f"u{1_000_000 // rate}", "-c", str(rate * 60), ip(SERVER)]
+        p["hanh_vi"].append({"kieu": "syn-flood", "nhan": "dos", "nguon": [TESTER], "dich": [SERVER],
+                             "bat_dau_sau_s": rng.uniform(90, 150), "lenh": {TESTER: cmd},
+                             "tham_so": {"cong": 80, "muc": muc, "goi_syn_moi_giay": rate, "thoi_gian_s": 60,
+                                         "cong_cu": "hping3 -S", "gia_mao_nguon": False}})
+    elif variant in ("x4-doi-vai", "x4-doi-chung-doi-vai", "x5-doi-vai"):
+        group = [TESTER, CLIENTS[1], CLIENTS[2]] if variant.startswith("x4") else [TESTER, CLIENTS[2], CC]
+        p["thoi_luong_s"], p["nen"] = 700, [TESTER, *CLIENTS]
+        if variant == "x5-doi-vai":
+            chu_ky, jitter, cong = (12, 25, 40)[k], 0.35, 45000
+            peers = {h: [x for x in group if x != h] for h in group}
+            lenh = {h: py("sinh_topology.py", "ngang-hang", *sum((["--peer", ip(x)] for x in peers[h]), []),
+                          "--cong", cong, "--chu-ky", chu_ky, "--jitter", jitter, "--thoi-gian", 600,
+                          "--seed", rng.randrange(10**6)) for h in group}
+            kieu, nhan, dich, topo = "ngang-hang", "botnet", list(group), "p2p"
+        else:
+            bot = variant == "x4-doi-vai"
+            chu_ky, jitter = (40, 25, 75)[k], 0.25
+            target, cong = (CLIENTS[0], 9090) if bot else (SERVER, 80)
+            kieu = "tap-trung" if bot else "doi-chung-tap-trung"
+            if bot:
+                p["may_nhan"].append((target, py("sinh_topology.py", "may-chu", "--cong", cong, "--thoi-gian", 3600)))
+            lenh = {h: py("sinh_topology.py", kieu, "--may-chu", ip(target), "--cong", cong, "--chu-ky", chu_ky,
+                          "--jitter", jitter, "--thoi-gian", 600, "--seed", rng.randrange(10**6)) for h in group}
+            nhan, dich, topo = ("botnet" if bot else "benign"), [target], ("centralized" if bot else "none")
+        p["hanh_vi"].append({"kieu": kieu, "nhan": nhan, "nguon": list(group), "dich": dich,
+                             "bat_dau_sau_s": rng.uniform(30, 60), "lenh": lenh,
+                             "tham_so": {"cong": cong, "chu_ky_s": chu_ky, "jitter": jitter, "thoi_gian_s": 600,
+                                         "topology": topo}})
     else:
         raise SystemExit(f"Biến thể lạ: {variant}")
     return p

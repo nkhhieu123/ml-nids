@@ -232,7 +232,7 @@ def score_botnet(art, flows, hosts, networks, cfg=None, topology_rule=None):
     out["diem"] = score
     out["du_doan"] = np.where(score >= art.threshold, SUSPECT, "normal_host")
     from .botnet import topology_rule as default_rule
-    out["topology"] = recognize_topology(feats, out["du_doan"] == SUSPECT, topology_rule or default_rule(cfg))
+    out["topology"] = recognize_topology(feats, out["du_doan"] == SUSPECT, topology_rule or default_rule(cfg), flows, size)
     return out
 
 
