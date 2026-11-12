@@ -496,6 +496,13 @@ Mẫu:
 - Quyết định: Học lại bằng `nids.hoc_lai_lab`, giữ nguyên loại mô hình, đặc trưng và tham số đã chọn: Gaussian fit trên cửa sổ bình thường của `train` lab, ngưỡng chọn trên `val`; bộ phân loại học trên train CIC + train lab; botnet học trên host–cửa sổ của `train` lab, ngưỡng chọn trên `val`. Trên `val`: quy tắc topology đổi thành `min_peer_vao` 1, `min_udp` 0,05, `min_entropy_vao` 0 (quy tắc cũ đúng 0% bot ngang hàng của lab); chế độ pipeline là `doc_lap` vì `ket_hop` không cho module botnet xét bot chậm (5/8 so với 8/8 đợt). Mô hình ở `models/lab/`, cấu hình ở `config/lab.yaml` (sinh từ `default.yaml`).
 - Hệ quả: Trên 33 lần `test` mới (lần 4–6, chưa dùng để học hay chọn): phát hiện 24/24 đợt (mô hình cũ 15/24), báo động giả 63 → 4 sự kiện, macro-F1 theo cửa sổ 0,923 → 0,995; test CIC của bộ phân loại không đổi (0,9078 → 0,9072). Giới hạn: train, val, test cùng một lab và cùng bộ sinh traffic nên kết quả không chứng minh khả năng nhận ra botnet thật; quy tắc topology mới rất lỏng. Chi tiết docs/73.
 
+## QĐ-071 — Lớp giữ nhãn `dos` theo host cho DoS HTTP chậm: đã đo, chưa bật
+- Ngày: 13/11/2026
+- Trạng thái: Đã chốt (tùy chọn, chưa đưa vào pipeline)
+- Bối cảnh: Recall Slowhttptest trên test CIC là 0,66 vì giữa hai đợt gửi cửa sổ 10 giây của nạn nhân trông bình thường. Thêm đặc trưng dài hơn cửa sổ đòi trích xuất và huấn luyện lại toàn bộ.
+- Quyết định: Thêm lớp sau bộ phân loại (`nids.dos_cham.hold_dos`): cửa sổ `benign` của một host được nâng lên `dos` khi 20 giây ngay trước đó host đã có ≥ 5 cửa sổ `dos` (chỉ đếm dự đoán gốc). Hai tham số chọn trên validation (macro-F1 0,9352 → 0,9463).
+- Hệ quả: Test CIC: macro-F1 0,9078 → 0,9241, recall `dos` 0,838 → 0,938, Slowhttptest 0,66 → 0,82, precision `dos` 0,964 → 0,951. Chưa bật trong pipeline và realtime (cần trạng thái theo host); cấu hình chọn nằm ở mép lưới nên phải thử thêm trước khi bật. Chi tiết docs/75.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.

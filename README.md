@@ -158,6 +158,8 @@ Học lại ba module trên dữ liệu lab, chấm trên lần `test` mới (24
 
 Thí nghiệm bổ sung (cảm biến bắt trực tiếp, máy tấn công có traffic bình thường, khoảng gộp sự kiện): [docs/74_thi_nghiem_bo_sung.md](docs/74_thi_nghiem_bo_sung.md)
 
+Giữ nhãn `dos` theo host để vớt DoS HTTP chậm (tùy chọn, chưa bật): [docs/75_dos_cham.md](docs/75_dos_cham.md)
+
 Độ nhạy của các tham số tạm thời, đo trên validation: [docs/72_do_nhay_tham_so.md](docs/72_do_nhay_tham_so.md)
 
 Gộp cảnh báo botnet theo host (vớt bot chậm, tùy chọn Chặng 9): [docs/69_gop_canh_bao_theo_host.md](docs/69_gop_canh_bao_theo_host.md)
