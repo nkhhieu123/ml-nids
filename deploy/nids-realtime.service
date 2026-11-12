@@ -11,9 +11,10 @@ User=nids
 Group=nids
 WorkingDirectory=/opt/ml-nids
 EnvironmentFile=/etc/ml-nids/nids-realtime.env
-# $NIDS_IFACE, $NIDS_ARGS lấy từ file môi trường; $NIDS_ARGS không ngoặc nhọn nên được tách thành nhiều tham số
-ExecStartPre=/opt/ml-nids/.venv/bin/python -m nids.pipeline kiem-tra
-ExecStart=/opt/ml-nids/.venv/bin/python -m nids.realtime --iface ${NIDS_IFACE} --out /opt/ml-nids/output/realtime --im-lang $NIDS_ARGS
+# $NIDS_IFACE, $NIDS_CONFIG, $NIDS_ARGS lấy từ file môi trường; $NIDS_ARGS không ngoặc nhọn nên được tách thành nhiều tham số
+# Kiểm tra và chạy cùng một file cấu hình, để không thể chạy nhầm bộ mô hình khác với bộ đã kiểm tra
+ExecStartPre=/opt/ml-nids/.venv/bin/python -m nids.pipeline kiem-tra --config ${NIDS_CONFIG}
+ExecStart=/opt/ml-nids/.venv/bin/python -m nids.realtime --iface ${NIDS_IFACE} --config ${NIDS_CONFIG} --out /opt/ml-nids/output/realtime --im-lang $NIDS_ARGS
 
 # Bắt gói không cần root: chỉ cấp quyền đọc gói thô và bật promiscuous
 AmbientCapabilities=CAP_NET_RAW CAP_NET_ADMIN

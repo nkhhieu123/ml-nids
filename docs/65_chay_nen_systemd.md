@@ -31,7 +31,7 @@ Script làm:
 | `User=nids` | Không chạy bằng root | Cảm biến đọc traffic không tin cậy; lỗi phân tích gói không được có quyền root |
 | `AmbientCapabilities` | `CAP_NET_RAW CAP_NET_ADMIN` | Đủ để mở AF_PACKET và bật promiscuous; không cần `setcap` lên file python |
 | `ExecStartPre` | `python -m nids.pipeline kiem-tra` | Mô hình thiếu hoặc sai đầu vào thì không khởi động (C09-T01) |
-| `ExecStart` | `python -m nids.realtime --iface ${NIDS_IFACE} --out /opt/ml-nids/output/realtime --im-lang $NIDS_ARGS` | Tham số từ `/etc/ml-nids/nids-realtime.env`; `--im-lang`: log vào file, không in cảnh báo ra journal |
+| `ExecStart` | `python -m nids.realtime --iface ${NIDS_IFACE} --config ${NIDS_CONFIG} --out /opt/ml-nids/output/realtime --im-lang $NIDS_ARGS` | Tham số từ `/etc/ml-nids/nids-realtime.env`; `--im-lang`: log vào file, không in cảnh báo ra journal |
 | `KillSignal=SIGTERM`, `TimeoutStopSec=45` | Lâu hơn `stop_timeout_s` = 30 giây | Đủ thời gian dừng êm (C10-T06) trước khi systemd giết |
 | `Restart=on-failure`, `RestartSec=10`, tối đa 5 lần trong 10 phút | | Lỗi (mã khác 0) thì khởi động lại; dừng bình thường (mã 0) thì không |
 | `MemoryMax=1500M`, `CPUQuota=150%` | Đo thật: 200–400 MB, tối đa 93% một lõi (docs/63) | Không để cảm biến làm treo máy giám sát |
@@ -87,6 +87,14 @@ Chưa có. Cần ghi: kết quả `systemd-analyze verify`, `systemctl status` s
 - `ExecStart` sau khi thay `${NIDS_IFACE}` và `$NIDS_ARGS` từ file môi trường được bộ đọc tham số của
   `nids.realtime` chấp nhận: card, mạng, chế độ, `--im-lang`. `ExecStartPre` là `pipeline kiem-tra`.
 - Mọi script và file dịch vụ là LF; `bash -n` không lỗi.
+
+## Cấu hình và bộ mô hình (bổ sung 13/11/2026)
+
+File môi trường có thêm `NIDS_CONFIG`, mặc định `/opt/ml-nids/config/lab.yaml`: dịch vụ chạy trên mạng lab nên
+dùng bộ mô hình học lại trên lab và chế độ `doc_lap` (QĐ-068, docs/73). `ExecStartPre` kiểm tra đúng file cấu
+hình mà `ExecStart` sẽ dùng, nên không thể chạy một bộ mô hình khác với bộ đã kiểm tra. Thư mục `models/lab/`
+không nằm trên git: phải chép sang máy chạy dịch vụ, thiếu thì bước kiểm tra báo lỗi và dịch vụ không khởi động.
+Muốn chạy mô hình học từ CIC-IDS2017 và CTU-13 thì đổi `NIDS_CONFIG` thành `config/default.yaml`.
 
 ## Thuật ngữ
 

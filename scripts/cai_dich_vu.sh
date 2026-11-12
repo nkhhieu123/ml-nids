@@ -34,7 +34,7 @@ chmod -R o+rX "$DIR/src" "$DIR/config" "$DIR/models" "$DIR/.venv"
 echo "== 2. File môi trường /etc/ml-nids/nids-realtime.env"
 mkdir -p /etc/ml-nids
 if [ ! -f /etc/ml-nids/nids-realtime.env ]; then
-  cp "$DIR/deploy/nids-realtime.env" /etc/ml-nids/nids-realtime.env
+  sed "s|/opt/ml-nids|$DIR|g" "$DIR/deploy/nids-realtime.env" > /etc/ml-nids/nids-realtime.env
 fi
 [ -n "$IFACE" ] && sed -i "s|^NIDS_IFACE=.*|NIDS_IFACE=$IFACE|" /etc/ml-nids/nids-realtime.env
 [ -n "$NET" ] && sed -i "s|--net [^ ]*|--net $NET|" /etc/ml-nids/nids-realtime.env

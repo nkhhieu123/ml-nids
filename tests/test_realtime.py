@@ -560,16 +560,21 @@ class ServiceTest(unittest.TestCase):
         from nids.realtime import build_parser
         exec_start = self.unit()["Service"]["ExecStart"][0]
         env = self.env()
-        line = exec_start.replace("${NIDS_IFACE}", env["NIDS_IFACE"]).replace("$NIDS_ARGS", env["NIDS_ARGS"])
+        expand = lambda s: (s.replace("${NIDS_IFACE}", env["NIDS_IFACE"]).replace("${NIDS_CONFIG}", env["NIDS_CONFIG"])
+                            .replace("$NIDS_ARGS", env["NIDS_ARGS"]))
+        line = expand(exec_start)
         argv = shlex.split(line)
         self.assertEqual(argv[1:3], ["-m", "nids.realtime"])
         a = build_parser().parse_args(argv[3:])
         self.assertEqual(a.iface, env["NIDS_IFACE"])
         self.assertEqual(a.net, ["192.168.50.0/24"])
         self.assertTrue(a.im_lang)
-        self.assertEqual(a.che_do, "ket_hop")
-        pre = shlex.split(self.unit()["Service"]["ExecStartPre"][0])
-        self.assertEqual(pre[1:], ["-m", "nids.pipeline", "kiem-tra"])                # kiểm tra mô hình trước khi chạy
+        self.assertIsNone(a.che_do)                                                   # chế độ lấy từ file cấu hình
+        # dịch vụ trên lab dùng cấu hình lab (mô hình học lại trên lab, QĐ-068), và kiểm tra đúng cấu hình đó trước khi chạy
+        self.assertEqual(a.config, "/opt/ml-nids/config/lab.yaml")
+        self.assertTrue((self.ROOT / "config" / "lab.yaml").exists())
+        pre = shlex.split(expand(self.unit()["Service"]["ExecStartPre"][0]))
+        self.assertEqual(pre[1:], ["-m", "nids.pipeline", "kiem-tra", "--config", a.config])
 
     def test_scripts_lf_and_syntax(self):
         import shutil
