@@ -1,0 +1,95 @@
+{
+  "ma_lan_chay": "k3-dos-muc3-test-04",
+  "bien_the": "k3-dos-muc3",
+  "vai_tro": "test",
+  "lan": 4,
+  "seed": 2237066738,
+  "moi_truong": {
+    "kieu": "lab ảo: network namespace + bridge + tc mirror",
+    "lab": 6,
+    "nhan": "6.18.33.2-microsoft-standard-WSL2",
+    "may": "shanley",
+    "nmap": "Nmap version 7.98 ( https://nmap.org )"
+  },
+  "ban_thu": {
+    "file": "data/pcap/lab/k3-dos-muc3-test-04.pcap",
+    "bat_dau": "2026-11-12T23:40:28.419+07:00",
+    "ket_thuc": "2026-11-12T23:45:30.421+07:00",
+    "bat_dau_epoch": 1794501628.42,
+    "ket_thuc_epoch": 1794501930.421,
+    "may_giam_sat": "192.168.50.10",
+    "byte": 15839390,
+    "sha256": "35b8cb3fd836bbb2854350637ba6057b97b1fbf86e4751d14df5b560d0107a7e",
+    "goi_bat_duoc": 173577,
+    "goi_qua_bo_loc": 173577,
+    "goi_nhan_bo": 0
+  },
+  "lech_dong_ho_s": 0.0,
+  "nen": {
+    "kieu": "binh-thuong",
+    "nhan": "benign",
+    "ip_nguon": [
+      "192.168.50.41",
+      "192.168.50.42",
+      "192.168.50.43"
+    ],
+    "ip_dich": [
+      "192.168.50.30"
+    ],
+    "bat_dau": "2026-11-12T23:40:28.419+07:00",
+    "ket_thuc": "2026-11-12T23:45:28.419+07:00",
+    "mo_ta": "duyệt web nghỉ 1–6 giây, kiểm tra trạng thái api/status mỗi ~30 giây"
+  },
+  "hanh_vi": [
+    {
+      "kieu": "tai-ket-noi",
+      "nhan": "dos",
+      "bat_dau": "2026-11-12T23:42:31.880+07:00",
+      "ket_thuc": "2026-11-12T23:43:32.031+07:00",
+      "bat_dau_epoch": 1794501751.88,
+      "ket_thuc_epoch": 1794501812.032,
+      "ip_nguon": [
+        "192.168.50.20"
+      ],
+      "ip_dich": [
+        "192.168.50.30"
+      ],
+      "tham_so": {
+        "cong": 80,
+        "muc": 3,
+        "thoi_gian_s": 60
+      },
+      "lenh": {
+        "192.168.50.20": "/usr/bin/python3 /mnt/c/Users/Lenovo/orca/projects/attt/scripts/sinh_traffic.py tai-ket-noi --may-chu 192.168.50.30 --cong 80 --muc 3 --thoi-gian 60 --vai-tro test --lan 4"
+      },
+      "ma_thoat": [
+        0
+      ]
+    }
+  ],
+  "nhat_ky_may_sinh": [
+    {
+      "ma_lan_chay": "k3-dos-muc3-test-4",
+      "bien_the": "k3-dos-muc3",
+      "vai_tro": "test",
+      "kieu": "tai-ket-noi",
+      "nhan": "dos",
+      "bat_dau": "2026-11-12T23:42:32+07:00",
+      "ket_thuc": "2026-11-12T23:43:32+07:00",
+      "ip_nguon": "192.168.50.20",
+      "ip_dich": "192.168.50.30",
+      "tham_so": {
+        "cong": 80,
+        "muc": 3,
+        "thoi_gian": 60.0,
+        "seed": null
+      },
+      "chi_thu": false,
+      "muc": 3,
+      "ket_noi_moi_giay": 600,
+      "thoi_gian_s": 60.0,
+      "so_lan_thu": 33336,
+      "so_lan_noi_duoc": 28239
+    }
+  ]
+}

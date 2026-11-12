@@ -1,0 +1,42 @@
+{
+  "cau_hinh": "config/lab.yaml, doc_lap, 11 lần val",
+  "so_canh_bao": 2592,
+  "theo_khoang_gop_s": {
+    "10": {
+      "su_kien": 41,
+      "bao_gia": 0,
+      "theo_module": {
+        "anomaly": 7,
+        "attack_classification": 10,
+        "botnet_topology": 24
+      }
+    },
+    "30": {
+      "su_kien": 41,
+      "bao_gia": 0,
+      "theo_module": {
+        "anomaly": 7,
+        "attack_classification": 10,
+        "botnet_topology": 24
+      }
+    },
+    "60": {
+      "su_kien": 41,
+      "bao_gia": 0,
+      "theo_module": {
+        "anomaly": 7,
+        "attack_classification": 10,
+        "botnet_topology": 24
+      }
+    },
+    "120": {
+      "su_kien": 41,
+      "bao_gia": 0,
+      "theo_module": {
+        "anomaly": 7,
+        "attack_classification": 10,
+        "botnet_topology": 24
+      }
+    }
+  }
+}

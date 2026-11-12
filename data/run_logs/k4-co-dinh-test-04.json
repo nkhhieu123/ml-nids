@@ -1,0 +1,144 @@
+{
+  "ma_lan_chay": "k4-co-dinh-test-04",
+  "bien_the": "k4-co-dinh",
+  "vai_tro": "test",
+  "lan": 4,
+  "seed": 3400380691,
+  "moi_truong": {
+    "kieu": "lab ảo: network namespace + bridge + tc mirror",
+    "lab": 7,
+    "nhan": "6.18.33.2-microsoft-standard-WSL2",
+    "may": "shanley",
+    "nmap": "Nmap version 7.98 ( https://nmap.org )"
+  },
+  "ban_thu": {
+    "file": "data/pcap/lab/k4-co-dinh-test-04.pcap",
+    "bat_dau": "2026-11-12T23:40:28.639+07:00",
+    "ket_thuc": "2026-11-12T23:52:41.706+07:00",
+    "bat_dau_epoch": 1794501628.64,
+    "ket_thuc_epoch": 1794502361.707,
+    "may_giam_sat": "192.168.50.10",
+    "byte": 4888161,
+    "sha256": "b0efe03e2171005e47d2835296a57573beb5b8b031fa92f4acb5ecb63e12113d",
+    "goi_bat_duoc": 13420,
+    "goi_qua_bo_loc": 13420,
+    "goi_nhan_bo": 0
+  },
+  "lech_dong_ho_s": 0.0,
+  "nen": {
+    "kieu": "binh-thuong",
+    "nhan": "benign",
+    "ip_nguon": [
+      "192.168.50.20",
+      "192.168.50.41",
+      "192.168.50.42",
+      "192.168.50.43"
+    ],
+    "ip_dich": [
+      "192.168.50.30"
+    ],
+    "bat_dau": "2026-11-12T23:40:28.640+07:00",
+    "ket_thuc": "2026-11-12T23:52:39.703+07:00",
+    "mo_ta": "duyệt web nghỉ 1–6 giây, kiểm tra trạng thái api/status mỗi ~30 giây"
+  },
+  "hanh_vi": [
+    {
+      "kieu": "tap-trung",
+      "nhan": "botnet",
+      "bat_dau": "2026-11-12T23:41:06.370+07:00",
+      "ket_thuc": "2026-11-12T23:51:05.044+07:00",
+      "bat_dau_epoch": 1794501666.371,
+      "ket_thuc_epoch": 1794502265.045,
+      "ip_nguon": [
+        "192.168.50.41",
+        "192.168.50.42",
+        "192.168.50.43"
+      ],
+      "ip_dich": [
+        "192.168.50.50"
+      ],
+      "tham_so": {
+        "cong": 8080,
+        "chu_ky_s": 30,
+        "jitter": 0,
+        "thoi_gian_s": 600,
+        "topology": "centralized"
+      },
+      "lenh": {
+        "192.168.50.41": "/usr/bin/python3 /mnt/c/Users/Lenovo/orca/projects/attt/scripts/sinh_topology.py tap-trung --may-chu 192.168.50.50 --cong 8080 --chu-ky 30 --jitter 0 --thoi-gian 600 --seed 33603",
+        "192.168.50.42": "/usr/bin/python3 /mnt/c/Users/Lenovo/orca/projects/attt/scripts/sinh_topology.py tap-trung --may-chu 192.168.50.50 --cong 8080 --chu-ky 30 --jitter 0 --thoi-gian 600 --seed 718903",
+        "192.168.50.43": "/usr/bin/python3 /mnt/c/Users/Lenovo/orca/projects/attt/scripts/sinh_topology.py tap-trung --may-chu 192.168.50.50 --cong 8080 --chu-ky 30 --jitter 0 --thoi-gian 600 --seed 766964"
+      },
+      "ma_thoat": [
+        0,
+        0,
+        0
+      ]
+    }
+  ],
+  "nhat_ky_may_sinh": [
+    {
+      "ma_lan_chay": "tap-trung-20261112-234106-823c",
+      "hanh_vi": "tap-trung",
+      "topology": "centralized",
+      "bat_dau": "2026-11-12T23:41:06+07:00",
+      "ket_thuc": "2026-11-12T23:50:45+07:00",
+      "ip_may_nay": "192.168.50.43",
+      "ip_dich": [
+        "192.168.50.50"
+      ],
+      "cong": 8080,
+      "tham_so": {
+        "chu_ky": 30.0,
+        "jitter": 0.0,
+        "thoi_gian": 600.0,
+        "seed": 766964
+      },
+      "chi_thu": false,
+      "so_lan_gui": 20,
+      "so_lan_thanh_cong": 20
+    },
+    {
+      "ma_lan_chay": "tap-trung-20261112-234106-287b",
+      "hanh_vi": "tap-trung",
+      "topology": "centralized",
+      "bat_dau": "2026-11-12T23:41:06+07:00",
+      "ket_thuc": "2026-11-12T23:51:01+07:00",
+      "ip_may_nay": "192.168.50.42",
+      "ip_dich": [
+        "192.168.50.50"
+      ],
+      "cong": 8080,
+      "tham_so": {
+        "chu_ky": 30.0,
+        "jitter": 0.0,
+        "thoi_gian": 600.0,
+        "seed": 718903
+      },
+      "chi_thu": false,
+      "so_lan_gui": 20,
+      "so_lan_thanh_cong": 20
+    },
+    {
+      "ma_lan_chay": "tap-trung-20261112-234106-700a",
+      "hanh_vi": "tap-trung",
+      "topology": "centralized",
+      "bat_dau": "2026-11-12T23:41:06+07:00",
+      "ket_thuc": "2026-11-12T23:51:05+07:00",
+      "ip_may_nay": "192.168.50.41",
+      "ip_dich": [
+        "192.168.50.50"
+      ],
+      "cong": 8080,
+      "tham_so": {
+        "chu_ky": 30.0,
+        "jitter": 0.0,
+        "thoi_gian": 600.0,
+        "seed": 33603
+      },
+      "chi_thu": false,
+      "so_lan_gui": 20,
+      "so_lan_thanh_cong": 20
+    }
+  ]
+}

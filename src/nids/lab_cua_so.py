@@ -52,13 +52,13 @@ def role_of(host, rules) -> str:
     return "khac"
 
 
-def window_table(pcap, entries, networks, cfg, tolerance_s=1.0) -> pd.DataFrame:
+def window_table(pcap, entries, networks, cfg, tolerance_s=1.0, config_path=None) -> pd.DataFrame:
     """Một dòng mỗi cửa sổ host: nhãn theo nhật ký, dự đoán của bộ phân loại, vai trò của host."""
     from .pipeline import run_pcap
 
     rules = rules_from_runlog(entries)
     with tempfile.TemporaryDirectory() as d:
-        run = run_pcap(pcap, d, networks, cfg, mode="ket_hop")
+        run = run_pcap(pcap, d, networks, cfg, config_path, mode="ket_hop")
         flows = load_flows_for_labels(f"{run['prefix']}.flows.csv")
         windows = load_windows_for_labels(f"{run['prefix']}.windows.csv")
     labels = label_windows(windows, flows, label_flows(flows, rules, tolerance_s),
@@ -95,13 +95,14 @@ def main(argv=None):
     ap.add_argument("--nhat-ky", required=True)
     ap.add_argument("--out", required=True, help="thư mục ghi cua_so.json")
     ap.add_argument("--ten", default="cua_so")
+    ap.add_argument("--config", help="file cấu hình (ví dụ ../config/lab.yaml để chấm mô hình học lại trên lab)")
     a = ap.parse_args(argv)
-    cfg = load_config()
+    cfg = load_config(a.config)
     nets = a.net or [cfg["lab"]["subnet"]]
     tables = {}
     for p in a.pcap:
         role = Path(p).stem.rsplit("-", 2)[1]                      # train / val / test
-        tables.setdefault(role, []).append(window_table(p, load_runlog(a.nhat_ky, p), nets, cfg))
+        tables.setdefault(role, []).append(window_table(p, load_runlog(a.nhat_ky, p), nets, cfg, config_path=a.config))
     out = {role: {"so_lan_chay": len(ts), **evaluate(pd.concat(ts, ignore_index=True))} for role, ts in tables.items()}
     od = Path(a.out)
     od.mkdir(parents=True, exist_ok=True)

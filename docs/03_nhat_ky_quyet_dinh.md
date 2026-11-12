@@ -489,6 +489,13 @@ Mẫu:
 - Quyết định: Ghép theo (IP client, cổng client, cổng máy chủ) với flow TCP; thời điểm ghi log phải nằm trong khoảng sống của flow nới `service_log.match_tolerance_s` = 1 giây mỗi đầu; nhiều flow cùng cổng thì lấy flow gần nhất (`src/nids/log_flow.py`). Trên 33 003 dòng log của 55 lần chạy lab: dung sai 0 chỉ ghép 31,7% (log ghi sau gói cuối dưới 1 mili giây), từ 0,001 giây ghép 100%; tới 1 giây vẫn ghép duy nhất, từ 5 giây bắt đầu khớp nhầm flow dùng lại cổng nguồn.
 - Hệ quả: Lab vật lý phải trừ độ lệch đồng hồ ghi trong nhật ký lần chạy trước khi ghép. Kết nối không gửi yêu cầu (quét cổng, tải kết nối) không có dòng log nên không ghép được; đó là hành vi đúng. Chi tiết docs/16 mục 6.
 
+## QĐ-068 — Bộ mô hình riêng cho lab: học lại trên `train`, chọn trên `val`, chế độ `doc_lap`
+- Ngày: 13/11/2026
+- Trạng thái: Đã chốt (xét lại QĐ-047 và QĐ-042 cho mạng lab; mô hình và cấu hình cũ giữ nguyên cho CIC-IDS2017, CTU-13)
+- Bối cảnh: Chặng 11 cho thấy mô hình học từ CIC và CTU-13 có ba lỗi trên lab: Gaussian báo máy chủ dịch vụ suốt bản thu, bộ phân loại báo nhầm `dos` trên chia sẻ dữ liệu, module botnet bỏ sót 9/9 đợt. Lab đã có đủ lần chạy `train`, `val`.
+- Quyết định: Học lại bằng `nids.hoc_lai_lab`, giữ nguyên loại mô hình, đặc trưng và tham số đã chọn: Gaussian fit trên cửa sổ bình thường của `train` lab, ngưỡng chọn trên `val`; bộ phân loại học trên train CIC + train lab; botnet học trên host–cửa sổ của `train` lab, ngưỡng chọn trên `val`. Trên `val`: quy tắc topology đổi thành `min_peer_vao` 1, `min_udp` 0,05, `min_entropy_vao` 0 (quy tắc cũ đúng 0% bot ngang hàng của lab); chế độ pipeline là `doc_lap` vì `ket_hop` không cho module botnet xét bot chậm (5/8 so với 8/8 đợt). Mô hình ở `models/lab/`, cấu hình ở `config/lab.yaml` (sinh từ `default.yaml`).
+- Hệ quả: Trên 33 lần `test` mới (lần 4–6, chưa dùng để học hay chọn): phát hiện 24/24 đợt (mô hình cũ 15/24), báo động giả 63 → 4 sự kiện, macro-F1 theo cửa sổ 0,923 → 0,995; test CIC của bộ phân loại không đổi (0,9078 → 0,9072). Giới hạn: train, val, test cùng một lab và cùng bộ sinh traffic nên kết quả không chứng minh khả năng nhận ra botnet thật; quy tắc topology mới rất lỏng. Chi tiết docs/73.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.

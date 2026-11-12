@@ -1,0 +1,12 @@
+{
+ "k4-bien-thien": {
+  "centralized": 598
+ },
+ "k4-co-dinh": {
+  "centralized": 607
+ },
+ "k5-p2p": {
+  "centralized": 57,
+  "p2p": 548
+ }
+}

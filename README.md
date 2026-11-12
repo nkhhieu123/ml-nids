@@ -154,6 +154,8 @@ Báo cáo Chặng 11: [docs/Bao_cao_Chang_11.md](docs/Bao_cao_Chang_11.md)
 
 Script sinh traffic lab kịch bản 1–3: [docs/68_sinh_traffic_lab.md](docs/68_sinh_traffic_lab.md)
 
+Học lại ba module trên dữ liệu lab, chấm trên lần `test` mới (24/24 đợt, 4 báo động giả): [docs/73_hoc_lai_lab.md](docs/73_hoc_lai_lab.md); cấu hình `config/lab.yaml`
+
 Độ nhạy của các tham số tạm thời, đo trên validation: [docs/72_do_nhay_tham_so.md](docs/72_do_nhay_tham_so.md)
 
 Gộp cảnh báo botnet theo host (vớt bot chậm, tùy chọn Chặng 9): [docs/69_gop_canh_bao_theo_host.md](docs/69_gop_canh_bao_theo_host.md)

@@ -1,0 +1,2105 @@
+{
+  "kich_ban": [
+    {
+      "pcap": "k1-binh-thuong-test-04.pcap",
+      "che_do": "ket_hop",
+      "khoang_giay": 616.0,
+      "gio": 0.171,
+      "phat_hien": {
+        "theo_dot": [],
+        "so_dot": 0,
+        "phat_hien": 0,
+        "bo_sot": 0
+      },
+      "do_tre": {
+        "so_mau": 0
+      },
+      "bao_gia": {
+        "so_su_kien_bao_gia": 1,
+        "moi_gio": 5.84,
+        "theo_module": {
+          "anomaly": 1
+        },
+        "chi_tiet": [
+          {
+            "module": "anomaly",
+            "nhan": "anomaly",
+            "host": "192.168.50.30",
+            "bat_dau": 1794501628.0,
+            "thoi_luong_s": 600.0
+          }
+        ]
+      },
+      "hieu_nang": {
+        "flow": 549,
+        "cua_so": 1212,
+        "thoi_gian_s": {
+          "trich_xuat": 0.5,
+          "doc_bang": 0.05,
+          "anomaly": 0.01,
+          "attack_classification": 0.08,
+          "botnet_topology": 0.1
+        }
+      }
+    },
+    {
+      "pcap": "k2-quet-cham-test-04.pcap",
+      "che_do": "ket_hop",
+      "khoang_giay": 736.0,
+      "gio": 0.204,
+      "phat_hien": {
+        "theo_dot": [
+          {
+            "kich_ban": "k2-quet-cham-test-04",
+            "loai": "port_scan",
+            "host": [
+              "192.168.50.20",
+              "192.168.50.30"
+            ],
+            "bat_dau": 1794501761.9,
+            "thoi_luong_s": 512.3,
+            "so_canh_bao": 522,
+            "host_phat_hien": [
+              "192.168.50.20",
+              "192.168.50.30"
+            ],
+            "anomaly_do_tre_s": 2.1,
+            "phat_hien": true,
+            "do_tre_s": 2.1
+          }
+        ],
+        "so_dot": 1,
+        "phat_hien": 1,
+        "bo_sot": 0
+      },
+      "do_tre": {
+        "so_mau": 1,
+        "nho_nhat": 2.1,
+        "trung_vi": 2.1,
+        "p95": 2.1,
+        "lon_nhat": 2.1
+      },
+      "bao_gia": {
+        "so_su_kien_bao_gia": 1,
+        "moi_gio": 4.89,
+        "theo_module": {
+          "anomaly": 1
+        },
+        "chi_tiet": [
+          {
+            "module": "anomaly",
+            "nhan": "anomaly",
+            "host": "192.168.50.30",
+            "bat_dau": 1794501628.0,
+            "thoi_luong_s": 722.0
+          }
+        ]
+      },
+      "hieu_nang": {
+        "flow": 1698,
+        "cua_so": 1714,
+        "thoi_gian_s": {
+          "trich_xuat": 0.66,
+          "doc_bang": 0.05,
+          "anomaly": 0.01,
+          "attack_classification": 0.1,
+          "botnet_topology": 0.14
+        }
+      }
+    },
+    {
+      "pcap": "k2-quet-nhanh-test-04.pcap",
+      "che_do": "ket_hop",
+      "khoang_giay": 618.0,
+      "gio": 0.172,
+      "phat_hien": {
+        "theo_dot": [
+          {
+            "kich_ban": "k2-quet-nhanh-test-04",
+            "loai": "port_scan",
+            "host": [
+              "192.168.50.20",
+              "192.168.50.30"
+            ],
+            "bat_dau": 1794501942.6,
+            "thoi_luong_s": 0.1,
+            "so_canh_bao": 10,
+            "host_phat_hien": [
+              "192.168.50.20",
+              "192.168.50.30"
+            ],
+            "anomaly_do_tre_s": 1.4,
+            "phat_hien": true,
+            "do_tre_s": 1.4
+          }
+        ],
+        "so_dot": 1,
+        "phat_hien": 1,
+        "bo_sot": 0
+      },
+      "do_tre": {
+        "so_mau": 1,
+        "nho_nhat": 1.4,
+        "trung_vi": 1.4,
+        "p95": 1.4,
+        "lon_nhat": 1.4
+      },
+      "bao_gia": {
+        "so_su_kien_bao_gia": 1,
+        "moi_gio": 5.83,
+        "theo_module": {
+          "anomaly": 1
+        },
+        "chi_tiet": [
+          {
+            "module": "anomaly",
+            "nhan": "anomaly",
+            "host": "192.168.50.30",
+            "bat_dau": 1794501626.0,
+            "thoi_luong_s": 606.0
+          }
+        ]
+      },
+      "hieu_nang": {
+        "flow": 1567,
+        "cua_so": 1221,
+        "thoi_gian_s": {
+          "trich_xuat": 0.57,
+          "doc_bang": 0.04,
+          "anomaly": 0.0,
+          "attack_classification": 0.06,
+          "botnet_topology": 0.09
+        }
+      }
+    },
+    {
+      "pcap": "k3-dos-muc1-test-04.pcap",
+      "che_do": "ket_hop",
+      "khoang_giay": 316.0,
+      "gio": 0.088,
+      "phat_hien": {
+        "theo_dot": [
+          {
+            "kich_ban": "k3-dos-muc1-test-04",
+            "loai": "dos",
+            "host": [
+              "192.168.50.20",
+              "192.168.50.30"
+            ],
+            "bat_dau": 1794501765.9,
+            "thoi_luong_s": 60.1,
+            "so_canh_bao": 34,
+            "host_phat_hien": [
+              "192.168.50.20"
+            ],
+            "anomaly_do_tre_s": 0.1,
+            "phat_hien": true,
+            "do_tre_s": 2.1
+          }
+        ],
+        "so_dot": 1,
+        "phat_hien": 1,
+        "bo_sot": 0
+      },
+      "do_tre": {
+        "so_mau": 1,
+        "nho_nhat": 2.1,
+        "trung_vi": 2.1,
+        "p95": 2.1,
+        "lon_nhat": 2.1
+      },
+      "bao_gia": {
+        "so_su_kien_bao_gia": 1,
+        "moi_gio": 11.39,
+        "theo_module": {
+          "anomaly": 1
+        },
+        "chi_tiet": [
+          {
+            "module": "anomaly",
+            "nhan": "anomaly",
+            "host": "192.168.50.30",
+            "bat_dau": 1794501628.0,
+            "thoi_luong_s": 300.0
+          }
+        ]
+      },
+      "hieu_nang": {
+        "flow": 3275,
+        "cua_so": 647,
+        "thoi_gian_s": {
+          "trich_xuat": 1.08,
+          "doc_bang": 0.05,
+          "anomaly": 0.0,
+          "attack_classification": 0.05,
+          "botnet_topology": 0.09
+        }
+      }
+    },
+    {
+      "pcap": "k3-dos-muc2-test-04.pcap",
+      "che_do": "ket_hop",
+      "khoang_giay": 318.0,
+      "gio": 0.088,
+      "phat_hien": {
+        "theo_dot": [
+          {
+            "kich_ban": "k3-dos-muc2-test-04",
+            "loai": "dos",
+            "host": [
+              "192.168.50.20",
+              "192.168.50.30"
+            ],
+            "bat_dau": 1794501740.4,
+            "thoi_luong_s": 60.2,
+            "so_canh_bao": 65,
+            "host_phat_hien": [
+              "192.168.50.20",
+              "192.168.50.30"
+            ],
+            "anomaly_do_tre_s": 1.6,
+            "phat_hien": true,
+            "do_tre_s": 1.6
+          }
+        ],
+        "so_dot": 1,
+        "phat_hien": 1,
+        "bo_sot": 0
+      },
+      "do_tre": {
+        "so_mau": 1,
+        "nho_nhat": 1.6,
+        "trung_vi": 1.6,
+        "p95": 1.6,
+        "lon_nhat": 1.6
+      },
+      "bao_gia": {
+        "so_su_kien_bao_gia": 1,
+        "moi_gio": 11.32,
+        "theo_module": {
+          "anomaly": 1
+        },
+        "chi_tiet": [
+          {
+            "module": "anomaly",
+            "nhan": "anomaly",
+            "host": "192.168.50.30",
+            "bat_dau": 1794501628.0,
+            "thoi_luong_s": 302.0
+          }
+        ]
+      },
+      "hieu_nang": {
+        "flow": 12288,
+        "cua_so": 651,
+        "thoi_gian_s": {
+          "trich_xuat": 3.58,
+          "doc_bang": 0.09,
+          "anomaly": 0.0,
+          "attack_classification": 0.05,
+          "botnet_topology": 0.1
+        }
+      }
+    },
+    {
+      "pcap": "k3-dos-muc3-test-04.pcap",
+      "che_do": "ket_hop",
+      "khoang_giay": 316.0,
+      "gio": 0.088,
+      "phat_hien": {
+        "theo_dot": [
+          {
+            "kich_ban": "k3-dos-muc3-test-04",
+            "loai": "dos",
+            "host": [
+              "192.168.50.20",
+              "192.168.50.30"
+            ],
+            "bat_dau": 1794501751.9,
+            "thoi_luong_s": 60.2,
+            "so_canh_bao": 55,
+            "host_phat_hien": [
+              "192.168.50.20",
+              "192.168.50.30"
+            ],
+            "anomaly_do_tre_s": 0.1,
+            "phat_hien": true,
+            "do_tre_s": 2.1
+          }
+        ],
+        "so_dot": 1,
+        "phat_hien": 1,
+        "bo_sot": 0
+      },
+      "do_tre": {
+        "so_mau": 1,
+        "nho_nhat": 2.1,
+        "trung_vi": 2.1,
+        "p95": 2.1,
+        "lon_nhat": 2.1
+      },
+      "bao_gia": {
+        "so_su_kien_bao_gia": 1,
+        "moi_gio": 11.39,
+        "theo_module": {
+          "anomaly": 1
+        },
+        "chi_tiet": [
+          {
+            "module": "anomaly",
+            "nhan": "anomaly",
+            "host": "192.168.50.30",
+            "bat_dau": 1794501626.0,
+            "thoi_luong_s": 302.0
+          }
+        ]
+      },
+      "hieu_nang": {
+        "flow": 28533,
+        "cua_so": 642,
+        "thoi_gian_s": {
+          "trich_xuat": 8.42,
+          "doc_bang": 0.13,
+          "anomaly": 0.0,
+          "attack_classification": 0.08,
+          "botnet_topology": 0.14
+        }
+      }
+    },
+    {
+      "pcap": "k4-bien-thien-test-04.pcap",
+      "che_do": "ket_hop",
+      "khoang_giay": 756.0,
+      "gio": 0.21,
+      "phat_hien": {
+        "theo_dot": [
+          {
+            "kich_ban": "k4-bien-thien-test-04",
+            "loai": "botnet",
+            "host": [
+              "192.168.50.41",
+              "192.168.50.42",
+              "192.168.50.43"
+            ],
+            "bat_dau": 1794501682.8,
+            "thoi_luong_s": 592.9,
+            "so_canh_bao": 0,
+            "host_phat_hien": [],
+            "anomaly_do_tre_s": null,
+            "phat_hien": false,
+            "do_tre_s": null
+          }
+        ],
+        "so_dot": 1,
+        "phat_hien": 0,
+        "bo_sot": 1
+      },
+      "do_tre": {
+        "so_mau": 0
+      },
+      "bao_gia": {
+        "so_su_kien_bao_gia": 1,
+        "moi_gio": 4.76,
+        "theo_module": {
+          "anomaly": 1
+        },
+        "chi_tiet": [
+          {
+            "module": "anomaly",
+            "nhan": "anomaly",
+            "host": "192.168.50.30",
+            "bat_dau": 1794501624.0,
+            "thoi_luong_s": 748.0
+          }
+        ]
+      },
+      "hieu_nang": {
+        "flow": 955,
+        "cua_so": 2074,
+        "thoi_gian_s": {
+          "trich_xuat": 0.76,
+          "doc_bang": 0.05,
+          "anomaly": 0.01,
+          "attack_classification": 0.1,
+          "botnet_topology": 0.12
+        }
+      }
+    },
+    {
+      "pcap": "k4-co-dinh-test-04.pcap",
+      "che_do": "ket_hop",
+      "khoang_giay": 748.0,
+      "gio": 0.208,
+      "phat_hien": {
+        "theo_dot": [
+          {
+            "kich_ban": "k4-co-dinh-test-04",
+            "loai": "botnet",
+            "host": [
+              "192.168.50.41",
+              "192.168.50.42",
+              "192.168.50.43"
+            ],
+            "bat_dau": 1794501666.4,
+            "thoi_luong_s": 598.7,
+            "so_canh_bao": 0,
+            "host_phat_hien": [],
+            "anomaly_do_tre_s": null,
+            "phat_hien": false,
+            "do_tre_s": null
+          }
+        ],
+        "so_dot": 1,
+        "phat_hien": 0,
+        "bo_sot": 1
+      },
+      "do_tre": {
+        "so_mau": 0
+      },
+      "bao_gia": {
+        "so_su_kien_bao_gia": 1,
+        "moi_gio": 4.81,
+        "theo_module": {
+          "anomaly": 1
+        },
+        "chi_tiet": [
+          {
+            "module": "anomaly",
+            "nhan": "anomaly",
+            "host": "192.168.50.30",
+            "bat_dau": 1794501624.0,
+            "thoi_luong_s": 738.0
+          }
+        ]
+      },
+      "hieu_nang": {
+        "flow": 940,
+        "cua_so": 2089,
+        "thoi_gian_s": {
+          "trich_xuat": 0.67,
+          "doc_bang": 0.06,
+          "anomaly": 0.01,
+          "attack_classification": 0.08,
+          "botnet_topology": 0.09
+        }
+      }
+    },
+    {
+      "pcap": "k4-doi-chung-test-04.pcap",
+      "che_do": "ket_hop",
+      "khoang_giay": 782.0,
+      "gio": 0.217,
+      "phat_hien": {
+        "theo_dot": [],
+        "so_dot": 0,
+        "phat_hien": 0,
+        "bo_sot": 0
+      },
+      "do_tre": {
+        "so_mau": 0
+      },
+      "bao_gia": {
+        "so_su_kien_bao_gia": 1,
+        "moi_gio": 4.6,
+        "theo_module": {
+          "anomaly": 1
+        },
+        "chi_tiet": [
+          {
+            "module": "anomaly",
+            "nhan": "anomaly",
+            "host": "192.168.50.30",
+            "bat_dau": 1794501624.0,
+            "thoi_luong_s": 772.0
+          }
+        ]
+      },
+      "hieu_nang": {
+        "flow": 969,
+        "cua_so": 1930,
+        "thoi_gian_s": {
+          "trich_xuat": 0.73,
+          "doc_bang": 0.07,
+          "anomaly": 0.0,
+          "attack_classification": 0.07,
+          "botnet_topology": 0.1
+        }
+      }
+    },
+    {
+      "pcap": "k5-doi-chung-test-04.pcap",
+      "che_do": "ket_hop",
+      "khoang_giay": 712.0,
+      "gio": 0.198,
+      "phat_hien": {
+        "theo_dot": [],
+        "so_dot": 0,
+        "phat_hien": 0,
+        "bo_sot": 0
+      },
+      "do_tre": {
+        "so_mau": 0
+      },
+      "bao_gia": {
+        "so_su_kien_bao_gia": 11,
+        "moi_gio": 55.62,
+        "theo_module": {
+          "anomaly": 2,
+          "attack_classification": 9
+        },
+        "chi_tiet": [
+          {
+            "module": "anomaly",
+            "nhan": "anomaly",
+            "host": "192.168.50.30",
+            "bat_dau": 1794501624.0,
+            "thoi_luong_s": 706.0
+          },
+          {
+            "module": "attack_classification",
+            "nhan": "dos",
+            "host": "192.168.50.42",
+            "bat_dau": 1794501724.0,
+            "thoi_luong_s": 18.0
+          },
+          {
+            "module": "attack_classification",
+            "nhan": "dos",
+            "host": "192.168.50.43",
+            "bat_dau": 1794501724.0,
+            "thoi_luong_s": 18.0
+          },
+          {
+            "module": "attack_classification",
+            "nhan": "dos",
+            "host": "192.168.50.41",
+            "bat_dau": 1794501954.0,
+            "thoi_luong_s": 64.0
+          },
+          {
+            "module": "attack_classification",
+            "nhan": "dos",
+            "host": "192.168.50.43",
+            "bat_dau": 1794501954.0,
+            "thoi_luong_s": 18.0
+          },
+          {
+            "module": "attack_classification",
+            "nhan": "dos",
+            "host": "192.168.50.42",
+            "bat_dau": 1794502000.0,
+            "thoi_luong_s": 42.0
+          },
+          {
+            "module": "anomaly",
+            "nhan": "anomaly",
+            "host": "192.168.50.42",
+            "bat_dau": 1794502004.0,
+            "thoi_luong_s": 10.0
+          },
+          {
+            "module": "attack_classification",
+            "nhan": "dos",
+            "host": "192.168.50.43",
+            "bat_dau": 1794502024.0,
+            "thoi_luong_s": 18.0
+          },
+          {
+            "module": "attack_classification",
+            "nhan": "dos",
+            "host": "192.168.50.43",
+            "bat_dau": 1794502170.0,
+            "thoi_luong_s": 18.0
+          },
+          {
+            "module": "attack_classification",
+            "nhan": "dos",
+            "host": "192.168.50.41",
+            "bat_dau": 1794502206.0,
+            "thoi_luong_s": 18.0
+          },
+          {
+            "module": "attack_classification",
+            "nhan": "dos",
+            "host": "192.168.50.42",
+            "bat_dau": 1794502206.0,
+            "thoi_luong_s": 18.0
+          }
+        ]
+      },
+      "hieu_nang": {
+        "flow": 866,
+        "cua_so": 1760,
+        "thoi_gian_s": {
+          "trich_xuat": 0.77,
+          "doc_bang": 0.06,
+          "anomaly": 0.0,
+          "attack_classification": 0.08,
+          "botnet_topology": 0.09
+        }
+      }
+    },
+    {
+      "pcap": "k5-p2p-test-04.pcap",
+      "che_do": "ket_hop",
+      "khoang_giay": 732.0,
+      "gio": 0.203,
+      "phat_hien": {
+        "theo_dot": [
+          {
+            "kich_ban": "k5-p2p-test-04",
+            "loai": "botnet",
+            "host": [
+              "192.168.50.41",
+              "192.168.50.42",
+              "192.168.50.43"
+            ],
+            "bat_dau": 1794501685.3,
+            "thoi_luong_s": 596.9,
+            "so_canh_bao": 0,
+            "host_phat_hien": [],
+            "anomaly_do_tre_s": null,
+            "phat_hien": false,
+            "do_tre_s": null
+          }
+        ],
+        "so_dot": 1,
+        "phat_hien": 0,
+        "bo_sot": 1
+      },
+      "do_tre": {
+        "so_mau": 0
+      },
+      "bao_gia": {
+        "so_su_kien_bao_gia": 1,
+        "moi_gio": 4.92,
+        "theo_module": {
+          "anomaly": 1
+        },
+        "chi_tiet": [
+          {
+            "module": "anomaly",
+            "nhan": "anomaly",
+            "host": "192.168.50.30",
+            "bat_dau": 1794501628.0,
+            "thoi_luong_s": 720.0
+          }
+        ]
+      },
+      "hieu_nang": {
+        "flow": 895,
+        "cua_so": 1806,
+        "thoi_gian_s": {
+          "trich_xuat": 0.74,
+          "doc_bang": 0.06,
+          "anomaly": 0.01,
+          "attack_classification": 0.07,
+          "botnet_topology": 0.09
+        }
+      }
+    },
+    {
+      "pcap": "k1-binh-thuong-test-05.pcap",
+      "che_do": "ket_hop",
+      "khoang_giay": 616.0,
+      "gio": 0.171,
+      "phat_hien": {
+        "theo_dot": [],
+        "so_dot": 0,
+        "phat_hien": 0,
+        "bo_sot": 0
+      },
+      "do_tre": {
+        "so_mau": 0
+      },
+      "bao_gia": {
+        "so_su_kien_bao_gia": 1,
+        "moi_gio": 5.84,
+        "theo_module": {
+          "anomaly": 1
+        },
+        "chi_tiet": [
+          {
+            "module": "anomaly",
+            "nhan": "anomaly",
+            "host": "192.168.50.30",
+            "bat_dau": 1794502230.0,
+            "thoi_luong_s": 604.0
+          }
+        ]
+      },
+      "hieu_nang": {
+        "flow": 522,
+        "cua_so": 1215,
+        "thoi_gian_s": {
+          "trich_xuat": 0.42,
+          "doc_bang": 0.04,
+          "anomaly": 0.0,
+          "attack_classification": 0.07,
+          "botnet_topology": 0.12
+        }
+      }
+    },
+    {
+      "pcap": "k2-quet-cham-test-05.pcap",
+      "che_do": "ket_hop",
+      "khoang_giay": 748.0,
+      "gio": 0.208,
+      "phat_hien": {
+        "theo_dot": [
+          {
+            "kich_ban": "k2-quet-cham-test-05",
+            "loai": "port_scan",
+            "host": [
+              "192.168.50.20",
+              "192.168.50.30"
+            ],
+            "bat_dau": 1794502487.0,
+            "thoi_luong_s": 512.4,
+            "so_canh_bao": 519,
+            "host_phat_hien": [
+              "192.168.50.20",
+              "192.168.50.30"
+            ],
+            "anomaly_do_tre_s": 1.0,
+            "phat_hien": true,
+            "do_tre_s": 3.0
+          }
+        ],
+        "so_dot": 1,
+        "phat_hien": 1,
+        "bo_sot": 0
+      },
+      "do_tre": {
+        "so_mau": 1,
+        "nho_nhat": 3.0,
+        "trung_vi": 3.0,
+        "p95": 3.0,
+        "lon_nhat": 3.0
+      },
+      "bao_gia": {
+        "so_su_kien_bao_gia": 1,
+        "moi_gio": 4.81,
+        "theo_module": {
+          "anomaly": 1
+        },
+        "chi_tiet": [
+          {
+            "module": "anomaly",
+            "nhan": "anomaly",
+            "host": "192.168.50.30",
+            "bat_dau": 1794502356.0,
+            "thoi_luong_s": 730.0
+          }
+        ]
+      },
+      "hieu_nang": {
+        "flow": 1680,
+        "cua_so": 1739,
+        "thoi_gian_s": {
+          "trich_xuat": 0.68,
+          "doc_bang": 0.07,
+          "anomaly": 0.0,
+          "attack_classification": 0.07,
+          "botnet_topology": 0.09
+        }
+      }
+    },
+    {
+      "pcap": "k2-quet-nhanh-test-05.pcap",
+      "che_do": "ket_hop",
+      "khoang_giay": 616.0,
+      "gio": 0.171,
+      "phat_hien": {
+        "theo_dot": [
+          {
+            "kich_ban": "k2-quet-nhanh-test-05",
+            "loai": "port_scan",
+            "host": [
+              "192.168.50.20",
+              "192.168.50.30"
+            ],
+            "bat_dau": 1794502529.7,
+            "thoi_luong_s": 0.1,
+            "so_canh_bao": 10,
+            "host_phat_hien": [
+              "192.168.50.20",
+              "192.168.50.30"
+            ],
+            "anomaly_do_tre_s": 0.3,
+            "phat_hien": true,
+            "do_tre_s": 0.3
+          }
+        ],
+        "so_dot": 1,
+        "phat_hien": 1,
+        "bo_sot": 0
+      },
+      "do_tre": {
+        "so_mau": 1,
+        "nho_nhat": 0.3,
+        "trung_vi": 0.3,
+        "p95": 0.3,
+        "lon_nhat": 0.3
+      },
+      "bao_gia": {
+        "so_su_kien_bao_gia": 1,
+        "moi_gio": 5.84,
+        "theo_module": {
+          "anomaly": 1
+        },
+        "chi_tiet": [
+          {
+            "module": "anomaly",
+            "nhan": "anomaly",
+            "host": "192.168.50.30",
+            "bat_dau": 1794502234.0,
+            "thoi_luong_s": 600.0
+          }
+        ]
+      },
+      "hieu_nang": {
+        "flow": 1555,
+        "cua_so": 1219,
+        "thoi_gian_s": {
+          "trich_xuat": 0.63,
+          "doc_bang": 0.05,
+          "anomaly": 0.0,
+          "attack_classification": 0.06,
+          "botnet_topology": 0.11
+        }
+      }
+    },
+    {
+      "pcap": "k3-dos-muc1-test-05.pcap",
+      "che_do": "ket_hop",
+      "khoang_giay": 328.0,
+      "gio": 0.091,
+      "phat_hien": {
+        "theo_dot": [
+          {
+            "kich_ban": "k3-dos-muc1-test-05",
+            "loai": "dos",
+            "host": [
+              "192.168.50.20",
+              "192.168.50.30"
+            ],
+            "bat_dau": 1794502075.4,
+            "thoi_luong_s": 60.1,
+            "so_canh_bao": 34,
+            "host_phat_hien": [
+              "192.168.50.20"
+            ],
+            "anomaly_do_tre_s": 0.6,
+            "phat_hien": true,
+            "do_tre_s": 2.6
+          }
+        ],
+        "so_dot": 1,
+        "phat_hien": 1,
+        "bo_sot": 0
+      },
+      "do_tre": {
+        "so_mau": 1,
+        "nho_nhat": 2.6,
+        "trung_vi": 2.6,
+        "p95": 2.6,
+        "lon_nhat": 2.6
+      },
+      "bao_gia": {
+        "so_su_kien_bao_gia": 1,
+        "moi_gio": 10.98,
+        "theo_module": {
+          "anomaly": 1
+        },
+        "chi_tiet": [
+          {
+            "module": "anomaly",
+            "nhan": "anomaly",
+            "host": "192.168.50.30",
+            "bat_dau": 1794501928.0,
+            "thoi_luong_s": 316.0
+          }
+        ]
+      },
+      "hieu_nang": {
+        "flow": 3271,
+        "cua_so": 672,
+        "thoi_gian_s": {
+          "trich_xuat": 1.16,
+          "doc_bang": 0.05,
+          "anomaly": 0.01,
+          "attack_classification": 0.06,
+          "botnet_topology": 0.09
+        }
+      }
+    },
+    {
+      "pcap": "k3-dos-muc2-test-05.pcap",
+      "che_do": "ket_hop",
+      "khoang_giay": 314.0,
+      "gio": 0.087,
+      "phat_hien": {
+        "theo_dot": [
+          {
+            "kich_ban": "k3-dos-muc2-test-05",
+            "loai": "dos",
+            "host": [
+              "192.168.50.20",
+              "192.168.50.30"
+            ],
+            "bat_dau": 1794502061.8,
+            "thoi_luong_s": 60.2,
+            "so_canh_bao": 64,
+            "host_phat_hien": [
+              "192.168.50.20",
+              "192.168.50.30"
+            ],
+            "anomaly_do_tre_s": 0.2,
+            "phat_hien": true,
+            "do_tre_s": 2.2
+          }
+        ],
+        "so_dot": 1,
+        "phat_hien": 1,
+        "bo_sot": 0
+      },
+      "do_tre": {
+        "so_mau": 1,
+        "nho_nhat": 2.2,
+        "trung_vi": 2.2,
+        "p95": 2.2,
+        "lon_nhat": 2.2
+      },
+      "bao_gia": {
+        "so_su_kien_bao_gia": 1,
+        "moi_gio": 11.46,
+        "theo_module": {
+          "anomaly": 1
+        },
+        "chi_tiet": [
+          {
+            "module": "anomaly",
+            "nhan": "anomaly",
+            "host": "192.168.50.30",
+            "bat_dau": 1794501932.0,
+            "thoi_luong_s": 302.0
+          }
+        ]
+      },
+      "hieu_nang": {
+        "flow": 12266,
+        "cua_so": 645,
+        "thoi_gian_s": {
+          "trich_xuat": 3.84,
+          "doc_bang": 0.1,
+          "anomaly": 0.01,
+          "attack_classification": 0.07,
+          "botnet_topology": 0.11
+        }
+      }
+    },
+    {
+      "pcap": "k3-dos-muc3-test-05.pcap",
+      "che_do": "ket_hop",
+      "khoang_giay": 318.0,
+      "gio": 0.088,
+      "phat_hien": {
+        "theo_dot": [
+          {
+            "kich_ban": "k3-dos-muc3-test-05",
+            "loai": "dos",
+            "host": [
+              "192.168.50.20",
+              "192.168.50.30"
+            ],
+            "bat_dau": 1794502044.9,
+            "thoi_luong_s": 60.1,
+            "so_canh_bao": 55,
+            "host_phat_hien": [
+              "192.168.50.20",
+              "192.168.50.30"
+            ],
+            "anomaly_do_tre_s": 1.1,
+            "phat_hien": true,
+            "do_tre_s": 1.1
+          }
+        ],
+        "so_dot": 1,
+        "phat_hien": 1,
+        "bo_sot": 0
+      },
+      "do_tre": {
+        "so_mau": 1,
+        "nho_nhat": 1.1,
+        "trung_vi": 1.1,
+        "p95": 1.1,
+        "lon_nhat": 1.1
+      },
+      "bao_gia": {
+        "so_su_kien_bao_gia": 1,
+        "moi_gio": 11.32,
+        "theo_module": {
+          "anomaly": 1
+        },
+        "chi_tiet": [
+          {
+            "module": "anomaly",
+            "nhan": "anomaly",
+            "host": "192.168.50.30",
+            "bat_dau": 1794501928.0,
+            "thoi_luong_s": 308.0
+          }
+        ]
+      },
+      "hieu_nang": {
+        "flow": 28522,
+        "cua_so": 645,
+        "thoi_gian_s": {
+          "trich_xuat": 8.42,
+          "doc_bang": 0.14,
+          "anomaly": 0.01,
+          "attack_classification": 0.07,
+          "botnet_topology": 0.12
+        }
+      }
+    },
+    {
+      "pcap": "k4-bien-thien-test-05.pcap",
+      "che_do": "ket_hop",
+      "khoang_giay": 718.0,
+      "gio": 0.199,
+      "phat_hien": {
+        "theo_dot": [
+          {
+            "kich_ban": "k4-bien-thien-test-05",
+            "loai": "botnet",
+            "host": [
+              "192.168.50.41",
+              "192.168.50.42",
+              "192.168.50.43"
+            ],
+            "bat_dau": 1794502412.3,
+            "thoi_luong_s": 567.8,
+            "so_canh_bao": 0,
+            "host_phat_hien": [],
+            "anomaly_do_tre_s": null,
+            "phat_hien": false,
+            "do_tre_s": null
+          }
+        ],
+        "so_dot": 1,
+        "phat_hien": 0,
+        "bo_sot": 1
+      },
+      "do_tre": {
+        "so_mau": 0
+      },
+      "bao_gia": {
+        "so_su_kien_bao_gia": 1,
+        "moi_gio": 5.01,
+        "theo_module": {
+          "anomaly": 1
+        },
+        "chi_tiet": [
+          {
+            "module": "anomaly",
+            "nhan": "anomaly",
+            "host": "192.168.50.30",
+            "bat_dau": 1794502368.0,
+            "thoi_luong_s": 710.0
+          }
+        ]
+      },
+      "hieu_nang": {
+        "flow": 867,
+        "cua_so": 1886,
+        "thoi_gian_s": {
+          "trich_xuat": 0.65,
+          "doc_bang": 0.09,
+          "anomaly": 0.01,
+          "attack_classification": 0.1,
+          "botnet_topology": 0.12
+        }
+      }
+    },
+    {
+      "pcap": "k4-co-dinh-test-05.pcap",
+      "che_do": "ket_hop",
+      "khoang_giay": 718.0,
+      "gio": 0.199,
+      "phat_hien": {
+        "theo_dot": [
+          {
+            "kich_ban": "k4-co-dinh-test-05",
+            "loai": "botnet",
+            "host": [
+              "192.168.50.41",
+              "192.168.50.42",
+              "192.168.50.43"
+            ],
+            "bat_dau": 1794502407.1,
+            "thoi_luong_s": 583.1,
+            "so_canh_bao": 0,
+            "host_phat_hien": [],
+            "anomaly_do_tre_s": null,
+            "phat_hien": false,
+            "do_tre_s": null
+          }
+        ],
+        "so_dot": 1,
+        "phat_hien": 0,
+        "bo_sot": 1
+      },
+      "do_tre": {
+        "so_mau": 0
+      },
+      "bao_gia": {
+        "so_su_kien_bao_gia": 1,
+        "moi_gio": 5.01,
+        "theo_module": {
+          "anomaly": 1
+        },
+        "chi_tiet": [
+          {
+            "module": "anomaly",
+            "nhan": "anomaly",
+            "host": "192.168.50.30",
+            "bat_dau": 1794502360.0,
+            "thoi_luong_s": 706.0
+          }
+        ]
+      },
+      "hieu_nang": {
+        "flow": 831,
+        "cua_so": 1892,
+        "thoi_gian_s": {
+          "trich_xuat": 0.58,
+          "doc_bang": 0.07,
+          "anomaly": 0.0,
+          "attack_classification": 0.07,
+          "botnet_topology": 0.1
+        }
+      }
+    },
+    {
+      "pcap": "k4-doi-chung-test-05.pcap",
+      "che_do": "ket_hop",
+      "khoang_giay": 778.0,
+      "gio": 0.216,
+      "phat_hien": {
+        "theo_dot": [],
+        "so_dot": 0,
+        "phat_hien": 0,
+        "bo_sot": 0
+      },
+      "do_tre": {
+        "so_mau": 0
+      },
+      "bao_gia": {
+        "so_su_kien_bao_gia": 1,
+        "moi_gio": 4.63,
+        "theo_module": {
+          "anomaly": 1
+        },
+        "chi_tiet": [
+          {
+            "module": "anomaly",
+            "nhan": "anomaly",
+            "host": "192.168.50.30",
+            "bat_dau": 1794502392.0,
+            "thoi_luong_s": 768.0
+          }
+        ]
+      },
+      "hieu_nang": {
+        "flow": 891,
+        "cua_so": 1919,
+        "thoi_gian_s": {
+          "trich_xuat": 0.68,
+          "doc_bang": 0.06,
+          "anomaly": 0.01,
+          "attack_classification": 0.1,
+          "botnet_topology": 0.1
+        }
+      }
+    },
+    {
+      "pcap": "k5-doi-chung-test-05.pcap",
+      "che_do": "ket_hop",
+      "khoang_giay": 716.0,
+      "gio": 0.199,
+      "phat_hien": {
+        "theo_dot": [],
+        "so_dot": 0,
+        "phat_hien": 0,
+        "bo_sot": 0
+      },
+      "do_tre": {
+        "so_mau": 0
+      },
+      "bao_gia": {
+        "so_su_kien_bao_gia": 12,
+        "moi_gio": 60.34,
+        "theo_module": {
+          "anomaly": 6,
+          "attack_classification": 6
+        },
+        "chi_tiet": [
+          {
+            "module": "anomaly",
+            "nhan": "anomaly",
+            "host": "192.168.50.30",
+            "bat_dau": 1794502330.0,
+            "thoi_luong_s": 704.0
+          },
+          {
+            "module": "anomaly",
+            "nhan": "anomaly",
+            "host": "192.168.50.43",
+            "bat_dau": 1794502460.0,
+            "thoi_luong_s": 18.0
+          },
+          {
+            "module": "attack_classification",
+            "nhan": "dos",
+            "host": "192.168.50.43",
+            "bat_dau": 1794502460.0,
+            "thoi_luong_s": 18.0
+          },
+          {
+            "module": "anomaly",
+            "nhan": "anomaly",
+            "host": "192.168.50.43",
+            "bat_dau": 1794502516.0,
+            "thoi_luong_s": 18.0
+          },
+          {
+            "module": "attack_classification",
+            "nhan": "dos",
+            "host": "192.168.50.43",
+            "bat_dau": 1794502516.0,
+            "thoi_luong_s": 18.0
+          },
+          {
+            "module": "anomaly",
+            "nhan": "anomaly",
+            "host": "192.168.50.42",
+            "bat_dau": 1794502526.0,
+            "thoi_luong_s": 10.0
+          },
+          {
+            "module": "attack_classification",
+            "nhan": "dos",
+            "host": "192.168.50.42",
+            "bat_dau": 1794502526.0,
+            "thoi_luong_s": 10.0
+          },
+          {
+            "module": "anomaly",
+            "nhan": "anomaly",
+            "host": "192.168.50.41",
+            "bat_dau": 1794502690.0,
+            "thoi_luong_s": 18.0
+          },
+          {
+            "module": "attack_classification",
+            "nhan": "dos",
+            "host": "192.168.50.41",
+            "bat_dau": 1794502690.0,
+            "thoi_luong_s": 18.0
+          },
+          {
+            "module": "anomaly",
+            "nhan": "anomaly",
+            "host": "192.168.50.42",
+            "bat_dau": 1794502766.0,
+            "thoi_luong_s": 18.0
+          },
+          {
+            "module": "attack_classification",
+            "nhan": "dos",
+            "host": "192.168.50.42",
+            "bat_dau": 1794502766.0,
+            "thoi_luong_s": 18.0
+          },
+          {
+            "module": "attack_classification",
+            "nhan": "dos",
+            "host": "192.168.50.41",
+            "bat_dau": 1794502786.0,
+            "thoi_luong_s": 18.0
+          }
+        ]
+      },
+      "hieu_nang": {
+        "flow": 854,
+        "cua_so": 1766,
+        "thoi_gian_s": {
+          "trich_xuat": 0.79,
+          "doc_bang": 0.05,
+          "anomaly": 0.01,
+          "attack_classification": 0.07,
+          "botnet_topology": 0.1
+        }
+      }
+    },
+    {
+      "pcap": "k5-p2p-test-05.pcap",
+      "che_do": "ket_hop",
+      "khoang_giay": 730.0,
+      "gio": 0.203,
+      "phat_hien": {
+        "theo_dot": [
+          {
+            "kich_ban": "k5-p2p-test-05",
+            "loai": "botnet",
+            "host": [
+              "192.168.50.41",
+              "192.168.50.42",
+              "192.168.50.43"
+            ],
+            "bat_dau": 1794502391.2,
+            "thoi_luong_s": 599.9,
+            "so_canh_bao": 0,
+            "host_phat_hien": [],
+            "anomaly_do_tre_s": null,
+            "phat_hien": false,
+            "do_tre_s": null
+          }
+        ],
+        "so_dot": 1,
+        "phat_hien": 0,
+        "bo_sot": 1
+      },
+      "do_tre": {
+        "so_mau": 0
+      },
+      "bao_gia": {
+        "so_su_kien_bao_gia": 1,
+        "moi_gio": 4.93,
+        "theo_module": {
+          "anomaly": 1
+        },
+        "chi_tiet": [
+          {
+            "module": "anomaly",
+            "nhan": "anomaly",
+            "host": "192.168.50.30",
+            "bat_dau": 1794502344.0,
+            "thoi_luong_s": 718.0
+          }
+        ]
+      },
+      "hieu_nang": {
+        "flow": 845,
+        "cua_so": 1798,
+        "thoi_gian_s": {
+          "trich_xuat": 0.68,
+          "doc_bang": 0.05,
+          "anomaly": 0.0,
+          "attack_classification": 0.1,
+          "botnet_topology": 0.1
+        }
+      }
+    },
+    {
+      "pcap": "k1-binh-thuong-test-06.pcap",
+      "che_do": "ket_hop",
+      "khoang_giay": 616.0,
+      "gio": 0.171,
+      "phat_hien": {
+        "theo_dot": [],
+        "so_dot": 0,
+        "phat_hien": 0,
+        "bo_sot": 0
+      },
+      "do_tre": {
+        "so_mau": 0
+      },
+      "bao_gia": {
+        "so_su_kien_bao_gia": 1,
+        "moi_gio": 5.84,
+        "theo_module": {
+          "anomaly": 1
+        },
+        "chi_tiet": [
+          {
+            "module": "anomaly",
+            "nhan": "anomaly",
+            "host": "192.168.50.30",
+            "bat_dau": 1794502834.0,
+            "thoi_luong_s": 602.0
+          }
+        ]
+      },
+      "hieu_nang": {
+        "flow": 515,
+        "cua_so": 1213,
+        "thoi_gian_s": {
+          "trich_xuat": 0.41,
+          "doc_bang": 0.06,
+          "anomaly": 0.01,
+          "attack_classification": 0.07,
+          "botnet_topology": 0.1
+        }
+      }
+    },
+    {
+      "pcap": "k2-quet-cham-test-06.pcap",
+      "che_do": "ket_hop",
+      "khoang_giay": 756.0,
+      "gio": 0.21,
+      "phat_hien": {
+        "theo_dot": [
+          {
+            "kich_ban": "k2-quet-cham-test-06",
+            "loai": "port_scan",
+            "host": [
+              "192.168.50.20",
+              "192.168.50.30"
+            ],
+            "bat_dau": 1794503206.1,
+            "thoi_luong_s": 512.4,
+            "so_canh_bao": 522,
+            "host_phat_hien": [
+              "192.168.50.20",
+              "192.168.50.30"
+            ],
+            "anomaly_do_tre_s": 1.9,
+            "phat_hien": true,
+            "do_tre_s": 1.9
+          }
+        ],
+        "so_dot": 1,
+        "phat_hien": 1,
+        "bo_sot": 0
+      },
+      "do_tre": {
+        "so_mau": 1,
+        "nho_nhat": 1.9,
+        "trung_vi": 1.9,
+        "p95": 1.9,
+        "lon_nhat": 1.9
+      },
+      "bao_gia": {
+        "so_su_kien_bao_gia": 1,
+        "moi_gio": 4.76,
+        "theo_module": {
+          "anomaly": 1
+        },
+        "chi_tiet": [
+          {
+            "module": "anomaly",
+            "nhan": "anomaly",
+            "host": "192.168.50.30",
+            "bat_dau": 1794503084.0,
+            "thoi_luong_s": 746.0
+          }
+        ]
+      },
+      "hieu_nang": {
+        "flow": 1687,
+        "cua_so": 1755,
+        "thoi_gian_s": {
+          "trich_xuat": 0.69,
+          "doc_bang": 0.06,
+          "anomaly": 0.0,
+          "attack_classification": 0.07,
+          "botnet_topology": 0.1
+        }
+      }
+    },
+    {
+      "pcap": "k2-quet-nhanh-test-06.pcap",
+      "che_do": "ket_hop",
+      "khoang_giay": 616.0,
+      "gio": 0.171,
+      "phat_hien": {
+        "theo_dot": [
+          {
+            "kich_ban": "k2-quet-nhanh-test-06",
+            "loai": "port_scan",
+            "host": [
+              "192.168.50.20",
+              "192.168.50.30"
+            ],
+            "bat_dau": 1794503153.9,
+            "thoi_luong_s": 0.1,
+            "so_canh_bao": 10,
+            "host_phat_hien": [
+              "192.168.50.20",
+              "192.168.50.30"
+            ],
+            "anomaly_do_tre_s": 0.1,
+            "phat_hien": true,
+            "do_tre_s": 0.1
+          }
+        ],
+        "so_dot": 1,
+        "phat_hien": 1,
+        "bo_sot": 0
+      },
+      "do_tre": {
+        "so_mau": 1,
+        "nho_nhat": 0.1,
+        "trung_vi": 0.1,
+        "p95": 0.1,
+        "lon_nhat": 0.1
+      },
+      "bao_gia": {
+        "so_su_kien_bao_gia": 1,
+        "moi_gio": 5.84,
+        "theo_module": {
+          "anomaly": 1
+        },
+        "chi_tiet": [
+          {
+            "module": "anomaly",
+            "nhan": "anomaly",
+            "host": "192.168.50.30",
+            "bat_dau": 1794502834.0,
+            "thoi_luong_s": 602.0
+          }
+        ]
+      },
+      "hieu_nang": {
+        "flow": 1559,
+        "cua_so": 1218,
+        "thoi_gian_s": {
+          "trich_xuat": 0.63,
+          "doc_bang": 0.06,
+          "anomaly": 0.01,
+          "attack_classification": 0.06,
+          "botnet_topology": 0.1
+        }
+      }
+    },
+    {
+      "pcap": "k3-dos-muc1-test-06.pcap",
+      "che_do": "ket_hop",
+      "khoang_giay": 318.0,
+      "gio": 0.088,
+      "phat_hien": {
+        "theo_dot": [
+          {
+            "kich_ban": "k3-dos-muc1-test-06",
+            "loai": "dos",
+            "host": [
+              "192.168.50.20",
+              "192.168.50.30"
+            ],
+            "bat_dau": 1794502346.5,
+            "thoi_luong_s": 60.1,
+            "so_canh_bao": 34,
+            "host_phat_hien": [
+              "192.168.50.20"
+            ],
+            "anomaly_do_tre_s": 1.5,
+            "phat_hien": true,
+            "do_tre_s": 1.5
+          }
+        ],
+        "so_dot": 1,
+        "phat_hien": 1,
+        "bo_sot": 0
+      },
+      "do_tre": {
+        "so_mau": 1,
+        "nho_nhat": 1.5,
+        "trung_vi": 1.5,
+        "p95": 1.5,
+        "lon_nhat": 1.5
+      },
+      "bao_gia": {
+        "so_su_kien_bao_gia": 1,
+        "moi_gio": 11.32,
+        "theo_module": {
+          "anomaly": 1
+        },
+        "chi_tiet": [
+          {
+            "module": "anomaly",
+            "nhan": "anomaly",
+            "host": "192.168.50.30",
+            "bat_dau": 1794502248.0,
+            "thoi_luong_s": 304.0
+          }
+        ]
+      },
+      "hieu_nang": {
+        "flow": 3260,
+        "cua_so": 651,
+        "thoi_gian_s": {
+          "trich_xuat": 1.19,
+          "doc_bang": 0.08,
+          "anomaly": 0.0,
+          "attack_classification": 0.06,
+          "botnet_topology": 0.1
+        }
+      }
+    },
+    {
+      "pcap": "k3-dos-muc2-test-06.pcap",
+      "che_do": "ket_hop",
+      "khoang_giay": 314.0,
+      "gio": 0.087,
+      "phat_hien": {
+        "theo_dot": [
+          {
+            "kich_ban": "k3-dos-muc2-test-06",
+            "loai": "dos",
+            "host": [
+              "192.168.50.20",
+              "192.168.50.30"
+            ],
+            "bat_dau": 1794502359.9,
+            "thoi_luong_s": 60.1,
+            "so_canh_bao": 64,
+            "host_phat_hien": [
+              "192.168.50.20",
+              "192.168.50.30"
+            ],
+            "anomaly_do_tre_s": 0.1,
+            "phat_hien": true,
+            "do_tre_s": 2.1
+          }
+        ],
+        "so_dot": 1,
+        "phat_hien": 1,
+        "bo_sot": 0
+      },
+      "do_tre": {
+        "so_mau": 1,
+        "nho_nhat": 2.1,
+        "trung_vi": 2.1,
+        "p95": 2.1,
+        "lon_nhat": 2.1
+      },
+      "bao_gia": {
+        "so_su_kien_bao_gia": 1,
+        "moi_gio": 11.46,
+        "theo_module": {
+          "anomaly": 1
+        },
+        "chi_tiet": [
+          {
+            "module": "anomaly",
+            "nhan": "anomaly",
+            "host": "192.168.50.30",
+            "bat_dau": 1794502234.0,
+            "thoi_luong_s": 302.0
+          }
+        ]
+      },
+      "hieu_nang": {
+        "flow": 12254,
+        "cua_so": 646,
+        "thoi_gian_s": {
+          "trich_xuat": 3.67,
+          "doc_bang": 0.09,
+          "anomaly": 0.0,
+          "attack_classification": 0.07,
+          "botnet_topology": 0.12
+        }
+      }
+    },
+    {
+      "pcap": "k3-dos-muc3-test-06.pcap",
+      "che_do": "ket_hop",
+      "khoang_giay": 316.0,
+      "gio": 0.088,
+      "phat_hien": {
+        "theo_dot": [
+          {
+            "kich_ban": "k3-dos-muc3-test-06",
+            "loai": "dos",
+            "host": [
+              "192.168.50.20",
+              "192.168.50.30"
+            ],
+            "bat_dau": 1794502354.9,
+            "thoi_luong_s": 60.1,
+            "so_canh_bao": 56,
+            "host_phat_hien": [
+              "192.168.50.20",
+              "192.168.50.30"
+            ],
+            "anomaly_do_tre_s": 1.1,
+            "phat_hien": true,
+            "do_tre_s": 1.1
+          }
+        ],
+        "so_dot": 1,
+        "phat_hien": 1,
+        "bo_sot": 0
+      },
+      "do_tre": {
+        "so_mau": 1,
+        "nho_nhat": 1.1,
+        "trung_vi": 1.1,
+        "p95": 1.1,
+        "lon_nhat": 1.1
+      },
+      "bao_gia": {
+        "so_su_kien_bao_gia": 1,
+        "moi_gio": 11.39,
+        "theo_module": {
+          "anomaly": 1
+        },
+        "chi_tiet": [
+          {
+            "module": "anomaly",
+            "nhan": "anomaly",
+            "host": "192.168.50.30",
+            "bat_dau": 1794502234.0,
+            "thoi_luong_s": 304.0
+          }
+        ]
+      },
+      "hieu_nang": {
+        "flow": 28492,
+        "cua_so": 643,
+        "thoi_gian_s": {
+          "trich_xuat": 8.6,
+          "doc_bang": 0.12,
+          "anomaly": 0.01,
+          "attack_classification": 0.07,
+          "botnet_topology": 0.11
+        }
+      }
+    },
+    {
+      "pcap": "k4-bien-thien-test-06.pcap",
+      "che_do": "ket_hop",
+      "khoang_giay": 786.0,
+      "gio": 0.218,
+      "phat_hien": {
+        "theo_dot": [
+          {
+            "kich_ban": "k4-bien-thien-test-06",
+            "loai": "botnet",
+            "host": [
+              "192.168.50.41",
+              "192.168.50.42",
+              "192.168.50.43"
+            ],
+            "bat_dau": 1794503128.8,
+            "thoi_luong_s": 597.0,
+            "so_canh_bao": 0,
+            "host_phat_hien": [],
+            "anomaly_do_tre_s": null,
+            "phat_hien": false,
+            "do_tre_s": null
+          }
+        ],
+        "so_dot": 1,
+        "phat_hien": 0,
+        "bo_sot": 1
+      },
+      "do_tre": {
+        "so_mau": 0
+      },
+      "bao_gia": {
+        "so_su_kien_bao_gia": 1,
+        "moi_gio": 4.58,
+        "theo_module": {
+          "anomaly": 1
+        },
+        "chi_tiet": [
+          {
+            "module": "anomaly",
+            "nhan": "anomaly",
+            "host": "192.168.50.30",
+            "bat_dau": 1794503074.0,
+            "thoi_luong_s": 774.0
+          }
+        ]
+      },
+      "hieu_nang": {
+        "flow": 908,
+        "cua_so": 2075,
+        "thoi_gian_s": {
+          "trich_xuat": 0.7,
+          "doc_bang": 0.06,
+          "anomaly": 0.0,
+          "attack_classification": 0.06,
+          "botnet_topology": 0.1
+        }
+      }
+    },
+    {
+      "pcap": "k4-co-dinh-test-06.pcap",
+      "che_do": "ket_hop",
+      "khoang_giay": 774.0,
+      "gio": 0.215,
+      "phat_hien": {
+        "theo_dot": [
+          {
+            "kich_ban": "k4-co-dinh-test-06",
+            "loai": "botnet",
+            "host": [
+              "192.168.50.41",
+              "192.168.50.42",
+              "192.168.50.43"
+            ],
+            "bat_dau": 1794503113.2,
+            "thoi_luong_s": 593.7,
+            "so_canh_bao": 0,
+            "host_phat_hien": [],
+            "anomaly_do_tre_s": null,
+            "phat_hien": false,
+            "do_tre_s": null
+          }
+        ],
+        "so_dot": 1,
+        "phat_hien": 0,
+        "bo_sot": 1
+      },
+      "do_tre": {
+        "so_mau": 0
+      },
+      "bao_gia": {
+        "so_su_kien_bao_gia": 1,
+        "moi_gio": 4.65,
+        "theo_module": {
+          "anomaly": 1
+        },
+        "chi_tiet": [
+          {
+            "module": "anomaly",
+            "nhan": "anomaly",
+            "host": "192.168.50.30",
+            "bat_dau": 1794503064.0,
+            "thoi_luong_s": 764.0
+          }
+        ]
+      },
+      "hieu_nang": {
+        "flow": 921,
+        "cua_so": 2111,
+        "thoi_gian_s": {
+          "trich_xuat": 0.67,
+          "doc_bang": 0.08,
+          "anomaly": 0.01,
+          "attack_classification": 0.06,
+          "botnet_topology": 0.1
+        }
+      }
+    },
+    {
+      "pcap": "k4-doi-chung-test-06.pcap",
+      "che_do": "ket_hop",
+      "khoang_giay": 716.0,
+      "gio": 0.199,
+      "phat_hien": {
+        "theo_dot": [],
+        "so_dot": 0,
+        "phat_hien": 0,
+        "bo_sot": 0
+      },
+      "do_tre": {
+        "so_mau": 0
+      },
+      "bao_gia": {
+        "so_su_kien_bao_gia": 1,
+        "moi_gio": 5.03,
+        "theo_module": {
+          "anomaly": 1
+        },
+        "chi_tiet": [
+          {
+            "module": "anomaly",
+            "nhan": "anomaly",
+            "host": "192.168.50.30",
+            "bat_dau": 1794503158.0,
+            "thoi_luong_s": 706.0
+          }
+        ]
+      },
+      "hieu_nang": {
+        "flow": 858,
+        "cua_so": 1766,
+        "thoi_gian_s": {
+          "trich_xuat": 0.63,
+          "doc_bang": 0.05,
+          "anomaly": 0.0,
+          "attack_classification": 0.06,
+          "botnet_topology": 0.1
+        }
+      }
+    },
+    {
+      "pcap": "k5-doi-chung-test-06.pcap",
+      "che_do": "ket_hop",
+      "khoang_giay": 758.0,
+      "gio": 0.211,
+      "phat_hien": {
+        "theo_dot": [],
+        "so_dot": 0,
+        "phat_hien": 0,
+        "bo_sot": 0
+      },
+      "do_tre": {
+        "so_mau": 0
+      },
+      "bao_gia": {
+        "so_su_kien_bao_gia": 10,
+        "moi_gio": 47.49,
+        "theo_module": {
+          "anomaly": 1,
+          "attack_classification": 9
+        },
+        "chi_tiet": [
+          {
+            "module": "anomaly",
+            "nhan": "anomaly",
+            "host": "192.168.50.30",
+            "bat_dau": 1794503032.0,
+            "thoi_luong_s": 746.0
+          },
+          {
+            "module": "attack_classification",
+            "nhan": "dos",
+            "host": "192.168.50.42",
+            "bat_dau": 1794503224.0,
+            "thoi_luong_s": 42.0
+          },
+          {
+            "module": "attack_classification",
+            "nhan": "dos",
+            "host": "192.168.50.43",
+            "bat_dau": 1794503224.0,
+            "thoi_luong_s": 18.0
+          },
+          {
+            "module": "attack_classification",
+            "nhan": "dos",
+            "host": "192.168.50.41",
+            "bat_dau": 1794503248.0,
+            "thoi_luong_s": 18.0
+          },
+          {
+            "module": "attack_classification",
+            "nhan": "dos",
+            "host": "192.168.50.41",
+            "bat_dau": 1794503418.0,
+            "thoi_luong_s": 18.0
+          },
+          {
+            "module": "attack_classification",
+            "nhan": "dos",
+            "host": "192.168.50.42",
+            "bat_dau": 1794503418.0,
+            "thoi_luong_s": 18.0
+          },
+          {
+            "module": "attack_classification",
+            "nhan": "dos",
+            "host": "192.168.50.42",
+            "bat_dau": 1794503592.0,
+            "thoi_luong_s": 18.0
+          },
+          {
+            "module": "attack_classification",
+            "nhan": "dos",
+            "host": "192.168.50.43",
+            "bat_dau": 1794503592.0,
+            "thoi_luong_s": 18.0
+          },
+          {
+            "module": "attack_classification",
+            "nhan": "dos",
+            "host": "192.168.50.41",
+            "bat_dau": 1794503666.0,
+            "thoi_luong_s": 28.0
+          },
+          {
+            "module": "attack_classification",
+            "nhan": "dos",
+            "host": "192.168.50.43",
+            "bat_dau": 1794503666.0,
+            "thoi_luong_s": 28.0
+          }
+        ]
+      },
+      "hieu_nang": {
+        "flow": 863,
+        "cua_so": 1867,
+        "thoi_gian_s": {
+          "trich_xuat": 0.73,
+          "doc_bang": 0.05,
+          "anomaly": 0.01,
+          "attack_classification": 0.06,
+          "botnet_topology": 0.09
+        }
+      }
+    },
+    {
+      "pcap": "k5-p2p-test-06.pcap",
+      "che_do": "ket_hop",
+      "khoang_giay": 746.0,
+      "gio": 0.207,
+      "phat_hien": {
+        "theo_dot": [
+          {
+            "kich_ban": "k5-p2p-test-06",
+            "loai": "botnet",
+            "host": [
+              "192.168.50.41",
+              "192.168.50.42",
+              "192.168.50.43"
+            ],
+            "bat_dau": 1794503102.0,
+            "thoi_luong_s": 597.7,
+            "so_canh_bao": 0,
+            "host_phat_hien": [],
+            "anomaly_do_tre_s": null,
+            "phat_hien": false,
+            "do_tre_s": null
+          }
+        ],
+        "so_dot": 1,
+        "phat_hien": 0,
+        "bo_sot": 1
+      },
+      "do_tre": {
+        "so_mau": 0
+      },
+      "bao_gia": {
+        "so_su_kien_bao_gia": 1,
+        "moi_gio": 4.83,
+        "theo_module": {
+          "anomaly": 1
+        },
+        "chi_tiet": [
+          {
+            "module": "anomaly",
+            "nhan": "anomaly",
+            "host": "192.168.50.30",
+            "bat_dau": 1794503058.0,
+            "thoi_luong_s": 740.0
+          }
+        ]
+      },
+      "hieu_nang": {
+        "flow": 876,
+        "cua_so": 1845,
+        "thoi_gian_s": {
+          "trich_xuat": 0.6,
+          "doc_bang": 0.06,
+          "anomaly": 0.0,
+          "attack_classification": 0.06,
+          "botnet_topology": 0.09
+        }
+      }
+    }
+  ],
+  "tong_hop": {
+    "so_dot": 24,
+    "phat_hien": 15,
+    "bo_sot": 9,
+    "bao_gia": 63,
+    "ty_le_phat_hien": 0.625
+  }
+}
