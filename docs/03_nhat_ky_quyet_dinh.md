@@ -503,6 +503,27 @@ Mẫu:
 - Quyết định: Thêm lớp sau bộ phân loại (`nids.dos_cham.hold_dos`): cửa sổ `benign` của một host được nâng lên `dos` khi 20 giây ngay trước đó host đã có ≥ 5 cửa sổ `dos` (chỉ đếm dự đoán gốc). Hai tham số chọn trên validation (macro-F1 0,9352 → 0,9463).
 - Hệ quả: Test CIC: macro-F1 0,9078 → 0,9241, recall `dos` 0,838 → 0,938, Slowhttptest 0,66 → 0,82, precision `dos` 0,964 → 0,951. Chưa bật trong pipeline và realtime (cần trạng thái theo host); cấu hình chọn nằm ở mép lưới nên phải thử thêm trước khi bật. Chi tiết docs/75.
 
+## QĐ-069 — Biến thể chỉ để chấm: đổi vai trò máy, và SYN flood gói thô trong lab ảo
+- Ngày: 13/11/2026
+- Trạng thái: Đã chốt (làm rõ phạm vi của B24)
+- Bối cảnh: Bộ mô hình lab chỉ được chấm trên cùng vai trò máy đã học; DoS của lab là tải kết nối bằng socket thường (QĐ-064) nên chưa biết SYN flood thật có được nhận ra không. B24 cấm traffic nguy hại và traffic ra ngoài lab.
+- Quyết định: Thêm sáu biến thể tiền tố `x` trong `scripts/lab_ao.py`, **chỉ dùng để chấm**: `x4-doi-vai`, `x4-doi-chung-doi-vai`, `x5-doi-vai` (bot, máy điều khiển, cổng, chu kỳ khác hẳn k4/k5) và `x3-syn-muc1/2/3` (SYN flood bằng `hping3 -S`, 50/200/600 gói mỗi giây, tối đa 60 giây). Gói thô được phép **chỉ trong lab ảo**: các namespace nối vào bridge không có địa chỉ và không có đường ra ngoài, nên không gói nào rời máy; không giả mạo địa chỉ nguồn. Trên lab vật lý B24 giữ nguyên: không sinh gói thô.
+- Hệ quả: Mô hình lab phát hiện 6/6 đợt botnet đổi vai, không báo nhầm đối chứng; SYN flood được phát hiện 9/9 bởi cả mô hình CIC lẫn mô hình lab, nhưng cửa sổ của máy nạn nhân hầu như không bị gán `dos`. Brute-force, exploit không thu. Chi tiết docs/76 mục 3 và 6.
+
+## QĐ-070 — Quy tắc topology theo nhóm cho lab: `p2p` khi các host bị nghi gọi lẫn nhau
+- Ngày: 13/11/2026
+- Trạng thái: Đã chốt (thay quy tắc ngưỡng của QĐ-068 trong `config/lab.yaml`; `default.yaml` giữ QĐ-042)
+- Bối cảnh: Quy tắc ngưỡng trên từng host phải nới tới "≥ 1 peer gọi vào, ≥ 5% UDP" mới hợp lab 3 bot, dễ gán `p2p` nhầm trên mạng nhiều host và sót ngang hàng dùng TCP.
+- Quyết định: `botnet.topology_rule.kieu: nhom`: host bị nghi là `p2p` khi trong cùng cửa sổ 120 giây nó có flow trực tiếp với ít nhất một host bị nghi khác; còn lại `centralized` (`botnet.group_p2p`). Dùng ở cả pipeline offline và realtime.
+- Hệ quả: Đúng 100% trên `val` (quy tắc ngưỡng 99,1%); trên `test` 9–11 `p2p` đúng 98,2% (trước 92,0%), trên biến thể đổi vai 94,1%. Giới hạn: cần ít nhất hai bot bị phát hiện trong cùng cửa sổ; hai host bị nghi có liên lạc lành tính với nhau sẽ bị gán `p2p`. Chi tiết docs/76 mục 5.
+
+## QĐ-072 — Bộ mô hình lab lần hai: 3 lần `train`, chờ bắt tay 1 giây
+- Ngày: 13/11/2026
+- Trạng thái: Đã chốt (cập nhật QĐ-068; tham số flow của `default.yaml` giữ nguyên theo QĐ-066)
+- Bối cảnh: Bộ mô hình lab đầu tiên học từ một lần `train` mỗi biến thể và còn 4 sự kiện báo nhầm `dos`; `flow.handshake_observe_s` = 3 cộng thẳng 3 giây vào độ trễ realtime.
+- Quyết định: Học lại với 3 lần `train` mỗi biến thể (1 587 host–cửa sổ bot), và đặt `flow.handshake_observe_s` = 1 trong `config/lab.yaml`; mọi mô hình lab được học từ đặc trưng trích xuất với 1 giây, kể cả phần CIC của bộ phân loại (B12). Căn cứ: huấn luyện lại trên CIC với 1 giây cho macro-F1 validation 0,9370 (3 giây: 0,9352); trên lab có trễ khứ hồi 200 ms, mô hình 1 giây và 3 giây cho kết quả giống hệt.
+- Hệ quả: Trên 33 lần `test` mới (lần 9–11): 24/24 đợt, 0 báo động giả, macro-F1 theo cửa sổ 0,9989. Cảnh báo quét và DoS sớm hơn khoảng 2 giây. Chấm chéo: mô hình botnet lab cho recall 0 trên CTU-13, nên kết quả chỉ có nghĩa trong lab với bot mô phỏng. Mỗi lần học lại phải thu lần `test` mới; các lần 1–8 đã được xem. Chi tiết docs/76.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.

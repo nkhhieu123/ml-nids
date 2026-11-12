@@ -1,0 +1,82 @@
+{
+  "test": {
+    "so_lan_chay": 33,
+    "so_cua_so": 46695,
+    "bo_vi_mo_ho": 2,
+    "chung": {
+      "macro_f1": 0.9989,
+      "accuracy": 0.9999,
+      "theo_lop": {
+        "benign": {
+          "precision": 0.9999,
+          "recall": 1.0,
+          "f1": 1.0,
+          "so_mau": 44505
+        },
+        "port_scan": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "so_mau": 1592
+        },
+        "dos": {
+          "precision": 1.0,
+          "recall": 0.9933,
+          "f1": 0.9966,
+          "so_mau": 596
+        }
+      },
+      "confusion": {
+        "nhan": [
+          "benign",
+          "port_scan",
+          "dos"
+        ],
+        "ma_tran": [
+          [
+            44505,
+            0,
+            0
+          ],
+          [
+            0,
+            1592,
+            0
+          ],
+          [
+            4,
+            0,
+            592
+          ]
+        ]
+      }
+    },
+    "recall_theo_vai_tro": {
+      "nan_nhan": {
+        "dos": {
+          "so_mau": 298,
+          "recall": 0.9933
+        },
+        "port_scan": {
+          "so_mau": 795,
+          "recall": 1.0
+        }
+      },
+      "tan_cong": {
+        "dos": {
+          "so_mau": 298,
+          "recall": 0.9933
+        },
+        "port_scan": {
+          "so_mau": 797,
+          "recall": 1.0
+        }
+      }
+    },
+    "benign_bi_bao": {
+      "so_mau": 44505,
+      "bi_bao": 0,
+      "theo_bien_the": {}
+    }
+  }
+}

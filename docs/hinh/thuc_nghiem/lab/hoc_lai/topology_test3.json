@@ -1,0 +1,35 @@
+{
+ "doi_vai_lab": {
+  "x4-doi-vai": {
+   "centralized": 606
+  },
+  "x5-doi-vai": {
+   "centralized": 24,
+   "p2p": 384
+  }
+ },
+ "test3_lab": {
+  "k4-bien-thien": {
+   "centralized": 606
+  },
+  "k4-co-dinh": {
+   "centralized": 598
+  },
+  "k5-p2p": {
+   "centralized": 11,
+   "p2p": 586
+  }
+ },
+ "test3_lab_v1": {
+  "k4-bien-thien": {
+   "centralized": 606
+  },
+  "k4-co-dinh": {
+   "centralized": 600
+  },
+  "k5-p2p": {
+   "centralized": 47,
+   "p2p": 542
+  }
+ }
+}

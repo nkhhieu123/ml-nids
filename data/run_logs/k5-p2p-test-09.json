@@ -1,0 +1,161 @@
+{
+  "ma_lan_chay": "k5-p2p-test-09",
+  "bien_the": "k5-p2p",
+  "vai_tro": "test",
+  "lan": 9,
+  "seed": 612716992,
+  "moi_truong": {
+    "kieu": "lab ảo: network namespace + bridge + tc mirror",
+    "lab": 21,
+    "nhan": "6.18.33.2-microsoft-standard-WSL2",
+    "may": "shanley",
+    "nmap": "Nmap version 7.98 ( https://nmap.org )"
+  },
+  "ban_thu": {
+    "file": "data/pcap/lab/k5-p2p-test-09.pcap",
+    "bat_dau": "2026-11-13T00:42:17.748+07:00",
+    "ket_thuc": "2026-11-13T00:54:42.547+07:00",
+    "bat_dau_epoch": 1794505337.749,
+    "ket_thuc_epoch": 1794506082.547,
+    "may_giam_sat": "192.168.50.10",
+    "byte": 4909781,
+    "sha256": "c4ef4d4400391269bdc065d0dc2bf84ad8bfae77e39c4477a9d375ab047a537a",
+    "goi_bat_duoc": 12913,
+    "goi_qua_bo_loc": 12913,
+    "goi_nhan_bo": 0
+  },
+  "lech_dong_ho_s": 0.0,
+  "nen": {
+    "kieu": "binh-thuong",
+    "nhan": "benign",
+    "ip_nguon": [
+      "192.168.50.20",
+      "192.168.50.41",
+      "192.168.50.42",
+      "192.168.50.43"
+    ],
+    "ip_dich": [
+      "192.168.50.30"
+    ],
+    "bat_dau": "2026-11-13T00:42:17.748+07:00",
+    "ket_thuc": "2026-11-13T00:54:40.542+07:00",
+    "mo_ta": "duyệt web nghỉ 1–6 giây, kiểm tra trạng thái api/status mỗi ~30 giây"
+  },
+  "hanh_vi": [
+    {
+      "kieu": "ngang-hang",
+      "nhan": "botnet",
+      "bat_dau": "2026-11-13T00:42:56.741+07:00",
+      "ket_thuc": "2026-11-13T00:52:44.889+07:00",
+      "bat_dau_epoch": 1794505376.742,
+      "ket_thuc_epoch": 1794505964.89,
+      "ip_nguon": [
+        "192.168.50.41",
+        "192.168.50.42",
+        "192.168.50.43"
+      ],
+      "ip_dich": [
+        "192.168.50.41",
+        "192.168.50.42",
+        "192.168.50.43"
+      ],
+      "tham_so": {
+        "cong": 40000,
+        "giao_thuc": "udp",
+        "chu_ky_s": 30,
+        "jitter": 0.4,
+        "topology": "p2p",
+        "thoi_gian_s": 600,
+        "peer": {
+          "192.168.50.41": [
+            "192.168.50.42",
+            "192.168.50.43"
+          ],
+          "192.168.50.42": [
+            "192.168.50.41",
+            "192.168.50.43"
+          ],
+          "192.168.50.43": [
+            "192.168.50.41",
+            "192.168.50.42"
+          ]
+        }
+      },
+      "lenh": {
+        "192.168.50.41": "/usr/bin/python3 /mnt/c/Users/Lenovo/orca/projects/attt/scripts/sinh_topology.py ngang-hang --peer 192.168.50.42 --peer 192.168.50.43 --cong 40000 --chu-ky 30 --jitter 0.4 --thoi-gian 600 --seed 444656",
+        "192.168.50.42": "/usr/bin/python3 /mnt/c/Users/Lenovo/orca/projects/attt/scripts/sinh_topology.py ngang-hang --peer 192.168.50.41 --peer 192.168.50.43 --cong 40000 --chu-ky 30 --jitter 0.4 --thoi-gian 600 --seed 249907",
+        "192.168.50.43": "/usr/bin/python3 /mnt/c/Users/Lenovo/orca/projects/attt/scripts/sinh_topology.py ngang-hang --peer 192.168.50.41 --peer 192.168.50.42 --cong 40000 --chu-ky 30 --jitter 0.4 --thoi-gian 600 --seed 134093"
+      },
+      "ma_thoat": [
+        0,
+        0,
+        0
+      ]
+    }
+  ],
+  "nhat_ky_may_sinh": [
+    {
+      "ma_lan_chay": "ngang-hang-20261113-004256-24aa",
+      "hanh_vi": "ngang-hang",
+      "topology": "p2p",
+      "bat_dau": "2026-11-13T00:42:56+07:00",
+      "ket_thuc": "2026-11-13T00:52:34+07:00",
+      "ip_may_nay": "192.168.50.41",
+      "ip_dich": [
+        "192.168.50.42",
+        "192.168.50.43"
+      ],
+      "cong": 40000,
+      "tham_so": {
+        "chu_ky": 30.0,
+        "jitter": 0.4,
+        "thoi_gian": 600.0,
+        "seed": 444656
+      },
+      "chi_thu": false,
+      "so_lan_gui": 20
+    },
+    {
+      "ma_lan_chay": "ngang-hang-20261113-004256-5ee1",
+      "hanh_vi": "ngang-hang",
+      "topology": "p2p",
+      "bat_dau": "2026-11-13T00:42:56+07:00",
+      "ket_thuc": "2026-11-13T00:52:39+07:00",
+      "ip_may_nay": "192.168.50.43",
+      "ip_dich": [
+        "192.168.50.41",
+        "192.168.50.42"
+      ],
+      "cong": 40000,
+      "tham_so": {
+        "chu_ky": 30.0,
+        "jitter": 0.4,
+        "thoi_gian": 600.0,
+        "seed": 134093
+      },
+      "chi_thu": false,
+      "so_lan_gui": 19
+    },
+    {
+      "ma_lan_chay": "ngang-hang-20261113-004256-082c",
+      "hanh_vi": "ngang-hang",
+      "topology": "p2p",
+      "bat_dau": "2026-11-13T00:42:56+07:00",
+      "ket_thuc": "2026-11-13T00:52:44+07:00",
+      "ip_may_nay": "192.168.50.42",
+      "ip_dich": [
+        "192.168.50.41",
+        "192.168.50.43"
+      ],
+      "cong": 40000,
+      "tham_so": {
+        "chu_ky": 30.0,
+        "jitter": 0.4,
+        "thoi_gian": 600.0,
+        "seed": 249907
+      },
+      "chi_thu": false,
+      "so_lan_gui": 20
+    }
+  ]
+}

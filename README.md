@@ -158,6 +158,8 @@ Học lại ba module trên dữ liệu lab, chấm trên lần `test` mới (24
 
 Thí nghiệm bổ sung (cảm biến bắt trực tiếp, máy tấn công có traffic bình thường, khoảng gộp sự kiện): [docs/74_thi_nghiem_bo_sung.md](docs/74_thi_nghiem_bo_sung.md)
 
+Bộ mô hình lab lần hai, kiểm tra khái quát (đổi vai trò máy, SYN flood, chấm chéo CTU-13), chờ bắt tay 1 giây: [docs/76_khai_quat_lab.md](docs/76_khai_quat_lab.md)
+
 Giữ nhãn `dos` theo host để vớt DoS HTTP chậm (tùy chọn, chưa bật): [docs/75_dos_cham.md](docs/75_dos_cham.md)
 
 Độ nhạy của các tham số tạm thời, đo trên validation: [docs/72_do_nhay_tham_so.md](docs/72_do_nhay_tham_so.md)

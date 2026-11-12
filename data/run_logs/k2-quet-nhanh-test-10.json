@@ -1,0 +1,73 @@
+{
+  "ma_lan_chay": "k2-quet-nhanh-test-10",
+  "bien_the": "k2-quet-nhanh",
+  "vai_tro": "test",
+  "lan": 10,
+  "seed": 2513136261,
+  "moi_truong": {
+    "kieu": "lab ảo: network namespace + bridge + tc mirror",
+    "lab": 14,
+    "nhan": "6.18.33.2-microsoft-standard-WSL2",
+    "may": "shanley",
+    "nmap": "Nmap version 7.98 ( https://nmap.org )"
+  },
+  "ban_thu": {
+    "file": "data/pcap/lab/k2-quet-nhanh-test-10.pcap",
+    "bat_dau": "2026-11-13T00:52:20.990+07:00",
+    "ket_thuc": "2026-11-13T01:02:22.993+07:00",
+    "bat_dau_epoch": 1794505940.99,
+    "ket_thuc_epoch": 1794506542.994,
+    "may_giam_sat": "192.168.50.10",
+    "byte": 3222388,
+    "sha256": "11154ae68746e9a1f4099c8404fa389a234e45b8fdbe0a3914856836f73e7373",
+    "goi_bat_duoc": 10067,
+    "goi_qua_bo_loc": 10067,
+    "goi_nhan_bo": 0
+  },
+  "lech_dong_ho_s": 0.0,
+  "nen": {
+    "kieu": "binh-thuong",
+    "nhan": "benign",
+    "ip_nguon": [
+      "192.168.50.41",
+      "192.168.50.42",
+      "192.168.50.43"
+    ],
+    "ip_dich": [
+      "192.168.50.30"
+    ],
+    "bat_dau": "2026-11-13T00:52:20.990+07:00",
+    "ket_thuc": "2026-11-13T01:02:20.990+07:00",
+    "mo_ta": "duyệt web nghỉ 1–6 giây, kiểm tra trạng thái api/status mỗi ~30 giây"
+  },
+  "hanh_vi": [
+    {
+      "kieu": "quet",
+      "nhan": "port_scan",
+      "bat_dau": "2026-11-13T00:54:37.964+07:00",
+      "ket_thuc": "2026-11-13T00:54:38.026+07:00",
+      "bat_dau_epoch": 1794506077.964,
+      "ket_thuc_epoch": 1794506078.026,
+      "ip_nguon": [
+        "192.168.50.20"
+      ],
+      "ip_dich": [
+        "192.168.50.30"
+      ],
+      "tham_so": {
+        "cong_cu": "nmap -sT",
+        "cong_dau": 1,
+        "cong_cuoi": 1024,
+        "gian_cach_s": 0.0,
+        "toc_do": "nhanh"
+      },
+      "lenh": {
+        "192.168.50.20": "nmap -sT -Pn -n -p 1-1024 --max-retries 0 -T4 192.168.50.30"
+      },
+      "ma_thoat": [
+        0
+      ]
+    }
+  ],
+  "nhat_ky_may_sinh": []
+}
