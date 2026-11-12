@@ -165,6 +165,9 @@ paths:
   output_dir: output
   run_log_dir: data/run_logs  # nhật ký lần chạy, cơ sở gán nhãn
 
+service_log:                 # access log Nginx của máy chủ dịch vụ (docs/05): chỉ để đối chiếu, không gán nhãn
+  match_tolerance_s: 1.0     # dung sai thời gian khi ghép dòng log với flow (QĐ-067)
+
 alerts:
   channels: [terminal, csv]  # bản đầu tiên chưa có dashboard
   csv_path: output/alerts.csv

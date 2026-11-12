@@ -123,6 +123,44 @@ file (`docs/hinh/log_lab.json`):
   gửi yêu cầu, Nginx không ghi dòng nào. Log vì vậy không đếm được số kết nối tấn công; chỉ thấy client hợp
   lệ vẫn được phục vụ (docs/71 mục 3).
 
+## 6. Ghép dòng log với flow và dung sai thời gian (QĐ-067)
+
+Mã nguồn: `src/nids/log_flow.py`. Kiểm thử: `tests/test_log_flow.py`. Số liệu: `docs/hinh/log_flow.json`.
+
+```bash
+cd src
+python -m nids.log_flow ../data/pcap/lab/k*.pcap --log-dir ../data/service_logs --out ../docs/hinh
+```
+
+Một dòng log khớp một flow TCP khi một đầu của flow là (IP client, cổng client) của dòng log, đầu kia dùng cổng
+máy chủ của dòng log, và thời điểm ghi log (`$msec`, lúc yêu cầu kết thúc) nằm trong khoảng sống của flow, nới
+thêm mỗi đầu một **dung sai**. Cùng (IP, cổng client) có thể có nhiều flow vì hệ điều hành dùng lại cổng nguồn;
+khi đó lấy flow gần thời điểm ghi log nhất.
+
+Đo trên 55 lần chạy lab (33 003 dòng log; máy chủ và máy giám sát chung đồng hồ):
+
+| Dung sai | Dòng ghép được | Dòng khớp hơn một flow |
+|---|---|---|
+| 0 | 10 461 (31,7%) | 0 |
+| 0,001 s | **33 003 (100%)** | 0 |
+| 0,01 s; 0,1 s | 33 003 (100%) | 0 |
+| **1 s** | **33 003 (100%)** | **0** |
+| 5 s | 33 003 (100%) | 4 |
+| 60 s | 33 003 (100%) | 68 |
+
+- **Mọi dòng log đều có flow cùng (IP, cổng client, cổng máy chủ)**; khoảng cách lớn nhất tới flow là 0,91 mili
+  giây. 68% dòng được ghi **sau** gói cuối của flow dưới 1 mili giây, vì `$msec` làm tròn tới mili giây và
+  Nginx ghi log sau khi đóng kết nối. Dung sai 0 vì vậy không đủ.
+- **Dung sai quá rộng làm ghép không còn duy nhất**: từ 5 giây, một dòng có thể khớp hai flow dùng lại cùng
+  cổng nguồn.
+- **Chốt `service_log.match_tolerance_s` = 1 giây**: lớn hơn 1 000 lần phần lệch đo được, vẫn ghép duy nhất, và
+  đủ cho đồng hồ đồng bộ NTP trong mạng LAN (lệch cỡ mili giây tới vài chục mili giây). Lab vật lý phải trừ độ
+  lệch đồng hồ ghi trong nhật ký lần chạy trước khi ghép; nếu lệch còn lại vượt 1 giây thì phải đồng bộ lại
+  chứ không nới dung sai.
+- **Chiều ngược lại**: flow tới cổng 80 không có dòng log là kết nối không gửi yêu cầu — lần thử cổng 80 của
+  Nmap (1 flow mỗi lần quét) và toàn bộ kết nối của tải kết nối (3 000 ở mức 1, 12 000 ở mức 2). Mọi flow của
+  client hợp lệ đều có dòng log.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.

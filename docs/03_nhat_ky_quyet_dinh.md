@@ -482,6 +482,13 @@ Mẫu:
 - Quyết định: Giữ nguyên: cửa sổ flow/host 10 giây bước 2 giây, cửa sổ đồ thị 120 giây bước 10 giây; `idle_timeout_s` 60, `active_timeout_s` 120, `close_grace_s` 10, `handshake_observe_s` 3. Thử trên 11 lần chạy `val` của lab, mỗi lần đổi một tham số (idle 30/120, active 60/300, grace 5/20, bắt tay 1/5), trích xuất lại và chấm bằng mô hình đã khóa: cả 9 cấu hình cho cùng số đợt phát hiện, cùng số cửa sổ cảnh báo và cùng số báo động giả.
 - Hệ quả: Không trích xuất hay huấn luyện lại. `handshake_observe_s` cộng thẳng vào độ trễ realtime (1 giây: 1,5–2,9 giây; 3 giây: 3,1–5,0 giây; 5 giây: 6,2–6,9 giây); giảm xuống 1 giây sẽ bớt khoảng 2 giây nhưng đòi trích xuất và huấn luyện lại toàn bộ (B12) và chưa kiểm chứng trên mạng có độ trễ thật, nên để lại như một lựa chọn cho lần học lại sau. Phép đo dùng mô hình đã khóa trên dữ liệu lab, cho biết kết quả không nhạy với tham số, không chứng minh tối ưu. Độ dài cửa sổ không được thử lại. Chi tiết docs/72 mục 2.
 
+## QĐ-067 — Dung sai thời gian khi ghép dòng log với flow: 1 giây
+- Ngày: 12/11/2026
+- Trạng thái: Đã chốt
+- Bối cảnh: Access log dùng để đối chiếu với flow (docs/05) nhưng chưa có phần ghép và chưa chốt dung sai thời gian.
+- Quyết định: Ghép theo (IP client, cổng client, cổng máy chủ) với flow TCP; thời điểm ghi log phải nằm trong khoảng sống của flow nới `service_log.match_tolerance_s` = 1 giây mỗi đầu; nhiều flow cùng cổng thì lấy flow gần nhất (`src/nids/log_flow.py`). Trên 33 003 dòng log của 55 lần chạy lab: dung sai 0 chỉ ghép 31,7% (log ghi sau gói cuối dưới 1 mili giây), từ 0,001 giây ghép 100%; tới 1 giây vẫn ghép duy nhất, từ 5 giây bắt đầu khớp nhầm flow dùng lại cổng nguồn.
+- Hệ quả: Lab vật lý phải trừ độ lệch đồng hồ ghi trong nhật ký lần chạy trước khi ghép. Kết nối không gửi yêu cầu (quét cổng, tải kết nối) không có dòng log nên không ghép được; đó là hành vi đúng. Chi tiết docs/16 mục 6.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.

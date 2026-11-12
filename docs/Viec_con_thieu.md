@@ -110,7 +110,7 @@ gom lại thành các việc sau (việc tải CIC-IDS2017 đã xong):
 | ~~Nguồn mẫu huấn luyện cho DoS kiểu SYN (CIC chỉ có DoS tầng HTTP)~~ | Đã chốt 12/11/2026 (QĐ-064) | Nguồn là lần chạy `train` kịch bản 3 của lab; chưa cần học lại vì mô hình hiện tại phát hiện 9/9 đợt tải kết nối. SYN flood gói thô vẫn chưa thử |
 | ~~Các quyết định còn **tạm thời**: QĐ-004, QĐ-006, QĐ-009, QĐ-010, QĐ-012, QĐ-013~~ | Đã khóa 12/11/2026 | QĐ-065 khóa QĐ-004, 009, 010, 012, 013; QĐ-066 khóa QĐ-006 cùng tham số flow |
 | ~~Dùng `ip_len` hay `frame_len` cho đặc trưng byte~~ | Đã xong | Chốt `ip_len` kèm payload TCP/UDP ở C04-T03 (QĐ-018) |
-| Dung sai thời gian khi ghép dòng log với flow | Nên có | Chốt khi làm phần ghép log–flow |
+| ~~Dung sai thời gian khi ghép dòng log với flow~~ | Đã chốt 12/11/2026 (QĐ-067) | 1 giây; ghép 33 003/33 003 dòng log của lab, duy nhất (docs/16 mục 6) |
 
 ## 4b. Chặng 4–6: việc còn thiếu hoặc hạn chế đã biết
 
