@@ -1,0 +1,152 @@
+{
+ "k1-binh-thuong-test-07": {
+  "thoi_gian_chay_s": 771.2,
+  "goi_nhan": 7898,
+  "goi_xu_ly": 7898,
+  "goi_bo_hang_doi": 0,
+  "goi_bo_kernel": 0,
+  "ty_le_bo": 0.0,
+  "toc_do_trung_binh_goi_s": 10.2,
+  "cpu_trung_binh_phan_tram": 2.6,
+  "ram_lon_nhat_mb": 212.5,
+  "hang_doi_sau_nhat": 44,
+  "do_tre_xu_ly_s": {
+   "p50": 0.0009,
+   "p95": 0.0828,
+   "p99": 0.1423,
+   "lon_nhat": 0.2197
+  },
+  "cua_so_10s": 1214,
+  "cua_so_120s": 288,
+  "canh_bao": 0,
+  "su_kien": 0,
+  "flow_ket_thuc_do_tran": 0,
+  "thoi_gian_cham_s": {
+   "anomaly": 2.03,
+   "attack_classification": 6.79,
+   "botnet_topology": 6.94
+  },
+  "ly_do_dung": "SIGINT",
+  "goi_bo_khi_dung": 0
+ },
+ "k2-quet-nhanh-test-07": {
+  "thoi_gian_chay_s": 771.3,
+  "goi_nhan": 10104,
+  "goi_xu_ly": 10104,
+  "goi_bo_hang_doi": 0,
+  "goi_bo_kernel": 0,
+  "ty_le_bo": 0.0,
+  "toc_do_trung_binh_goi_s": 13.1,
+  "cpu_trung_binh_phan_tram": 2.8,
+  "ram_lon_nhat_mb": 214.9,
+  "hang_doi_sau_nhat": 125,
+  "do_tre_xu_ly_s": {
+   "p50": 0.0009,
+   "p95": 0.0599,
+   "p99": 0.1358,
+   "lon_nhat": 0.2143
+  },
+  "cua_so_10s": 1220,
+  "cua_so_120s": 300,
+  "canh_bao": 20,
+  "su_kien": 4,
+  "flow_ket_thuc_do_tran": 0,
+  "thoi_gian_cham_s": {
+   "anomaly": 2.09,
+   "attack_classification": 7.36,
+   "botnet_topology": 7.48
+  },
+  "ly_do_dung": "SIGINT",
+  "goi_bo_khi_dung": 0
+ },
+ "k3-dos-muc2-test-07": {
+  "thoi_gian_chay_s": 471.5,
+  "goi_nhan": 76018,
+  "goi_xu_ly": 76018,
+  "goi_bo_hang_doi": 0,
+  "goi_bo_kernel": 0,
+  "ty_le_bo": 0.0,
+  "toc_do_trung_binh_goi_s": 161.2,
+  "cpu_trung_binh_phan_tram": 5.4,
+  "ram_lon_nhat_mb": 256.8,
+  "hang_doi_sau_nhat": 393,
+  "do_tre_xu_ly_s": {
+   "p50": 0.0004,
+   "p95": 0.0115,
+   "p99": 0.1784,
+   "lon_nhat": 0.3273
+  },
+  "cua_so_10s": 650,
+  "cua_so_120s": 186,
+  "canh_bao": 105,
+  "su_kien": 3,
+  "flow_ket_thuc_do_tran": 0,
+  "thoi_gian_cham_s": {
+   "anomaly": 0.99,
+   "attack_classification": 3.84,
+   "botnet_topology": 6.03
+  },
+  "ly_do_dung": "SIGINT",
+  "goi_bo_khi_dung": 0
+ },
+ "k4-co-dinh-test-07": {
+  "thoi_gian_chay_s": 940.3,
+  "goi_nhan": 14239,
+  "goi_xu_ly": 14239,
+  "goi_bo_hang_doi": 0,
+  "goi_bo_kernel": 0,
+  "ty_le_bo": 0.0,
+  "toc_do_trung_binh_goi_s": 15.1,
+  "cpu_trung_binh_phan_tram": 2.9,
+  "ram_lon_nhat_mb": 213.5,
+  "hang_doi_sau_nhat": 39,
+  "do_tre_xu_ly_s": {
+   "p50": 0.0009,
+   "p95": 0.0649,
+   "p99": 0.1326,
+   "lon_nhat": 0.2198
+  },
+  "cua_so_10s": 2181,
+  "cua_so_120s": 516,
+  "canh_bao": 414,
+  "su_kien": 6,
+  "flow_ket_thuc_do_tran": 0,
+  "thoi_gian_cham_s": {
+   "anomaly": 2.64,
+   "attack_classification": 9.07,
+   "botnet_topology": 8.75
+  },
+  "ly_do_dung": "SIGINT",
+  "goi_bo_khi_dung": 0
+ },
+ "k5-p2p-test-07": {
+  "thoi_gian_chay_s": 934.8,
+  "goi_nhan": 13546,
+  "goi_xu_ly": 13546,
+  "goi_bo_hang_doi": 0,
+  "goi_bo_kernel": 0,
+  "ty_le_bo": 0.0,
+  "toc_do_trung_binh_goi_s": 14.5,
+  "cpu_trung_binh_phan_tram": 2.8,
+  "ram_lon_nhat_mb": 213.4,
+  "hang_doi_sau_nhat": 45,
+  "do_tre_xu_ly_s": {
+   "p50": 0.0009,
+   "p95": 0.0708,
+   "p99": 0.1453,
+   "lon_nhat": 0.1738
+  },
+  "cua_so_10s": 1923,
+  "cua_so_120s": 440,
+  "canh_bao": 418,
+  "su_kien": 14,
+  "flow_ket_thuc_do_tran": 0,
+  "thoi_gian_cham_s": {
+   "anomaly": 2.52,
+   "attack_classification": 9.1,
+   "botnet_topology": 8.78
+  },
+  "ly_do_dung": "SIGINT",
+  "goi_bo_khi_dung": 0
+ }
+}

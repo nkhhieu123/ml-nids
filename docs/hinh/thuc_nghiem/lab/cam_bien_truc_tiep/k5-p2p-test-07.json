@@ -1,0 +1,17 @@
+{
+  "pcap": "k5-p2p-test-07.pcap",
+  "nguon": "bắt trực tiếp",
+  "alerts": "k5-p2p-test-07.alerts.csv",
+  "theo_dot": [
+    {
+      "kich_ban": "k5-p2p-test-07",
+      "loai": "botnet",
+      "phat_hien": true,
+      "so_canh_bao": 209,
+      "do_tre_realtime_s": 17.8,
+      "do_tre_cuoi_cua_so_s": 3.9,
+      "cho_sau_cua_so_s": 13.9,
+      "host": "192.168.50.41"
+    }
+  ]
+}

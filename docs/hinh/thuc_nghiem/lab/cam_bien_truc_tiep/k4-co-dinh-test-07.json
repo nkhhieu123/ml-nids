@@ -1,0 +1,17 @@
+{
+  "pcap": "k4-co-dinh-test-07.pcap",
+  "nguon": "bắt trực tiếp",
+  "alerts": "k4-co-dinh-test-07.alerts.csv",
+  "theo_dot": [
+    {
+      "kich_ban": "k4-co-dinh-test-07",
+      "loai": "botnet",
+      "phat_hien": true,
+      "so_canh_bao": 207,
+      "do_tre_realtime_s": 30.0,
+      "do_tre_cuoi_cua_so_s": 16.2,
+      "cho_sau_cua_so_s": 13.8,
+      "host": "192.168.50.41"
+    }
+  ]
+}

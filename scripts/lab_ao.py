@@ -267,11 +267,13 @@ def plan(variant, lan, rng):
 
 # ---------------------------------------------------------------- một lần chạy
 
-def run(lab, variant, role, lan, seed=None, out_root=ROOT, scale=1.0):
+def run(lab, variant, role, lan, seed=None, out_root=ROOT, scale=1.0, tester_bg=False):
     run_id = f"{variant}-{role}-{lan:02d}"
     seed = zlib.crc32(run_id.encode()) if seed is None else seed
     rng = random.Random(seed)
     p = plan(variant, lan, rng)
+    if tester_bg and TESTER not in p["nen"]:      # thí nghiệm bổ sung: máy tấn công cũng duyệt web như máy thường
+        p["nen"].append(TESTER)
     if scale != 1.0:                            # chỉ để thử nhanh script; lần chạy thật giữ scale = 1
         p["thoi_luong_s"] *= scale
         p["duoi_s"] *= scale
@@ -466,6 +468,8 @@ def main(argv=None):
     c.add_argument("--lan", type=int, nargs="+", default=[1], help="số thứ tự lần chạy; nhiều số thì chạy lần lượt")
     c.add_argument("--seed", type=int, help="mặc định suy từ mã lần chạy")
     c.add_argument("--ti-le", type=float, default=1.0, help="co thời gian để thử nhanh script; lần thật để 1")
+    c.add_argument("--nen-may-tan-cong", action="store_true",
+                   help="thí nghiệm bổ sung: máy thử nghiệm .20 cũng sinh traffic bình thường suốt bản thu")
     a = ap.parse_args(argv)
     if a.lenh != "go" and (not sys.platform.startswith("linux") or os.geteuid() != 0):
         raise SystemExit("Cần chạy bằng root trên Linux (network namespace, tc, tcpdump).")
@@ -479,7 +483,7 @@ def main(argv=None):
         protocol_check(a.lab)
     else:
         for lan in a.lan:
-            run(a.lab, a.bien_the, a.vai_tro, lan, a.seed, scale=a.ti_le)
+            run(a.lab, a.bien_the, a.vai_tro, lan, a.seed, scale=a.ti_le, tester_bg=a.nen_may_tan_cong)
     return 0
 
 

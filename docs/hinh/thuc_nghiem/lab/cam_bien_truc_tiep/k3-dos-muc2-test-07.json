@@ -1,0 +1,17 @@
+{
+  "pcap": "k3-dos-muc2-test-07.pcap",
+  "nguon": "bắt trực tiếp",
+  "alerts": "k3-dos-muc2-test-07.alerts.csv",
+  "theo_dot": [
+    {
+      "kich_ban": "k3-dos-muc2-test-07",
+      "loai": "dos",
+      "phat_hien": true,
+      "so_canh_bao": 70,
+      "do_tre_realtime_s": 3.9,
+      "do_tre_cuoi_cua_so_s": 0.9,
+      "cho_sau_cua_so_s": 3.0,
+      "host": "192.168.50.20"
+    }
+  ]
+}

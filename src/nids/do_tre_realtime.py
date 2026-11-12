@@ -79,6 +79,24 @@ def measure(pcap, networks, runlog, cfg, mode="ket_hop", speed=1.0) -> dict:
             "theo_dot": rows}
 
 
+def alerts_from_csv(path) -> list:
+    """Cảnh báo cảm biến realtime đã ghi (``<tên>.alerts.csv``), giữ giờ thật lúc phát (``created_at``)."""
+    import csv
+    from datetime import datetime
+
+    from .alerts import Alert
+
+    ts = lambda v: datetime.fromisoformat(v.replace("Z", "+00:00")).timestamp()
+    with open(path, encoding="utf-8", newline="") as f:
+        return [Alert(r["module"], r["label"], ts(r["window_start"]), ts(r["window_end"]), src_ip=r["src_ip"],
+                      created_at=ts(r["created_at"])) for r in csv.DictReader(f)]
+
+
+def live_latency(alerts_csv, runlog, networks) -> list:
+    """Độ trễ của cảm biến bắt trực tiếp: giờ thật lúc phát cảnh báo − thời điểm bắt đầu hành vi (cùng đồng hồ)."""
+    return realtime_latency(attacks_from_runlog(runlog, networks), alerts_from_csv(alerts_csv), 0.0, 0.0)
+
+
 def main(argv=None):
     from .config import load_config
 
@@ -88,11 +106,18 @@ def main(argv=None):
     ap.add_argument("--nhat-ky", required=True, help="thư mục nhật ký lần chạy, hoặc file .json/.jsonl")
     ap.add_argument("--che-do", default="ket_hop", choices=("doc_lap", "tuan_tu", "ket_hop"))
     ap.add_argument("--toc-do", type=float, default=1.0, help="1 là đúng nhịp lúc bắt")
+    ap.add_argument("--alerts", help="file alerts.csv của cảm biến đã bắt trực tiếp lần chạy này: không phát lại, "
+                                     "chỉ tính độ trễ từ giờ thật lúc phát cảnh báo")
     ap.add_argument("--out", help="thư mục ghi <tên PCAP>.json")
     ap.add_argument("--config")
     a = ap.parse_args(argv)
     cfg = load_config(a.config)
-    res = measure(a.pcap, a.net or [cfg["lab"]["subnet"]], load_runlog(a.nhat_ky, a.pcap), cfg, a.che_do, a.toc_do)
+    nets = a.net or [cfg["lab"]["subnet"]]
+    if a.alerts:
+        res = {"pcap": Path(a.pcap).name, "nguon": "bắt trực tiếp", "alerts": Path(a.alerts).name,
+               "theo_dot": live_latency(a.alerts, load_runlog(a.nhat_ky, a.pcap), nets)}
+    else:
+        res = measure(a.pcap, nets, load_runlog(a.nhat_ky, a.pcap), cfg, a.che_do, a.toc_do)
     print(json.dumps(res, ensure_ascii=False))
     if a.out:
         od = Path(a.out)

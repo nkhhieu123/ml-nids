@@ -53,6 +53,21 @@ class RealtimeLatencyTest(unittest.TestCase):
         self.assertEqual((row["phat_hien"], row["do_tre_realtime_s"]), (True, 5.0))       # 1105 − 1100
         self.assertEqual((row["do_tre_cuoi_cua_so_s"], row["cho_sau_cua_so_s"]), (2.0, 3.0))
 
+    def test_live_alert_csv_uses_real_clock(self):
+        import io
+        import tempfile
+
+        from nids.alerts import AlertSink
+        from nids.do_tre_realtime import live_latency
+        log = [{"ma_lan_chay": "r", "kieu": "tai-ket-noi", "nhan": "dos", "ip_nguon": ["192.168.50.20"],
+                "ip_dich": ["192.168.50.30"], "bat_dau_epoch": 1100.0, "ket_thuc_epoch": 1160.0}]
+        with tempfile.TemporaryDirectory() as d:
+            path = Path(d) / "a.csv"
+            with AlertSink(path, stream=io.StringIO()) as sink:
+                sink.emit(Alert("attack_classification", "dos", 1092.0, 1102.0, src_ip="192.168.50.20", created_at=1105.25))
+            row = live_latency(path, log, ["192.168.50.0/24"])[0]
+        self.assertEqual((row["phat_hien"], row["do_tre_realtime_s"], row["cho_sau_cua_so_s"]), (True, 5.2, 3.2))
+
     def test_no_alert_is_miss(self):
         a = Attack("r", "botnet", frozenset({"192.168.50.41"}), 1100.0, 1700.0)
         self.assertEqual(realtime_latency([a], [], 1000.0, 5000.0)[0]["phat_hien"], False)

@@ -1,0 +1,17 @@
+{
+  "pcap": "k2-quet-nhanh-test-07.pcap",
+  "nguon": "bắt trực tiếp",
+  "alerts": "k2-quet-nhanh-test-07.alerts.csv",
+  "theo_dot": [
+    {
+      "kich_ban": "k2-quet-nhanh-test-07",
+      "loai": "port_scan",
+      "phat_hien": true,
+      "so_canh_bao": 10,
+      "do_tre_realtime_s": 4.2,
+      "do_tre_cuoi_cua_so_s": 0.2,
+      "cho_sau_cua_so_s": 3.9,
+      "host": "192.168.50.20"
+    }
+  ]
+}
