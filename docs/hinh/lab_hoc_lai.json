@@ -1,0 +1,454 @@
+{
+  "lan_chay": {
+    "train": [
+      "k1-binh-thuong-train-01",
+      "k2-quet-cham-train-01",
+      "k2-quet-nhanh-train-01",
+      "k3-dos-muc1-train-01",
+      "k3-dos-muc2-train-01",
+      "k3-dos-muc3-train-01",
+      "k4-bien-thien-train-01",
+      "k4-co-dinh-train-01",
+      "k4-doi-chung-train-01",
+      "k5-doi-chung-train-01",
+      "k5-p2p-train-01"
+    ],
+    "val": [
+      "k1-binh-thuong-val-01",
+      "k2-quet-cham-val-01",
+      "k2-quet-nhanh-val-01",
+      "k3-dos-muc1-val-01",
+      "k3-dos-muc2-val-01",
+      "k3-dos-muc3-val-01",
+      "k4-bien-thien-val-01",
+      "k4-co-dinh-val-01",
+      "k4-doi-chung-val-01",
+      "k5-doi-chung-val-01",
+      "k5-p2p-val-01"
+    ]
+  },
+  "gaussian": {
+    "dac_trung": [
+      "packets_out",
+      "packets_in",
+      "dst_hosts",
+      "dst_ports",
+      "new_conn_out",
+      "src_hosts",
+      "new_conn_in",
+      "dst_port_entropy",
+      "tcp_attempts_out",
+      "no_reply_out",
+      "rejected_out",
+      "half_open_out",
+      "tcp_attempts_in",
+      "incomplete_in"
+    ],
+    "so_mau_fit": 15067,
+    "nguong": 2165.1601471597737,
+    "cu": {
+      "val": {
+        "so_mau": 15726,
+        "duong": 728,
+        "precision": 0.1842,
+        "recall": 0.864,
+        "f1": 0.3036,
+        "ty_le_am_bi_bao": 0.1858
+      },
+      "nguong": 64.65075143770032,
+      "may_chu_binh_thuong_bi_bao": 0.9576
+    },
+    "moi": {
+      "val": {
+        "so_mau": 15726,
+        "duong": 728,
+        "precision": 1.0,
+        "recall": 0.8654,
+        "f1": 0.9278,
+        "ty_le_am_bi_bao": 0.0
+      },
+      "nguong": 2165.1601471597737,
+      "may_chu_binh_thuong_bi_bao": 0.0
+    }
+  },
+  "phan_loai": {
+    "tham_so": {
+      "n_estimators": 300,
+      "max_depth": 20,
+      "min_samples_leaf": 1,
+      "max_features": "sqrt",
+      "class_weight": null
+    },
+    "lop_train": {
+      "benign": 90651,
+      "dos": 2330,
+      "port_scan": 748
+    },
+    "cu": {
+      "validation_cic": {
+        "macro_f1": 0.9352,
+        "benign": {
+          "precision": 0.9983,
+          "recall": 0.9995,
+          "so_mau": 53949
+        },
+        "port_scan": {
+          "precision": 0.9922,
+          "recall": 0.7744,
+          "so_mau": 164
+        },
+        "dos": {
+          "precision": 0.961,
+          "recall": 0.9136,
+          "so_mau": 648
+        }
+      },
+      "val_lab": {
+        "macro_f1": 0.9139,
+        "benign": {
+          "precision": 0.9971,
+          "recall": 0.996,
+          "so_mau": 14998
+        },
+        "port_scan": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "so_mau": 531
+        },
+        "dos": {
+          "precision": 0.717,
+          "recall": 0.7755,
+          "so_mau": 196
+        }
+      },
+      "test_cic": {
+        "macro_f1": 0.9078,
+        "benign": {
+          "precision": 0.9975,
+          "recall": 0.9996,
+          "so_mau": 67713
+        },
+        "port_scan": {
+          "precision": 0.9474,
+          "recall": 0.7364,
+          "so_mau": 220
+        },
+        "dos": {
+          "precision": 0.9636,
+          "recall": 0.8377,
+          "so_mau": 727
+        }
+      },
+      "val_lab_benign_bi_bao": {
+        "k5-doi-chung": 60
+      }
+    },
+    "moi": {
+      "validation_cic": {
+        "macro_f1": 0.9356,
+        "benign": {
+          "precision": 0.9983,
+          "recall": 0.9995,
+          "so_mau": 53949
+        },
+        "port_scan": {
+          "precision": 0.9922,
+          "recall": 0.7805,
+          "so_mau": 164
+        },
+        "dos": {
+          "precision": 0.9593,
+          "recall": 0.9105,
+          "so_mau": 648
+        }
+      },
+      "val_lab": {
+        "macro_f1": 1.0,
+        "benign": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "so_mau": 14998
+        },
+        "port_scan": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "so_mau": 531
+        },
+        "dos": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "so_mau": 196
+        }
+      },
+      "test_cic": {
+        "macro_f1": 0.9072,
+        "benign": {
+          "precision": 0.9974,
+          "recall": 0.9996,
+          "so_mau": 67713
+        },
+        "port_scan": {
+          "precision": 0.9697,
+          "recall": 0.7273,
+          "so_mau": 220
+        },
+        "dos": {
+          "precision": 0.9589,
+          "recall": 0.8336,
+          "so_mau": 727
+        }
+      },
+      "val_lab_benign_bi_bao": {}
+    }
+  },
+  "botnet": {
+    "loai": "random_forest",
+    "tham_so": {
+      "n_estimators": 300,
+      "max_depth": null,
+      "min_samples_leaf": 5,
+      "class_weight": null
+    },
+    "lop_train": {
+      "normal_host": 3005,
+      "suspect_host": 531
+    },
+    "nguong": 0.8567,
+    "cu": {
+      "val": {
+        "so_mau": 3525,
+        "duong": 534,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "ty_le_am_bi_bao": 0.0411
+      },
+      "nguong": 0.1,
+      "theo_bien_the": {
+        "k1-binh-thuong": {
+          "so_mau": 286,
+          "duong": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "ty_le_am_bi_bao": 0.0
+        },
+        "k2-quet-cham": {
+          "so_mau": 391,
+          "duong": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "ty_le_am_bi_bao": 0.1509
+        },
+        "k2-quet-nhanh": {
+          "so_mau": 296,
+          "duong": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "ty_le_am_bi_bao": 0.0405
+        },
+        "k3-dos-muc1": {
+          "so_mau": 182,
+          "duong": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "ty_le_am_bi_bao": 0.0934
+        },
+        "k3-dos-muc2": {
+          "so_mau": 182,
+          "duong": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "ty_le_am_bi_bao": 0.0989
+        },
+        "k3-dos-muc3": {
+          "so_mau": 183,
+          "duong": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "ty_le_am_bi_bao": 0.0929
+        },
+        "k4-bien-thien": {
+          "so_mau": 384,
+          "duong": 177,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "ty_le_am_bi_bao": 0.0
+        },
+        "k4-co-dinh": {
+          "so_mau": 399,
+          "duong": 180,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "ty_le_am_bi_bao": 0.0
+        },
+        "k4-doi-chung": {
+          "so_mau": 420,
+          "duong": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "ty_le_am_bi_bao": 0.0
+        },
+        "k5-doi-chung": {
+          "so_mau": 408,
+          "duong": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "ty_le_am_bi_bao": 0.0
+        },
+        "k5-p2p": {
+          "so_mau": 394,
+          "duong": 177,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "ty_le_am_bi_bao": 0.0
+        }
+      }
+    },
+    "moi": {
+      "val": {
+        "so_mau": 3525,
+        "duong": 534,
+        "precision": 1.0,
+        "recall": 0.9963,
+        "f1": 0.9981,
+        "ty_le_am_bi_bao": 0.0
+      },
+      "nguong": 0.8567,
+      "theo_bien_the": {
+        "k1-binh-thuong": {
+          "so_mau": 286,
+          "duong": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "ty_le_am_bi_bao": 0.0
+        },
+        "k2-quet-cham": {
+          "so_mau": 391,
+          "duong": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "ty_le_am_bi_bao": 0.0
+        },
+        "k2-quet-nhanh": {
+          "so_mau": 296,
+          "duong": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "ty_le_am_bi_bao": 0.0
+        },
+        "k3-dos-muc1": {
+          "so_mau": 182,
+          "duong": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "ty_le_am_bi_bao": 0.0
+        },
+        "k3-dos-muc2": {
+          "so_mau": 182,
+          "duong": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "ty_le_am_bi_bao": 0.0
+        },
+        "k3-dos-muc3": {
+          "so_mau": 183,
+          "duong": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "ty_le_am_bi_bao": 0.0
+        },
+        "k4-bien-thien": {
+          "so_mau": 384,
+          "duong": 177,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "ty_le_am_bi_bao": 0.0
+        },
+        "k4-co-dinh": {
+          "so_mau": 399,
+          "duong": 180,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "ty_le_am_bi_bao": 0.0
+        },
+        "k4-doi-chung": {
+          "so_mau": 420,
+          "duong": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "ty_le_am_bi_bao": 0.0
+        },
+        "k5-doi-chung": {
+          "so_mau": 408,
+          "duong": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "ty_le_am_bi_bao": 0.0
+        },
+        "k5-p2p": {
+          "so_mau": 394,
+          "duong": 177,
+          "precision": 1.0,
+          "recall": 0.9887,
+          "f1": 0.9943,
+          "ty_le_am_bi_bao": 0.0
+        }
+      }
+    },
+    "topology": {
+      "mac_dinh": {
+        "min_peer_vao": 5,
+        "min_udp": 0.5,
+        "min_entropy_vao": 0.8,
+        "dung": 0.6685,
+        "dung_p2p": 0.0,
+        "dung_centralized": 1.0
+      },
+      "chon": {
+        "min_peer_vao": 1,
+        "min_udp": 0.05,
+        "min_entropy_vao": 0.0,
+        "dung": 0.9906,
+        "dung_p2p": 0.9718,
+        "dung_centralized": 1.0
+      },
+      "so_cua_so_bot_val": 534,
+      "trung_vi_bot_p2p": {
+        "so_peer_vao": 2.0,
+        "ty_le_udp": 0.103,
+        "entropy_peer_vao": 1.0
+      }
+    },
+    "quan_trong": {
+      "tap_trung_ra": 0.1892,
+      "entropy_peer_ra": 0.1747,
+      "so_peer_ra": 0.1664,
+      "so_cong_ra": 0.1082,
+      "beacon_chu_ky": 0.0601,
+      "beacon_cv_nho_nhat": 0.0441,
+      "ty_le_udp": 0.0352,
+      "so_goi_ra": 0.032
+    }
+  }
+}

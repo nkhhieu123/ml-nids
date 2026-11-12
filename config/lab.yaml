@@ -1,0 +1,231 @@
+# Cấu hình cho mạng lab: sinh bởi `python -m nids.hoc_lai_lab` từ config/default.yaml (QĐ-068).
+# Khác default.yaml ở: pipeline.models (mô hình học lại trên lab), pipeline.mode, botnet.topology_rule.
+# Không sửa tay; sửa default.yaml rồi chạy lại.
+capture:
+  interface: eth0
+  pcap_dir: data/pcap
+windows:
+  flow:
+    size_s: 10
+    step_s: 2
+  graph:
+    size_s: 120
+    step_s: 10
+flow:
+  idle_timeout_s: 60
+  active_timeout_s: 120
+  close_grace_s: 10
+  direction_memory_s: 3600
+  fragment_timeout_s: 30
+  handshake_observe_s: 3
+labeling:
+  schedule: config/label_schedule.csv
+  tolerance_s: 60
+  window_min_attack_share: 0.2
+split:
+  train: 0.6
+  validation: 0.2
+  test: 0.2
+  embargo_s: 10
+  stratify_scan_proto: true
+preprocess:
+  drop_train_duplicates: true
+  balance_max_ratio: 10
+  sessions:
+    attack_classification:
+    - cic17_wednesday
+    - cic17_friday
+    anomaly:
+    - cic17_monday
+    - cic17_wednesday
+    - cic17_friday
+  anomaly_fit_sessions:
+  - cic17_monday
+gaussian:
+  covariance: ledoit_wolf
+  fit_session_candidates:
+  - - cic17_monday
+  - null
+  threshold: f1_on_dinh
+  threshold_band: 1.2
+  target_fpr: 0.01
+classifier:
+  logistic_regression:
+    C: 1.0
+    class_weight: balanced
+  random_forest:
+    n_estimators: 300
+    max_depth: null
+    min_samples_leaf: 1
+    max_features: sqrt
+    class_weight: balanced_subsample
+  search:
+    balance_max_ratio:
+    - 10
+    - 100
+    - null
+    logistic_regression:
+      class_weight:
+      - balanced
+      - null
+      C:
+      - 0.01
+      - 0.1
+      - 1.0
+      - 10.0
+      - 100.0
+    random_forest:
+      class_weight:
+      - balanced_subsample
+      - null
+      max_depth:
+      - null
+      - 20
+      - 10
+      min_samples_leaf:
+      - 1
+      - 3
+      - 10
+      max_features:
+      - sqrt
+      - 0.5
+botnet:
+  ctu13_dir: data/ctu13
+  flows_dir: output/ctu13
+  background_sample: 20
+  local_nets:
+  - 147.32.0.0/16
+  - 192.168.50.0/24
+  beaconing:
+    lookback_s: 600
+    min_observations: 5
+    max_cv: 0.3
+    min_period_s: 1.0
+  splits:
+    train:
+    - 3
+    - 5
+    - 7
+    - 10
+    - 11
+    - 12
+    validation:
+    - 4
+    - 13
+    test:
+    - 1
+    - 2
+    - 6
+    - 8
+    - 9
+  topology:
+    p2p:
+    - 12
+  max_background_alarm: 0.05
+  host_aggregation:
+    min_strong: 500
+    min_frac: 0.13
+  topology_rule:
+    min_peer_vao: 1
+    min_udp: 0.05
+    min_entropy_vao: 0.0
+pipeline:
+  models:
+    anomaly: models/lab/gaussian_windows.joblib
+    attack_classification: models/lab/phan_loai_rf_windows.joblib
+    botnet_topology: models/lab/botnet_rf.joblib
+  mode: doc_lap
+  merge_gap_s: 30
+realtime:
+  queue_size: 100000
+  tick_s: 1.0
+  max_active_flows: 200000
+  max_flow_rows: 500000
+  metrics_interval_s: 10
+  stop_timeout_s: 30
+  graph_delay_s: 10
+  log_dir: output/realtime/log
+  log_max_mb: 10
+  log_backups: 5
+lab:
+  subnet: 192.168.50.0/24
+  hosts:
+    192.168.50.10: Máy giám sát Kali Linux
+    192.168.50.20: Máy thử nghiệm
+    192.168.50.30: Máy chủ dịch vụ
+    192.168.50.41: Client/Bot mô phỏng 1
+    192.168.50.42: Client/Bot mô phỏng 2
+    192.168.50.43: Client/Bot mô phỏng 3
+    192.168.50.50: Server điều phối mô phỏng
+  may_chu_dich: 192.168.50.30
+  quet:
+    cong_dau: 1
+    cong_cuoi: 1024
+    toc_do_cham_s: 0.5
+    toc_do_nhanh_s: 0.0
+    nmap_chung:
+    - -sT
+    - -Pn
+    - -n
+    - --max-retries
+    - '0'
+    nmap_cham:
+    - --scan-delay
+    - 500ms
+    nmap_nhanh:
+    - -T4
+  tai_ket_noi:
+    muc1_moi_giay: 50
+    muc2_moi_giay: 200
+    muc3_moi_giay: 600
+    thoi_gian_toi_da_s: 60
+  tap_trung:
+    cong: 8080
+    thoi_gian_s: 600
+    chu_ky_s:
+    - 30
+    - 60
+    - 45
+    jitter_co_dinh:
+    - 0
+    - 0
+    - 0
+    jitter_bien_thien:
+    - 0.2
+    - 0.4
+    - 0.3
+    jitter_doi_chung:
+    - 0
+    - 0.1
+    - 0.3
+  ngang_hang:
+    so_bot: 3
+    cong: 40000
+    thoi_gian_s: 600
+    chu_ky_s:
+    - 8
+    - 20
+    - 30
+    jitter:
+    - 0.3
+    - 0.5
+    - 0.4
+    peer:
+    - luoi
+    - vong
+    - luoi
+    cong_doi_chung: 6881
+paths:
+  data_dir: data
+  model_dir: models
+  output_dir: output
+  run_log_dir: data/run_logs
+service_log:
+  match_tolerance_s: 1.0
+alerts:
+  channels:
+  - terminal
+  - csv
+  csv_path: output/alerts.csv
+  log_all: false
+random_seed: 42
