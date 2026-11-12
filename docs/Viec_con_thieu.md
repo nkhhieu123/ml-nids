@@ -86,7 +86,7 @@ gom lại thành các việc sau (việc tải CIC-IDS2017 đã xong):
 | Thiếu | Mức | Ảnh hưởng | Ai làm | Cách bổ sung |
 |---|---|---|---|---|
 | **Cập nhật 12/11/2026:** đã thu đủ 55/55 lần chạy (11 biến thể × 1 `train`, 1 `val`, 3 `test`) trên lab ảo WSL2 (docs/70, docs/71). Chưa có lần nào trên lab vật lý; chưa học lại mô hình nào bằng `train`/`val` | Quan trọng | Không có DoS SYN, botnet ngang hàng, đối chứng lành tính, và không có dữ liệu thật của mạng sẽ triển khai | **Bạn** | Làm theo [09_du_lieu_lab.md](09_du_lieu_lab.md) sau khi có mục 3 và 4 |
-| Chưa có access log Nginx của máy chủ dịch vụ thật | Quan trọng | Parser log mới thử trên Nginx Windows (CRLF, một worker) | **Bạn** dựng; kiểm tra làm được ngay | Cài Nginx với `log_format nids`, chạy `nids.service_log` và `nids.log_compare` |
+| ~~Chưa có access log Nginx của máy chủ dịch vụ thật~~ | Đã xong 12/11/2026 | Nginx 1.28.3 trên Linux (2 worker, LF) của lab ảo: 55 file, 33 003 dòng, đọc được 100%, đối chiếu mọi dòng lệch 0 (docs/16 mục 5). Chưa thử trên máy chủ vật lý | | |
 | IPv6 thật gần như không có (1 gói đầy đủ, 2 gói bị cắt); TSO và đường hầm IP chưa gặp trên dữ liệu thật | Nên có | Các nhánh này mới kiểm tra bằng dữ liệu tổng hợp | Làm được ngay khi có PCAP lab | Chạy `nids.wireshark_compare` trên PCAP lab, nhất là khi bắt trên chính máy gửi |
 
 ## 3. Môi trường lab và Kali

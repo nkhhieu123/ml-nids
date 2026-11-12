@@ -96,6 +96,33 @@ không hợp lệ; mã thoát của lệnh.
   đọc byte đầu tiên của yêu cầu, không phải từ lúc bắt tay TCP. Cửa sổ ghép với
   flow cần dung sai vài chục mili giây; chốt khi làm phần ghép ở chặng sau.
 
+## 5. Kiểm tra trên Nginx của máy chủ dịch vụ lab (12/11/2026)
+
+Trước đây parser chỉ được thử trên Nginx chạy trên Windows (xuống dòng CRLF, một worker). Lab ảo (docs/70) chạy
+**Nginx 1.28.3 trên Linux, 2 worker, xuống dòng LF**, với đúng `log_format nids`. Mỗi lần chạy có một file
+`data/service_logs/<run_id>/access_nids.log`. Chạy `nids.service_log` rồi `nids.log_compare --all` trên cả 55
+file (`docs/hinh/log_lab.json`):
+
+| Chỉ số | Giá trị |
+|---|---|
+| File log | 55 (11 biến thể × 5 lần chạy) |
+| Dòng log | 33 003 |
+| Dòng đọc được | **33 003 (100%)**, không dòng nào bị bỏ qua |
+| Dòng đối chiếu với file gốc (mọi dòng) | 33 003, **lệch 0** |
+| Mã trạng thái | 200: 32 751; 400: 252 |
+| Ghi chú `dong_yeu_cau_khong_hop_le` | 252 |
+| Ghi chú `thoi_gian_giam` | 2 |
+| File có CRLF | 0 |
+
+- **252 dòng mã 400** là của đối chứng `k4-doi-chung`: ba máy gửi chuỗi `nids-lab thong diep vo hai` tới cổng 80
+  thay vì một yêu cầu HTTP. Nginx ghi nguyên chuỗi đó vào trường yêu cầu; parser giữ dòng, đánh ghi chú yêu cầu
+  không hợp lệ, không bỏ.
+- **2 dòng có thời gian lùi** so với dòng trước: hai worker ghi xen kẽ nên thứ tự dòng không hoàn toàn theo
+  thời gian. Parser chỉ ghi chú, không sắp lại.
+- **Kết nối của tải kết nối (kịch bản 3) không xuất hiện trong log**: máy tấn công mở rồi đóng kết nối mà không
+  gửi yêu cầu, Nginx không ghi dòng nào. Log vì vậy không đếm được số kết nối tấn công; chỉ thấy client hợp
+  lệ vẫn được phục vụ (docs/71 mục 3).
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
