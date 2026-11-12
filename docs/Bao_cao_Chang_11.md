@@ -6,7 +6,7 @@
 |---|---|
 | Kho mã nguồn | https://github.com/nkhhieu123/ml-nids (nhánh `main`) |
 | Thời gian | 09/11/2026 – 11/11/2026 |
-| Trạng thái | **Xong cả 8 task trên lab ảo** (33 lần chạy `test`). Chưa chạy trên lab vật lý; module botnet bỏ sót toàn bộ và phải học lại trên dữ liệu lab |
+| Trạng thái | **Xong cả 8 task trên lab ảo** (33 lần chạy `test`). Chưa chạy trên lab vật lý. **Bổ sung 12–13/11/2026:** đã học lại ba module trên dữ liệu lab và chấm trên 33 lần `test` mới: 24/24 đợt, 4 báo động giả (mục 10) |
 | Chặng trước | [Bao_cao_Chang_10.md](Bao_cao_Chang_10.md) |
 
 ## 1. Tóm tắt
@@ -205,6 +205,23 @@ Danh sách đầy đủ ở [Viec_con_thieu.md](Viec_con_thieu.md) mục 4g.
   tính là phát hiện; sự kiện bắt đầu từ lâu trước đợt vẫn là báo động giả; anomaly ghi riêng.
 - `tests/test_thuc_nghiem_lab.py` (5 ca): gộp theo biến thể, lần không phát hiện tính là bỏ sót, báo động giả
   mỗi giờ; quy giờ phát cảnh báo realtime về trục thời gian bản thu.
+
+## 10. Bổ sung sau báo cáo (12–13/11/2026)
+
+Các mục 1–9 mô tả mô hình học từ CIC-IDS2017 và CTU-13, chấm trên 33 lần `test` đầu tiên. Sau đó đã làm thêm:
+
+| Việc | Kết quả | Tài liệu |
+|---|---|---|
+| Thu đủ `train`, `val` (22 lần) và học lại ba module trên lab | Trên 33 lần `test` mới (lần 4–6): **24/24 đợt** (mô hình cũ 15/24), báo động giả **63 → 4** sự kiện, macro-F1 theo cửa sổ 0,923 → 0,995; test CIC của bộ phân loại không đổi | [73_hoc_lai_lab.md](73_hoc_lai_lab.md), QĐ-068 |
+| Cảm biến realtime bắt trực tiếp trên máy giám sát | Không bỏ gói; độ trễ thật 3,9–4,2 giây (quét, DoS), 18–30 giây (botnet) | [74_thi_nghiem_bo_sung.md](74_thi_nghiem_bo_sung.md) mục 1 |
+| Máy tấn công có traffic bình thường xen kẽ | Vẫn phát hiện 5/5 đợt | 74 mục 2 |
+| Chế độ pipeline và khoảng gộp sự kiện trên lab | Lab dùng `doc_lap`; khoảng gộp 10–120 giây cho cùng số sự kiện | 74 mục 3 |
+| Bộ phân loại theo cửa sổ host; máy tấn công là host thật | Macro-F1 0,923 trên lab với mô hình cũ | [71_ket_qua_lab.md](71_ket_qua_lab.md) mục 7 |
+| Khóa tham số và quyết định tạm thời | QĐ-062 tới QĐ-067 | [72_do_nhay_tham_so.md](72_do_nhay_tham_so.md), docs/03 |
+| Access log, ghép log–flow, đối chiếu Wireshark trên lab | Đọc 100% log, ghép 100% dòng, lệch 0 với Wireshark | docs/16 mục 5–6, docs/17 mục 3.2 |
+
+Giới hạn chính của kết quả học lại: `train`, `val`, `test` cùng một lab ảo và cùng bộ sinh traffic, nên chưa chứng
+minh mô hình nhận ra botnet thật hay mạng khác. Việc còn lại ở [Viec_con_thieu.md](Viec_con_thieu.md).
 
 ## Thuật ngữ
 

@@ -54,6 +54,10 @@ Kết quả trên `val` (dùng để chọn, không phải kết quả cuối):
 - **Chế độ pipeline** (xét lại QĐ-047): với mô hình mới, `ket_hop` phát hiện 5/8 đợt trên `val` còn `doc_lap`
   8/8, cả hai không có báo động giả. `ket_hop` chỉ cho module botnet xét host đã bị anomaly báo, mà beaconing
   chậm không làm host bất thường. `config/lab.yaml` vì vậy dùng **`doc_lap`**.
+- **Beaconing trên lab**: hai đặc trưng beaconing (`beacon_chu_ky`, `beacon_cv_nho_nhat`) đứng thứ 5 và 6 về độ
+  quan trọng trong mô hình botnet mới (0,06 và 0,04); bốn đặc trưng đứng đầu là mức tập trung, entropy, số peer
+  và số cổng gọi ra (0,11–0,19). Beaconing có đóng góp nhưng không phải tín hiệu chính, giống nhận xét trên
+  CTU-13 (docs/47).
 - Các con số gần tuyệt đối trên `val` là vì `train` và `val` chạy cùng tham số kịch bản (cùng chu kỳ, cùng
   danh sách peer); chúng chỉ dùng để chọn ngưỡng.
 
