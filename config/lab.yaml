@@ -17,7 +17,7 @@ flow:
   close_grace_s: 10
   direction_memory_s: 3600
   fragment_timeout_s: 30
-  handshake_observe_s: 3
+  handshake_observe_s: 1
 labeling:
   schedule: config/label_schedule.csv
   tolerance_s: 60
@@ -126,9 +126,7 @@ botnet:
     min_strong: 500
     min_frac: 0.13
   topology_rule:
-    min_peer_vao: 1
-    min_udp: 0.05
-    min_entropy_vao: 0.0
+    kieu: nhom
 pipeline:
   models:
     anomaly: models/lab/gaussian_windows.joblib

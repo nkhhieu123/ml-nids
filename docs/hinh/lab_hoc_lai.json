@@ -2,16 +2,38 @@
   "lan_chay": {
     "train": [
       "k1-binh-thuong-train-01",
+      "k1-binh-thuong-train-02",
+      "k1-binh-thuong-train-03",
       "k2-quet-cham-train-01",
+      "k2-quet-cham-train-02",
+      "k2-quet-cham-train-03",
       "k2-quet-nhanh-train-01",
+      "k2-quet-nhanh-train-02",
+      "k2-quet-nhanh-train-03",
       "k3-dos-muc1-train-01",
+      "k3-dos-muc1-train-02",
+      "k3-dos-muc1-train-03",
       "k3-dos-muc2-train-01",
+      "k3-dos-muc2-train-02",
+      "k3-dos-muc2-train-03",
       "k3-dos-muc3-train-01",
+      "k3-dos-muc3-train-02",
+      "k3-dos-muc3-train-03",
       "k4-bien-thien-train-01",
+      "k4-bien-thien-train-02",
+      "k4-bien-thien-train-03",
       "k4-co-dinh-train-01",
+      "k4-co-dinh-train-02",
+      "k4-co-dinh-train-03",
       "k4-doi-chung-train-01",
+      "k4-doi-chung-train-02",
+      "k4-doi-chung-train-03",
       "k5-doi-chung-train-01",
-      "k5-p2p-train-01"
+      "k5-doi-chung-train-02",
+      "k5-doi-chung-train-03",
+      "k5-p2p-train-01",
+      "k5-p2p-train-02",
+      "k5-p2p-train-03"
     ],
     "val": [
       "k1-binh-thuong-val-01",
@@ -44,8 +66,8 @@
       "tcp_attempts_in",
       "incomplete_in"
     ],
-    "so_mau_fit": 15067,
-    "nguong": 2165.1601471597737,
+    "so_mau_fit": 44392,
+    "nguong": 2569.5540017421176,
     "cu": {
       "val": {
         "so_mau": 15726,
@@ -67,7 +89,7 @@
         "f1": 0.9278,
         "ty_le_am_bi_bao": 0.0
       },
-      "nguong": 2165.1601471597737,
+      "nguong": 2569.5540017421176,
       "may_chu_binh_thuong_bi_bao": 0.0
     }
   },
@@ -80,9 +102,9 @@
       "class_weight": null
     },
     "lop_train": {
-      "benign": 90651,
-      "dos": 2330,
-      "port_scan": 748
+      "benign": 102341,
+      "dos": 2638,
+      "port_scan": 1283
     },
     "cu": {
       "validation_cic": {
@@ -145,19 +167,19 @@
     },
     "moi": {
       "validation_cic": {
-        "macro_f1": 0.9356,
+        "macro_f1": 0.9353,
         "benign": {
-          "precision": 0.9983,
-          "recall": 0.9995,
+          "precision": 0.9982,
+          "recall": 0.9996,
           "so_mau": 53949
         },
         "port_scan": {
           "precision": 0.9922,
-          "recall": 0.7805,
+          "recall": 0.7744,
           "so_mau": 164
         },
         "dos": {
-          "precision": 0.9593,
+          "precision": 0.9656,
           "recall": 0.9105,
           "so_mau": 648
         }
@@ -181,19 +203,19 @@
         }
       },
       "test_cic": {
-        "macro_f1": 0.9072,
+        "macro_f1": 0.9064,
         "benign": {
           "precision": 0.9974,
-          "recall": 0.9996,
+          "recall": 0.9997,
           "so_mau": 67713
         },
         "port_scan": {
-          "precision": 0.9697,
-          "recall": 0.7273,
+          "precision": 0.9415,
+          "recall": 0.7318,
           "so_mau": 220
         },
         "dos": {
-          "precision": 0.9589,
+          "precision": 0.9712,
           "recall": 0.8336,
           "so_mau": 727
         }
@@ -210,10 +232,10 @@
       "class_weight": null
     },
     "lop_train": {
-      "normal_host": 3005,
-      "suspect_host": 531
+      "normal_host": 8944,
+      "suspect_host": 1587
     },
-    "nguong": 0.8567,
+    "nguong": 0.7128,
     "cu": {
       "val": {
         "so_mau": 3525,
@@ -320,11 +342,11 @@
         "so_mau": 3525,
         "duong": 534,
         "precision": 1.0,
-        "recall": 0.9963,
-        "f1": 0.9981,
+        "recall": 0.9981,
+        "f1": 0.9991,
         "ty_le_am_bi_bao": 0.0
       },
-      "nguong": 0.8567,
+      "nguong": 0.7128,
       "theo_bien_the": {
         "k1-binh-thuong": {
           "so_mau": 286,
@@ -410,8 +432,8 @@
           "so_mau": 394,
           "duong": 177,
           "precision": 1.0,
-          "recall": 0.9887,
-          "f1": 0.9943,
+          "recall": 0.9944,
+          "f1": 0.9972,
           "ty_le_am_bi_bao": 0.0
         }
       }
@@ -425,12 +447,24 @@
         "dung_p2p": 0.0,
         "dung_centralized": 1.0
       },
-      "chon": {
+      "nguong_tot_nhat": {
         "min_peer_vao": 1,
         "min_udp": 0.05,
         "min_entropy_vao": 0.0,
         "dung": 0.9906,
         "dung_p2p": 0.9718,
+        "dung_centralized": 1.0
+      },
+      "nhom": {
+        "kieu": "nhom",
+        "dung": 1.0,
+        "dung_p2p": 1.0,
+        "dung_centralized": 1.0
+      },
+      "chon": {
+        "kieu": "nhom",
+        "dung": 1.0,
+        "dung_p2p": 1.0,
         "dung_centralized": 1.0
       },
       "so_cua_so_bot_val": 534,
@@ -441,14 +475,22 @@
       }
     },
     "quan_trong": {
-      "tap_trung_ra": 0.1892,
-      "entropy_peer_ra": 0.1747,
-      "so_peer_ra": 0.1664,
-      "so_cong_ra": 0.1082,
-      "beacon_chu_ky": 0.0601,
-      "beacon_cv_nho_nhat": 0.0441,
-      "ty_le_udp": 0.0352,
-      "so_goi_ra": 0.032
+      "tap_trung_ra": 0.1992,
+      "entropy_peer_ra": 0.1829,
+      "so_peer_ra": 0.1777,
+      "so_cong_ra": 0.1058,
+      "beacon_chu_ky": 0.0517,
+      "so_byte_ra": 0.0396,
+      "beacon_cv_nho_nhat": 0.0352,
+      "so_goi_ra": 0.035
     }
+  },
+  "tham_so_flow": {
+    "idle_timeout_s": 60,
+    "active_timeout_s": 120,
+    "close_grace_s": 10,
+    "direction_memory_s": 3600,
+    "fragment_timeout_s": 30,
+    "handshake_observe_s": 1
   }
 }
