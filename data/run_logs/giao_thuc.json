@@ -1,0 +1,38 @@
+{
+  "ma_lan_chay": "giao_thuc",
+  "lab": 1,
+  "bat_dau": "2026-11-12T23:38:30.982+07:00",
+  "ket_thuc": "2026-11-12T23:38:42.605+07:00",
+  "mirror": {
+    "goi_bat_duoc": 5152,
+    "goi_qua_bo_loc": 5152,
+    "goi_nhan_bo": 0
+  },
+  "ket_qua_lenh": {
+    "ipv6_ping": 0,
+    "ipv6_http": [
+      "15000",
+      "15000"
+    ],
+    "ipv6_udp": 0,
+    "ipv4_manh_icmp": 0,
+    "ipv6_manh_icmp": 0,
+    "ipv4_manh_udp": 0,
+    "tai_file_lon": [
+      "3000000",
+      "3000000"
+    ],
+    "duong_ham_ipip": {
+      "ping": 0,
+      "tcp": 0
+    },
+    "duong_ham_gre": {
+      "ping": 0,
+      "tcp": 0
+    },
+    "duong_ham_vxlan": {
+      "ping": 0,
+      "tcp": 0
+    }
+  }
+}

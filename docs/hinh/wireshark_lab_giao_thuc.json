@@ -1,0 +1,49 @@
+[
+  {
+    "file": "../data/pcap/lab/giao_thuc_mirror.pcap",
+    "tong_packet": 5152,
+    "goi_ip_khop": 5142,
+    "khop_theo_giao_thuc": {
+      "IPv6 TCP": 2616,
+      "IPv4 TCP": 2333,
+      "IPv6 ICMPv6": 85,
+      "IPv4 UDP": 44,
+      "IPv4 ICMP": 25,
+      "IPv4 GRE": 18,
+      "IPv4 4": 16,
+      "IPv6 UDP": 5
+    },
+    "khong_phai_ip_ca_hai_dong_y": {
+      "ARP": 10
+    },
+    "khac_biet_co_chu_y": {
+      "duong_ham_ip": 30,
+      "icmp_chep_header_goc": 11
+    },
+    "lech": 0,
+    "lech_theo_truong": {},
+    "vi_du_lech": []
+  },
+  {
+    "file": "../data/pcap/lab/giao_thuc_may_gui.pcap",
+    "tong_packet": 1033,
+    "goi_ip_khop": 1024,
+    "khop_theo_giao_thuc": {
+      "IPv6 TCP": 597,
+      "IPv4 TCP": 320,
+      "IPv6 ICMPv6": 59,
+      "IPv4 ICMP": 23,
+      "IPv4 UDP": 20,
+      "IPv6 UDP": 5
+    },
+    "khong_phai_ip_ca_hai_dong_y": {
+      "ARP": 9
+    },
+    "khac_biet_co_chu_y": {
+      "icmp_chep_header_goc": 10
+    },
+    "lech": 0,
+    "lech_theo_truong": {},
+    "vi_du_lech": []
+  }
+]

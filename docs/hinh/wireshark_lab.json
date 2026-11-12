@@ -1,0 +1,358 @@
+{
+ "tong": {
+  "file": 56,
+  "packet": 1850370,
+  "khop": 1847542,
+  "lech": 0
+ },
+ "khop_theo_giao_thuc": {
+  "IPv4 TCP": 1842960,
+  "IPv6 ICMPv6": 2906,
+  "IPv4 UDP": 1640,
+  "IPv4 ICMP": 36
+ },
+ "khong_phai_ip": {
+  "ARP": 2828
+ },
+ "khac_biet_co_chu_y": {
+  "icmp_chep_header_goc": 6
+ },
+ "theo_file": [
+  {
+   "file": "../data/pcap/lab/k1-binh-thuong-test-01.pcap",
+   "tong_packet": 8493,
+   "goi_ip_khop": 8487,
+   "lech": 0
+  },
+  {
+   "file": "../data/pcap/lab/k1-binh-thuong-test-02.pcap",
+   "tong_packet": 7745,
+   "goi_ip_khop": 7745,
+   "lech": 0
+  },
+  {
+   "file": "../data/pcap/lab/k1-binh-thuong-test-03.pcap",
+   "tong_packet": 7941,
+   "goi_ip_khop": 7941,
+   "lech": 0
+  },
+  {
+   "file": "../data/pcap/lab/k1-binh-thuong-train-01.pcap",
+   "tong_packet": 8072,
+   "goi_ip_khop": 8066,
+   "lech": 0
+  },
+  {
+   "file": "../data/pcap/lab/k1-binh-thuong-val-01.pcap",
+   "tong_packet": 8080,
+   "goi_ip_khop": 8074,
+   "lech": 0
+  },
+  {
+   "file": "../data/pcap/lab/k2-quet-cham-test-01.pcap",
+   "tong_packet": 11597,
+   "goi_ip_khop": 11539,
+   "lech": 0
+  },
+  {
+   "file": "../data/pcap/lab/k2-quet-cham-test-02.pcap",
+   "tong_packet": 11249,
+   "goi_ip_khop": 11189,
+   "lech": 0
+  },
+  {
+   "file": "../data/pcap/lab/k2-quet-cham-test-03.pcap",
+   "tong_packet": 10987,
+   "goi_ip_khop": 10915,
+   "lech": 0
+  },
+  {
+   "file": "../data/pcap/lab/k2-quet-cham-train-01.pcap",
+   "tong_packet": 12930,
+   "goi_ip_khop": 12838,
+   "lech": 0
+  },
+  {
+   "file": "../data/pcap/lab/k2-quet-cham-val-01.pcap",
+   "tong_packet": 11257,
+   "goi_ip_khop": 11189,
+   "lech": 0
+  },
+  {
+   "file": "../data/pcap/lab/k2-quet-nhanh-test-01.pcap",
+   "tong_packet": 9959,
+   "goi_ip_khop": 9947,
+   "lech": 0
+  },
+  {
+   "file": "../data/pcap/lab/k2-quet-nhanh-test-02.pcap",
+   "tong_packet": 10436,
+   "goi_ip_khop": 10432,
+   "lech": 0
+  },
+  {
+   "file": "../data/pcap/lab/k2-quet-nhanh-test-03.pcap",
+   "tong_packet": 10139,
+   "goi_ip_khop": 10135,
+   "lech": 0
+  },
+  {
+   "file": "../data/pcap/lab/k2-quet-nhanh-train-01.pcap",
+   "tong_packet": 9949,
+   "goi_ip_khop": 9939,
+   "lech": 0
+  },
+  {
+   "file": "../data/pcap/lab/k2-quet-nhanh-val-01.pcap",
+   "tong_packet": 9729,
+   "goi_ip_khop": 9717,
+   "lech": 0
+  },
+  {
+   "file": "../data/pcap/lab/k3-dos-muc1-test-01.pcap",
+   "tong_packet": 22097,
+   "goi_ip_khop": 22087,
+   "lech": 0
+  },
+  {
+   "file": "../data/pcap/lab/k3-dos-muc1-test-02.pcap",
+   "tong_packet": 21989,
+   "goi_ip_khop": 21989,
+   "lech": 0
+  },
+  {
+   "file": "../data/pcap/lab/k3-dos-muc1-test-03.pcap",
+   "tong_packet": 22198,
+   "goi_ip_khop": 22198,
+   "lech": 0
+  },
+  {
+   "file": "../data/pcap/lab/k3-dos-muc1-train-01.pcap",
+   "tong_packet": 22039,
+   "goi_ip_khop": 22031,
+   "lech": 0
+  },
+  {
+   "file": "../data/pcap/lab/k3-dos-muc1-val-01.pcap",
+   "tong_packet": 21923,
+   "goi_ip_khop": 21909,
+   "lech": 0
+  },
+  {
+   "file": "../data/pcap/lab/k3-dos-muc2-test-01.pcap",
+   "tong_packet": 76304,
+   "goi_ip_khop": 76296,
+   "lech": 0
+  },
+  {
+   "file": "../data/pcap/lab/k3-dos-muc2-test-02.pcap",
+   "tong_packet": 76748,
+   "goi_ip_khop": 76748,
+   "lech": 0
+  },
+  {
+   "file": "../data/pcap/lab/k3-dos-muc2-test-03.pcap",
+   "tong_packet": 76046,
+   "goi_ip_khop": 76046,
+   "lech": 0
+  },
+  {
+   "file": "../data/pcap/lab/k3-dos-muc2-train-01.pcap",
+   "tong_packet": 75856,
+   "goi_ip_khop": 75848,
+   "lech": 0
+  },
+  {
+   "file": "../data/pcap/lab/k3-dos-muc2-val-01.pcap",
+   "tong_packet": 76504,
+   "goi_ip_khop": 76496,
+   "lech": 0
+  },
+  {
+   "file": "../data/pcap/lab/k3-dos-muc3-test-01.pcap",
+   "tong_packet": 173795,
+   "goi_ip_khop": 173787,
+   "lech": 0
+  },
+  {
+   "file": "../data/pcap/lab/k3-dos-muc3-test-02.pcap",
+   "tong_packet": 173545,
+   "goi_ip_khop": 173545,
+   "lech": 0
+  },
+  {
+   "file": "../data/pcap/lab/k3-dos-muc3-test-03.pcap",
+   "tong_packet": 173252,
+   "goi_ip_khop": 173252,
+   "lech": 0
+  },
+  {
+   "file": "../data/pcap/lab/k3-dos-muc3-train-01.pcap",
+   "tong_packet": 173680,
+   "goi_ip_khop": 173672,
+   "lech": 0
+  },
+  {
+   "file": "../data/pcap/lab/k3-dos-muc3-val-01.pcap",
+   "tong_packet": 173623,
+   "goi_ip_khop": 173615,
+   "lech": 0
+  },
+  {
+   "file": "../data/pcap/lab/k4-bien-thien-test-01.pcap",
+   "tong_packet": 14372,
+   "goi_ip_khop": 14248,
+   "lech": 0
+  },
+  {
+   "file": "../data/pcap/lab/k4-bien-thien-test-02.pcap",
+   "tong_packet": 13510,
+   "goi_ip_khop": 13398,
+   "lech": 0
+  },
+  {
+   "file": "../data/pcap/lab/k4-bien-thien-test-03.pcap",
+   "tong_packet": 12791,
+   "goi_ip_khop": 12661,
+   "lech": 0
+  },
+  {
+   "file": "../data/pcap/lab/k4-bien-thien-train-01.pcap",
+   "tong_packet": 13768,
+   "goi_ip_khop": 13624,
+   "lech": 0
+  },
+  {
+   "file": "../data/pcap/lab/k4-bien-thien-val-01.pcap",
+   "tong_packet": 13071,
+   "goi_ip_khop": 12971,
+   "lech": 0
+  },
+  {
+   "file": "../data/pcap/lab/k4-co-dinh-test-01.pcap",
+   "tong_packet": 13512,
+   "goi_ip_khop": 13380,
+   "lech": 0
+  },
+  {
+   "file": "../data/pcap/lab/k4-co-dinh-test-02.pcap",
+   "tong_packet": 12965,
+   "goi_ip_khop": 12845,
+   "lech": 0
+  },
+  {
+   "file": "../data/pcap/lab/k4-co-dinh-test-03.pcap",
+   "tong_packet": 12311,
+   "goi_ip_khop": 12173,
+   "lech": 0
+  },
+  {
+   "file": "../data/pcap/lab/k4-co-dinh-train-01.pcap",
+   "tong_packet": 13368,
+   "goi_ip_khop": 13292,
+   "lech": 0
+  },
+  {
+   "file": "../data/pcap/lab/k4-co-dinh-val-01.pcap",
+   "tong_packet": 14223,
+   "goi_ip_khop": 14161,
+   "lech": 0
+  },
+  {
+   "file": "../data/pcap/lab/k4-doi-chung-test-01.pcap",
+   "tong_packet": 13841,
+   "goi_ip_khop": 13831,
+   "lech": 0
+  },
+  {
+   "file": "../data/pcap/lab/k4-doi-chung-test-02.pcap",
+   "tong_packet": 12485,
+   "goi_ip_khop": 12485,
+   "lech": 0
+  },
+  {
+   "file": "../data/pcap/lab/k4-doi-chung-test-03.pcap",
+   "tong_packet": 12988,
+   "goi_ip_khop": 12988,
+   "lech": 0
+  },
+  {
+   "file": "../data/pcap/lab/k4-doi-chung-train-01.pcap",
+   "tong_packet": 13247,
+   "goi_ip_khop": 13237,
+   "lech": 0
+  },
+  {
+   "file": "../data/pcap/lab/k4-doi-chung-val-01.pcap",
+   "tong_packet": 13509,
+   "goi_ip_khop": 13501,
+   "lech": 0
+  },
+  {
+   "file": "../data/pcap/lab/k5-doi-chung-test-01.pcap",
+   "tong_packet": 16137,
+   "goi_ip_khop": 16095,
+   "lech": 0
+  },
+  {
+   "file": "../data/pcap/lab/k5-doi-chung-test-02.pcap",
+   "tong_packet": 14027,
+   "goi_ip_khop": 14007,
+   "lech": 0
+  },
+  {
+   "file": "../data/pcap/lab/k5-doi-chung-test-03.pcap",
+   "tong_packet": 14846,
+   "goi_ip_khop": 14804,
+   "lech": 0
+  },
+  {
+   "file": "../data/pcap/lab/k5-doi-chung-train-01.pcap",
+   "tong_packet": 16795,
+   "goi_ip_khop": 16743,
+   "lech": 0
+  },
+  {
+   "file": "../data/pcap/lab/k5-doi-chung-val-01.pcap",
+   "tong_packet": 14555,
+   "goi_ip_khop": 14499,
+   "lech": 0
+  },
+  {
+   "file": "../data/pcap/lab/k5-p2p-test-01.pcap",
+   "tong_packet": 13920,
+   "goi_ip_khop": 13692,
+   "lech": 0
+  },
+  {
+   "file": "../data/pcap/lab/k5-p2p-test-02.pcap",
+   "tong_packet": 12013,
+   "goi_ip_khop": 11841,
+   "lech": 0
+  },
+  {
+   "file": "../data/pcap/lab/k5-p2p-test-03.pcap",
+   "tong_packet": 12805,
+   "goi_ip_khop": 12687,
+   "lech": 0
+  },
+  {
+   "file": "../data/pcap/lab/k5-p2p-train-01.pcap",
+   "tong_packet": 13240,
+   "goi_ip_khop": 13000,
+   "lech": 0
+  },
+  {
+   "file": "../data/pcap/lab/k5-p2p-val-01.pcap",
+   "tong_packet": 13517,
+   "goi_ip_khop": 13325,
+   "lech": 0
+  },
+  {
+   "file": "../data/pcap/lab/kiem_tra_mirror.pcap",
+   "tong_packet": 392,
+   "goi_ip_khop": 382,
+   "lech": 0
+  }
+ ]
+}

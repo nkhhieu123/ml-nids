@@ -137,10 +137,17 @@ def expected_from_tshark(line: str) -> dict:
         if v[f"{proto}.srcport"]:
             ports = (_int(_first(v[f"{proto}.srcport"])), _int(_first(v[f"{proto}.dstport"])))
             break
-    exp["ports"] = ports
     exp["tcp_flags"] = _int(_first(v["tcp.flags"]), 16)
     exp["tcp_seq"] = _int(_first(v["tcp.seq_raw"]))
     exp["payload_len"] = _int(_first(v["tcp.len"]))
+    # Đường hầm chạy trên UDP (VXLAN): tshark giải mã cả gói bên trong nên có thêm trường TCP của gói trong.
+    # Header ngoài cùng là UDP, nên cổng mong đợi là cổng UDP; các trường TCP thuộc gói trong, không so.
+    outer = _int(_first(v["ip.proto"] if v["ip.src"] else v["ipv6.nxt"]))
+    exp["udp_tunnel"] = bool(outer == PROTO_UDP and exp["ip_layers"] > 1 and v["udp.srcport"] and v["tcp.srcport"])
+    if exp["udp_tunnel"]:
+        ports = (_int(_first(v["udp.srcport"])), _int(_first(v["udp.dstport"])))
+        exp["tcp_flags"] = exp["tcp_seq"] = exp["payload_len"] = None
+    exp["ports"] = ports
     udp_length = _int(_first(v["udp.length"]))
     exp["udp_payload_len"] = None if udp_length is None else udp_length - 8
     return exp
@@ -182,6 +189,8 @@ def compare_packet(result, exp) -> tuple[list[str], str | None]:
             known = KNOWN_TUNNEL
         else:
             diffs.append("ports")
+    elif exp.get("udp_tunnel") and known is None:
+        known = KNOWN_TUNNEL
     exp_flags = None if exp["tcp_flags"] is None else exp["tcp_flags"] & TCP_FLAG_MASK
     if rec.tcp_flags != exp_flags and known is None:
         diffs.append("tcp_flags")

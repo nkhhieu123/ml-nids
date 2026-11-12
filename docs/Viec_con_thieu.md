@@ -87,7 +87,7 @@ gom lại thành các việc sau (việc tải CIC-IDS2017 đã xong):
 |---|---|---|---|---|
 | **Cập nhật 12/11/2026:** đã thu đủ 55/55 lần chạy (11 biến thể × 1 `train`, 1 `val`, 3 `test`) trên lab ảo WSL2 (docs/70, docs/71). Chưa có lần nào trên lab vật lý; chưa học lại mô hình nào bằng `train`/`val` | Quan trọng | Không có DoS SYN, botnet ngang hàng, đối chứng lành tính, và không có dữ liệu thật của mạng sẽ triển khai | **Bạn** | Làm theo [09_du_lieu_lab.md](09_du_lieu_lab.md) sau khi có mục 3 và 4 |
 | ~~Chưa có access log Nginx của máy chủ dịch vụ thật~~ | Đã xong 12/11/2026 | Nginx 1.28.3 trên Linux (2 worker, LF) của lab ảo: 55 file, 33 003 dòng, đọc được 100%, đối chiếu mọi dòng lệch 0 (docs/16 mục 5). Chưa thử trên máy chủ vật lý | | |
-| IPv6 thật gần như không có (1 gói đầy đủ, 2 gói bị cắt); TSO và đường hầm IP chưa gặp trên dữ liệu thật | Nên có | Các nhánh này mới kiểm tra bằng dữ liệu tổng hợp | Làm được ngay khi có PCAP lab | Chạy `nids.wireshark_compare` trên PCAP lab, nhất là khi bắt trên chính máy gửi |
+| ~~IPv6 thật gần như không có; TSO và đường hầm IP chưa gặp trên dữ liệu thật~~ | Đã xong 12/11/2026 | Bản thu `giao-thuc` của lab: IPv6 TCP/UDP/ICMPv6, phân mảnh, gói gộp TSO bắt trên máy gửi, đường hầm ipip/GRE/VXLAN; cùng 55 PCAP lab (1,85 triệu gói): lệch 0 so với Wireshark (docs/17 mục 3.2) | | |
 
 ## 3. Môi trường lab và Kali
 
@@ -146,7 +146,7 @@ gom lại thành các việc sau (việc tải CIC-IDS2017 đã xong):
 | Chỉ một scenario P2P (12), nằm ở train; test CTU-13 không có P2P | Quan trọng | Nhận diện P2P chỉ kiểm tra trên giả lập | **Bạn** thu lab kịch bản 5 (B18) |
 | Quy tắc topology không phân biệt đối chứng tập trung lành tính; P2P chu kỳ dài hoặc dùng TCP dễ bị xếp tập trung | Nên có | Sai topology khi bộ phát hiện báo nhầm | Thêm đặc trưng nhóm khi có đồ thị lab |
 | Beaconing không tách bot khỏi máy bình thường trên CTU-13 (docs/47) | Nên có | Đặc trưng yếu trên CTU-13 | Kiểm tra lại trên lab |
-| Script `scripts/sinh_topology.py` chưa chạy trong lab | Quan trọng | Chưa có traffic topology thật | **Bạn** chạy khi lab dựng xong |
+| ~~Script `scripts/sinh_topology.py` chưa chạy trong lab~~ | Đã xong 11–12/11/2026 | Chạy trong lab ảo cho kịch bản 4, 5 và hai đối chứng: 25 lần chạy (5 biến thể × 5), mọi lệnh thoát mã 0 (nhật ký lần chạy) | |
 
 ## 4e. Chặng 9: việc còn thiếu hoặc hạn chế đã biết
 
@@ -163,7 +163,7 @@ gom lại thành các việc sau (việc tải CIC-IDS2017 đã xong):
 | Thiếu | Mức | Ảnh hưởng | Ai làm |
 |---|---|---|---|
 | Chưa cài trên Kali, chưa bắt gói từ card thật, chưa chạy systemd thật (docs/59, 60, 65) | Chặn với Chặng 11 | Chưa biết lỗi quyền, card, gói kernel bỏ trên máy thật | **Bạn** dựng lab; chạy `cai_dat_kali.sh`, `cam_bien`, `cai_dich_vu.sh` |
-| PCAP CIC có 0,7–11,8% gói nhân đôi; bộ trích xuất chưa bỏ bản sao (docs/60) | Quan trọng | Đặc trưng đếm gói lệch nếu mạng lab nhân đôi khác CIC | Đo trên lab rồi quyết định; khử trùng làm được ngay nếu cần |
+| ~~PCAP CIC có 0,7–11,8% gói nhân đôi; bộ trích xuất chưa bỏ bản sao (docs/60)~~ | Đã đo trên lab 12/11/2026 | Cổng mirror của lab sao mỗi khung đúng một lần: tỷ lệ gói trùng 0,01–0,63% (gói gửi lại), dưới ngưỡng của `nids.cam_bien`. Quyết định: **không khử trùng** cho lab; nếu lab vật lý mirror cả hai chiều của cùng cổng thì đo lại | |
 | ~~Module botnet dựng lại đồ thị 600 giây mỗi bước~~ | Đã xong 07/11/2026 | Chỉ tính cửa sổ đang xét + cache chuyển đổi flow: chấm botnet −52% trên fri_quet, đặc trưng y hệt (docs/63 mục 3.1, QĐ-059) | |
 | Hiệu năng mới đo trên laptop Windows bằng phát lại; số gói kernel bỏ chưa đo | Quan trọng | Chưa biết năng lực trên Kali | **Bạn** chạy trên Kali (Chặng 11) |
 
@@ -189,11 +189,11 @@ Kết quả Chặng 11 ở [Bao_cao_Chang_11.md](Bao_cao_Chang_11.md) và [71_ke
 
 | Giới hạn | Mức | Khi nào cần làm |
 |---|---|---|
-| Không ghép mảnh IP; mảnh sau không có cổng | Nên có | Nếu dữ liệu lab có nhiều phân mảnh |
-| Đường hầm (IP trong IP, GRE, VXLAN) chỉ đọc header ngoài | Nên có | Nếu lab dùng đường hầm |
+| Không ghép mảnh IP; mảnh sau không có cổng | Nên có (đã kiểm tra 12/11/2026) | 55 lần chạy lab không có gói phân mảnh nào; 56 mảnh tạo riêng khớp Wireshark (docs/17 mục 3.2). Chưa cần ghép mảnh |
+| Đường hầm (IP trong IP, GRE, VXLAN) chỉ đọc header ngoài | Nên có (đã kiểm tra 12/11/2026) | Lab không dùng đường hầm; ba loại tạo riêng đều đọc đúng header ngoài (docs/17 mục 3.2). Chưa cần đọc header trong |
 | Gói ARP bị bỏ qua, nên không phát hiện được ARP spoofing | Nên có | Ngoài phạm vi ba lớp hiện tại |
 | ~~Bộ đọc PCAP không đọc thẳng file nén `.gz`/`.bz2`~~ | Đã xong 06/11/2026 | `PcapReader` nhận magic gzip/bz2 và giải nén trong luồng (docs/04); đọc thẳng PCAP cắt ngắn `.bz2` của CTU-13 |
-| Tốc độ khoảng 300 000 packet/giây (đọc); đối chiếu Wireshark 4,48 triệu gói mất khoảng 14 phút | Quan trọng | Đo lại trên file CIC 10 GB; tối ưu nếu quá chậm |
+| ~~Tốc độ khoảng 300 000 packet/giây (đọc); đối chiếu Wireshark 4,48 triệu gói mất khoảng 14 phút~~ | Đã xong 07/11/2026 | Đã đối chiếu toàn bộ ba file CIC 10 GB (35,5 triệu gói, lệch 0, docs/17 mục 3.1); không cần tối ưu thêm |
 | ~~Chưa có phần bắt gói trực tiếp (live capture)~~ | Đã xong | Chặng 10 (`nids.nguon_goi`, AF_PACKET); chưa chạy trên card thật |
 
 Các phần chưa có vì **thuộc chặng sau**, không tính là thiếu của Chặng 1–10: kiểm thử

@@ -113,6 +113,40 @@ tshark cũng không coi là IP (ARP, CDP, LLDP). Khác biệt có chủ ý duy n
 ICMP chép lại header gói gốc (tshark báo cổng của header bên trong). **Không còn giới hạn 1 triệu gói**:
 toàn bộ 35,5 triệu gói của ba file khớp Wireshark, 0 lệch.
 
+### 3.2. PCAP lab và các nhánh ít gặp: IPv6, phân mảnh, TSO, đường hầm (12/11/2026)
+
+**Mọi PCAP lab** (55 lần chạy và bản thu kiểm tra mirror, `docs/hinh/wireshark_lab.json`):
+
+| Tổng packet | Gói IP khớp | Không phải IP (hai bên đồng ý) | Khác biệt có chủ ý | Lệch |
+|---|---|---|---|---|
+| 1 850 370 | 1 847 542 (IPv4 TCP 1 842 960; IPv6 ICMPv6 2 906; IPv4 UDP 1 640; IPv4 ICMP 36) | 2 828 ARP | 6 ICMP chép header gốc | **0** |
+
+Traffic kịch bản của lab chỉ có IPv4; gói IPv6 là gói tìm hàng xóm của hệ điều hành. Vì vậy có thêm một bản thu
+riêng cho các nhánh mà dữ liệu trước đây gần như không có (`python3 scripts/lab_ao.py giao-thuc`,
+`docs/hinh/wireshark_lab_giao_thuc.json`):
+
+| Nhánh | Cách tạo trong lab | Gói | Kết quả |
+|---|---|---|---|
+| IPv6 TCP, UDP, ICMPv6 | HTTP, UDP và ping qua địa chỉ `fd50::/64` | 2 616 TCP, 5 UDP, 85 ICMPv6 | khớp |
+| Phân mảnh IPv4 và IPv6 | ping 4 000 byte, UDP 4 500 byte | 56 mảnh | khớp; mảnh sau không có cổng, đúng thiết kế |
+| Gói gộp TSO/GSO | bắt **trên chính máy gửi** (máy chủ dịch vụ, bật TSO) khi gửi file 3 MB | 161 gói lớn hơn MTU, tới 65 226 byte | khớp |
+| Đường hầm IP trong IP | `ipip` giữa hai client, bên trong là ping và TCP | 16 | khớp header ngoài; khác biệt có chủ ý |
+| Đường hầm GRE | `gre` | 18 | khớp header ngoài; khác biệt có chủ ý |
+| Đường hầm VXLAN | `vxlan` trên UDP 4789 | 10 gói TCP bên trong | khớp header ngoài (UDP 4789); khác biệt có chủ ý |
+
+| File | Tổng packet | Gói IP khớp | ARP | Khác biệt có chủ ý | Lệch |
+|---|---|---|---|---|---|
+| `giao_thuc_mirror.pcap` (qua cổng mirror) | 5 152 | 5 142 | 10 | 30 đường hầm, 11 ICMP chép header | **0** |
+| `giao_thuc_may_gui.pcap` (trên máy gửi, TSO bật) | 1 033 | 1 024 | 9 | 10 ICMP chép header | **0** |
+
+- **Bộ đọc gói khớp Wireshark ở mọi nhánh.** Một lỗi được tìm ra là ở **công cụ đối chiếu**, không phải bộ đọc:
+  với VXLAN, tshark giải mã cả gói TCP bên trong, và công cụ so nhầm cổng TCP đó với cổng UDP của header ngoài.
+  Đã sửa để nhận đường hầm chạy trên UDP là khác biệt có chủ ý (`tests/test_wireshark_compare.py`).
+- **Gói TSO trên Linux giữ đúng Total Length** (lớn hơn MTU), khác trường hợp Total Length bằng 0 từng gặp ở
+  bản bắt trên Windows; cả hai đều được xử lý. Trên cổng mirror không có gói gộp vì lab tắt TSO ở card ảo.
+- **Đường hầm chỉ đọc header ngoài** vẫn là giới hạn đã chọn: flow của traffic trong đường hầm là flow của
+  hai đầu đường hầm. Lab không dùng đường hầm nên chưa cần đọc header trong.
+
 ## 4. Nhận xét
 
 - Mọi trường của mọi packet đều khớp với Wireshark trên các file trên, gồm cả

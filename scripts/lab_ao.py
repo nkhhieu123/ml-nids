@@ -7,6 +7,7 @@ ra ngoài, nên lab cô lập (B24). Chạy bằng root trên Linux (đã thử 
 
     python3 scripts/lab_ao.py dung --lab 1            # dựng lab số 1
     python3 scripts/lab_ao.py kiem-tra --lab 1        # bắt thử, để nids.cam_bien xác nhận thấy hai chiều
+    python3 scripts/lab_ao.py giao-thuc --lab 1       # bắt IPv6, phân mảnh, TSO, đường hầm để đối chiếu Wireshark
     python3 scripts/lab_ao.py chay --lab 1 --bien-the k3-dos-muc2 --vai-tro test --lan 01
     python3 scripts/lab_ao.py go --lab 1              # gỡ lab
 
@@ -65,7 +66,7 @@ http {{
                     '$request_time $connection $connection_requests '
                     '"$http_user_agent"';
     access_log {work}/access_nids.log nids;
-    server {{ listen 80; root {work}/www; }}
+    server {{ listen 80; listen [::]:80; root {work}/www; }}
 }}
 """
 
@@ -369,10 +370,95 @@ def mirror_check(lab, out_root=ROOT):
     print(f"Đã bắt thử: {stats}; file data/pcap/lab/kiem_tra_mirror.pcap")
 
 
+def protocol_check(lab, out_root=ROOT):
+    """Bản thu kiểm tra các nhánh ít gặp của bộ đọc gói: IPv6, phân mảnh, gói gộp TSO, đường hầm IP.
+
+    Ghi hai file để đối chiếu với Wireshark (nids.wireshark_compare):
+    - ``giao_thuc_mirror.pcap``: bắt trên máy giám sát qua cổng mirror như mọi lần chạy;
+    - ``giao_thuc_may_gui.pcap``: bắt ngay trên card của máy chủ dịch vụ khi card bật TSO/GSO, tức "bắt trên
+      chính máy gửi": gói TCP lớn hơn MTU chưa được tách.
+    Mọi traffic vẫn chỉ đi giữa các máy của lab (B24); địa chỉ IPv6 và đường hầm được gỡ khi xong.
+    """
+    work = WORK / f"giao-thuc-{lab}"
+    shutil.rmtree(work, ignore_errors=True)
+    work.mkdir(parents=True)
+    v6 = lambda h: f"fd50::{h}"
+    run_in = lambda h, *cmd: subprocess.run(in_ns(lab, h, *cmd), capture_output=True, text=True, timeout=120)
+    fetch = lambda url: [sys.executable, "-c", f"import urllib.request as u; print(len(u.urlopen({url!r}, timeout=20).read()))"]
+    for h in HOSTS:
+        if h != MONITOR:
+            sh("ip", "-n", ns(lab, h), "-6", "addr", "add", f"{v6(h)}/64", "dev", "eth0", "nodad", check=False)
+    start_nginx(lab, work)
+    (work / "www" / "big.bin").write_bytes(os.urandom(3_000_000))
+    sh(*in_ns(lab, SERVER, "ethtool", "-K", "eth0", "tx", "on", "sg", "on", "tso", "on", "gso", "on"), check=False)
+    cap = Capture(lab, work / "giao_thuc_mirror.pcap")
+    sender_err = open(work / "may_gui.txt", "w+")
+    sender = subprocess.Popen(in_ns(lab, SERVER, "tcpdump", "-i", "eth0", "-n", "-s", "0", "-w",
+                                    str(work / "giao_thuc_may_gui.pcap")), stderr=sender_err, stdout=subprocess.DEVNULL)
+    time.sleep(2.0)
+    done = {}
+    a, b = CLIENTS[0], CLIENTS[1]
+    # IPv6: ICMPv6, TCP (HTTP), UDP
+    done["ipv6_ping"] = run_in(a, "ping", "-6", "-c", "3", "-i", "0.2", v6(SERVER)).returncode
+    done["ipv6_http"] = [run_in(h, *fetch(f"http://[{v6(SERVER)}]/assets/app.js")).stdout.strip() for h in (a, b)]
+    udp = "import socket,sys; s=socket.socket(socket.AF_INET6 if ':' in sys.argv[1] else socket.AF_INET, socket.SOCK_DGRAM); " \
+          "[s.sendto(b'nids-lab ' * int(sys.argv[3]), (sys.argv[1], int(sys.argv[2]))) for _ in range(5)]"
+    done["ipv6_udp"] = run_in(a, sys.executable, "-c", udp, v6(SERVER), "9999", "4").returncode
+    # Phân mảnh: gói lớn hơn MTU ở IPv4 và IPv6
+    done["ipv4_manh_icmp"] = run_in(a, "ping", "-c", "3", "-i", "0.2", "-s", "4000", ip(SERVER)).returncode
+    done["ipv6_manh_icmp"] = run_in(a, "ping", "-6", "-c", "3", "-i", "0.2", "-s", "4000", v6(SERVER)).returncode
+    done["ipv4_manh_udp"] = run_in(a, sys.executable, "-c", udp, ip(SERVER), "9999", "500").returncode
+    # TSO: máy chủ gửi file 3 MB qua IPv4 và IPv6
+    done["tai_file_lon"] = [run_in(CLIENTS[2], *fetch(f"http://{ip(SERVER)}/big.bin")).stdout.strip(),
+                            run_in(CLIENTS[2], *fetch(f"http://[{v6(SERVER)}]/big.bin")).stdout.strip()]
+    # Đường hầm giữa hai client: IP trong IP, GRE, VXLAN; bên trong là ping và một kết nối TCP
+    tunnels = (("ipip", 0, ("type", "ipip")), ("gre", 1, ("type", "gre")),
+               ("vxlan", 2, ("type", "vxlan", "id", "42", "dstport", "4789", "dev", "eth0")))
+    for name, k, kind in tunnels:
+        dev = f"t{name}"
+        for h, peer, addr in ((a, b, 1), (b, a, 2)):
+            n = ns(lab, h)
+            sh("ip", "-n", n, "link", "add", dev, *kind, "local", ip(h), "remote", ip(peer), check=False)
+            sh("ip", "-n", n, "addr", "add", f"10.99.{k}.{addr}/30", "dev", dev, check=False)
+            sh("ip", "-n", n, "link", "set", dev, "up", check=False)
+        srv = subprocess.Popen(in_ns(lab, b, *py("sinh_topology.py", "may-chu", "--cong", 8081, "--thoi-gian", 30)),
+                               env={**os.environ, "NIDS_NHAT_KY": str(work / "may_sinh.jsonl")},
+                               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        time.sleep(1.0)
+        ping = run_in(a, "ping", "-c", "3", "-i", "0.2", f"10.99.{k}.2").returncode
+        tcp = run_in(a, sys.executable, "-c", "import socket,sys; s=socket.create_connection((sys.argv[1], 8081), 5); "
+                     "s.sendall(b'nids-lab trong duong ham'); print(s.recv(16))", f"10.99.{k}.2").returncode
+        done[f"duong_ham_{name}"] = {"ping": ping, "tcp": tcp}
+        srv.terminate()
+        srv.wait()
+        for h in (a, b):
+            sh("ip", "-n", ns(lab, h), "link", "del", dev, check=False)
+    time.sleep(1.0)
+    sender.send_signal(signal.SIGINT)
+    sender.wait(timeout=30)
+    sender_err.close()
+    stats = cap.stop()
+    stop_nginx(lab, work)
+    off = ("tx", "off", "sg", "off", "tso", "off", "gso", "off")
+    sh(*in_ns(lab, SERVER, "ethtool", "-K", "eth0", *off), check=False)
+    for h in HOSTS:
+        if h != MONITOR:
+            sh("ip", "-n", ns(lab, h), "-6", "addr", "del", f"{v6(h)}/64", "dev", "eth0", check=False)
+    dst = out_root / "data/pcap/lab"
+    dst.mkdir(parents=True, exist_ok=True)
+    for name in ("giao_thuc_mirror.pcap", "giao_thuc_may_gui.pcap"):
+        shutil.copy(work / name, dst / name)
+    (out_root / "data/run_logs" / "giao_thuc.json").write_text(
+        json.dumps({"ma_lan_chay": "giao_thuc", "lab": lab, "bat_dau": iso(cap.start), "ket_thuc": iso(cap.end),
+                    "mirror": stats, "ket_qua_lenh": done}, ensure_ascii=False, indent=2), encoding="utf-8")
+    shutil.rmtree(work, ignore_errors=True)
+    print(f"Đã bắt bản kiểm tra giao thức: {stats}; {done}")
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description="Lab ảo 7 node và bộ chạy kịch bản Chặng 11.")
     sub = ap.add_subparsers(dest="lenh", required=True)
-    for name in ("dung", "go", "kiem-tra", "chay"):
+    for name in ("dung", "go", "kiem-tra", "giao-thuc", "chay"):
         sub.add_parser(name).add_argument("--lab", type=int, default=1, help="số thứ tự lab (chạy song song nhiều lab)")
     c = sub.choices["chay"]
     c.add_argument("--bien-the", required=True, choices=VARIANTS)
@@ -389,6 +475,8 @@ def main(argv=None):
         tear_down(a.lab)
     elif a.lenh == "kiem-tra":
         mirror_check(a.lab)
+    elif a.lenh == "giao-thuc":
+        protocol_check(a.lab)
     else:
         for lan in a.lan:
             run(a.lab, a.bien_the, a.vai_tro, lan, a.seed, scale=a.ti_le)

@@ -50,6 +50,15 @@ class ParseLineTest(unittest.TestCase):
         self.assertEqual((exp["src_ip"], exp["protocols"], exp["ip_len"]), ("10.0.0.2", {1}, 56))
         self.assertEqual((exp["ports"], exp["ip_layers"]), ((5000, 7), 2))
 
+    def test_udp_tunnel_uses_outer_udp_ports(self):
+        # VXLAN: header ngoài là UDP 4789; tshark báo thêm TCP của gói bên trong
+        exp = expected_from_tshark(tshark_line(
+            ip__src="192.168.50.41,10.99.2.1", ip__dst="192.168.50.42,10.99.2.2", ip__proto="17,6",
+            ip__len="110,60", udp__srcport="47097", udp__dstport="4789", udp__length="90",
+            tcp__srcport="60034", tcp__dstport="8081", tcp__flags="0x0002", tcp__seq_raw="7", tcp__len="0"))
+        self.assertTrue(exp["udp_tunnel"])
+        self.assertEqual((exp["ports"], exp["tcp_flags"], exp["tcp_seq"]), ((47097, 4789), None, None))
+
     def test_ipv6_extension_header_protocols(self):
         exp = expected_from_tshark(tshark_line(
             ipv6__src="fe80::1", ipv6__dst="ff02::1", ipv6__nxt="0", ipv6__plen="8",
