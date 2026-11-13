@@ -18,5 +18,5 @@ python3 scripts/lab_ao.py go --lab 45 >/dev/null 2>&1
 kt "Dựng được lab ảo" python3 scripts/lab_ao.py dung --lab 45
 kt "Máy thử .20 gọi được máy chủ .30" ip netns exec nl45h20 ping -c 1 -W 2 192.168.50.30
 python3 scripts/lab_ao.py go --lab 45 >/dev/null 2>&1
-if [ "$loi" = 0 ]; then echo "Sẵn sàng demo."; else echo "Còn lỗi, xem docs/77_bao_cao_va_demo.md mục 5."; fi
+if [ "$loi" = 0 ]; then echo "Sẵn sàng demo."; else echo "Còn lỗi, xem demo/HUONG_DAN.md mục 5."; fi
 exit "$loi"

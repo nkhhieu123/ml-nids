@@ -1,8 +1,8 @@
 # Hướng dẫn báo cáo tiến độ và demo
 
 Tài liệu dùng cho buổi báo cáo: nói gì, theo thứ tự nào, và bấm file nào để demo. Mọi con số lấy từ
-[Bao_cao_Chang_11.md](Bao_cao_Chang_11.md), [76_khai_quat_lab.md](76_khai_quat_lab.md) và
-[72_do_nhay_tham_so.md](72_do_nhay_tham_so.md). Các file demo đã được chạy thử ngày 13/11/2026 trên máy này.
+[Bao_cao_Chang_11.md](../docs/Bao_cao_Chang_11.md), [76_khai_quat_lab.md](../docs/76_khai_quat_lab.md) và
+[72_do_nhay_tham_so.md](../docs/72_do_nhay_tham_so.md). Các file demo đã được chạy thử ngày 13/11/2026 trên máy này.
 
 Tổng thời gian đề xuất: **15 phút** (10 phút báo cáo, 5 phút demo).
 
@@ -79,7 +79,7 @@ Các ý cần nói:
 
 ### 2.6. Việc tiếp theo (0,5 phút)
 
-Theo [Viec_con_thieu.md](Viec_con_thieu.md) mục 4: dựng lab vật lý và cài trên Kali; nối lớp giữ nhãn `dos` vào
+Theo [Viec_con_thieu.md](../docs/Viec_con_thieu.md) mục 4: dựng lab vật lý và cài trên Kali; nối lớp giữ nhãn `dos` vào
 hệ thống; Chặng 12 viết báo cáo cuối và bàn giao.
 
 ## 3. Demo (5 phút)
@@ -119,7 +119,7 @@ Không chạy hai file demo cùng lúc: chúng dùng chung một lab.
 ### 3.2. Vì sao không demo botnet trực tiếp
 
 Kịch bản botnet cần ít nhất 10 phút (bot gọi máy điều khiển mỗi 30–60 giây, module chấm trên cửa sổ 120
-giây). Phần này trình bày bằng bảng của `4_ket_qua_da_luu.bat` và [76_khai_quat_lab.md](76_khai_quat_lab.md).
+giây). Phần này trình bày bằng bảng của `4_ket_qua_da_luu.bat` và [76_khai_quat_lab.md](../docs/76_khai_quat_lab.md).
 
 ### 3.3. Kết quả demo nằm ở đâu
 
