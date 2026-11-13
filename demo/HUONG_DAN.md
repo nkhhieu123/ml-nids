@@ -4,7 +4,7 @@ Tài liệu dùng cho buổi báo cáo: nói gì, theo thứ tự nào, và bấ
 [Bao_cao_Chang_11.md](../docs/Bao_cao_Chang_11.md), [76_khai_quat_lab.md](../docs/76_khai_quat_lab.md) và
 [72_do_nhay_tham_so.md](../docs/72_do_nhay_tham_so.md). Các file demo đã được chạy thử ngày 13/11/2026 trên máy này.
 
-Tổng thời gian đề xuất: **khoảng 18 phút** (13 phút báo cáo, 5 phút demo). Nếu chỉ có 15 phút, mục 2.2 và
+Tổng thời gian đề xuất: **khoảng 19 phút** (14 phút báo cáo, 5 phút demo). Nếu chỉ có 15 phút, mục 2.2 và
 2.5 nói ý chính, phần chi tiết để trả lời câu hỏi.
 
 ## 1. Chuẩn bị trước buổi báo cáo (10 phút)
@@ -18,7 +18,7 @@ Tổng thời gian đề xuất: **khoảng 18 phút** (13 phút báo cáo, 5 ph
 
 Không cần mạng Internet. Lab ảo không có đường ra ngoài.
 
-## 2. Nội dung báo cáo (13 phút)
+## 2. Nội dung báo cáo (14 phút)
 
 ### 2.1. Bài toán và kiến trúc (1 phút)
 
@@ -56,12 +56,55 @@ Các lựa chọn cụ thể và lý do:
 - **Lab ảo thay cho lab vật lý** vì nhóm chưa có 7 máy và switch có cổng mirror. Gói tin vẫn là gói thật của
   nhân Linux, Nginx và Nmap (QĐ-061).
 
-### 2.3. Những gì đã làm được (2 phút)
+### 2.3. Những gì đã làm được (3 phút)
 
-- Chặng 1–10: bộ đọc gói tự viết (khớp Wireshark), trích xuất flow và đặc trưng, gán nhãn, chia tập, huấn luyện
-  ba module, pipeline offline, cảm biến realtime, đóng gói dịch vụ. 444 kiểm thử tự động đều đạt.
-- Chặng 11: dựng lab ảo, chạy 5 nhóm kịch bản (bình thường, quét cổng, DoS, botnet tập trung, botnet ngang
-  hàng), đo tỷ lệ phát hiện, độ trễ, báo động giả, hiệu năng.
+Đã xong 11/12 chặng của kế hoạch. Còn Chặng 12 (báo cáo cuối, bàn giao). Kho mã có khoảng 45 module Python và
+**444 kiểm thử tự động đều đạt**, 73 quyết định kỹ thuật được ghi lại kèm lý do
+(`docs/03_nhat_ky_quyet_dinh.md`), mỗi chặng có một báo cáo riêng (`docs/Bao_cao_Chang_1.md` tới `_11.md`).
+
+**Đường đi của dữ liệu, cũng là thứ tự các chặng:**
+
+```
+gói tin ─> flow ─> đặc trưng theo host ─> gán nhãn, chia tập ─> ba mô hình ─> pipeline ─> cảm biến realtime ─> lab
+(Chặng 3)  (Chặng 4)                      (Chặng 5)             (Chặng 6–8)   (Chặng 9)   (Chặng 10)        (Chặng 11)
+```
+
+| Chặng | Đã làm được gì | Kết quả đo được |
+|---|---|---|
+| 1. Yêu cầu | Rút đề bài thành bảng yêu cầu (B01–B24), chốt đầu ra của ba module, dựng kho mã và file cấu hình chung | — |
+| 2. Dữ liệu | Khảo sát và chọn CIC-IDS2017, CTU-13; lập bảng kê mọi nguồn dữ liệu; tải đủ dữ liệu | PCAP ba ngày CIC, 13 file flow CTU-13 |
+| 3. Đọc gói tin | **Tự viết** bộ đọc PCAP/PCAPNG và bóc header Ethernet/IP/TCP/UDP bằng thư viện chuẩn của Python; bộ đọc access log Nginx | Khớp Wireshark ở **mọi trường của 4,57 triệu gói**; khớp mọi ô của log Nginx |
+| 4. Flow và đặc trưng | Ghép gói thành flow hai chiều; tính đặc trưng theo host trong cửa sổ 10 giây trượt 2 giây (số cổng đích, tỷ lệ kết nối không hoàn tất, số kết nối mỗi giây...) | Bảng flow và bảng cửa sổ host kèm mô tả từng cột; đối chiếu độc lập với Wireshark |
+| 5. Nhãn và chia tập | Gán nhãn theo lịch tấn công; chia train/validation/test **theo thời gian** để không rò rỉ; phân tích dữ liệu | 1,44 triệu flow, 465 nghìn cửa sổ host của ba ngày CIC |
+| 6. Module bất thường | Gaussian đa biến trên 14 đặc trưng, học từ traffic bình thường | Test CIC: F1 0,730, báo động giả 1,42% cửa sổ |
+| 7. Module phân loại | Random Forest ba lớp `benign` / `port_scan` / `dos`; so với Logistic Regression và chọn Random Forest | Macro-F1: validation 0,935, test 0,908 |
+| 8. Module botnet | Đồ thị liên lạc theo cửa sổ 120 giây, đặc trưng gọi định kỳ, Random Forest phát hiện host bot, quy tắc nhận dạng topology | Test CTU-13 (họ bot chưa thấy lúc học): precision 0,971, recall 0,678 |
+| 9. Pipeline offline | Một lệnh: đưa vào file PCAP, ra file cảnh báo của cả ba module theo một định dạng chung, gộp cảnh báo lặp thành sự kiện | Chạy trên 1,1 triệu gói CIC; không bỏ sót quét, Slowloris, Hulk ở chế độ độc lập |
+| 10. Realtime | Cảm biến bắt gói trực tiếp từ card mạng, chấm khi cửa sổ đóng, chạy nền bằng systemd, dừng êm | Cảnh báo realtime **giống hệt** offline khi phát lại 4 đoạn PCAP |
+| 11. Kiểm thử lab | Dựng lab ảo 7 máy; 5 nhóm kịch bản; nhật ký làm nhãn chuẩn; đo phát hiện, độ trễ, báo động giả, hiệu năng; học lại mô hình cho lab | 177 lần chạy; 24/24 đợt, 0 báo động giả (mục 2.4) |
+
+**Riêng Chặng 11 và phần bổ sung (09–13/11/2026), kể chi tiết vì là phần mới nhất:**
+
+1. **Dựng lab ảo** bằng network namespace trên WSL2: 7 máy, một bridge, cổng mirror về máy giám sát. Kiểm tra
+   mirror thấy đủ hai chiều, không mất gói.
+2. **Viết bộ chạy kịch bản** tự ghi nhật ký (giờ bắt đầu, kết thúc, máy nguồn, máy đích của từng tấn công). Bộ
+   chạy không đọc kết quả mô hình, nên nhãn chuẩn độc lập với mô hình.
+3. **Thu 11 biến thể** của 5 kịch bản: bình thường; quét chậm, quét nhanh; DoS ba mức tải; botnet tập trung
+   chu kỳ cố định và biến thiên; botnet ngang hàng; hai kịch bản đối chứng (traffic lành tính trông giống bot).
+4. **Chấm mô hình cũ trên lab:** 15/24 đợt, sót hết botnet, 58 báo động giả. Tìm ra ba nguyên nhân (mục 2.5).
+5. **Học lại cả ba module trên dữ liệu lab**, hai lần: lần đầu một lần `train` mỗi biến thể (24/24 đợt nhưng
+   còn 4 báo động giả); lần hai ba lần `train` (24/24 đợt, 0 báo động giả). Mỗi lần đều thu lần `test` mới.
+6. **Kiểm tra khái quát:** đổi vai trò máy (6/6 đợt), SYN flood gói thô bằng hping3 (9/9 đợt), chấm chéo với
+   CTU-13 (recall 0, ghi nhận là hạn chế).
+7. **Cải tiến sau khi đo:** quy tắc topology theo nhóm (đúng 98,2%); giảm thời gian chờ bắt tay từ 3 xuống 1
+   giây (cảnh báo sớm hơn khoảng 2 giây); lớp giữ nhãn `dos` cho DoS HTTP chậm (recall Slowhttptest 0,66 lên
+   0,82, chưa bật).
+8. **Thí nghiệm bổ sung:** cảm biến bắt trực tiếp trong lab (không mất gói tới khoảng 2 900 gói mỗi giây); máy
+   tấn công có cả traffic bình thường; đường truyền có trễ 200 ms; ghép access log Nginx với flow (33 003 dòng,
+   lệch 0); so với Wireshark cho IPv6, gói phân mảnh, đường hầm.
+9. **Đo độ nhạy tham số:** tham số gán nhãn; tham số flow bằng cách trích xuất lại CIC và huấn luyện lại 7 cấu
+   hình (macro-F1 0,932–0,938, giữ nguyên bộ hiện tại).
+10. **Bộ demo bấm là chạy** và tài liệu này.
 
 ### 2.4. Kết quả Chặng 11 (4 phút) — phần chính
 
@@ -132,8 +175,8 @@ lab với bot mô phỏng.
 Quét và DoS chấm trên cửa sổ 10 giây trượt mỗi 2 giây, cộng 1 giây chờ bắt tay TCP. Botnet cần cửa sổ 120
 giây vì phải thấy vài lần gọi định kỳ mới nhận ra nhịp.
 
-**Vì sao macro-F1 trên CIC chỉ khoảng 0,94, thấp hơn trên lab?**
-CIC khó hơn: DoS HTTP chậm (Slowhttptest, Slowloris) giữ kết nối mở thật lâu nên giữa hai đợt gửi, cửa sổ 10
+**Vì sao macro-F1 trên CIC thấp hơn trên lab?**
+Trên CIC bộ phân loại đạt macro-F1 0,935 ở validation và 0,908 ở test. CIC khó hơn: DoS HTTP chậm (Slowhttptest, Slowloris) giữ kết nối mở thật lâu nên giữa hai đợt gửi, cửa sổ 10
 giây trông như bình thường; validation `port_scan` chỉ có 164 cửa sổ nên vài cửa sổ sai đã kéo điểm xuống.
 
 ### 2.6. Hạn chế (1,5 phút) — nói thẳng
@@ -373,4 +416,9 @@ Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
 | Ngưỡng | Mức điểm mà từ đó trở lên mô hình phát cảnh báo |
 | Bắt tay TCP | Ba gói đầu tiên để mở một kết nối TCP |
 | B12 | Yêu cầu huấn luyện và realtime dùng cùng cách tính đặc trưng |
+| Header | Phần đầu của gói tin, chứa địa chỉ, cổng và thông tin điều khiển |
+| Precision, F1 | Precision: trong các cảnh báo, bao nhiêu phần là đúng. F1: điểm gộp precision và recall |
+| Rò rỉ dữ liệu | Mô hình vô tình thấy dữ liệu đánh giá trong lúc học, làm điểm cao giả |
+| systemd | Trình quản lý dịch vụ của Linux; cho chương trình chạy nền và tự khởi động lại |
+| Đối chứng | Kịch bản không có tấn công, dùng để kiểm tra hệ thống có báo nhầm không |
 | B24, QĐ-061 | Yêu cầu an toàn của dự án (traffic thử không ra ngoài lab); quyết định dùng lab ảo |
