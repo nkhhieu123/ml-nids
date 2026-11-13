@@ -4,7 +4,8 @@ Tài liệu dùng cho buổi báo cáo: nói gì, theo thứ tự nào, và bấ
 [Bao_cao_Chang_11.md](../docs/Bao_cao_Chang_11.md), [76_khai_quat_lab.md](../docs/76_khai_quat_lab.md) và
 [72_do_nhay_tham_so.md](../docs/72_do_nhay_tham_so.md). Các file demo đã được chạy thử ngày 13/11/2026 trên máy này.
 
-Tổng thời gian đề xuất: **15 phút** (10 phút báo cáo, 5 phút demo).
+Tổng thời gian đề xuất: **khoảng 18 phút** (13 phút báo cáo, 5 phút demo). Nếu chỉ có 15 phút, mục 2.2 và
+2.5 nói ý chính, phần chi tiết để trả lời câu hỏi.
 
 ## 1. Chuẩn bị trước buổi báo cáo (10 phút)
 
@@ -17,7 +18,7 @@ Tổng thời gian đề xuất: **15 phút** (10 phút báo cáo, 5 phút demo)
 
 Không cần mạng Internet. Lab ảo không có đường ra ngoài.
 
-## 2. Nội dung báo cáo (10 phút)
+## 2. Nội dung báo cáo (13 phút)
 
 ### 2.1. Bài toán và kiến trúc (1 phút)
 
@@ -32,12 +33,28 @@ Không cần mạng Internet. Lab ảo không có đường ra ngoài.
 | Phân loại tấn công | Random Forest | Là `benign`, `port_scan` hay `dos`? |
 | Botnet | Random Forest và quy tắc topology | Host có phải bot không; bot liên lạc kiểu tập trung hay ngang hàng? |
 
-### 2.2. Dữ liệu (1 phút)
+### 2.2. Dữ liệu và lý do chọn (1,5 phút)
 
-- **CIC-IDS2017** (thứ Hai, thứ Tư, thứ Sáu): học và đánh giá quét cổng, DoS.
-- **CTU-13** (13 kịch bản): học và đánh giá botnet.
-- **Lab ảo 7 máy** tự dựng trên WSL2: 177 lần chạy, mỗi lần có nhật ký ghi giờ tấn công thật để làm nhãn chuẩn.
-  Traffic tấn công chỉ chạy trong mạng cô lập `192.168.50.0/24`, DoS giới hạn 60 giây.
+| Dữ liệu | Dùng cho | Vì sao chọn |
+|---|---|---|
+| **CIC-IDS2017**, thứ Hai, thứ Tư, thứ Sáu | Học và đánh giá quét cổng, DoS; thứ Hai (không có tấn công) cho module Gaussian | Công bố kèm **PCAP gốc** và **lịch tấn công**, nên chạy được qua bộ trích xuất của chính đề tài thay vì dùng đặc trưng người khác tính sẵn. Có đúng hai loại cần: bốn công cụ DoS (thứ Tư) và Nmap quét cổng (thứ Sáu). Được dùng rộng rãi nên so được với các nghiên cứu khác |
+| **CTU-13**, 13 kịch bản | Học và đánh giá botnet | Là bộ dữ liệu botnet **thật** (mã độc chạy trong mạng trường đại học), có nhãn từng flow và có cả kiểu tập trung lẫn ngang hàng. Lab không được phép chạy mã độc (yêu cầu B24) nên đây là nguồn bot thật duy nhất |
+| **Lab ảo 7 máy**, 177 lần chạy | Kiểm thử thực nghiệm; học lại mô hình cho mạng lab | Hai bộ trên là dữ liệu của mạng khác, thu năm 2011 và 2017. Đề tài yêu cầu đo trên mạng do mình dựng, có nhãn chuẩn do mình ghi (nhật ký lần chạy), và đo được độ trễ realtime, điều mà dữ liệu có sẵn không cho phép |
+
+Các lựa chọn cụ thể và lý do:
+
+- **Chỉ lấy ba ngày của CIC-IDS2017.** Thứ Ba và thứ Năm là brute-force và tấn công web, ngoài ba lớp của đề
+  tài. Trong thứ Tư bỏ Heartbleed, trong thứ Sáu bỏ DDoS LOIT và Bot: mỗi loại chỉ có một đợt, không đủ để vừa
+  học vừa đánh giá (QĐ-009, QĐ-033).
+- **Dùng PCAP, không dùng file CSV có sẵn của CIC.** Hệ thống realtime phải tính đặc trưng từ gói tin bằng đúng
+  đoạn mã lúc huấn luyện (yêu cầu B12). File CSV chỉ dùng để đối chiếu nhãn.
+- **CTU-13 dùng file flow hai chiều có nhãn** vì PCAP đầy đủ của toàn mạng không được công bố (QĐ-010). Vì vậy
+  đặc trưng của module botnet được thiết kế để tính được từ bản ghi flow.
+- **Chia tập theo thời gian, không trộn ngẫu nhiên.** Các cửa sổ liền nhau gần giống nhau; trộn ngẫu nhiên sẽ
+  để mô hình thấy gần như cùng một mẫu ở cả train lẫn test và cho điểm cao giả (QĐ-027). Với CTU-13 chia theo
+  kịch bản, với lab chia theo lần chạy.
+- **Lab ảo thay cho lab vật lý** vì nhóm chưa có 7 máy và switch có cổng mirror. Gói tin vẫn là gói thật của
+  nhân Linux, Nginx và Nmap (QĐ-061).
 
 ### 2.3. Những gì đã làm được (2 phút)
 
@@ -68,7 +85,58 @@ Các ý cần nói:
 4. Topology: gán đúng kiểu ngang hàng 98,2% bằng quy tắc "các host bị nghi gọi lẫn nhau".
 5. Không mất gói: 0 gói nhân bỏ ở tải tới khoảng 2 900 gói mỗi giây.
 
-### 2.5. Hạn chế (1,5 phút) — nói thẳng
+### 2.5. Vì sao có kết quả đó (2 phút)
+
+**Vì sao mô hình học từ CIC-IDS2017 vẫn bắt được quét cổng và DoS trên lab (15/15)?**
+Hai loại này có dấu hiệu giống nhau ở mọi mạng. Quét cổng: một host mở kết nối tới hàng trăm cổng khác nhau
+trong vài giây, phần lớn không hoàn tất. DoS tải kết nối: hàng trăm kết nối ngắn mỗi giây dồn vào một cổng.
+Các đặc trưng như số cổng đích, tỷ lệ kết nối không hoàn tất, số kết nối mỗi giây không phụ thuộc mạng nào.
+
+**Vì sao mô hình học từ CTU-13 sót hết botnet của lab (0/9)?**
+
+- Bot của CTU-13 là mã độc thật: gửi spam, quét, DDoS, nên ồn ào. Bot của lab chỉ **gọi định kỳ** về máy điều
+  khiển mỗi 30–60 giây, rất ít traffic. Mô hình học "bot là máy ồn ào" nên cho bot lab điểm cao nhất 0,084,
+  dưới ngưỡng 0,1; điểm trung vị của bot (0,003) còn thấp hơn máy chỉ duyệt web (0,052).
+- CTU-13 chỉ có 4 máy bình thường đã xác nhận, nên mô hình ít mẫu để hiểu "bình thường" trông ra sao.
+- Quy tắc topology cũ đòi ít nhất 5 máy gọi vào mới coi là ngang hàng; lab chỉ có 3 bot.
+
+**Vì sao mô hình cũ báo động giả nhiều (58 sự kiện)?**
+
+- Module Gaussian học "bình thường" từ các máy trạm của CIC. Máy chủ web `.30` của lab nhận kết nối liên tục,
+  khác hẳn các máy đó, nên bị báo suốt cả bản thu ở mọi lần chạy.
+- Bộ phân loại chưa từng thấy máy trạm truyền khối dữ liệu lớn cho nhau, nên coi đó là DoS.
+
+Cả hai đều là cùng một nguyên nhân: **mô hình chưa từng thấy mạng này**.
+
+**Vì sao học lại trên lab thì được 24/24 và không báo động giả?**
+
+- Mô hình được thấy đúng mạng mình sẽ giám sát: máy chủ `.30` trông thế nào lúc bình thường, truyền file nội bộ
+  trông thế nào, bot gọi định kỳ trông thế nào. Lần học đầu chỉ có một lần `train` mỗi biến thể và còn 4 báo
+  động giả; tăng lên ba lần `train` thì hết.
+- Chuyển sang chế độ `doc_lap`: module botnet xét mọi host, không chờ module Gaussian báo trước. Bot chậm không
+  làm host "bất thường" nên ở chế độ cũ module botnet không bao giờ được hỏi.
+- Quy tắc topology mới xét theo nhóm (các host bị nghi gọi lẫn nhau là ngang hàng), không cần ngưỡng số máy.
+- Phải nói rõ: lab **dễ hơn mạng thật**. Chỉ 7 máy, traffic bình thường do một bộ sinh tạo ra nên đều đặn; các
+  lần `test` khác lần `train` ở thời điểm, chu kỳ và hạt giống ngẫu nhiên chứ không khác về bản chất.
+
+**Vì sao đổi vai trò máy và SYN flood vẫn bắt được, dù chưa từng học?**
+Mô hình học **hành vi**, không học địa chỉ: đổi máy nào làm bot, đổi cổng, đổi chu kỳ thì đặc trưng gọi định kỳ
+vẫn còn. SYN flood bằng gói thô vẫn là rất nhiều lần mở kết nối tới một cổng, giống DoS đã học.
+
+**Vì sao mô hình lab lại cho recall 0 trên CTU-13?**
+Lý do đối xứng với câu thứ hai: mô hình lab chỉ biết bot gọi định kỳ, không biết bot thật gửi spam hay DDoS.
+Kết luận trung thực là: **mô hình phải được học trên chính mạng cần bảo vệ**, và kết quả 24/24 chỉ đúng trong
+lab với bot mô phỏng.
+
+**Vì sao độ trễ là 1,5–3 giây với quét và DoS, còn botnet chậm hơn nhiều?**
+Quét và DoS chấm trên cửa sổ 10 giây trượt mỗi 2 giây, cộng 1 giây chờ bắt tay TCP. Botnet cần cửa sổ 120
+giây vì phải thấy vài lần gọi định kỳ mới nhận ra nhịp.
+
+**Vì sao macro-F1 trên CIC chỉ khoảng 0,94, thấp hơn trên lab?**
+CIC khó hơn: DoS HTTP chậm (Slowhttptest, Slowloris) giữ kết nối mở thật lâu nên giữa hai đợt gửi, cửa sổ 10
+giây trông như bình thường; validation `port_scan` chỉ có 164 cửa sổ nên vài cửa sổ sai đã kéo điểm xuống.
+
+### 2.6. Hạn chế (1,5 phút) — nói thẳng
 
 - Mới đo trên **lab ảo**; chưa có lab vật lý 7 máy và chưa cài trên Kali Linux.
 - Mô hình botnet của lab cho **recall 0 trên CTU-13**: kết quả 24/24 chỉ có nghĩa trong lab với bot mô phỏng.
@@ -77,7 +145,7 @@ Các ý cần nói:
 - Module Gaussian trên CIC báo động giả khoảng 17 đợt mỗi giờ, không dùng một mình được.
 - Chưa có dữ liệu brute-force và exploit.
 
-### 2.6. Việc tiếp theo (0,5 phút)
+### 2.7. Việc tiếp theo (0,5 phút)
 
 Theo [Viec_con_thieu.md](../docs/Viec_con_thieu.md) mục 4: dựng lab vật lý và cài trên Kali; nối lớp giữ nhãn `dos` vào
 hệ thống; Chặng 12 viết báo cáo cuối và bàn giao.
@@ -188,4 +256,9 @@ Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
 | Train / test | Lần chạy để mô hình học / lần chạy để đánh giá, mô hình chưa từng thấy |
 | CIC-IDS2017, CTU-13 | Hai bộ dữ liệu công khai về tấn công mạng và botnet |
 | Nmap, Nginx, hping3 | Công cụ quét cổng; máy chủ web; công cụ gửi gói TCP tùy chỉnh |
+| Gọi định kỳ (beaconing) | Bot liên lạc với máy điều khiển theo chu kỳ đều, mỗi lần rất ít dữ liệu |
+| Chế độ `ket_hop` / `doc_lap` | `ket_hop`: module botnet chỉ xét host bị module Gaussian báo. `doc_lap`: ba module chấm độc lập mọi host |
+| Ngưỡng | Mức điểm mà từ đó trở lên mô hình phát cảnh báo |
+| Bắt tay TCP | Ba gói đầu tiên để mở một kết nối TCP |
+| B12 | Yêu cầu huấn luyện và realtime dùng cùng cách tính đặc trưng |
 | B24, QĐ-061 | Yêu cầu an toàn của dự án (traffic thử không ra ngoài lab); quyết định dùng lab ảo |
