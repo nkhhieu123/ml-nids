@@ -184,12 +184,124 @@ Mỗi file `.bat` trong thư mục `demo` mở một cửa sổ, tự làm bốn
 
 Không chạy hai file demo cùng lúc: chúng dùng chung một lab.
 
-### 3.2. Vì sao không demo botnet trực tiếp
+### 3.2. Màn hình trông thế nào: chưa bị tấn công, đang bị tấn công, sau tấn công
+
+Các đoạn dưới đây là màn hình thật của lần chạy thử ngày 13/11/2026.
+
+**a) Chưa bị tấn công: màn hình đứng yên, không có dòng nào.**
+
+Sau bước `[3/4]`, các máy trạm `.41`–`.43` duyệt web bình thường tới máy chủ `.30`. Cảm biến vẫn chấm mỗi host
+2 giây một lần, nhưng mọi cửa sổ đều được xếp là `benign` nên **không in gì**:
+
+```
+[3/4] Chạy kịch bản: traffic bình thường, rồi tấn công từ .20 vào .30. Cảnh báo hiện bên dưới khi có.
+      (chỉ in cảnh báo có loại tấn công; cảnh báo bất thường chung được đếm ở phần tổng kết)
+
+                                   <-- trống: hệ thống đang chạy, chưa thấy tấn công
+```
+
+Giai đoạn này kéo dài 25–75 giây với demo quét cổng, 20–30 giây với demo DoS. Im lặng ở đây là kết quả đúng:
+có traffic nhưng không có báo động giả. Nên nói với người xem: "lúc này mạng đang hoạt động bình thường, hệ
+thống không báo gì".
+
+Với `3_demo_binh_thuong.bat`, màn hình trống như vậy suốt khoảng 2 phút rồi sang thẳng phần tổng kết:
+
+```
+[4/4] Tổng kết: so nhật ký lần chạy (giờ tấn công thật) với cảnh báo của cảm biến
+  Bản thu: 1674 gói, nhân bỏ 0 gói
+  Cảnh báo có loại tấn công nằm ngoài đợt tấn công (báo động giả): 0
+  Cảnh báo bất thường chung (module Gaussian, không nêu loại): 0
+```
+
+Không có dòng `Tấn công thật` vì kịch bản này không có tấn công; cả hai số cảnh báo đều là 0.
+
+**b) Đang bị quét cổng (`1_demo_quet_cong.bat`): các dòng `PORT_SCAN` hiện ra sau khoảng 3 giây.**
+
+```
+  >> 10:33:17  CẢNH BÁO PORT_SCAN  host 192.168.50.20   điểm 0.9533
+  >> 10:33:17  CẢNH BÁO PORT_SCAN  host 192.168.50.30   điểm 0.9933
+  >> 10:33:19  CẢNH BÁO PORT_SCAN  host 192.168.50.20   điểm 0.9533
+  >> 10:33:19  CẢNH BÁO PORT_SCAN  host 192.168.50.30   điểm 1
+  >> 10:33:21  CẢNH BÁO PORT_SCAN  host 192.168.50.20   điểm 0.9533
+```
+
+| Phần của dòng | Ý nghĩa |
+|---|---|
+| `10:33:17` | Giờ thật lúc cảm biến phát cảnh báo |
+| `PORT_SCAN` | Loại tấn công do bộ phân loại Random Forest xác định |
+| `host 192.168.50.20` | Máy quét (kẻ tấn công) |
+| `host 192.168.50.30` | Máy bị quét (nạn nhân). Mỗi cửa sổ có hai dòng vì cả hai phía đều được chấm |
+| `điểm 0.9533` | Xác suất lớp `port_scan` mô hình trả về, từ 0 tới 1; càng gần 1 càng chắc |
+
+Nmap quét 1 024 cổng xong trong chưa đầy 1 giây, nhưng cảnh báo lặp lại khoảng 10 dòng trong 10 giây: lần quét
+nằm trong 5 cửa sổ 10 giây liên tiếp (mỗi 2 giây trượt một lần), mỗi cửa sổ báo hai host. Sau đó màn hình lại
+đứng yên vì quét đã dừng.
+
+**c) Đang bị DoS (`2_demo_dos.bat`): các dòng `DOS` chạy liên tục suốt 60 giây.**
+
+```
+  >> 10:26:51  CẢNH BÁO DOS        host 192.168.50.20   điểm 0.9439
+  >> 10:26:51  CẢNH BÁO DOS        host 192.168.50.30   điểm 1
+  >> 10:26:53  CẢNH BÁO DOS        host 192.168.50.20   điểm 0.9967
+  >> 10:26:53  CẢNH BÁO DOS        host 192.168.50.30   điểm 0.9967
+  ...
+  >> 10:27:59  CẢNH BÁO DOS        host 192.168.50.20   điểm 1
+  >> 10:27:59  CẢNH BÁO DOS        host 192.168.50.30   điểm 1
+```
+
+Cứ 2 giây có thêm hai dòng (máy tấn công `.20` và máy chủ `.30`), tổng cộng khoảng 70 dòng. Tải bắt đầu lúc
+10:26:49 và dừng lúc 10:27:49; dòng đầu tiên hiện lúc 10:26:51, dòng cuối lúc 10:27:59, tức 10 giây sau khi
+tải dừng (cửa sổ 10 giây cuối cùng còn chứa tải). Đây là điểm nên chỉ ra: **cảnh báo bắt đầu và kết thúc theo
+đúng tấn công**.
+
+**d) Sau tấn công: phần `[4/4] Tổng kết`.**
+
+Demo quét cổng:
+
+```
+  Bản thu: 3739 gói, nhân bỏ 0 gói
+  Tấn công thật: port_scan (quet) từ 192.168.50.20 vào 192.168.50.30, 10:24:48 - 10:24:48 (0 giây)
+  => PHÁT HIỆN: 10 cảnh báo port_scan; cảnh báo đầu tiên lúc 10:24:51, sau khi tấn công bắt đầu 3.1 giây
+  Cảnh báo có loại tấn công nằm ngoài đợt tấn công (báo động giả): 0
+  Cảnh báo bất thường chung (module Gaussian, không nêu loại): 10
+```
+
+Demo DoS:
+
+```
+  Bản thu: 73570 gói, nhân bỏ 0 gói
+  Tấn công thật: dos (tai-ket-noi) từ 192.168.50.20 vào 192.168.50.30, 10:26:49 - 10:27:49 (60 giây)
+  => PHÁT HIỆN: 70 cảnh báo dos; cảnh báo đầu tiên lúc 10:26:51, sau khi tấn công bắt đầu 1.5 giây
+  Cảnh báo có loại tấn công nằm ngoài đợt tấn công (báo động giả): 0
+  Cảnh báo bất thường chung (module Gaussian, không nêu loại): 35
+```
+
+| Dòng | Đọc thế nào |
+|---|---|
+| `Bản thu: ... nhân bỏ 0 gói` | Số gói máy giám sát bắt được; `nhân bỏ 0` nghĩa là cảm biến không mất gói nào |
+| `Tấn công thật: ...` | Lấy từ **nhật ký lần chạy**, do bộ chạy kịch bản ghi, không phải do mô hình đoán. Đây là đáp án |
+| `=> PHÁT HIỆN ... sau ... giây` | Mô hình có báo đúng loại, đúng host, đúng lúc; con số cuối là độ trễ phát hiện |
+| `=> BỎ SÓT` | Nếu hiện dòng này thay cho `PHÁT HIỆN`: tấn công đã xảy ra mà không có cảnh báo đúng loại |
+| `... (báo động giả): 0` | Số cảnh báo `port_scan`/`dos` phát ra khi không có tấn công. Phải là 0 |
+| `Cảnh báo bất thường chung ...` | Số lần module Gaussian thấy host "khác thường" trong lúc bị tấn công. Module này không nói loại tấn công nên không in từng dòng; nó xác nhận thêm rằng lúc đó có điều bất thường |
+
+Số liệu mỗi lần chạy khác nhau đôi chút (số gói, giờ, độ trễ 1,5–3,5 giây) vì thời điểm tấn công là ngẫu nhiên.
+
+**Tóm tắt để nói khi demo:**
+
+| Tình trạng mạng | Màn hình | Tổng kết |
+|---|---|---|
+| Bình thường | Không có dòng nào | Báo động giả 0, bất thường 0 |
+| Bị quét cổng | Khoảng 10 dòng `PORT_SCAN` trong 10 giây, cho `.20` và `.30` | `PHÁT HIỆN`, trễ khoảng 3 giây |
+| Bị DoS | Dòng `DOS` liên tục trong 60 giây, cho `.20` và `.30` | `PHÁT HIỆN`, trễ khoảng 1,5 giây |
+| Tấn công dừng | Các dòng dừng sau khoảng 10 giây | — |
+
+### 3.3. Vì sao không demo botnet trực tiếp
 
 Kịch bản botnet cần ít nhất 10 phút (bot gọi máy điều khiển mỗi 30–60 giây, module chấm trên cửa sổ 120
 giây). Phần này trình bày bằng bảng của `4_ket_qua_da_luu.bat` và [76_khai_quat_lab.md](../docs/76_khai_quat_lab.md).
 
-### 3.3. Kết quả demo nằm ở đâu
+### 3.4. Kết quả demo nằm ở đâu
 
 Mỗi lần demo ghi vào `output/demo/<kịch bản>-test-99/`: file `*.alerts.csv` (mọi cảnh báo) và
 `nhat_ky_lan_chay.json` (giờ tấn công thật). Các lần demo **không** ghi vào `data/`, nên không lẫn với dữ liệu
