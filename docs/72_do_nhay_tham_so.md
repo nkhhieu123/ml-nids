@@ -126,9 +126,44 @@ QĐ-006.
   luyện và realtime dùng cùng cách tính (B12). Hai: lab ảo không có độ trễ đường truyền nên không cho biết 1
   giây có đủ cho bắt tay trên mạng thật hay không.
 
-Giới hạn của phép đo: dùng mô hình đã khóa và chỉ dữ liệu lab. Nó cho biết kết quả **không nhạy** với các tham
-số này, không chứng minh bộ hiện tại là tối ưu; muốn vậy phải trích xuất lại ba ngày CIC (36 triệu gói) và
-huấn luyện lại cho từng cấu hình, việc này chưa làm.
+Giới hạn của phép đo ở mục 2.1: dùng mô hình đã khóa và chỉ dữ liệu lab. Phép đo bằng trích xuất lại CIC và
+huấn luyện lại nằm ở mục 2.4.
+
+### 2.4. Trích xuất lại CIC-IDS2017 và huấn luyện lại (13/11/2026)
+
+Mỗi cấu hình đổi **một** tham số so với bộ hiện tại. Với mỗi cấu hình: trích xuất lại PCAP thứ Tư và thứ Sáu,
+gán nhãn lại, chia tập lại, fit Random Forest với tham số đã chọn ở C07-T04 trên train, đo trên **validation**
+(`nids.do_nhay_flow_cic`, kết quả ở `docs/hinh/flow_do_nhay_cic.json`). Không đọc test.
+
+| Cấu hình | Macro-F1 validation | Recall `port_scan` | Precision `dos` | Recall `dos` |
+|---|---|---|---|---|
+| **Hiện tại** (60 / 120 / 10 / 3 giây) | **0,9352** | 0,7744 | 0,9610 | 0,9136 |
+| `handshake_observe_s` = 1 | 0,9370 | 0,7805 | 0,9627 | 0,9151 |
+| `idle_timeout_s` = 30 | 0,9324 | 0,7744 | 0,9708 | 0,8899 |
+| `idle_timeout_s` = 120 | 0,9354 | 0,7805 | 0,9657 | 0,9037 |
+| `active_timeout_s` = 60 | 0,9317 | 0,7744 | 0,9692 | 0,8872 |
+| `active_timeout_s` = 300 | 0,9375 | 0,7744 | 0,9722 | 0,9167 |
+| `close_grace_s` = 5 | 0,9339 | 0,7683 | 0,9581 | 0,9167 |
+| `close_grace_s` = 20 | 0,9372 | 0,7744 | 0,9721 | 0,9151 |
+
+Precision `port_scan` là 0,992 ở mọi cấu hình.
+
+Nhận xét:
+
+- Macro-F1 nằm trong khoảng 0,9317–0,9375, chênh nhiều nhất 0,006. Validation chỉ có 164 cửa sổ `port_scan` và
+  khoảng 650 cửa sổ `dos`, nên một cửa sổ `port_scan` đổi nhãn đã làm recall đổi 0,006. Chênh lệch giữa các cấu
+  hình vì vậy nằm trong mức nhiễu, **không cấu hình nào tốt hơn rõ ràng**.
+- Hai cấu hình cắt flow ngắn hơn (`idle_timeout_s` = 30, `active_timeout_s` = 60) kém nhất, đều do recall `dos`
+  giảm khoảng 0,025: kết nối DoS chậm bị cắt thành nhiều flow nhỏ. Không nên giảm hai timeout này.
+- `active_timeout_s` = 300 và `close_grace_s` = 20 cao hơn hiện tại 0,002, không đủ để đổi và phải huấn luyện
+  lại toàn bộ.
+
+**Kết luận: giữ nguyên bộ tham số flow của `config/default.yaml` (QĐ-073).** Riêng `handshake_observe_s` = 1
+không kém hơn 3 giây và đã dùng cho bộ mô hình lab (QĐ-072).
+
+Chưa thử: độ dài và bước cửa sổ (10 giây bước 2 giây, 120 giây bước 10 giây), và PCAP thứ Hai (chỉ dùng cho
+module Gaussian). Đổi độ dài cửa sổ làm đổi cả số mẫu và cách gán nhãn cửa sổ nên phải chọn lại tham số mô hình,
+không so trực tiếp được như bảng trên.
 
 ## Thuật ngữ
 

@@ -524,6 +524,13 @@ Mẫu:
 - Quyết định: Học lại với 3 lần `train` mỗi biến thể (1 587 host–cửa sổ bot), và đặt `flow.handshake_observe_s` = 1 trong `config/lab.yaml`; mọi mô hình lab được học từ đặc trưng trích xuất với 1 giây, kể cả phần CIC của bộ phân loại (B12). Căn cứ: huấn luyện lại trên CIC với 1 giây cho macro-F1 validation 0,9370 (3 giây: 0,9352); trên lab có trễ khứ hồi 200 ms, mô hình 1 giây và 3 giây cho kết quả giống hệt.
 - Hệ quả: Trên 33 lần `test` mới (lần 9–11): 24/24 đợt, 0 báo động giả, macro-F1 theo cửa sổ 0,9989. Cảnh báo quét và DoS sớm hơn khoảng 2 giây. Chấm chéo: mô hình botnet lab cho recall 0 trên CTU-13, nên kết quả chỉ có nghĩa trong lab với bot mô phỏng. Mỗi lần học lại phải thu lần `test` mới; các lần 1–8 đã được xem. Chi tiết docs/76.
 
+## QĐ-073 — Giữ nguyên tham số flow sau khi trích xuất lại CIC và huấn luyện lại
+- Ngày: 13/11/2026
+- Trạng thái: Đã chốt (bổ sung căn cứ cho QĐ-066)
+- Bối cảnh: QĐ-066 khóa timeout 60/120/10 giây và chờ bắt tay 3 giây dựa trên phép thử bằng mô hình đã khóa trên lab, chưa huấn luyện lại.
+- Quyết định: Giữ nguyên `flow` trong `config/default.yaml`. Căn cứ: trích xuất lại CIC thứ Tư và thứ Sáu rồi huấn luyện lại cho 7 cấu hình đổi một tham số (idle 30/120, active 60/300, grace 5/20, chờ bắt tay 1); macro-F1 validation 0,9317–0,9375 so với 0,9352 hiện tại, chênh trong mức nhiễu của 164 cửa sổ `port_scan`.
+- Hệ quả: Không giảm `idle_timeout_s` và `active_timeout_s` (recall `dos` giảm khoảng 0,025). Độ dài cửa sổ chưa thử. Chi tiết docs/72 mục 2.4.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.

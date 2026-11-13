@@ -1,0 +1,210 @@
+{
+  "hien_tai": {
+    "tham_so_flow": {
+      "idle_timeout_s": 60,
+      "active_timeout_s": 120,
+      "close_grace_s": 10,
+      "direction_memory_s": 3600,
+      "fragment_timeout_s": 30,
+      "handshake_observe_s": 3
+    },
+    "lop_train": {
+      "benign": 83346,
+      "dos": 2165,
+      "port_scan": 478
+    },
+    "lop_validation": {
+      "benign": 53949,
+      "dos": 648,
+      "port_scan": 164
+    },
+    "macro_f1_validation": 0.9352,
+    "precision_port_scan": 0.9922,
+    "recall_port_scan": 0.7744,
+    "precision_dos": 0.961,
+    "recall_dos": 0.9136,
+    "giay": 8.2
+  },
+  "h1": {
+    "tham_so_flow": {
+      "idle_timeout_s": 60,
+      "active_timeout_s": 120,
+      "close_grace_s": 10,
+      "direction_memory_s": 3600,
+      "fragment_timeout_s": 30,
+      "handshake_observe_s": 1
+    },
+    "lop_train": {
+      "benign": 83348,
+      "dos": 2165,
+      "port_scan": 478
+    },
+    "lop_validation": {
+      "benign": 53949,
+      "dos": 648,
+      "port_scan": 164
+    },
+    "macro_f1_validation": 0.937,
+    "precision_port_scan": 0.9922,
+    "recall_port_scan": 0.7805,
+    "precision_dos": 0.9627,
+    "recall_dos": 0.9151,
+    "giay": 7.6
+  },
+  "i30": {
+    "tham_so_flow": {
+      "idle_timeout_s": 30,
+      "active_timeout_s": 120,
+      "close_grace_s": 10,
+      "direction_memory_s": 3600,
+      "fragment_timeout_s": 30,
+      "handshake_observe_s": 3
+    },
+    "lop_train": {
+      "benign": 83348,
+      "dos": 2144,
+      "port_scan": 478
+    },
+    "lop_validation": {
+      "benign": 54138,
+      "dos": 672,
+      "port_scan": 164
+    },
+    "macro_f1_validation": 0.9324,
+    "precision_port_scan": 0.9922,
+    "recall_port_scan": 0.7744,
+    "precision_dos": 0.9708,
+    "recall_dos": 0.8899,
+    "giay": 7.5
+  },
+  "i120": {
+    "tham_so_flow": {
+      "idle_timeout_s": 120,
+      "active_timeout_s": 120,
+      "close_grace_s": 10,
+      "direction_memory_s": 3600,
+      "fragment_timeout_s": 30,
+      "handshake_observe_s": 3
+    },
+    "lop_train": {
+      "benign": 83405,
+      "dos": 2167,
+      "port_scan": 490
+    },
+    "lop_validation": {
+      "benign": 54249,
+      "dos": 654,
+      "port_scan": 164
+    },
+    "macro_f1_validation": 0.9354,
+    "precision_port_scan": 0.9922,
+    "recall_port_scan": 0.7805,
+    "precision_dos": 0.9657,
+    "recall_dos": 0.9037,
+    "giay": 15.9
+  },
+  "a60": {
+    "tham_so_flow": {
+      "idle_timeout_s": 60,
+      "active_timeout_s": 60,
+      "close_grace_s": 10,
+      "direction_memory_s": 3600,
+      "fragment_timeout_s": 30,
+      "handshake_observe_s": 3
+    },
+    "lop_train": {
+      "benign": 83135,
+      "dos": 2142,
+      "port_scan": 478
+    },
+    "lop_validation": {
+      "benign": 54685,
+      "dos": 674,
+      "port_scan": 164
+    },
+    "macro_f1_validation": 0.9317,
+    "precision_port_scan": 0.9922,
+    "recall_port_scan": 0.7744,
+    "precision_dos": 0.9692,
+    "recall_dos": 0.8872,
+    "giay": 7.3
+  },
+  "a300": {
+    "tham_so_flow": {
+      "idle_timeout_s": 60,
+      "active_timeout_s": 300,
+      "close_grace_s": 10,
+      "direction_memory_s": 3600,
+      "fragment_timeout_s": 30,
+      "handshake_observe_s": 3
+    },
+    "lop_train": {
+      "benign": 83355,
+      "dos": 2165,
+      "port_scan": 478
+    },
+    "lop_validation": {
+      "benign": 53757,
+      "dos": 648,
+      "port_scan": 164
+    },
+    "macro_f1_validation": 0.9375,
+    "precision_port_scan": 0.9922,
+    "recall_port_scan": 0.7744,
+    "precision_dos": 0.9722,
+    "recall_dos": 0.9167,
+    "giay": 7.6
+  },
+  "g5": {
+    "tham_so_flow": {
+      "idle_timeout_s": 60,
+      "active_timeout_s": 120,
+      "close_grace_s": 5,
+      "direction_memory_s": 3600,
+      "fragment_timeout_s": 30,
+      "handshake_observe_s": 3
+    },
+    "lop_train": {
+      "benign": 83346,
+      "dos": 2165,
+      "port_scan": 478
+    },
+    "lop_validation": {
+      "benign": 53949,
+      "dos": 648,
+      "port_scan": 164
+    },
+    "macro_f1_validation": 0.9339,
+    "precision_port_scan": 0.9921,
+    "recall_port_scan": 0.7683,
+    "precision_dos": 0.9581,
+    "recall_dos": 0.9167,
+    "giay": 7.5
+  },
+  "g20": {
+    "tham_so_flow": {
+      "idle_timeout_s": 60,
+      "active_timeout_s": 120,
+      "close_grace_s": 20,
+      "direction_memory_s": 3600,
+      "fragment_timeout_s": 30,
+      "handshake_observe_s": 3
+    },
+    "lop_train": {
+      "benign": 83346,
+      "dos": 2165,
+      "port_scan": 478
+    },
+    "lop_validation": {
+      "benign": 53949,
+      "dos": 648,
+      "port_scan": 164
+    },
+    "macro_f1_validation": 0.9372,
+    "precision_port_scan": 0.9922,
+    "recall_port_scan": 0.7744,
+    "precision_dos": 0.9721,
+    "recall_dos": 0.9151,
+    "giay": 7.5
+  }
+}

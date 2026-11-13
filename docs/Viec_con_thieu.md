@@ -5,8 +5,8 @@ kết quả của chúng nằm ở báo cáo từng chặng, nhật ký quyết 
 Cập nhật lần cuối: 13/11/2026.
 
 Dữ liệu hiện có: **CIC-IDS2017 đủ** (PCAP thứ Hai, thứ Tư, thứ Sáu và CSV có nhãn), **CTU-13 đủ** 13 file
-`.binetflow`, và **lab ảo**: 98 lần chạy (11 `train`, 11 `val`, 66 `test`, 10 lần thí nghiệm bổ sung) kèm nhật
-ký lần chạy (docs/70, docs/71, docs/73, docs/74).
+`.binetflow`, và **lab ảo**: 177 lần chạy (33 `train`, 11 `val`, 99 `test`, 16 lần thí nghiệm bổ sung, 18 lần
+của biến thể đổi vai trò máy và SYN flood) kèm nhật ký lần chạy (docs/70, 71, 73, 74, 76).
 
 Mức: **Quan trọng** là kết quả chưa đáng tin cho tới khi bổ sung; **Nên có** là hoàn thiện, kiểm tra thêm.
 Không còn mục nào ở mức chặn.
@@ -30,17 +30,12 @@ thay được vì cần máy thật.
 
 | Thiếu | Mức | Ảnh hưởng | Cách bổ sung |
 |---|---|---|---|
-| Mô hình học lại trên lab (QĐ-068) chỉ được chấm trên **cùng lab, cùng bộ sinh traffic**: bot luôn là `.41`–`.43`, máy điều khiển luôn `.50:8080`, ngang hàng luôn UDP 40000 | Quan trọng | 24/24 đợt trên `test` mới cho thấy mô hình học được lab này, chưa chứng minh nhận ra botnet thật hay mạng khác | Thu biến thể đổi vai trò máy, cổng và máy điều khiển; chấm mô hình lab trên CTU-13 và ngược lại |
-| Mỗi biến thể chỉ có một lần `train` (531 host–cửa sổ bot) | Quan trọng | Mô hình botnet của lab học từ rất ít dữ liệu | `bash scripts/chay_chang_11.sh train 2 3` rồi học lại |
-| Quy tắc topology của lab rất lỏng (≥ 1 peer gọi vào, ≥ 5% UDP); trên `test` gán `p2p` đúng 90,6% | Nên có | Trên mạng nhiều host sẽ gán `p2p` quá dễ; ngang hàng dùng TCP hoặc chu kỳ dài dễ bị xếp tập trung | Thêm đặc trưng nhóm (các bot gọi lẫn nhau) thay cho ngưỡng trên từng host |
-| Bộ phân loại học lại vẫn báo nhầm `dos` 4 sự kiện (10 cửa sổ) trên chia sẻ dữ liệu lớn `k5-doi-chung` | Nên có | Còn báo động giả khi truyền file nội bộ (trước là 24 sự kiện) | Thêm lần `train` của `k5-doi-chung`; xem đặc trưng phân biệt truyền file với DoS |
-| `config/default.yaml` vẫn trỏ tới mô hình học từ CIC và CTU-13; mô hình lab phải gọi bằng `--config config/lab.yaml` | Nên có | Chạy dịch vụ realtime trên lab mà quên đổi cấu hình thì dùng mô hình cũ | Đặt cấu hình lab trong `deploy/nids-realtime.env` khi triển khai trên lab |
-| `flow.handshake_observe_s` = 3: giảm xuống 1 giây bớt khoảng 2 giây độ trễ realtime mà không đổi kết quả trên lab (docs/72 mục 2.2) | Nên có | Độ trễ quét và DoS hiện 3,9–4,2 giây | Trích xuất lại CIC với 1 giây, huấn luyện lại, kiểm tra trên mạng có độ trễ thật |
-| Tham số flow và độ dài cửa sổ mới được thử độ nhạy bằng mô hình đã khóa trên lab (QĐ-066), chưa thử bằng cách trích xuất và huấn luyện lại trên CIC | Nên có | Chưa chứng minh bộ hiện tại là tối ưu | Trích xuất lại ba ngày CIC cho từng cấu hình (mỗi cấu hình khoảng 30 phút) |
-| DoS HTTP chậm (Slowhttptest recall 0,61 trên CIC) cần đặc trưng kết nối giữ lâu, dài hơn cửa sổ 10 giây | Nên có | Bỏ sót DoS chậm | Thêm đặc trưng cửa sổ dài hoặc gộp theo host như docs/69 |
-| Random Forest báo 224 cửa sổ Bot của CIC là `port_scan` | Nên có | Cảnh báo sai loại trên CIC | Quy tắc kết hợp với module botnet |
-| SYN flood gói thô, brute-force, exploit chưa có dữ liệu; DDoS chỉ một đợt của CIC | Quan trọng | DoS của lab là tải kết nối bằng socket thường (QĐ-064); ba lớp hiện tại chưa phủ các loại này | Cần quyết định có nới B24 để sinh gói thô trong lab không; tải CIC thứ Ba, thứ Năm nếu muốn thêm lớp |
-| Các lần `test` 1–3 của lab đã được xem kết quả trước khi học lại | Nên có | Chỉ `test` 4–6 là sạch với mô hình lab | Mỗi lần học lại phải thu lần `test` mới |
+| Lớp giữ nhãn `dos` theo host (QĐ-071) mới đo offline trên CIC: recall `dos` trên test 0,838 → 0,938, Slowhttptest 0,66 → 0,82; chưa nối vào pipeline và realtime | Nên có | DoS HTTP chậm vẫn bị sót giữa các đợt gửi khi chạy thật | Gọi `dos_cham.hold_dos` sau bộ phân loại trong `pipeline.py` và `realtime.py`; thử `min_count` lớn hơn để giữ precision |
+| SYN flood gói thô: bắt 9/9 đợt nhờ phía máy tấn công, nhưng cửa sổ của máy nạn nhân ít khi được gán `dos` | Nên có | Nếu nguồn bị giả mạo thì chỉ còn phía nạn nhân để phát hiện | Thu 3 lần `train` của `x3-syn-muc1/2/3` rồi học lại bộ phân loại lab |
+| Bot đóng vai máy điều khiển cũ (`.50`) bị sót ở 2/3 lần chạy `x5-doi-vai` | Nên có | Bot ít traffic nền dễ lọt | Thêm biến thể đổi vai vào `train`; xem ngưỡng gộp theo host |
+| Độ dài và bước cửa sổ (10 giây bước 2, 120 giây bước 10) chưa thử độ nhạy | Nên có | Timeout flow đã thử bằng huấn luyện lại (QĐ-073), cửa sổ thì chưa | Trích xuất lại CIC với cửa sổ 5 và 20 giây, chọn lại tham số mô hình rồi so trên validation |
+| `config/default.yaml` vẫn chờ bắt tay 3 giây; 1 giây không kém trên CIC (0,9370 so với 0,9352) nhưng mô hình mặc định chưa học lại | Nên có | Cảnh báo của cấu hình mặc định chậm hơn cấu hình lab khoảng 2 giây | Huấn luyện lại ba mô hình mặc định từ `output/features_h1` nếu muốn dùng 1 giây ngoài lab |
+| Brute-force, exploit chưa có dữ liệu; DDoS chỉ một đợt của CIC | Quan trọng | Ba lớp hiện tại không phủ các loại này; lab không sinh được vì B24 cấm exploit | Tải CIC thứ Ba, thứ Năm nếu muốn thêm lớp |
 
 ## 3. Hạn chế đã biết, không có việc phải làm ngay
 
@@ -58,14 +53,17 @@ Ghi lại để nêu trong báo cáo cuối và để biết khi nào cần làm
 | Đường hầm (IP trong IP, GRE, VXLAN) chỉ đọc header ngoài | Nên có | Lab không dùng đường hầm |
 | Gói ARP bị bỏ qua, không phát hiện được ARP spoofing | Nên có | Ngoài phạm vi ba lớp hiện tại |
 | Không khử gói trùng | Nên có | Lab ảo trùng 0,01–0,63% nên không cần; đo lại nếu switch thật mirror cả hai chiều của cùng cổng |
+| Mô hình lab không chuyển sang dữ liệu khác: mô hình botnet lab cho recall 0 trên CTU-13 | Quan trọng | 24/24 đợt trên `test` mới chỉ có nghĩa trong lab với bot mô phỏng; đổi vai trò máy trong lab vẫn bắt 6/6 đợt (docs/76) |
+| Random Forest gán 224 cửa sổ Bot của CIC là `port_scan` | Nên có | Không thêm quy tắc: ở chế độ `ket_hop` các cửa sổ này không trùng cảnh báo botnet nào, ghép theo host chỉ đúng 19/34. Bot của CIC quét cổng thật nên nhãn `port_scan` không hẳn sai |
+| Lab ảo chỉ có 7 host, 3 bot | Nên có | Quy tắc topology theo nhóm (QĐ-070) cần ít nhất hai bot bị phát hiện cùng cửa sổ; chưa thử trên mạng lớn |
+| Các lần `test` 1–11 của lab đều đã được xem | Nên có | Mỗi lần học lại phải thu lần `test` mới (QĐ-072) |
 
 ## 4. Thứ tự nên làm
 
 1. **Bạn:** dựng lab vật lý, cài dự án trên Kali, đồng bộ đồng hồ (mục 1); chạy lại vài kịch bản và so với lab ảo.
-2. **Làm được ngay:** thu thêm lần `train` và biến thể đổi vai trò máy, học lại mô hình botnet của lab, thu
-   lần `test` mới (mục 2, ba dòng đầu).
-3. Quyết định có thử `handshake_observe_s` = 1 và SYN flood gói thô hay không.
-4. Chặng 12: báo cáo và bàn giao; nêu rõ các hạn chế ở mục 3.
+2. **Làm được ngay:** nối lớp giữ nhãn `dos` vào pipeline và realtime; thu `train` cho SYN flood và biến thể
+   đổi vai rồi học lại, kèm lần `test` mới (mục 2, ba dòng đầu).
+3. Chặng 12: báo cáo và bàn giao; nêu rõ các hạn chế ở mục 3.
 
 ## Thuật ngữ
 
