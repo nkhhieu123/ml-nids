@@ -19,6 +19,7 @@ alerts="$out/$run.alerts.csv"
 don_dep() {
   pkill -KILL -f "nids.realtime --iface eth0 .*--ten $run " 2>/dev/null
   [ -n "${tail_pid:-}" ] && kill "$tail_pid" 2>/dev/null
+  wait 2>/dev/null
   python3 scripts/lab_ao.py go --lab "$lab" >/dev/null 2>&1
 }
 trap don_dep EXIT
@@ -33,6 +34,7 @@ echo "[2/4] Bật cảm biến realtime trên máy giám sát .10 (mô hình lab
 rm -rf "$out"; mkdir -p "$out" output/demo
 ( cd src && exec ip netns exec "nl${lab}h10" "$PY" -W ignore -m nids.realtime --iface eth0 --net 192.168.50.0/24 \
     --out "$out" --ten "$run" --config ../config/lab.yaml --im-lang ) >"$out/cam_bien.txt" 2>&1 &
+disown                                     # không để bash in thông báo khi cảm biến bị dừng
 for i in $(seq 1 30); do [ -f "$alerts" ] && break; sleep 1; done
 sleep 8
 if ! pgrep -f "nids.realtime --iface eth0 .*--ten $run " >/dev/null; then
@@ -42,18 +44,28 @@ fi
 if [ "$v" = k1-binh-thuong ]; then echo "[3/4] Chạy kịch bản đối chứng: chỉ có traffic bình thường, không được có cảnh báo nào (khoảng 2 phút)."
 else echo "[3/4] Chạy kịch bản: traffic bình thường, rồi tấn công từ .20 vào .30. Cảnh báo hiện bên dưới khi có."; fi
 echo "      (chỉ in cảnh báo có loại tấn công; cảnh báo bất thường chung được đếm ở phần tổng kết)"
+echo "      Mỗi cửa sổ có thể in hai dòng: hệ thống báo MỌI máy có lưu lượng tấn công trong cửa sổ đó,"
+echo "      tức cả máy phát tấn công (.20) lẫn máy bị tấn công (.30). Dòng của .30 nghĩa là .30 ĐANG BỊ tấn công."
 echo
 tail -n +1 -F "$alerts" 2>/dev/null | awk -F, '
-  $1 != "anomaly" && $1 != "module" { printf "  >> %s  CẢNH BÁO %-10s host %-15s điểm %s\n",
-                                      strftime("%H:%M:%S"), toupper($2), $5, $7; fflush() }' &
+  BEGIN { ten["192.168.50.20"] = "máy thử tấn công"; ten["192.168.50.30"] = "máy chủ web";
+          ten["192.168.50.41"] = "máy trạm 1"; ten["192.168.50.42"] = "máy trạm 2"; ten["192.168.50.43"] = "máy trạm 3";
+          ten["192.168.50.50"] = "máy điều khiển" }
+  $1 != "anomaly" && $1 != "module" { printf "  >> %s  PHÁT HIỆN LƯU LƯỢNG %-9s tại %-13s (%s)  điểm %s\n",
+                                      strftime("%H:%M:%S"), toupper($2), $5, ten[$5], $7; fflush() }' &
 tail_pid=$!
+disown
 python3 scripts/lab_ao.py chay --lab "$lab" --bien-the "$v" --vai-tro test --lan "$lan" --ti-le "$tile" >"$out/chay.txt" 2>&1 &
 chay_pid=$!
 while kill -0 "$chay_pid" 2>/dev/null; do
   sleep 5
 done
 sleep 12                                   # chờ các cửa sổ cuối được chấm
-pkill -INT -f "nids.realtime --iface eth0 .*--ten $run "; sleep 3
+pkill -INT -f "nids.realtime --iface eth0 .*--ten $run "
+for i in $(seq 1 40); do                   # chờ cảm biến dừng êm (xử lý nốt hàng đợi) trước khi gỡ lab
+  pgrep -f "nids.realtime --iface eth0 .*--ten $run " >/dev/null || break
+  sleep 1
+done
 kill "$tail_pid" 2>/dev/null; tail_pid=
 echo
 

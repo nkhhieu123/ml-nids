@@ -214,7 +214,7 @@ Mỗi file `.bat` trong thư mục `demo` mở một cửa sổ, tự làm bốn
 
 1. Bấm **`1_demo_quet_cong.bat`** ngay khi bắt đầu mục 2.4 của phần báo cáo, để nó chạy trong lúc nói.
    Thời điểm quét là ngẫu nhiên, trong khoảng 25–75 giây sau bước 3.
-2. Khi các dòng `>> ... CẢNH BÁO PORT_SCAN host 192.168.50.20` hiện ra, chỉ vào màn hình và giải thích:
+2. Khi các dòng `>> ... PHÁT HIỆN LƯU LƯỢNG PORT_SCAN tại 192.168.50.20` hiện ra, chỉ vào màn hình và giải thích:
    - `.20` là máy quét, `.30` là máy bị quét; cả hai đều bị báo;
    - "điểm" là xác suất lớp `port_scan` do Random Forest trả về;
    - mỗi 2 giây có một cửa sổ mới nên cảnh báo lặp lại trong lúc quét.
@@ -261,19 +261,26 @@ Không có dòng `Tấn công thật` vì kịch bản này không có tấn cô
 **b) Đang bị quét cổng (`1_demo_quet_cong.bat`): các dòng `PORT_SCAN` hiện ra sau khoảng 3 giây.**
 
 ```
-  >> 10:33:17  CẢNH BÁO PORT_SCAN  host 192.168.50.20   điểm 0.9533
-  >> 10:33:17  CẢNH BÁO PORT_SCAN  host 192.168.50.30   điểm 0.9933
-  >> 10:33:19  CẢNH BÁO PORT_SCAN  host 192.168.50.20   điểm 0.9533
-  >> 10:33:19  CẢNH BÁO PORT_SCAN  host 192.168.50.30   điểm 1
-  >> 10:33:21  CẢNH BÁO PORT_SCAN  host 192.168.50.20   điểm 0.9533
+  >> 10:33:17  PHÁT HIỆN LƯU LƯỢNG PORT_SCAN tại 192.168.50.20 (máy thử tấn công)  điểm 0.9533
+  >> 10:33:17  PHÁT HIỆN LƯU LƯỢNG PORT_SCAN tại 192.168.50.30 (máy chủ web)  điểm 0.9933
+  >> 10:33:19  PHÁT HIỆN LƯU LƯỢNG PORT_SCAN tại 192.168.50.20 (máy thử tấn công)  điểm 0.9533
+  >> 10:33:19  PHÁT HIỆN LƯU LƯỢNG PORT_SCAN tại 192.168.50.30 (máy chủ web)  điểm 1
+  >> 10:33:21  PHÁT HIỆN LƯU LƯỢNG PORT_SCAN tại 192.168.50.20 (máy thử tấn công)  điểm 0.9533
 ```
+
+**Vì sao máy `.30` cũng hiện trong cảnh báo, dù `.20` mới là máy tấn công?**
+Dòng cảnh báo không có nghĩa "máy này đi tấn công". Nó có nghĩa "trong cửa sổ này, lưu lượng của máy này là lưu
+lượng tấn công". Hệ thống chấm **từng máy** trong mạng, và một cuộc tấn công luôn có hai đầu: máy gửi (`.20`) và
+máy nhận (`.30`). Cả hai đều thấy cùng một dòng lưu lượng bất thường, nên cả hai đều bị báo. Dòng của `.20` cho
+biết **ai tấn công**, dòng của `.30` cho biết **ai đang bị tấn công**. Tên vai trò trong ngoặc lấy từ danh sách
+máy của lab.
 
 | Phần của dòng | Ý nghĩa |
 |---|---|
 | `10:33:17` | Giờ thật lúc cảm biến phát cảnh báo |
-| `PORT_SCAN` | Loại tấn công do bộ phân loại Random Forest xác định |
-| `host 192.168.50.20` | Máy quét (kẻ tấn công) |
-| `host 192.168.50.30` | Máy bị quét (nạn nhân). Mỗi cửa sổ có hai dòng vì cả hai phía đều được chấm |
+| `PHÁT HIỆN LƯU LƯỢNG PORT_SCAN` | Loại tấn công do bộ phân loại Random Forest xác định |
+| `tại 192.168.50.20 (máy thử tấn công)` | Máy quét (kẻ tấn công) |
+| `tại 192.168.50.30 (máy chủ web)` | Máy bị quét (nạn nhân). Mỗi cửa sổ có hai dòng vì cả hai phía đều được chấm |
 | `điểm 0.9533` | Xác suất lớp `port_scan` mô hình trả về, từ 0 tới 1; càng gần 1 càng chắc |
 
 Nmap quét 1 024 cổng xong trong chưa đầy 1 giây, nhưng cảnh báo lặp lại khoảng 10 dòng trong 10 giây: lần quét
@@ -283,13 +290,13 @@ nằm trong 5 cửa sổ 10 giây liên tiếp (mỗi 2 giây trượt một l�
 **c) Đang bị DoS (`2_demo_dos.bat`): các dòng `DOS` chạy liên tục suốt 60 giây.**
 
 ```
-  >> 10:26:51  CẢNH BÁO DOS        host 192.168.50.20   điểm 0.9439
-  >> 10:26:51  CẢNH BÁO DOS        host 192.168.50.30   điểm 1
-  >> 10:26:53  CẢNH BÁO DOS        host 192.168.50.20   điểm 0.9967
-  >> 10:26:53  CẢNH BÁO DOS        host 192.168.50.30   điểm 0.9967
+  >> 10:26:51  PHÁT HIỆN LƯU LƯỢNG DOS       tại 192.168.50.20 (máy thử tấn công)  điểm 0.9439
+  >> 10:26:51  PHÁT HIỆN LƯU LƯỢNG DOS       tại 192.168.50.30 (máy chủ web)  điểm 1
+  >> 10:26:53  PHÁT HIỆN LƯU LƯỢNG DOS       tại 192.168.50.20 (máy thử tấn công)  điểm 0.9967
+  >> 10:26:53  PHÁT HIỆN LƯU LƯỢNG DOS       tại 192.168.50.30 (máy chủ web)  điểm 0.9967
   ...
-  >> 10:27:59  CẢNH BÁO DOS        host 192.168.50.20   điểm 1
-  >> 10:27:59  CẢNH BÁO DOS        host 192.168.50.30   điểm 1
+  >> 10:27:59  PHÁT HIỆN LƯU LƯỢNG DOS       tại 192.168.50.20 (máy thử tấn công)  điểm 1
+  >> 10:27:59  PHÁT HIỆN LƯU LƯỢNG DOS       tại 192.168.50.30 (máy chủ web)  điểm 1
 ```
 
 Cứ 2 giây có thêm hai dòng (máy tấn công `.20` và máy chủ `.30`), tổng cộng khoảng 70 dòng. Tải bắt đầu lúc
