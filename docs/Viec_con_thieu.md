@@ -2,7 +2,7 @@
 
 Tài liệu chỉ liệt kê những gì **chưa có** hoặc **chưa kiểm chứng**. Mục nào đã xong thì đã được xóa khỏi đây;
 kết quả của chúng nằm ở báo cáo từng chặng, nhật ký quyết định (docs/03) và lịch sử git của file này.
-Cập nhật lần cuối: 13/11/2026.
+Cập nhật lần cuối: 14/11/2026.
 
 Dữ liệu hiện có: **CIC-IDS2017 đủ** (PCAP thứ Hai, thứ Tư, thứ Sáu và CSV có nhãn), **CTU-13 đủ** 13 file
 `.binetflow`, và **lab ảo**: 177 lần chạy (33 `train`, 11 `val`, 99 `test`, 16 lần thí nghiệm bổ sung, 18 lần
@@ -30,7 +30,7 @@ thay được vì cần máy thật.
 
 | Thiếu | Mức | Ảnh hưởng | Cách bổ sung |
 |---|---|---|---|
-| Lớp giữ nhãn `dos` theo host (QĐ-071) mới đo offline trên CIC: recall `dos` trên test 0,838 → 0,938, Slowhttptest 0,66 → 0,82; chưa nối vào pipeline và realtime | Nên có | DoS HTTP chậm vẫn bị sót giữa các đợt gửi khi chạy thật | Gọi `dos_cham.hold_dos` sau bộ phân loại trong `pipeline.py` và `realtime.py`; thử `min_count` lớn hơn để giữ precision |
+| Lớp giữ nhãn `dos` theo host đã nối vào pipeline và realtime nhưng mặc định tắt (QĐ-074); chưa thử trên DoS chậm thật trong lab | Nên có | Chưa biết lớp này có sinh báo động giả trên mạng lab không | Thêm biến thể DoS HTTP chậm vào bộ chạy kịch bản lab (trong giới hạn B24), bật `pipeline.dos_hold` rồi đo |
 | SYN flood gói thô: bắt 9/9 đợt nhờ phía máy tấn công, nhưng cửa sổ của máy nạn nhân ít khi được gán `dos` | Nên có | Nếu nguồn bị giả mạo thì chỉ còn phía nạn nhân để phát hiện | Thu 3 lần `train` của `x3-syn-muc1/2/3` rồi học lại bộ phân loại lab |
 | Bot đóng vai máy điều khiển cũ (`.50`) bị sót ở 2/3 lần chạy `x5-doi-vai` | Nên có | Bot ít traffic nền dễ lọt | Thêm biến thể đổi vai vào `train`; xem ngưỡng gộp theo host |
 | Độ dài và bước cửa sổ (10 giây bước 2, 120 giây bước 10) chưa thử độ nhạy | Nên có | Timeout flow đã thử bằng huấn luyện lại (QĐ-073), cửa sổ thì chưa | Trích xuất lại CIC với cửa sổ 5 và 20 giây, chọn lại tham số mô hình rồi so trên validation |
@@ -61,8 +61,8 @@ Ghi lại để nêu trong báo cáo cuối và để biết khi nào cần làm
 ## 4. Thứ tự nên làm
 
 1. **Bạn:** dựng lab vật lý, cài dự án trên Kali, đồng bộ đồng hồ (mục 1); chạy lại vài kịch bản và so với lab ảo.
-2. **Làm được ngay:** nối lớp giữ nhãn `dos` vào pipeline và realtime; thu `train` cho SYN flood và biến thể
-   đổi vai rồi học lại, kèm lần `test` mới (mục 2, ba dòng đầu).
+2. **Làm được ngay:** thu `train` cho SYN flood và biến thể đổi vai rồi học lại, kèm lần `test` mới (mục 2).
+   Việc này thay bộ mô hình lab, nên làm sau khi đã báo cáo và demo.
 3. Chặng 12: báo cáo và bàn giao; nêu rõ các hạn chế ở mục 3.
 
 ## Thuật ngữ

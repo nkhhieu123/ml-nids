@@ -50,6 +50,43 @@ def hold_dos(pred, host, start, lookback_s, min_count) -> np.ndarray:
     return res
 
 
+class DosHolder:
+    """``hold_dos`` dạng tăng dần: nhớ các cửa sổ ``dos`` gần đây của từng host, dùng chung cho pipeline offline
+    và cảm biến realtime (cửa sổ tới theo thứ tự thời gian). Cấu hình: ``pipeline.dos_hold`` (QĐ-074)."""
+
+    def __init__(self, lookback_s, min_count):
+        self.lookback_s, self.min_count = float(lookback_s), int(min_count)
+        self.recent = {}                    # (session, host) -> deque thời điểm bắt đầu các cửa sổ dos gốc
+
+    @classmethod
+    def from_config(cls, cfg):
+        h = ((cfg or {}).get("pipeline") or {}).get("dos_hold")
+        return cls(h["lookback_s"], h["min_count"]) if h else None
+
+    def apply(self, frame):
+        """Sửa cột ``du_doan`` của bảng dự đoán tại chỗ; thêm cột ``giu_dos`` đánh dấu cửa sổ được nâng."""
+        from collections import deque
+
+        pred = frame["du_doan"].to_numpy(dtype=object).copy()
+        start = frame["window_start"].to_numpy(float)
+        host = frame["host"].astype(str).to_numpy()
+        sess = frame["session"].astype(str).to_numpy() if "session" in frame else np.full(len(frame), "")
+        held = np.zeros(len(frame), bool)
+        for i in np.argsort(start, kind="stable"):
+            q = self.recent.setdefault((sess[i], host[i]), deque())
+            while q and q[0] < start[i] - self.lookback_s:
+                q.popleft()
+            if pred[i] == "benign" and len(q) >= self.min_count:
+                pred[i], held[i] = "dos", True
+            elif pred[i] == "dos":
+                q.append(start[i])
+        if len(self.recent) > 10000:        # dọn host không còn cửa sổ dos nào để state không phình
+            self.recent = {k: q for k, q in self.recent.items() if q}
+        frame["du_doan"] = pred
+        frame["giu_dos"] = held
+        return frame
+
+
 def per_tool(frame, pred, rules) -> dict:
     groups = clf.class_groups(frame, rules)
     y = frame[clf.LABEL_COL].to_numpy()

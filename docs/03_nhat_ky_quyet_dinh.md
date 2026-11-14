@@ -531,6 +531,13 @@ Mẫu:
 - Quyết định: Giữ nguyên `flow` trong `config/default.yaml`. Căn cứ: trích xuất lại CIC thứ Tư và thứ Sáu rồi huấn luyện lại cho 7 cấu hình đổi một tham số (idle 30/120, active 60/300, grace 5/20, chờ bắt tay 1); macro-F1 validation 0,9317–0,9375 so với 0,9352 hiện tại, chênh trong mức nhiễu của 164 cửa sổ `port_scan`.
 - Hệ quả: Không giảm `idle_timeout_s` và `active_timeout_s` (recall `dos` giảm khoảng 0,025). Độ dài cửa sổ chưa thử. Chi tiết docs/72 mục 2.4.
 
+## QĐ-074 — Nối lớp giữ nhãn `dos` vào pipeline và realtime, mặc định tắt
+- Ngày: 14/11/2026
+- Trạng thái: Đã chốt (tiếp QĐ-071)
+- Bối cảnh: QĐ-071 đo lớp giữ nhãn `dos` theo host bằng hàm chạy sau trên bảng dự đoán; pipeline và cảm biến chưa dùng. Cấu hình 20 giây, 5 cửa sổ nằm ở mép lưới.
+- Quyết định: Thêm `dos_cham.DosHolder` (giữ trạng thái theo host), gọi trong `pipeline.score_attack` cho cả offline lẫn realtime; bật bằng `pipeline.dos_hold: {lookback_s, min_count}`, không có khóa này thì tắt. Giữ 20/5: lưới rộng hơn cho 30/7 tốt nhất trên validation (0,9491 so với 0,9463) nhưng ngang nhau trên test (0,9237 so với 0,9241).
+- Hệ quả: Mặc định tắt nên mọi số liệu đã công bố không đổi. Khi bật, trên bốn đoạn PCAP của CIC chỉ số cảnh báo `dos` ở hai đoạn DoS tăng (312 lên 320, 162 lên 194), nhãn offline và realtime khớp ở mọi cửa sổ. `config/lab.yaml` không bật vì lab không có DoS chậm để kiểm tra. Chi tiết docs/75 mục 5, 6.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.

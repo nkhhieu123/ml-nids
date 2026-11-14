@@ -113,7 +113,8 @@ def check(pcap, networks, out_dir, cfg, mode=None) -> dict:
     rt = alerts_to_frames(scores)
     off_res = off["ket_qua"]
     an_off = off_res[MODULE_ANOMALY].rename(columns={"d2": "diem"})
-    at_off = off_res[MODULE_ATTACK].assign(diem=lambda d: d[[c for c in d.columns if c.startswith("p_")]].max(axis=1))
+    # điểm của cảnh báo là xác suất của nhãn được gán (khác xác suất lớn nhất khi lớp giữ nhãn dos nâng cửa sổ)
+    at_off = off_res[MODULE_ATTACK].assign(diem=lambda d: [float(d.at[i, f"p_{c}"]) for i, c in zip(d.index, d["du_doan"])])
     bo_off = off_res[MODULE_BOTNET]
     feats = feature_columns("windows")
     res = {"pcap": str(pcap), "che_do": mode,

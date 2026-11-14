@@ -310,6 +310,8 @@ class RealtimeEngine:
         self.alert_sink, self.score_sink = alert_sink, score_sink
         self.rt = realtime_config(cfg)
         self.events = EventMerger(pc["merge_gap_s"], event_sink)
+        from .pipeline import dos_holder
+        self.dos_holder = dos_holder(cfg)   # giữ nhãn dos theo host qua các cửa sổ (pipeline.dos_hold, QĐ-074)
         self.window_sink = window_sink          # nhận bảng cửa sổ 10 giây vừa đóng (kiểm tra nhất quán, C10-T08)
         self.flow_rows = deque()            # flow đã kết thúc (dòng bảng flow), theo thứ tự kết thúc
         self._fin_next_id = 0               # mã tăng dần gán cho flow kết thúc (để cache chuyển đổi C10)
@@ -406,7 +408,7 @@ class RealtimeEngine:
         flagged = (an["du_doan"] == "anomaly").to_numpy()
         t = time.perf_counter()
         sub = df[flagged].reset_index(drop=True) if self.mode == "tuan_tu" else df
-        at = score_attack(self.arts[MODULE_ATTACK], sub) if len(sub) else None
+        at = score_attack(self.arts[MODULE_ATTACK], sub, self.dos_holder) if len(sub) else None
         self.stats["thoi_gian_cham_s"][MODULE_ATTACK] += time.perf_counter() - t
         self._emit(module_alerts(MODULE_ANOMALY, an, self.arts[MODULE_ANOMALY], self.run_id,
                                  log_all=self.score_sink is not None))

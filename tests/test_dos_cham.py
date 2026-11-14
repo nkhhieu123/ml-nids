@@ -6,7 +6,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from nids.dos_cham import hold_dos
+import numpy as np
+import pandas as pd
+
+from nids.dos_cham import DosHolder, hold_dos
 
 
 class HoldDosTest(unittest.TestCase):
@@ -30,6 +33,39 @@ class HoldDosTest(unittest.TestCase):
         self.assertEqual(list(got), ["dos", "dos", "dos"])                  # đầu vào không cần sắp theo thời gian
         self.assertEqual(list(hold_dos(["benign", "dos", "dos"], ["h"] * 3, [0, 2, 4], 10, 1)),
                          ["benign", "dos", "dos"])                           # dos đến sau không nâng cửa sổ trước
+
+
+class DosHolderTest(unittest.TestCase):
+    def _frame(self, n=400, seed=0):
+        rng = np.random.default_rng(seed)
+        hosts = rng.choice(["a", "b", "c"], n)
+        df = pd.DataFrame({"session": "s", "host": hosts, "window_start": 0.0,
+                           "du_doan": rng.choice(["benign", "dos", "port_scan"], n, p=[0.6, 0.3, 0.1])})
+        for h in "abc":                                           # mỗi host: cửa sổ cách nhau 2 giây, có khoảng trống
+            m = (df["host"] == h).to_numpy()
+            df.loc[m, "window_start"] = np.cumsum(rng.choice([2.0, 2.0, 2.0, 40.0], m.sum()))
+        return df.sort_values("window_start", kind="stable").reset_index(drop=True)
+
+    def test_matches_hold_dos(self):
+        df = self._frame()
+        want = hold_dos(df["du_doan"], df["host"], df["window_start"], 20, 3)
+        got = DosHolder(20, 3).apply(df.copy())
+        self.assertEqual(list(got["du_doan"]), list(want))
+        self.assertEqual(list(got["giu_dos"]), list(want != df["du_doan"].to_numpy()))
+        self.assertTrue(got["giu_dos"].any())
+
+    def test_chunked_like_realtime_equals_one_pass(self):
+        df = self._frame(seed=1)
+        whole = DosHolder(20, 3).apply(df.copy())
+        holder, parts = DosHolder(20, 3), []
+        for i in range(0, len(df), 7):                            # cảm biến chấm từng lô cửa sổ vừa đóng
+            parts.append(holder.apply(df.iloc[i:i + 7].copy()))
+        self.assertEqual(list(pd.concat(parts)["du_doan"]), list(whole["du_doan"]))
+
+    def test_config_off_by_default(self):
+        self.assertIsNone(DosHolder.from_config({"pipeline": {"mode": "doc_lap"}}))
+        h = DosHolder.from_config({"pipeline": {"dos_hold": {"lookback_s": 20, "min_count": 5}}})
+        self.assertEqual((h.lookback_s, h.min_count), (20.0, 5))
 
 
 if __name__ == "__main__":

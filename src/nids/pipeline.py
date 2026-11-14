@@ -205,12 +205,20 @@ def score_anomaly(art, windows):
     return art.model.predict_frame(windows)                     # host, window_start, window_end, d2, du_doan
 
 
-def score_attack(art, windows):
+def score_attack(art, windows, holder=None):
+    """Dự đoán của bộ phân loại; ``holder`` (``dos_cham.DosHolder``) giữ nhãn ``dos`` theo host nếu được bật."""
     from .classifier import predict_frame
     check_table(windows, art)
     out = predict_frame(art.model, windows)
     out["window_end"] = windows["window_end"].to_numpy()
+    if holder is not None:
+        holder.apply(out)
     return out
+
+
+def dos_holder(cfg):
+    from .dos_cham import DosHolder
+    return DosHolder.from_config(cfg)
 
 
 def score_botnet(art, flows, hosts, networks, cfg=None, topology_rule=None):
@@ -243,7 +251,7 @@ def run_independent(arts, windows, flows, networks, cfg=None, timer=None) -> dic
     with timer(MODULE_ANOMALY):
         out[MODULE_ANOMALY] = score_anomaly(arts[MODULE_ANOMALY], windows)
     with timer(MODULE_ATTACK):
-        out[MODULE_ATTACK] = score_attack(arts[MODULE_ATTACK], windows)
+        out[MODULE_ATTACK] = score_attack(arts[MODULE_ATTACK], windows, dos_holder(cfg))
     with timer(MODULE_BOTNET):
         out[MODULE_BOTNET] = score_botnet(arts[MODULE_BOTNET], flows, monitored_hosts(flows, networks),
                                           networks, cfg)
@@ -271,7 +279,7 @@ def run_sequential(arts, windows, flows, networks, cfg=None, timer=None, classif
     flagged = (an["du_doan"] == "anomaly").to_numpy()
     with timer(MODULE_ATTACK):
         sub = windows if classify_all else windows[flagged].reset_index(drop=True)
-        at = score_attack(arts[MODULE_ATTACK], sub) if len(sub) else score_attack(arts[MODULE_ATTACK], windows.iloc[:0])
+        at = score_attack(arts[MODULE_ATTACK], sub if len(sub) else windows.iloc[:0], dos_holder(cfg))
         out[MODULE_ATTACK] = at
     with timer(MODULE_BOTNET):
         if classify_all:                                  # chỉ cửa sổ Gaussian báo mới là bất thường
@@ -461,8 +469,10 @@ def module_alerts(module, df, art, run_id="", log_all=False) -> list:
                              threshold=float(art.threshold), run_id=run_id))
         elif module == MODULE_ATTACK:
             probs = {c: getattr(r, f"p_{c}") for c in art.model.classes}
+            held = bool(getattr(r, "giu_dos", False))
             out.append(Alert(module, r.du_doan, ws, we, src_ip=r.host, score=float(probs[r.du_doan]), run_id=run_id,
-                             detail=" ".join(f"p_{c}={v:.3f}" for c, v in probs.items())))
+                             detail=" ".join(f"p_{c}={v:.3f}" for c, v in probs.items())
+                             + (" giu_dos=1" if held else "")))
         else:
             out.append(Alert(module, "suspect_host" if r.du_doan == "suspect_host" else "normal_host", ws, we,
                              src_ip=r.host, score=float(r.diem), threshold=float(art.threshold), run_id=run_id,

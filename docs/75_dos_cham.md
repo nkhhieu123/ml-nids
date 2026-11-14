@@ -1,7 +1,7 @@
 # Giữ nhãn `dos` theo host để vớt DoS HTTP chậm
 
 Mã nguồn: `src/nids/dos_cham.py`. Kiểm thử: `tests/test_dos_cham.py`. Số liệu: `docs/hinh/dos_cham.json`.
-Quyết định: QĐ-071.
+Quyết định: QĐ-071, QĐ-074.
 
 ```bash
 cd src
@@ -59,12 +59,56 @@ cửa sổ thì recall `dos` lên 1,0 nhưng precision tụt (tới 0,44), vì n
 
 ## 4. Trạng thái và giới hạn
 
-- Lớp này **đã đo, chưa bật** trong pipeline và cảm biến realtime: `nids.dos_cham.hold_dos` là hàm dùng sau khi
-  có bảng dự đoán. Bật trong realtime cần giữ trạng thái theo host, chưa làm.
-- Cấu hình được chọn nằm ở **mép lưới** (lookback nhỏ nhất, min_count lớn nhất), nên chưa chắc là tốt nhất;
-  nên thử thêm `min_count` 6–10 trước khi bật.
-- Mới đo trên CIC-IDS2017. Trên lab không có DoS chậm để kiểm tra.
+- Lớp này **đã nối vào pipeline offline và cảm biến realtime** (mục 5), **mặc định tắt**.
+- Mới đo trên CIC-IDS2017. Trên lab không có DoS chậm để kiểm tra, nên `config/lab.yaml` không bật.
 - Cửa sổ ngay sau khi tấn công dừng (trong 20 giây) có thể bị giữ nhãn `dos`.
+- Tập test đã được đọc hai lần cho lớp này (cấu hình 20/5 và cấu hình 30/7 ở mục 6).
+
+## 5. Nối vào pipeline và realtime (14/11/2026, QĐ-074)
+
+Bật bằng một dòng trong file cấu hình, dùng chung cho cả hai đường chạy:
+
+```yaml
+pipeline:
+  dos_hold: {lookback_s: 20, min_count: 5}
+```
+
+- `dos_cham.DosHolder` là bản tăng dần của `hold_dos`: nhớ thời điểm các cửa sổ `dos` gần đây của từng host, nên
+  dùng được khi cửa sổ tới từng lô như trong cảm biến. Pipeline offline cũng đi qua lớp này
+  (`pipeline.score_attack`), nên hai đường chạy dùng cùng một đoạn mã.
+- Cửa sổ được nâng có thêm `giu_dos=1` trong cột `detail` của cảnh báo; điểm là `p_dos` gốc của bộ phân loại
+  (thường thấp), để người đọc phân biệt với cửa sổ được gán `dos` trực tiếp.
+- Ở chế độ `ket_hop`, cửa sổ được nâng không còn là "bất thường chưa giải thích" nên không kích hoạt kiểm tra
+  botnet cho host đó.
+
+Kiểm tra trên bốn đoạn PCAP của CIC (`nids.nhat_quan`, chế độ `ket_hop`), số cảnh báo `dos`:
+
+| Đoạn PCAP | Tắt | Bật | Nhãn offline khác realtime |
+|---|---|---|---|
+| `wed_slowloris` | 312 | 320 | 0 |
+| `wed_hulk` | 162 | 194 | 0 |
+| `fri_quet` (quét cổng) | 4 | 4 | 0 |
+| `fri_binh_thuong` | 0 | 0 | 0 |
+
+Lớp này chỉ thêm cảnh báo `dos` ở hai đoạn có DoS; đoạn quét cổng và đoạn bình thường không đổi. Số cảnh báo
+`port_scan`, `anomaly`, botnet và số sự kiện giữ nguyên ở cả bốn đoạn. Offline và realtime cho cùng nhãn ở mọi
+cửa sổ khi bật.
+
+## 6. Lưới tham số rộng hơn
+
+Cấu hình 20/5 nằm ở mép lưới ban đầu, nên đã thử thêm `lookback_s` 10, 14 và `min_count` 6, 7, 8, 10
+(`docs/hinh/dos_cham_luoi_rong.json`). Macro-F1 validation:
+
+| `lookback_s` | `min_count` 3 | 5 | 6 | 7 | 8 | 10 |
+|---|---|---|---|---|---|---|
+| 10 | 0,9448 | 0,9419 | 0,9352 | 0,9352 | 0,9352 | 0,9352 |
+| 14 | 0,9434 | 0,9465 | 0,9459 | 0,9399 | 0,9352 | 0,9352 |
+| 20 | 0,9406 | **0,9463** | 0,9468 | 0,9475 | 0,9454 | 0,9371 |
+| 30 | 0,9355 | 0,9447 | 0,9466 | **0,9491** | 0,9483 | 0,9475 |
+
+Cấu hình tốt nhất trên validation là 30 giây, 7 cửa sổ (0,9491), hơn 20/5 chỉ 0,003. Trên test hai cấu hình
+ngang nhau: macro-F1 0,9237 so với 0,9241, recall `dos` 0,931 so với 0,938. **Giữ 20/5**: chênh lệch trên
+validation nằm trong mức nhiễu, và nhìn lại ngắn hơn thì nhãn `dos` kéo dài sau tấn công ít hơn.
 
 ## Thuật ngữ
 
@@ -80,4 +124,5 @@ Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
 | Validation / test | Phần dữ liệu để chọn tham số / để đánh giá cuối |
 | Precision / recall | Trong các cảnh báo, tỷ lệ đúng / trong các mẫu tấn công thật, tỷ lệ được nhận ra |
 | Macro-F1 | Trung bình F1 của các lớp, mỗi lớp tính ngang nhau |
+| `ket_hop` | Chế độ chạy mặc định: phân loại chấm mọi cửa sổ, botnet chỉ kiểm tra host có bất thường chưa giải thích |
 | Mép lưới | Giá trị tốt nhất nằm ở biên của các giá trị đã thử, nên có thể còn giá trị tốt hơn ở ngoài |

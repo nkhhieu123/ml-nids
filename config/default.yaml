@@ -104,6 +104,9 @@ pipeline:                    # pipeline offline (Chặng 9); đường dẫn tư
     botnet_topology: models/botnet_rf.joblib
   mode: ket_hop              # ket_hop: phân loại mọi cửa sổ, botnet chỉ kiểm tra bất thường chưa giải thích (QĐ-047); doc_lap; tuan_tu (QĐ-046)
   merge_gap_s: 30            # gộp cảnh báo cùng module, nhãn, host cách nhau không quá mức này thành một sự kiện (QĐ-048)
+  # Giữ nhãn dos theo host để vớt DoS HTTP chậm (docs/75, QĐ-074). Mặc định tắt; bỏ dấu # để bật cho cả
+  # pipeline offline lẫn cảm biến realtime:
+  # dos_hold: {lookback_s: 20, min_count: 5}
 
 realtime:                    # cảm biến realtime (Chặng 10, QĐ-052)
   queue_size: 100000         # gói chờ giữa luồng đọc và luồng xử lý; đầy thì bỏ gói mới và đếm
