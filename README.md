@@ -160,6 +160,10 @@ Thí nghiệm bổ sung (cảm biến bắt trực tiếp, máy tấn công có 
 
 Bộ mô hình lab lần hai, kiểm tra khái quát (đổi vai trò máy, SYN flood, chấm chéo CTU-13), chờ bắt tay 1 giây: [docs/76_khai_quat_lab.md](docs/76_khai_quat_lab.md)
 
+Quy trình xử lý dữ liệu từ gói tin tới kết quả (tiền xử lý, chia tập 60/20/20, ba thuật toán): [docs/77_quy_trinh_xu_ly_du_lieu.md](docs/77_quy_trinh_xu_ly_du_lieu.md)
+
+So sánh bộ phân loại với 8 mô hình baseline: [docs/78_so_sanh_baseline.md](docs/78_so_sanh_baseline.md)
+
 Hướng dẫn báo cáo tiến độ và demo bằng các file trong `demo/`: [demo/HUONG_DAN.md](demo/HUONG_DAN.md)
 
 Giữ nhãn `dos` theo host để vớt DoS HTTP chậm (tùy chọn, chưa bật): [docs/75_dos_cham.md](docs/75_dos_cham.md)
