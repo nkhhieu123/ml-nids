@@ -1,0 +1,1014 @@
+{
+  "du_lieu": {
+    "so_mau_train_truoc_bo_trung": 166269,
+    "so_mau_train_sau_bo_trung": 85989,
+    "ty_le_can_bang": null,
+    "seed": 42,
+    "lop_train": {
+      "benign": 83346,
+      "dos": 2165,
+      "port_scan": 478
+    },
+    "lop_validation": {
+      "benign": 53949,
+      "dos": 648,
+      "port_scan": 164
+    },
+    "lop_test": {
+      "benign": 67713,
+      "dos": 727,
+      "port_scan": 220
+    }
+  },
+  "so_dac_trung": 20,
+  "mo_hinh": {
+    "Random Forest": {
+      "tham_so": {
+        "class_weight": null,
+        "max_depth": 20,
+        "max_features": "sqrt",
+        "min_samples_leaf": 1,
+        "n_estimators": 300
+      },
+      "giay_hoc": 6.4,
+      "validation": {
+        "macro_f1": 0.9352,
+        "accuracy": 0.9978,
+        "theo_lop": {
+          "benign": {
+            "precision": 0.9983,
+            "recall": 0.9995,
+            "f1": 0.9989,
+            "so_mau": 53949
+          },
+          "port_scan": {
+            "precision": 0.9922,
+            "recall": 0.7744,
+            "f1": 0.8699,
+            "so_mau": 164
+          },
+          "dos": {
+            "precision": 0.961,
+            "recall": 0.9136,
+            "f1": 0.9367,
+            "so_mau": 648
+          }
+        },
+        "confusion": {
+          "nhan": [
+            "benign",
+            "port_scan",
+            "dos"
+          ],
+          "ma_tran": [
+            [
+              53924,
+              1,
+              24
+            ],
+            [
+              37,
+              127,
+              0
+            ],
+            [
+              56,
+              0,
+              592
+            ]
+          ]
+        },
+        "ty_le_benign_bi_bao": 0.00046,
+        "giay_du_doan": 0.39
+      },
+      "test": {
+        "macro_f1": 0.9078,
+        "accuracy": 0.997,
+        "theo_lop": {
+          "benign": {
+            "precision": 0.9975,
+            "recall": 0.9996,
+            "f1": 0.9985,
+            "so_mau": 67713
+          },
+          "port_scan": {
+            "precision": 0.9474,
+            "recall": 0.7364,
+            "f1": 0.8286,
+            "so_mau": 220
+          },
+          "dos": {
+            "precision": 0.9636,
+            "recall": 0.8377,
+            "f1": 0.8962,
+            "so_mau": 727
+          }
+        },
+        "confusion": {
+          "nhan": [
+            "benign",
+            "port_scan",
+            "dos"
+          ],
+          "ma_tran": [
+            [
+              67685,
+              9,
+              19
+            ],
+            [
+              54,
+              162,
+              4
+            ],
+            [
+              118,
+              0,
+              609
+            ]
+          ]
+        },
+        "ty_le_benign_bi_bao": 0.00041,
+        "giay_du_doan": 0.44
+      }
+    },
+    "Extra Trees": {
+      "tham_so": {
+        "class_weight": null,
+        "max_depth": 20,
+        "max_features": "sqrt",
+        "min_samples_leaf": 1,
+        "n_estimators": 300
+      },
+      "giay_hoc": 3.1,
+      "validation": {
+        "macro_f1": 0.9305,
+        "accuracy": 0.9978,
+        "theo_lop": {
+          "benign": {
+            "precision": 0.998,
+            "recall": 0.9998,
+            "f1": 0.9989,
+            "so_mau": 53949
+          },
+          "port_scan": {
+            "precision": 0.992,
+            "recall": 0.7561,
+            "f1": 0.8581,
+            "so_mau": 164
+          },
+          "dos": {
+            "precision": 0.983,
+            "recall": 0.8904,
+            "f1": 0.9344,
+            "so_mau": 648
+          }
+        },
+        "confusion": {
+          "nhan": [
+            "benign",
+            "port_scan",
+            "dos"
+          ],
+          "ma_tran": [
+            [
+              53940,
+              0,
+              9
+            ],
+            [
+              39,
+              124,
+              1
+            ],
+            [
+              70,
+              1,
+              577
+            ]
+          ]
+        },
+        "ty_le_benign_bi_bao": 0.00017,
+        "giay_du_doan": 0.41
+      },
+      "test": {
+        "macro_f1": 0.8958,
+        "accuracy": 0.9966,
+        "theo_lop": {
+          "benign": {
+            "precision": 0.997,
+            "recall": 0.9997,
+            "f1": 0.9983,
+            "so_mau": 67713
+          },
+          "port_scan": {
+            "precision": 0.9686,
+            "recall": 0.7,
+            "f1": 0.8127,
+            "so_mau": 220
+          },
+          "dos": {
+            "precision": 0.9684,
+            "recall": 0.8006,
+            "f1": 0.8765,
+            "so_mau": 727
+          }
+        },
+        "confusion": {
+          "nhan": [
+            "benign",
+            "port_scan",
+            "dos"
+          ],
+          "ma_tran": [
+            [
+              67693,
+              5,
+              15
+            ],
+            [
+              62,
+              154,
+              4
+            ],
+            [
+              145,
+              0,
+              582
+            ]
+          ]
+        },
+        "ty_le_benign_bi_bao": 0.0003,
+        "giay_du_doan": 0.47
+      }
+    },
+    "Gradient Boosting (Hist)": {
+      "tham_so": {
+        "class_weight": null,
+        "learning_rate": 0.1,
+        "max_depth": null,
+        "max_features": 1.0,
+        "max_iter": 200,
+        "min_samples_leaf": 20
+      },
+      "giay_hoc": 4.1,
+      "validation": {
+        "macro_f1": 0.921,
+        "accuracy": 0.9974,
+        "theo_lop": {
+          "benign": {
+            "precision": 0.9981,
+            "recall": 0.9994,
+            "f1": 0.9988,
+            "so_mau": 53949
+          },
+          "port_scan": {
+            "precision": 0.8973,
+            "recall": 0.7988,
+            "f1": 0.8452,
+            "so_mau": 164
+          },
+          "dos": {
+            "precision": 0.9566,
+            "recall": 0.8843,
+            "f1": 0.919,
+            "so_mau": 648
+          }
+        },
+        "confusion": {
+          "nhan": [
+            "benign",
+            "port_scan",
+            "dos"
+          ],
+          "ma_tran": [
+            [
+              53916,
+              13,
+              20
+            ],
+            [
+              27,
+              131,
+              6
+            ],
+            [
+              73,
+              2,
+              573
+            ]
+          ]
+        },
+        "ty_le_benign_bi_bao": 0.00061,
+        "giay_du_doan": 0.11
+      },
+      "test": {
+        "macro_f1": 0.893,
+        "accuracy": 0.9967,
+        "theo_lop": {
+          "benign": {
+            "precision": 0.9972,
+            "recall": 0.9995,
+            "f1": 0.9984,
+            "so_mau": 67713
+          },
+          "port_scan": {
+            "precision": 0.9222,
+            "recall": 0.7,
+            "f1": 0.7959,
+            "so_mau": 220
+          },
+          "dos": {
+            "precision": 0.9553,
+            "recall": 0.8239,
+            "f1": 0.8848,
+            "so_mau": 727
+          }
+        },
+        "confusion": {
+          "nhan": [
+            "benign",
+            "port_scan",
+            "dos"
+          ],
+          "ma_tran": [
+            [
+              67678,
+              13,
+              22
+            ],
+            [
+              60,
+              154,
+              6
+            ],
+            [
+              128,
+              0,
+              599
+            ]
+          ]
+        },
+        "ty_le_benign_bi_bao": 0.00052,
+        "giay_du_doan": 0.12
+      }
+    },
+    "Decision Tree": {
+      "tham_so": {
+        "class_weight": null,
+        "max_depth": 20,
+        "max_features": null,
+        "min_samples_leaf": 1
+      },
+      "giay_hoc": 0.9,
+      "validation": {
+        "macro_f1": 0.9177,
+        "accuracy": 0.9964,
+        "theo_lop": {
+          "benign": {
+            "precision": 0.9984,
+            "recall": 0.998,
+            "f1": 0.9982,
+            "so_mau": 53949
+          },
+          "port_scan": {
+            "precision": 0.9638,
+            "recall": 0.811,
+            "f1": 0.8808,
+            "so_mau": 164
+          },
+          "dos": {
+            "precision": 0.8456,
+            "recall": 0.9043,
+            "f1": 0.874,
+            "so_mau": 648
+          }
+        },
+        "confusion": {
+          "nhan": [
+            "benign",
+            "port_scan",
+            "dos"
+          ],
+          "ma_tran": [
+            [
+              53843,
+              5,
+              101
+            ],
+            [
+              25,
+              133,
+              6
+            ],
+            [
+              62,
+              0,
+              586
+            ]
+          ]
+        },
+        "ty_le_benign_bi_bao": 0.00196,
+        "giay_du_doan": 0.05
+      },
+      "test": {
+        "macro_f1": 0.8818,
+        "accuracy": 0.996,
+        "theo_lop": {
+          "benign": {
+            "precision": 0.9977,
+            "recall": 0.9984,
+            "f1": 0.9981,
+            "so_mau": 67713
+          },
+          "port_scan": {
+            "precision": 0.8195,
+            "recall": 0.7636,
+            "f1": 0.7906,
+            "so_mau": 220
+          },
+          "dos": {
+            "precision": 0.8797,
+            "recall": 0.8349,
+            "f1": 0.8567,
+            "so_mau": 727
+          }
+        },
+        "confusion": {
+          "nhan": [
+            "benign",
+            "port_scan",
+            "dos"
+          ],
+          "ma_tran": [
+            [
+              67608,
+              33,
+              72
+            ],
+            [
+              41,
+              168,
+              11
+            ],
+            [
+              116,
+              4,
+              607
+            ]
+          ]
+        },
+        "ty_le_benign_bi_bao": 0.00155,
+        "giay_du_doan": 0.08
+      }
+    },
+    "MLP (mạng nơ-ron)": {
+      "tham_so": {
+        "hidden_layer_sizes": [
+          64,
+          32
+        ],
+        "learning_rate": "constant",
+        "max_iter": 200
+      },
+      "giay_hoc": 22.6,
+      "validation": {
+        "macro_f1": 0.9154,
+        "accuracy": 0.9969,
+        "theo_lop": {
+          "benign": {
+            "precision": 0.9988,
+            "recall": 0.9982,
+            "f1": 0.9985,
+            "so_mau": 53949
+          },
+          "port_scan": {
+            "precision": 0.9398,
+            "recall": 0.7622,
+            "f1": 0.8418,
+            "so_mau": 164
+          },
+          "dos": {
+            "precision": 0.8641,
+            "recall": 0.9522,
+            "f1": 0.906,
+            "so_mau": 648
+          }
+        },
+        "confusion": {
+          "nhan": [
+            "benign",
+            "port_scan",
+            "dos"
+          ],
+          "ma_tran": [
+            [
+              53850,
+              7,
+              92
+            ],
+            [
+              34,
+              125,
+              5
+            ],
+            [
+              30,
+              1,
+              617
+            ]
+          ]
+        },
+        "ty_le_benign_bi_bao": 0.00184,
+        "giay_du_doan": 0.09
+      },
+      "test": {
+        "macro_f1": 0.8865,
+        "accuracy": 0.9952,
+        "theo_lop": {
+          "benign": {
+            "precision": 0.998,
+            "recall": 0.9972,
+            "f1": 0.9976,
+            "so_mau": 67713
+          },
+          "port_scan": {
+            "precision": 0.9535,
+            "recall": 0.7455,
+            "f1": 0.8367,
+            "so_mau": 220
+          },
+          "dos": {
+            "precision": 0.7744,
+            "recall": 0.8831,
+            "f1": 0.8252,
+            "so_mau": 727
+          }
+        },
+        "confusion": {
+          "nhan": [
+            "benign",
+            "port_scan",
+            "dos"
+          ],
+          "ma_tran": [
+            [
+              67522,
+              8,
+              183
+            ],
+            [
+              52,
+              164,
+              4
+            ],
+            [
+              85,
+              0,
+              642
+            ]
+          ]
+        },
+        "ty_le_benign_bi_bao": 0.00282,
+        "giay_du_doan": 0.11
+      }
+    },
+    "K-Nearest Neighbors": {
+      "tham_so": {
+        "n_neighbors": 5
+      },
+      "giay_hoc": 0.3,
+      "validation": {
+        "macro_f1": 0.8055,
+        "accuracy": 0.9836,
+        "theo_lop": {
+          "benign": {
+            "precision": 0.9983,
+            "recall": 0.9851,
+            "f1": 0.9916,
+            "so_mau": 53949
+          },
+          "port_scan": {
+            "precision": 0.9538,
+            "recall": 0.7561,
+            "f1": 0.8435,
+            "so_mau": 164
+          },
+          "dos": {
+            "precision": 0.4255,
+            "recall": 0.9167,
+            "f1": 0.5812,
+            "so_mau": 648
+          }
+        },
+        "confusion": {
+          "nhan": [
+            "benign",
+            "port_scan",
+            "dos"
+          ],
+          "ma_tran": [
+            [
+              53143,
+              6,
+              800
+            ],
+            [
+              38,
+              124,
+              2
+            ],
+            [
+              54,
+              0,
+              594
+            ]
+          ]
+        },
+        "ty_le_benign_bi_bao": 0.01494,
+        "giay_du_doan": 4.13
+      },
+      "test": {
+        "macro_f1": 0.7569,
+        "accuracy": 0.9788,
+        "theo_lop": {
+          "benign": {
+            "precision": 0.9974,
+            "recall": 0.9811,
+            "f1": 0.9892,
+            "so_mau": 67713
+          },
+          "port_scan": {
+            "precision": 0.9148,
+            "recall": 0.7318,
+            "f1": 0.8131,
+            "so_mau": 220
+          },
+          "dos": {
+            "precision": 0.3247,
+            "recall": 0.8404,
+            "f1": 0.4684,
+            "so_mau": 727
+          }
+        },
+        "confusion": {
+          "nhan": [
+            "benign",
+            "port_scan",
+            "dos"
+          ],
+          "ma_tran": [
+            [
+              66432,
+              15,
+              1266
+            ],
+            [
+              54,
+              161,
+              5
+            ],
+            [
+              116,
+              0,
+              611
+            ]
+          ]
+        },
+        "ty_le_benign_bi_bao": 0.01892,
+        "giay_du_doan": 4.87
+      }
+    },
+    "Logistic Regression": {
+      "tham_so": {
+        "C": 0.1,
+        "class_weight": null,
+        "max_iter": 3000
+      },
+      "giay_hoc": 0.9,
+      "validation": {
+        "macro_f1": 0.8797,
+        "accuracy": 0.9963,
+        "theo_lop": {
+          "benign": {
+            "precision": 0.9967,
+            "recall": 1.0,
+            "f1": 0.9984,
+            "so_mau": 53949
+          },
+          "port_scan": {
+            "precision": 0.9558,
+            "recall": 0.6585,
+            "f1": 0.7798,
+            "so_mau": 164
+          },
+          "dos": {
+            "precision": 0.9637,
+            "recall": 0.7778,
+            "f1": 0.8608,
+            "so_mau": 648
+          }
+        },
+        "confusion": {
+          "nhan": [
+            "benign",
+            "port_scan",
+            "dos"
+          ],
+          "ma_tran": [
+            [
+              53949,
+              0,
+              0
+            ],
+            [
+              37,
+              108,
+              19
+            ],
+            [
+              139,
+              5,
+              504
+            ]
+          ]
+        },
+        "ty_le_benign_bi_bao": 0.0,
+        "giay_du_doan": 0.06
+      },
+      "test": {
+        "macro_f1": 0.828,
+        "accuracy": 0.9953,
+        "theo_lop": {
+          "benign": {
+            "precision": 0.9959,
+            "recall": 0.9998,
+            "f1": 0.9979,
+            "so_mau": 67713
+          },
+          "port_scan": {
+            "precision": 0.9147,
+            "recall": 0.5364,
+            "f1": 0.6762,
+            "so_mau": 220
+          },
+          "dos": {
+            "precision": 0.9384,
+            "recall": 0.7125,
+            "f1": 0.81,
+            "so_mau": 727
+          }
+        },
+        "confusion": {
+          "nhan": [
+            "benign",
+            "port_scan",
+            "dos"
+          ],
+          "ma_tran": [
+            [
+              67702,
+              6,
+              5
+            ],
+            [
+              73,
+              118,
+              29
+            ],
+            [
+              204,
+              5,
+              518
+            ]
+          ]
+        },
+        "ty_le_benign_bi_bao": 0.00016,
+        "giay_du_doan": 0.06
+      }
+    },
+    "Linear SVM": {
+      "tham_so": {
+        "C": 1.0,
+        "class_weight": null,
+        "max_iter": 1000
+      },
+      "giay_hoc": 1.3,
+      "validation": {
+        "macro_f1": 0.8226,
+        "accuracy": 0.9953,
+        "theo_lop": {
+          "benign": {
+            "precision": 0.9961,
+            "recall": 0.9998,
+            "f1": 0.9979,
+            "so_mau": 53949
+          },
+          "port_scan": {
+            "precision": 0.866,
+            "recall": 0.5122,
+            "f1": 0.6437,
+            "so_mau": 164
+          },
+          "dos": {
+            "precision": 0.9287,
+            "recall": 0.7438,
+            "f1": 0.826,
+            "so_mau": 648
+          }
+        },
+        "confusion": {
+          "nhan": [
+            "benign",
+            "port_scan",
+            "dos"
+          ],
+          "ma_tran": [
+            [
+              53936,
+              13,
+              0
+            ],
+            [
+              43,
+              84,
+              37
+            ],
+            [
+              166,
+              0,
+              482
+            ]
+          ]
+        },
+        "ty_le_benign_bi_bao": 0.00024,
+        "giay_du_doan": 0.05
+      },
+      "test": {
+        "macro_f1": 0.732,
+        "accuracy": 0.9939,
+        "theo_lop": {
+          "benign": {
+            "precision": 0.9952,
+            "recall": 0.9996,
+            "f1": 0.9974,
+            "so_mau": 67713
+          },
+          "port_scan": {
+            "precision": 0.7727,
+            "recall": 0.3091,
+            "f1": 0.4416,
+            "so_mau": 220
+          },
+          "dos": {
+            "precision": 0.8725,
+            "recall": 0.6685,
+            "f1": 0.757,
+            "so_mau": 727
+          }
+        },
+        "confusion": {
+          "nhan": [
+            "benign",
+            "port_scan",
+            "dos"
+          ],
+          "ma_tran": [
+            [
+              67687,
+              20,
+              6
+            ],
+            [
+              87,
+              68,
+              65
+            ],
+            [
+              241,
+              0,
+              486
+            ]
+          ]
+        },
+        "ty_le_benign_bi_bao": 0.00038,
+        "giay_du_doan": 0.09
+      }
+    },
+    "Gaussian Naive Bayes": {
+      "tham_so": {},
+      "giay_hoc": 0.3,
+      "validation": {
+        "macro_f1": 0.6463,
+        "accuracy": 0.9834,
+        "theo_lop": {
+          "benign": {
+            "precision": 0.9961,
+            "recall": 0.9877,
+            "f1": 0.9919,
+            "so_mau": 53949
+          },
+          "port_scan": {
+            "precision": 0.2444,
+            "recall": 0.5366,
+            "f1": 0.3359,
+            "so_mau": 164
+          },
+          "dos": {
+            "precision": 0.5249,
+            "recall": 0.7315,
+            "f1": 0.6112,
+            "so_mau": 648
+          }
+        },
+        "confusion": {
+          "nhan": [
+            "benign",
+            "port_scan",
+            "dos"
+          ],
+          "ma_tran": [
+            [
+              53288,
+              272,
+              389
+            ],
+            [
+              36,
+              88,
+              40
+            ],
+            [
+              174,
+              0,
+              474
+            ]
+          ]
+        },
+        "ty_le_benign_bi_bao": 0.01225,
+        "giay_du_doan": 0.07
+      },
+      "test": {
+        "macro_f1": 0.5996,
+        "accuracy": 0.9834,
+        "theo_lop": {
+          "benign": {
+            "precision": 0.9954,
+            "recall": 0.9887,
+            "f1": 0.992,
+            "so_mau": 67713
+          },
+          "port_scan": {
+            "precision": 0.1596,
+            "recall": 0.3273,
+            "f1": 0.2146,
+            "so_mau": 220
+          },
+          "dos": {
+            "precision": 0.5215,
+            "recall": 0.685,
+            "f1": 0.5922,
+            "so_mau": 727
+          }
+        },
+        "confusion": {
+          "nhan": [
+            "benign",
+            "port_scan",
+            "dos"
+          ],
+          "ma_tran": [
+            [
+              66947,
+              379,
+              387
+            ],
+            [
+              78,
+              72,
+              70
+            ],
+            [
+              229,
+              0,
+              498
+            ]
+          ]
+        },
+        "ty_le_benign_bi_bao": 0.01131,
+        "giay_du_doan": 0.09
+      }
+    }
+  },
+  "xep_hang_theo_validation": [
+    "Random Forest",
+    "Extra Trees",
+    "Gradient Boosting (Hist)",
+    "Decision Tree",
+    "MLP (mạng nơ-ron)",
+    "Logistic Regression",
+    "Linear SVM",
+    "K-Nearest Neighbors",
+    "Gaussian Naive Bayes"
+  ]
+}
