@@ -165,6 +165,36 @@ Chưa thử: độ dài và bước cửa sổ (10 giây bước 2 giây, 120 gi
 module Gaussian). Đổi độ dài cửa sổ làm đổi cả số mẫu và cách gán nhãn cửa sổ nên phải chọn lại tham số mô hình,
 không so trực tiếp được như bảng trên.
 
+## 3. Độ dài cửa sổ host (14/11/2026, QĐ-075)
+
+Cùng cách làm như mục 2.4: trích xuất lại PCAP thứ Tư và thứ Sáu của CIC-IDS2017 với độ dài cửa sổ khác, gán
+nhãn lại, chia tập lại (khoảng đệm ở ranh giới bằng độ dài cửa sổ), fit Random Forest với tham số đã chọn ở
+C07-T04 trên train, đo trên **validation**. Bước trượt giữ bằng một phần năm độ dài cửa sổ. Không đọc test.
+Kết quả: `docs/hinh/cua_so_do_nhay_cic.json`.
+
+| Cửa sổ / bước | Macro-F1 validation | Recall `port_scan` | Precision `dos` | Recall `dos` | Cửa sổ `port_scan` / `dos` ở validation |
+|---|---|---|---|---|---|
+| 5 giây / 1 giây | 0,9019 | 0,6913 | 0,9530 | 0,8426 | 366 / 1 372 |
+| **10 giây / 2 giây** (hiện tại) | **0,9352** | 0,7744 | 0,9610 | 0,9136 | 164 / 648 |
+| 20 giây / 4 giây | 0,9595 | 0,8286 | 0,9921 | 0,9542 | 70 / 262 |
+
+Precision `port_scan` từ 0,988 tới 1,000 ở cả ba.
+
+Nhận xét:
+
+- **Cửa sổ càng dài, điểm càng cao.** Cửa sổ dài gom được nhiều kết nối hơn nên quét chậm và DoS HTTP chậm lộ rõ
+  hơn; cửa sổ 5 giây thường chỉ chứa vài kết nối của một lượt quét chậm.
+- **Ba hàng không chấm trên cùng một tập mẫu.** Số cửa sổ khác nhau, và ở 20 giây validation chỉ còn 70 cửa sổ
+  `port_scan`: một cửa sổ đổi nhãn làm recall đổi 0,014. Vì vậy chênh 0,024 giữa 10 và 20 giây là dấu hiệu, chưa
+  phải kết luận chắc.
+- **Cửa sổ dài thì cảnh báo chậm hơn.** Với bước 4 giây, cửa sổ đóng thưa gấp đôi so với bước 2 giây, và một tấn
+  công ngắn phải chiếm đủ phần của cửa sổ 20 giây mới được gán nhãn. Độ trễ của 20 giây chưa đo.
+- Tham số mô hình giữ nguyên bộ đã chọn cho cửa sổ 10 giây, chưa dò lại cho từng độ dài.
+
+Kết luận: **giữ 10 giây bước 2 giây**. Cửa sổ 5 giây kém rõ (thấp hơn 0,033) nên loại. Cửa sổ 20 giây là ứng
+viên đáng thử tiếp, nhưng đổi sang nó phải học lại cả ba module trên CIC lẫn lab và đo lại độ trễ realtime, là
+con số mà đề tài đang báo cáo (1,5–3,5 giây).
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.

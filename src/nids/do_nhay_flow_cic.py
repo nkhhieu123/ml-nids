@@ -54,6 +54,7 @@ def evaluate_dir(directory, cfg, rules, best) -> dict:
     m = clf.multiclass_metrics(data["validation"][clf.LABEL_COL], model.predict(data["validation"]))
     meta = json.loads(Path(directory, f"{SESSIONS[0]}.meta.json").read_text(encoding="utf-8"))["tham_so"]
     return {"tham_so_flow": {**meta["flow"], "handshake_observe_s": meta["cua_so"]["handshake_observe_s"]},
+            "cua_so": {k: v for k, v in meta["cua_so"].items() if k != "handshake_observe_s"},
             "lop_train": data["info"]["lop_train"], "lop_validation": data["info"]["lop_validation"],
             "macro_f1_validation": m["macro_f1"],
             **{f"{k}_{c}": m["theo_lop"][c][k] for c in ("port_scan", "dos") for k in ("precision", "recall")},
@@ -64,9 +65,11 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description="Độ nhạy tham số flow bằng trích xuất lại CIC và huấn luyện lại.")
     ap.add_argument("bang", nargs="+", help="tên=thư mục bảng đặc trưng, ví dụ h1=../output/features_h1")
     ap.add_argument("--chon", required=True)
-    ap.add_argument("--out", required=True, help="thư mục ghi flow_do_nhay_cic.json")
+    ap.add_argument("--out", required=True, help="thư mục ghi kết quả")
+    ap.add_argument("--config", help="cấu hình dùng khi gán nhãn, chia tập (ví dụ embargo bằng độ dài cửa sổ)")
+    ap.add_argument("--ten", default="flow_do_nhay_cic", help="tên file JSON kết quả, không có đuôi")
     a = ap.parse_args(argv)
-    cfg = load_config()
+    cfg = load_config(a.config)
     rules = load_schedule()
     best = json.loads(Path(a.chon).read_text(encoding="utf-8"))["mo_hinh"]["random_forest"]["tot_nhat"]
     out = {}
@@ -76,7 +79,7 @@ def main(argv=None):
         print(name, json.dumps(out[name], ensure_ascii=False), flush=True)
     od = Path(a.out)
     od.mkdir(parents=True, exist_ok=True)
-    (od / "flow_do_nhay_cic.json").write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding="utf-8")
+    (od / f"{a.ten}.json").write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding="utf-8")
     return 0
 
 

@@ -538,6 +538,13 @@ Mẫu:
 - Quyết định: Thêm `dos_cham.DosHolder` (giữ trạng thái theo host), gọi trong `pipeline.score_attack` cho cả offline lẫn realtime; bật bằng `pipeline.dos_hold: {lookback_s, min_count}`, không có khóa này thì tắt. Giữ 20/5: lưới rộng hơn cho 30/7 tốt nhất trên validation (0,9491 so với 0,9463) nhưng ngang nhau trên test (0,9237 so với 0,9241).
 - Hệ quả: Mặc định tắt nên mọi số liệu đã công bố không đổi. Khi bật, trên bốn đoạn PCAP của CIC chỉ số cảnh báo `dos` ở hai đoạn DoS tăng (312 lên 320, 162 lên 194), nhãn offline và realtime khớp ở mọi cửa sổ. `config/lab.yaml` không bật vì lab không có DoS chậm để kiểm tra. Chi tiết docs/75 mục 5, 6.
 
+## QĐ-075 — Giữ cửa sổ host 10 giây bước 2 giây sau khi thử 5 và 20 giây
+- Ngày: 14/11/2026
+- Trạng thái: Đã chốt
+- Bối cảnh: Độ dài cửa sổ host chưa từng thử độ nhạy; QĐ-073 mới thử timeout flow.
+- Quyết định: Giữ `windows.flow` là 10 giây bước 2 giây. Căn cứ: trích xuất lại CIC thứ Tư và thứ Sáu, huấn luyện lại Random Forest với tham số đã chọn; macro-F1 validation là 0,9019 (5 giây bước 1), 0,9352 (10 giây bước 2), 0,9595 (20 giây bước 4).
+- Hệ quả: Loại cửa sổ 5 giây. Cửa sổ 20 giây cao hơn 0,024 nhưng validation chỉ có 70 cửa sổ `port_scan`, cảnh báo thưa gấp đôi và độ trễ chưa đo; đổi sang 20 giây phải học lại ba module trên CIC và lab. Ghi là hướng thử tiếp ở docs/Viec_con_thieu.md. Chi tiết docs/72 mục 3.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.

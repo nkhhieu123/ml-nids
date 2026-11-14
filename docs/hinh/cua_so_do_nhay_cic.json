@@ -1,0 +1,104 @@
+{
+  "w5": {
+    "tham_so_flow": {
+      "idle_timeout_s": 60,
+      "active_timeout_s": 120,
+      "close_grace_s": 10,
+      "direction_memory_s": 3600,
+      "fragment_timeout_s": 30,
+      "handshake_observe_s": 3
+    },
+    "cua_so": {
+      "size_s": 5,
+      "step_s": 1,
+      "dai_mang": [
+        "192.168.10.0/24",
+        "172.16.0.0/24"
+      ]
+    },
+    "lop_train": {
+      "benign": 131086,
+      "dos": 3985,
+      "port_scan": 644
+    },
+    "lop_validation": {
+      "benign": 90085,
+      "dos": 1372,
+      "port_scan": 366
+    },
+    "macro_f1_validation": 0.9019,
+    "precision_port_scan": 0.9883,
+    "recall_port_scan": 0.6913,
+    "precision_dos": 0.953,
+    "recall_dos": 0.8426,
+    "giay": 32.3
+  },
+  "w10": {
+    "tham_so_flow": {
+      "idle_timeout_s": 60,
+      "active_timeout_s": 120,
+      "close_grace_s": 10,
+      "direction_memory_s": 3600,
+      "fragment_timeout_s": 30,
+      "handshake_observe_s": 3
+    },
+    "cua_so": {
+      "size_s": 10,
+      "step_s": 2,
+      "dai_mang": [
+        "192.168.10.0/24",
+        "172.16.0.0/24"
+      ]
+    },
+    "lop_train": {
+      "benign": 83346,
+      "dos": 2165,
+      "port_scan": 478
+    },
+    "lop_validation": {
+      "benign": 53949,
+      "dos": 648,
+      "port_scan": 164
+    },
+    "macro_f1_validation": 0.9352,
+    "precision_port_scan": 0.9922,
+    "recall_port_scan": 0.7744,
+    "precision_dos": 0.961,
+    "recall_dos": 0.9136,
+    "giay": 8.1
+  },
+  "w20": {
+    "tham_so_flow": {
+      "idle_timeout_s": 60,
+      "active_timeout_s": 120,
+      "close_grace_s": 10,
+      "direction_memory_s": 3600,
+      "fragment_timeout_s": 30,
+      "handshake_observe_s": 3
+    },
+    "cua_so": {
+      "size_s": 20,
+      "step_s": 4,
+      "dai_mang": [
+        "192.168.10.0/24",
+        "172.16.0.0/24"
+      ]
+    },
+    "lop_train": {
+      "benign": 56253,
+      "dos": 1060,
+      "port_scan": 315
+    },
+    "lop_validation": {
+      "benign": 28581,
+      "dos": 262,
+      "port_scan": 70
+    },
+    "macro_f1_validation": 0.9595,
+    "precision_port_scan": 1.0,
+    "recall_port_scan": 0.8286,
+    "precision_dos": 0.9921,
+    "recall_dos": 0.9542,
+    "giay": 18.5
+  }
+}
