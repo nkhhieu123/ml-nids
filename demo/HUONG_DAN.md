@@ -77,7 +77,7 @@ gói tin ─> flow ─> đặc trưng theo host ─> gán nhãn, chia tập ─>
 | 4. Flow và đặc trưng | Ghép gói thành flow hai chiều; tính đặc trưng theo host trong cửa sổ 10 giây trượt 2 giây (số cổng đích, tỷ lệ kết nối không hoàn tất, số kết nối mỗi giây...) | Bảng flow và bảng cửa sổ host kèm mô tả từng cột; đối chiếu độc lập với Wireshark |
 | 5. Nhãn và chia tập | Gán nhãn theo lịch tấn công; chia train/validation/test **theo thời gian** để không rò rỉ; phân tích dữ liệu | 1,44 triệu flow, 465 nghìn cửa sổ host của ba ngày CIC |
 | 6. Module bất thường | Gaussian đa biến trên 14 đặc trưng, học từ traffic bình thường | Test CIC: F1 0,730, báo động giả 1,42% cửa sổ |
-| 7. Module phân loại | Random Forest ba lớp `benign` / `port_scan` / `dos`; so với Logistic Regression và chọn Random Forest | Macro-F1: validation 0,935, test 0,908 |
+| 7. Module phân loại | Random Forest ba lớp `benign` / `port_scan` / `dos`; so với 8 mô hình baseline (docs/78) và chọn Random Forest | Macro-F1: validation 0,935, test 0,908 |
 | 8. Module botnet | Đồ thị liên lạc theo cửa sổ 120 giây, đặc trưng gọi định kỳ, Random Forest phát hiện host bot, quy tắc nhận dạng topology | Test CTU-13 (họ bot chưa thấy lúc học): precision 0,971, recall 0,678 |
 | 9. Pipeline offline | Một lệnh: đưa vào file PCAP, ra file cảnh báo của cả ba module theo một định dạng chung, gộp cảnh báo lặp thành sự kiện | Chạy trên 1,1 triệu gói CIC; không bỏ sót quét, Slowloris, Hulk ở chế độ độc lập |
 | 10. Realtime | Cảm biến bắt gói trực tiếp từ card mạng, chấm khi cửa sổ đóng, chạy nền bằng systemd, dừng êm | Cảnh báo realtime **giống hệt** offline khi phát lại 4 đoạn PCAP |
@@ -98,7 +98,7 @@ gói tin ─> flow ─> đặc trưng theo host ─> gán nhãn, chia tập ─>
    CTU-13 (recall 0, ghi nhận là hạn chế).
 7. **Cải tiến sau khi đo:** quy tắc topology theo nhóm (đúng 98,2%); giảm thời gian chờ bắt tay từ 3 xuống 1
    giây (cảnh báo sớm hơn khoảng 2 giây); lớp giữ nhãn `dos` cho DoS HTTP chậm (recall Slowhttptest 0,66 lên
-   0,82, chưa bật).
+   0,82; đã nối vào pipeline và realtime, bật bằng cấu hình, mặc định tắt).
 8. **Thí nghiệm bổ sung:** cảm biến bắt trực tiếp trong lab (không mất gói tới khoảng 2 900 gói mỗi giây); máy
    tấn công có cả traffic bình thường; đường truyền có trễ 200 ms; ghép access log Nginx với flow (33 003 dòng,
    lệch 0); so với Wireshark cho IPv6, gói phân mảnh, đường hầm.
@@ -183,8 +183,8 @@ giây trông như bình thường; validation `port_scan` chỉ có 164 cửa s�
 
 - Mới đo trên **lab ảo**; chưa có lab vật lý 7 máy và chưa cài trên Kali Linux.
 - Mô hình botnet của lab cho **recall 0 trên CTU-13**: kết quả 24/24 chỉ có nghĩa trong lab với bot mô phỏng.
-- DoS HTTP chậm còn sót (recall Slowhttptest 0,66 trên CIC). Lớp giữ nhãn `dos` theo host nâng lên 0,82 nhưng
-  chưa bật trong hệ thống.
+- DoS HTTP chậm còn sót (recall Slowhttptest 0,66 trên CIC). Lớp giữ nhãn `dos` theo host nâng lên 0,82; lớp này
+  đã nối vào hệ thống nhưng mặc định tắt, vì mới đo trên CIC.
 - Module Gaussian trên CIC báo động giả khoảng 17 đợt mỗi giờ, không dùng một mình được.
 - Chưa có dữ liệu brute-force và exploit.
 
@@ -366,6 +366,9 @@ dùng để đánh giá.
 | Vì sao mô hình cũ sót hết botnet? | Bot của CTU-13 là mã độc thật năm 2011; bot của lab là bot mô phỏng gọi định kỳ. Điểm cao nhất mô hình cũ cho bot lab là 0,084, dưới ngưỡng 0,1 |
 | Độ trễ 3 giây từ đâu ra? | Cửa sổ 10 giây trượt mỗi 2 giây, cộng 1 giây chờ bắt tay TCP, cộng thời gian chấm |
 | Tấn công trong demo có nguy hiểm không? | Không. Chỉ chạy giữa các network namespace trên máy này, không có đường ra ngoài; DoS tối đa 60 giây; không dùng mã độc hay exploit (yêu cầu B24) |
+| Đã so với những mô hình nào? | 8 baseline trên cùng dữ liệu CIC, cùng tiền xử lý: Naive Bayes, Logistic Regression, Linear SVM, KNN, Decision Tree, Extra Trees, Gradient Boosting, MLP. Random Forest đứng đầu: macro-F1 test 0,908, kế đó Extra Trees 0,896 và Gradient Boosting 0,893; thấp nhất là Naive Bayes 0,600 (docs/78) |
+| Chia dữ liệu thế nào? | 60% train, 20% validation, 20% test, chia theo thời gian trong từng đợt tấn công, bỏ 10 giây đệm ở ranh giới; CTU-13 chia theo kịch bản, lab chia theo lần chạy (docs/77) |
+| Tiền xử lý gồm những gì? | Bỏ mẫu train trùng, điền ô trống bằng trung vị, lấy logarit các cột đếm, chuẩn hóa; mọi tham số tính trên train (docs/77 mục 6.3) |
 | Vì sao chỉ ba lớp? | Phạm vi đề tài là quét cổng, DoS và botnet. Brute-force, exploit chưa có dữ liệu |
 
 ## 5. Xử lý sự cố khi demo
@@ -428,4 +431,6 @@ Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
 | Rò rỉ dữ liệu | Mô hình vô tình thấy dữ liệu đánh giá trong lúc học, làm điểm cao giả |
 | systemd | Trình quản lý dịch vụ của Linux; cho chương trình chạy nền và tự khởi động lại |
 | Đối chứng | Kịch bản không có tấn công, dùng để kiểm tra hệ thống có báo nhầm không |
+| Baseline | Mô hình mốc dùng để so sánh với mô hình chính |
+| Trung vị | Giá trị đứng giữa khi sắp các số theo thứ tự |
 | B24, QĐ-061 | Yêu cầu an toàn của dự án (traffic thử không ra ngoài lab); quyết định dùng lab ảo |
