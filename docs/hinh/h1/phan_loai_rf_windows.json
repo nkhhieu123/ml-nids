@@ -1,0 +1,193 @@
+{
+  "mo_hinh": "random_forest phân loại benign, dos, port_scan trên cửa sổ host (Chặng 7)",
+  "bang": "windows",
+  "loai": "random_forest",
+  "lop": [
+    "benign",
+    "dos",
+    "port_scan"
+  ],
+  "tham_so": {
+    "n_estimators": 300,
+    "max_depth": 20,
+    "min_samples_leaf": 1,
+    "max_features": "sqrt",
+    "class_weight": null
+  },
+  "seed": 42,
+  "dac_trung": [
+    "packets_out",
+    "packets_in",
+    "bytes_out",
+    "bytes_in",
+    "dst_hosts",
+    "dst_ports",
+    "dst_host_ports",
+    "new_conn_out",
+    "src_hosts",
+    "new_conn_in",
+    "dst_port_entropy",
+    "tcp_attempts_out",
+    "incomplete_out",
+    "no_reply_out",
+    "rejected_out",
+    "half_open_out",
+    "incomplete_ratio_out",
+    "tcp_attempts_in",
+    "incomplete_in",
+    "incomplete_ratio_in"
+  ],
+  "cot_sau_tien_xu_ly": [
+    "packets_out",
+    "packets_in",
+    "bytes_out",
+    "bytes_in",
+    "dst_hosts",
+    "dst_ports",
+    "dst_host_ports",
+    "new_conn_out",
+    "src_hosts",
+    "new_conn_in",
+    "dst_port_entropy",
+    "tcp_attempts_out",
+    "incomplete_out",
+    "no_reply_out",
+    "rejected_out",
+    "half_open_out",
+    "incomplete_ratio_out",
+    "tcp_attempts_in",
+    "incomplete_in",
+    "incomplete_ratio_in",
+    "dst_port_entropy__trong",
+    "incomplete_ratio_out__trong",
+    "incomplete_ratio_in__trong"
+  ],
+  "tien_xu_ly": {
+    "cot_log": [
+      "packets_out",
+      "packets_in",
+      "bytes_out",
+      "bytes_in",
+      "dst_hosts",
+      "dst_ports",
+      "dst_host_ports",
+      "new_conn_out",
+      "src_hosts",
+      "new_conn_in",
+      "tcp_attempts_out",
+      "incomplete_out",
+      "no_reply_out",
+      "rejected_out",
+      "half_open_out",
+      "tcp_attempts_in",
+      "incomplete_in"
+    ],
+    "so_mau_fit": 85991,
+    "cot_co_danh_dau_trong": [
+      "dst_port_entropy",
+      "incomplete_ratio_out",
+      "incomplete_ratio_in"
+    ]
+  },
+  "cau_hinh": {
+    "logistic_regression": {
+      "C": 1.0,
+      "class_weight": "balanced"
+    },
+    "random_forest": {
+      "class_weight": "balanced_subsample",
+      "max_depth": null,
+      "max_features": "sqrt",
+      "min_samples_leaf": 1,
+      "n_estimators": 300
+    },
+    "search": {
+      "balance_max_ratio": [
+        10,
+        100,
+        null
+      ],
+      "logistic_regression": {
+        "C": [
+          0.01,
+          0.1,
+          1.0,
+          10.0,
+          100.0
+        ],
+        "class_weight": [
+          "balanced",
+          null
+        ]
+      },
+      "random_forest": {
+        "class_weight": [
+          "balanced_subsample",
+          null
+        ],
+        "max_depth": [
+          null,
+          20,
+          10
+        ],
+        "max_features": [
+          "sqrt",
+          0.5
+        ],
+        "min_samples_leaf": [
+          1,
+          3,
+          10
+        ]
+      }
+    },
+    "sessions": [
+      "cic17_wednesday",
+      "cic17_friday"
+    ],
+    "drop_train_duplicates": true,
+    "balance_max_ratio": 10,
+    "random_seed": 42
+  },
+  "so_mau_train": 85991,
+  "lop_train": {
+    "benign": 83348,
+    "dos": 2165,
+    "port_scan": 478
+  },
+  "ty_le_can_bang": null,
+  "macro_f1_validation": 0.9352,
+  "du_lieu": {
+    "so_mau_train_truoc_bo_trung": 166269,
+    "so_mau_train_sau_bo_trung": 85991,
+    "ty_le_can_bang": null,
+    "seed": 42,
+    "lop_train": {
+      "benign": 83348,
+      "dos": 2165,
+      "port_scan": 478
+    },
+    "lop_validation": {
+      "benign": 53949,
+      "dos": 648,
+      "port_scan": 164
+    },
+    "lop_test": {
+      "benign": 67713,
+      "dos": 727,
+      "port_scan": 220
+    }
+  },
+  "chon_tren_validation": true,
+  "ma_nguon": {
+    "commit": "df11dadb976dacf60962dc3d7117ae90fd8d3c2b",
+    "co_sua_chua_commit": true
+  },
+  "phien_ban": {
+    "python": "3.13.3",
+    "numpy": "2.2.5",
+    "pandas": "2.2.3",
+    "scikit-learn": "1.8.0"
+  },
+  "thoi_diem_tao": "2026-11-16T23:58:49+07:00"
+}

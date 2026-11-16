@@ -1,0 +1,195 @@
+# Cấu hình CIC-IDS2017 với chờ bắt tay 1 giây (QĐ-080): như config/default.yaml, khác ở flow.handshake_observe_s
+# và hai mô hình học lại trên bảng trích xuất với 1 giây (models/h1/). Cảnh báo quét và DoS đến sớm hơn khoảng 2 giây.
+# Cấu hình chung của hệ thống. Huấn luyện và realtime đọc cùng file này.
+# Tên module và tập nhãn không nằm ở đây mà ở src/nids/scope.py.
+
+capture:
+  interface: eth0            # giao diện giám sát trên Kali, chỉnh theo lab
+  pcap_dir: data/pcap
+  khu_goi_trung_ms: 0        # >0: bỏ bản sao của cùng gói IP đến trong chừng này mili giây (mirror hai chiều, QĐ-079); 0: tắt
+
+# Cửa sổ ban đầu; chỉnh trên tập validation rồi giữ cố định khi kiểm thử.
+windows:
+  flow:                      # đặc trưng flow/host
+    size_s: 10
+    step_s: 2
+  graph:                     # đặc trưng beaconing/đồ thị
+    size_s: 120
+    step_s: 10
+
+flow:
+  idle_timeout_s: 60         # tạm thời, xem QĐ-006
+  active_timeout_s: 120      # flow dài hơn thì cắt, phần sau là flow tiếp nối; QĐ-017
+  close_grace_s: 10          # sau FIN hai chiều/RST còn nhận gói cuối trong khoảng này; QĐ-017
+  direction_memory_s: 3600   # nhớ chiều của flow đã kết thúc để flow sau giữ chiều; QĐ-017
+  fragment_timeout_s: 30     # nhớ mảnh IP đầu để gắn các mảnh sau vào flow, xem QĐ-016
+  handshake_observe_s: 1     # chờ trả lời bắt tay TCP trước khi coi là không hoàn tất; QĐ-023, tạm thời
+
+labeling:
+  schedule: config/label_schedule.csv   # lịch tấn công: nguồn nhãn (QĐ-025)
+  tolerance_s: 60            # nới khung giờ tấn công mỗi đầu; lịch CIC khớp dữ liệu tới phút
+  window_min_attack_share: 0.2  # cửa sổ có phần flow tấn công thấp hơn mức này là mơ hồ (QĐ-026)
+
+split:                       # chia theo thời gian trong từng khối tấn công và khoảng bình thường (QĐ-027)
+  train: 0.6
+  validation: 0.2
+  test: 0.2
+  embargo_s: 10              # bỏ mẫu cách ranh giới giữa hai tập dưới khoảng này (bằng độ dài cửa sổ)
+  stratify_scan_proto: true  # chia cửa sổ port_scan theo giao thức quét (lượt Nmap) để mỗi kiểu quét có ở cả ba tập (QĐ-060, docs/44)
+
+preprocess:                  # chỉ fit và cân bằng trên train (QĐ-028)
+  drop_train_duplicates: true  # module phân loại: bỏ mẫu train trùng hệt đặc trưng và nhãn (docs/30 mục 5)
+  balance_max_ratio: 10      # giảm mẫu mỗi lớp xuống tối đa 10 lần lớp ít nhất
+  sessions:                  # phiên dùng cho từng module (QĐ-009, docs/08)
+    attack_classification: [cic17_wednesday, cic17_friday]
+    anomaly: [cic17_monday, cic17_wednesday, cic17_friday]
+  anomaly_fit_sessions: [cic17_monday]   # bộ tiền xử lý chung `anomaly` fit trên normal phiên này; Gaussian dùng biến đổi riêng và chọn phiên fit ở mục gaussian (QĐ-032)
+
+gaussian:                    # Gaussian phát hiện bất thường trên cửa sổ host (Chặng 6)
+  covariance: ledoit_wolf    # co hiệp phương sai về đường chéo; luôn nghịch đảo được (QĐ-031)
+  fit_session_candidates:    # các cách lấy normal của train để fit; chọn theo F1 trên validation (QĐ-032)
+    - [cic17_monday]         # chỉ phiên không có tấn công
+    - null                   # normal của train mọi phiên
+  threshold: f1_on_dinh      # F1 tốt nhất khi ngưỡng lệch ±20% (QĐ-032); f1: F1 lớn nhất; fpr: báo động giả <= target_fpr
+  threshold_band: 1.2
+  target_fpr: 0.01
+
+classifier:                  # phân loại tấn công đa lớp trên cửa sổ host (Chặng 7, QĐ-033)
+  logistic_regression:       # mô hình đối chiếu (C07-T02); tham số chốt trên validation ở C07-T04
+    C: 1.0
+    class_weight: balanced
+  random_forest:             # C07-T03; tham số chốt trên validation ở C07-T04
+    n_estimators: 300
+    max_depth: null          # null: cây mọc tới khi lá thuần hoặc chạm min_samples_leaf
+    min_samples_leaf: 1
+    max_features: sqrt
+    class_weight: balanced_subsample
+  search:                    # C07-T04, theo macro-F1 validation (QĐ-035)
+    balance_max_ratio: [10, 100, null]   # bước 1: tỷ lệ giảm mẫu train × class_weight; null: không giảm
+    logistic_regression:
+      class_weight: [balanced, null]
+      C: [0.01, 0.1, 1.0, 10.0, 100.0]   # bước 2
+    random_forest:
+      class_weight: [balanced_subsample, null]
+      max_depth: [null, 20, 10]          # bước 2
+      min_samples_leaf: [1, 3, 10]
+      max_features: [sqrt, 0.5]
+
+botnet:                      # module botnet/topology (Chặng 8); cửa sổ đồ thị ở windows.graph
+  ctu13_dir: data/ctu13      # file .binetflow gốc
+  flows_dir: output/ctu13    # flow đã lọc theo host cần xét (python -m nids.ctu13 chuan-bi)
+  background_sample: 20      # số host Background lấy mẫu mỗi scenario, chỉ để ước lượng báo động (QĐ-036)
+  local_nets: [147.32.0.0/16, 192.168.50.0/24]   # mạng nội bộ của CTU-13 và lab; dùng cho ty_le_peer_noi_bo (QĐ-037)
+  beaconing:                 # C08-T03 (QĐ-038)
+    lookback_s: 600          # nhìn ngược từ cuối cửa sổ; 120 giây với 5 quan sát chỉ thấy chu kỳ <= 30 giây
+    min_observations: 5      # ít hơn số lần bắt đầu flow này thì cặp không đủ quan sát, không tính
+    max_cv: 0.3              # CV khoảng cách <= mức này là đều (cho phép jitter khoảng ±30%)
+    min_period_s: 1.0        # khoảng cách trung bình nhỏ hơn là dồn dập (tấn công), không phải beacon
+  splits:                    # chia theo scenario CTU-13 (B11, QĐ-039); validation tạm chọn, đổi được
+    train: [3, 5, 7, 10, 11, 12]
+    validation: [4, 13]
+    test: [1, 2, 6, 8, 9]
+  topology:                  # nhãn topology của bot theo scenario; còn lại là centralized (docs/07 mục 5)
+    p2p: [12]
+  max_background_alarm: 0.05 # chọn ngưỡng và tham số: tỷ lệ cửa sổ Background validation bị báo không quá mức này (QĐ-040)
+  host_aggregation:          # C09: gộp theo host qua nhiều cửa sổ để vớt bot chậm (Murlo s8); chọn trên validation (docs/69, QĐ-058)
+    min_strong: 500          # host có >= bấy nhiêu cửa sổ điểm >= ngưỡng trong một run thì coi là bot, nâng mọi cửa sổ của host lên suspect
+    min_frac: 0.13           # và số cửa sổ mạnh chiếm >= mức này tổng cửa sổ của host (chặn host ít cửa sổ bị nghi tình cờ)
+  topology_rule:             # nhận diện topology bằng quy tắc, chạy sau bộ phát hiện (C08-T07, QĐ-042)
+    min_peer_vao: 5          # p2p khi đồng thời: >= 5 peer gọi vào host,
+    min_udp: 0.5             # >= 50% flow là UDP,
+    min_entropy_vao: 0.8     # và flow vào chia đều giữa các peer; còn lại là centralized
+
+pipeline:                    # pipeline offline (Chặng 9); đường dẫn tương đối tính từ thư mục dự án
+  models:                    # mô hình của từng module (mặc định trong paths.model_dir)
+    anomaly: models/h1/gaussian_windows.joblib
+    attack_classification: models/h1/phan_loai_rf_windows.joblib
+    botnet_topology: models/botnet_rf.joblib
+  mode: ket_hop              # ket_hop: phân loại mọi cửa sổ, botnet chỉ kiểm tra bất thường chưa giải thích (QĐ-047); doc_lap; tuan_tu (QĐ-046)
+  merge_gap_s: 30            # gộp cảnh báo cùng module, nhãn, host cách nhau không quá mức này thành một sự kiện (QĐ-048)
+  # Giữ nhãn dos theo host để vớt DoS HTTP chậm (docs/75, QĐ-074). Mặc định tắt; bỏ dấu # để bật cho cả
+  # pipeline offline lẫn cảm biến realtime:
+  # dos_hold: {lookback_s: 20, min_count: 5}
+
+realtime:                    # cảm biến realtime (Chặng 10, QĐ-052)
+  queue_size: 100000         # gói chờ giữa luồng đọc và luồng xử lý; đầy thì bỏ gói mới và đếm
+  tick_s: 1.0                # không có gói trong khoảng này thì đẩy thời gian (flow hết hạn, cửa sổ đóng)
+  max_active_flows: 200000   # trần flow đang mở; vượt thì kết thúc flow lâu nhất chưa có gói (gioi_han_bo_nho)
+  max_flow_rows: 500000      # trần flow đã kết thúc giữ cho cửa sổ 120 giây và beaconing
+  metrics_interval_s: 10     # ghi số liệu vận hành (gói, bỏ, CPU, RAM, độ trễ) mỗi khoảng này (QĐ-053)
+  stop_timeout_s: 30         # khi nhận SIGINT/SIGTERM: tối đa bấy nhiêu giây xử lý nốt hàng đợi (QĐ-054)
+  graph_delay_s: 10          # chấm cửa sổ 120 giây muộn thêm một cửa sổ 10 giây để biết đủ bất thường như offline (QĐ-056)
+  log_dir: output/realtime/log   # log xoay vòng nids_realtime.log
+  log_max_mb: 10
+  log_backups: 5
+
+lab:
+  subnet: 192.168.50.0/24
+  hosts:
+    192.168.50.10: Máy giám sát Kali Linux
+    192.168.50.20: Máy thử nghiệm
+    192.168.50.30: Máy chủ dịch vụ
+    192.168.50.41: Client/Bot mô phỏng 1
+    192.168.50.42: Client/Bot mô phỏng 2
+    192.168.50.43: Client/Bot mô phỏng 3
+    192.168.50.44: Client/Bot mô phỏng 4 (chỉ kịch bản 6)
+    192.168.50.45: Client/Bot mô phỏng 5 (chỉ kịch bản 6)
+    192.168.50.50: Server điều phối mô phỏng
+  may_chu_dich: 192.168.50.30   # đích của kịch bản 1–3 (máy chủ dịch vụ)
+  # Tham số kịch bản lab đã chốt trước lần chạy đầu tiên (QĐ-062). scripts/lab_ao.py dùng đúng các giá trị này;
+  # tests/test_lab_ao.py kiểm tra hai nơi khớp nhau. Danh sách ba phần tử là giá trị của lần chạy 1, 2, 3 (B19).
+  quet:                          # kịch bản 2: Nmap connect scan từ máy thử nghiệm tới máy chủ dịch vụ (B15)
+    cong_dau: 1
+    cong_cuoi: 1024
+    toc_do_cham_s: 0.5           # giãn cách giữa hai lần thử cổng
+    toc_do_nhanh_s: 0.0
+    nmap_chung: [-sT, -Pn, -n, --max-retries, "0"]
+    nmap_cham: [--scan-delay, 500ms]
+    nmap_nhanh: [-T4]
+  tai_ket_noi:                   # kịch bản 3: số kết nối TCP mỗi giây theo mức tải (B16); mỗi lần tối đa 60 giây
+    muc1_moi_giay: 50
+    muc2_moi_giay: 200
+    muc3_moi_giay: 600
+    thoi_gian_toi_da_s: 60
+  tap_trung:                     # kịch bản 4: ba bot .41–.43 gọi máy điều khiển .50 (B17)
+    cong: 8080
+    thoi_gian_s: 600
+    chu_ky_s: [30, 60, 45]
+    jitter_co_dinh: [0, 0, 0]            # k4-co-dinh
+    jitter_bien_thien: [0.2, 0.4, 0.3]   # k4-bien-thien
+    jitter_doi_chung: [0, 0.1, 0.3]      # k4-doi-chung: gọi máy chủ dịch vụ .30:80
+  ngang_hang:                    # kịch bản 5: ba bot .41–.43 gửi UDP cho nhau (B18)
+    so_bot: 3
+    cong: 40000
+    thoi_gian_s: 600
+    chu_ky_s: [8, 20, 30]
+    jitter: [0.3, 0.5, 0.4]
+    peer: [luoi, vong, luoi]             # luoi: mỗi bot gọi hai bot kia; vong: 41→42→43→41
+    cong_doi_chung: 6881                 # k5-doi-chung: chia sẻ khối dữ liệu TCP
+  nam_bot:                       # kịch bản 6: năm bot .41–.45 (QĐ-076); .44, .45 im lặng ở các kịch bản 1–5
+    so_bot: 5
+    tap_trung_cong: 8080         # k6-tap-trung: năm bot gọi máy điều khiển .50
+    tap_trung_chu_ky_s: [30, 60, 45]
+    tap_trung_jitter: [0.2, 0.4, 0.3]
+    p2p_cong: 40000              # k6-p2p: năm bot gửi UDP cho nhau
+    p2p_chu_ky_s: [8, 20, 30]
+    p2p_jitter: [0.3, 0.5, 0.4]
+    peer: [luoi, vong, hai_ke]   # luoi: gọi cả bốn bot kia; vong: 41→42→…→45→41; hai_ke: gọi hai bot kế tiếp
+    doi_chung_chu_ky_s: [30, 60, 45]     # k6-doi-chung: năm máy kiểm tra trạng thái .30:80 định kỳ (lành tính)
+    thoi_gian_s: 600
+
+paths:
+  data_dir: data
+  model_dir: models
+  output_dir: output
+  run_log_dir: data/run_logs  # nhật ký lần chạy, cơ sở gán nhãn
+
+service_log:                 # access log Nginx của máy chủ dịch vụ (docs/05): chỉ để đối chiếu, không gán nhãn
+  match_tolerance_s: 1.0     # dung sai thời gian khi ghép dòng log với flow (QĐ-067)
+
+alerts:
+  channels: [terminal, csv]  # bản đầu tiên chưa có dashboard
+  csv_path: output/alerts.csv
+  log_all: false             # true: lưu cả dự đoán bình thường vào CSV
+
+random_seed: 42

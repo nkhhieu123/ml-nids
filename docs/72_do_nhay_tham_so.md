@@ -165,6 +165,31 @@ Chưa thử: độ dài và bước cửa sổ (10 giây bước 2 giây, 120 gi
 module Gaussian). Đổi độ dài cửa sổ làm đổi cả số mẫu và cách gán nhãn cửa sổ nên phải chọn lại tham số mô hình,
 không so trực tiếp được như bảng trên.
 
+### 2.5. Học lại mô hình CIC với chờ bắt tay 1 giây (16/11/2026, QĐ-080)
+
+Mục 2.4 chỉ đo trên validation. Ở đây trích xuất thêm thứ Hai với 1 giây, gán nhãn, chia tập, rồi học lại
+Gaussian và Random Forest bằng đúng lệnh của Chặng 6 và 7 (tham số mô hình giữ nguyên bộ đã chọn), lưu ở
+`models/h1/`, và chấm trên **test** CIC. Kết quả: `docs/hinh/h1/`.
+
+| | Chờ 3 giây (mô hình mặc định) | **Chờ 1 giây** |
+|---|---|---|
+| Random Forest: macro-F1 test (khoảng 95%) | 0,908 (0,892–0,923) | **0,910** (0,894–0,924) |
+| Random Forest: recall `port_scan` / `dos` | 0,736 / 0,838 | 0,727 / 0,840 |
+| Random Forest: cửa sổ `benign` bị báo | 0,041% | 0,030% |
+| Gaussian: ngưỡng d² (chọn trên validation) | 64,65 | 122,14 |
+| Gaussian: F1 test | 0,730 | **0,742** |
+| Gaussian: precision / recall test | 0,733 / 0,727 | 0,852 / 0,656 |
+| Gaussian: cửa sổ bình thường bị báo | 1,42% | **0,59%** |
+| Gaussian: đợt báo động giả mỗi giờ (thứ Sáu / thứ Tư / thứ Hai) | 16,6 / 12,4 / 42,1 | **8,5 / 6,3 / 15,9** |
+
+- **Bộ phân loại không kém đi**: hai khoảng tin cậy chồng nhau gần hết.
+- **Gaussian báo nhầm ít hơn một nửa** nhưng bắt được ít hơn: recall giảm từ 0,727 xuống 0,656, chủ yếu ở Bot
+  (0,86 → 0,75) và Slowhttptest (0,28 → 0,16). Đây là đổi chác do ngưỡng mới cao hơn, không hẳn tốt hơn.
+- Module botnet học trên flow của CTU-13, không phụ thuộc thời gian chờ bắt tay, nên giữ nguyên.
+
+Bộ mô hình này dùng qua `config/cic_h1.yaml` (giống `default.yaml`, khác thời gian chờ và hai đường dẫn mô
+hình). `config/default.yaml` **vẫn giữ 3 giây**, để mọi số liệu đã công bố của Chặng 6–9 chạy lại ra đúng như cũ.
+
 ## 3. Độ dài cửa sổ host (14/11/2026, QĐ-075)
 
 Cùng cách làm như mục 2.4: trích xuất lại PCAP thứ Tư và thứ Sáu của CIC-IDS2017 với độ dài cửa sổ khác, gán

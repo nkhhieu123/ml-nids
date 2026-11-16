@@ -1,0 +1,120 @@
+{
+  "nguong": 122.1350273211809,
+  "so_mau": 105119,
+  "so_anomaly": 5131,
+  "tong": {
+    "precision": 0.852,
+    "recall": 0.6564,
+    "f1": 0.7415,
+    "fpr": 0.00585,
+    "tp": 3368,
+    "fp": 585,
+    "fn": 1763,
+    "tn": 99403
+  },
+  "auc": 0.9778,
+  "ap": 0.7484,
+  "theo_phien": {
+    "cic17_friday": {
+      "so_mau": 41404,
+      "so_anomaly": 3984,
+      "precision": 0.9359,
+      "recall": 0.7294,
+      "f1": 0.8199,
+      "fpr": 0.00532,
+      "tp": 2906,
+      "fp": 199,
+      "fn": 1078,
+      "tn": 37221,
+      "gio": 4.81,
+      "dot_bao_dong_gia": 41,
+      "dot_bao_dong_gia_moi_gio": 8.5
+    },
+    "cic17_monday": {
+      "so_mau": 32275,
+      "so_anomaly": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "fpr": 0.00471,
+      "tp": 0,
+      "fp": 152,
+      "fn": 0,
+      "tn": 32123,
+      "gio": 1.76,
+      "dot_bao_dong_gia": 28,
+      "dot_bao_dong_gia_moi_gio": 15.9
+    },
+    "cic17_wednesday": {
+      "so_mau": 31440,
+      "so_anomaly": 1147,
+      "precision": 0.6638,
+      "recall": 0.4028,
+      "f1": 0.5014,
+      "fpr": 0.00772,
+      "tp": 462,
+      "fp": 234,
+      "fn": 685,
+      "tn": 30059,
+      "gio": 7.6,
+      "dot_bao_dong_gia": 48,
+      "dot_bao_dong_gia_moi_gio": 6.3
+    }
+  },
+  "recall_theo_dot": {
+    "Bot": {
+      "so_mau": 3554,
+      "recall": 0.7487
+    },
+    "DDoS": {
+      "so_mau": 206,
+      "recall": 0.4951
+    },
+    "DoS GoldenEye": {
+      "so_mau": 24,
+      "recall": 0.0833
+    },
+    "DoS Hulk": {
+      "so_mau": 190,
+      "recall": 0.7158
+    },
+    "DoS Slowhttptest": {
+      "so_mau": 213,
+      "recall": 0.1596
+    },
+    "DoS slowloris": {
+      "so_mau": 318,
+      "recall": 0.9119
+    },
+    "Heartbleed": {
+      "so_mau": 402,
+      "recall": 0.0
+    },
+    "PortScan": {
+      "so_mau": 224,
+      "recall": 0.6384
+    }
+  },
+  "neu_dung_nguong_chi2_0.99": {
+    "nguong": 29.14,
+    "precision": 0.4881,
+    "recall": 0.8505,
+    "f1": 0.6203,
+    "fpr": 0.04577,
+    "tp": 4364,
+    "fp": 4576,
+    "fn": 767,
+    "tn": 95412
+  },
+  "neu_dung_nguong_chi2_0.999": {
+    "nguong": 36.12,
+    "precision": 0.5795,
+    "recall": 0.8168,
+    "f1": 0.678,
+    "fpr": 0.03041,
+    "tp": 4191,
+    "fp": 3041,
+    "fn": 940,
+    "tn": 96947
+  }
+}

@@ -559,6 +559,13 @@ Mẫu:
 - Quyết định: Thêm `capture.khu_goi_trung_ms`; lớn hơn 0 thì bỏ bản sao (cùng nội dung IP, bỏ qua TTL và checksum) trước khi ghép flow, ở cả `feature_export` và cảm biến realtime. Mặc định 0.
 - Hệ quả: Với 1 ms, ba đoạn PCAP CIC bỏ 11,8% / 6,5% / 0,7% gói, số flow và số cửa sổ giữ nguyên. Mô hình hiện có học trên dữ liệu chưa khử trùng nên giữ tắt; bật trên mạng thật thì phải trích xuất và học lại. Chi tiết docs/60 mục 3.1.
 
+## QĐ-080 — Bộ mô hình CIC với chờ bắt tay 1 giây, dùng qua config/cic_h1.yaml
+- Ngày: 16/11/2026
+- Trạng thái: Đã chốt (tiếp QĐ-072, QĐ-073)
+- Bối cảnh: Lab dùng chờ bắt tay 1 giây (QĐ-072); `config/default.yaml` vẫn 3 giây vì mô hình CIC chưa học lại, nên cảnh báo ngoài lab chậm hơn khoảng 2 giây.
+- Quyết định: Trích xuất thứ Hai, thứ Tư, thứ Sáu với 1 giây; học lại Gaussian và Random Forest với tham số đã chọn, lưu `models/h1/`; thêm `config/cic_h1.yaml`. Giữ `config/default.yaml` ở 3 giây để số liệu đã công bố chạy lại được.
+- Hệ quả: Test CIC: Random Forest macro-F1 0,910 (3 giây: 0,908); Gaussian F1 0,742 (0,730), cửa sổ bình thường bị báo 0,59% (1,42%), nhưng recall 0,656 (0,727). Chi tiết docs/72 mục 2.5.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
