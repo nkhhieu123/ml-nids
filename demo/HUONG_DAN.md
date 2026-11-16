@@ -81,7 +81,7 @@ gói tin ─> flow ─> đặc trưng theo host ─> gán nhãn, chia tập ─>
 | 8. Module botnet | Đồ thị liên lạc theo cửa sổ 120 giây, đặc trưng gọi định kỳ, Random Forest phát hiện host bot, quy tắc nhận dạng topology | Test CTU-13 (họ bot chưa thấy lúc học): precision 0,971, recall 0,678 |
 | 9. Pipeline offline | Một lệnh: đưa vào file PCAP, ra file cảnh báo của cả ba module theo một định dạng chung, gộp cảnh báo lặp thành sự kiện | Chạy trên 1,1 triệu gói CIC; không bỏ sót quét, Slowloris, Hulk ở chế độ độc lập |
 | 10. Realtime | Cảm biến bắt gói trực tiếp từ card mạng, chấm khi cửa sổ đóng, chạy nền bằng systemd, dừng êm | Cảnh báo realtime **giống hệt** offline khi phát lại 4 đoạn PCAP |
-| 11. Kiểm thử lab | Dựng lab ảo 7 máy; 5 nhóm kịch bản; nhật ký làm nhãn chuẩn; đo phát hiện, độ trễ, báo động giả, hiệu năng; học lại mô hình cho lab | 177 lần chạy; 24/24 đợt, 0 báo động giả (mục 2.4) |
+| 11. Kiểm thử lab | Dựng lab ảo 7 máy (nay 9 máy, thêm hai bot cho kịch bản năm bot); 5 nhóm kịch bản; nhật ký làm nhãn chuẩn; đo phát hiện, độ trễ, báo động giả, hiệu năng; học lại mô hình cho lab | 177 lần chạy; 24/24 đợt, 0 báo động giả (mục 2.4) |
 
 **Riêng Chặng 11 và phần bổ sung (09–13/11/2026), kể chi tiết vì là phần mới nhất:**
 
@@ -366,6 +366,7 @@ dùng để đánh giá.
 | Vì sao mô hình cũ sót hết botnet? | Bot của CTU-13 là mã độc thật năm 2011; bot của lab là bot mô phỏng gọi định kỳ. Điểm cao nhất mô hình cũ cho bot lab là 0,084, dưới ngưỡng 0,1 |
 | Độ trễ 3 giây từ đâu ra? | Cửa sổ 10 giây trượt mỗi 2 giây, cộng 1 giây chờ bắt tay TCP, cộng thời gian chấm |
 | Tấn công trong demo có nguy hiểm không? | Không. Chỉ chạy giữa các network namespace trên máy này, không có đường ra ngoài; DoS tối đa 60 giây; không dùng mã độc hay exploit (yêu cầu B24) |
+| Botnet có bao nhiêu bot? | Kịch bản 4, 5 có ba bot; kịch bản 6 có **năm bot** (`.41`–`.45`), cả kiểu tập trung lẫn ngang hàng. Trên lần test mới: 15/15 bot mỗi kiểu bị phát hiện, topology đúng 99–100%, đối chứng năm máy không bị báo (docs/80) |
 | Đã so với những mô hình nào? | 8 baseline trên cùng dữ liệu CIC, cùng tiền xử lý: Naive Bayes, Logistic Regression, Linear SVM, KNN, Decision Tree, Extra Trees, Gradient Boosting, MLP. Random Forest đứng đầu: macro-F1 test 0,908, kế đó Extra Trees 0,896 và Gradient Boosting 0,893; thấp nhất là Naive Bayes 0,600 (docs/78) |
 | Chia dữ liệu thế nào? | 60% train, 20% validation, 20% test, chia theo thời gian trong từng đợt tấn công, bỏ 10 giây đệm ở ranh giới; CTU-13 chia theo kịch bản, lab chia theo lần chạy (docs/77) |
 | Tiền xử lý gồm những gì? | Bỏ mẫu train trùng, điền ô trống bằng trung vị, lấy logarit các cột đếm, chuẩn hóa; mọi tham số tính trên train (docs/77 mục 6.3) |
