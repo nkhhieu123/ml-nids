@@ -545,6 +545,13 @@ Mẫu:
 - Quyết định: Giữ `windows.flow` là 10 giây bước 2 giây. Căn cứ: trích xuất lại CIC thứ Tư và thứ Sáu, huấn luyện lại Random Forest với tham số đã chọn; macro-F1 validation là 0,9019 (5 giây bước 1), 0,9352 (10 giây bước 2), 0,9595 (20 giây bước 4).
 - Hệ quả: Loại cửa sổ 5 giây. Cửa sổ 20 giây cao hơn 0,024 nhưng validation chỉ có 70 cửa sổ `port_scan`, cảnh báo thưa gấp đôi và độ trễ chưa đo; đổi sang 20 giây phải học lại ba module trên CIC và lab. Ghi là hướng thử tiếp ở docs/Viec_con_thieu.md. Chi tiết docs/72 mục 3.
 
+## QĐ-078 — Phát hiện giả mạo ARP bằng quy tắc, ngoài ba module học máy
+- Ngày: 16/11/2026
+- Trạng thái: Đã chốt
+- Bối cảnh: Bộ trích xuất bỏ qua gói ARP, nên hệ thống không thấy giả mạo ARP. Lab không được sinh gói giả mạo nguồn (B24) nên không có dữ liệu để học.
+- Quyết định: Thêm `nids.arp_gia_mao`: bảng IP → MAC học từ gói ARP, báo khi một IP đổi MAC, một MAC nhận từ 3 IP trở lên, hoặc MAC của khung khác MAC trong gói ARP. Không thêm module vào `scope.MODULES`; kết quả ghi JSON riêng.
+- Hệ quả: 0 cảnh báo trên 174 bản thu lab (8 373 gói ARP). Phần phát hiện mới kiểm bằng gói dựng tay trong kiểm thử. Chưa nối vào realtime. Chi tiết docs/79.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.

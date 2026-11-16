@@ -1,0 +1,879 @@
+{
+  "tong": {
+    "so_ban_thu": 174,
+    "so_goi_arp": 8373,
+    "so_canh_bao": 0
+  },
+  "ban_thu": {
+    "giao_thuc_may_gui.pcap": {
+      "so_goi_arp": 9,
+      "so_ip": 3,
+      "canh_bao": []
+    },
+    "giao_thuc_mirror.pcap": {
+      "so_goi_arp": 10,
+      "so_ip": 4,
+      "canh_bao": []
+    },
+    "k1-binh-thuong-test-01.pcap": {
+      "so_goi_arp": 6,
+      "so_ip": 4,
+      "canh_bao": []
+    },
+    "k1-binh-thuong-test-02.pcap": {
+      "so_goi_arp": 0,
+      "so_ip": 0,
+      "canh_bao": []
+    },
+    "k1-binh-thuong-test-03.pcap": {
+      "so_goi_arp": 0,
+      "so_ip": 0,
+      "canh_bao": []
+    },
+    "k1-binh-thuong-test-04.pcap": {
+      "so_goi_arp": 6,
+      "so_ip": 4,
+      "canh_bao": []
+    },
+    "k1-binh-thuong-test-05.pcap": {
+      "so_goi_arp": 0,
+      "so_ip": 0,
+      "canh_bao": []
+    },
+    "k1-binh-thuong-test-06.pcap": {
+      "so_goi_arp": 0,
+      "so_ip": 0,
+      "canh_bao": []
+    },
+    "k1-binh-thuong-test-07.pcap": {
+      "so_goi_arp": 6,
+      "so_ip": 4,
+      "canh_bao": []
+    },
+    "k1-binh-thuong-test-09.pcap": {
+      "so_goi_arp": 10,
+      "so_ip": 4,
+      "canh_bao": []
+    },
+    "k1-binh-thuong-test-10.pcap": {
+      "so_goi_arp": 0,
+      "so_ip": 0,
+      "canh_bao": []
+    },
+    "k1-binh-thuong-test-11.pcap": {
+      "so_goi_arp": 0,
+      "so_ip": 0,
+      "canh_bao": []
+    },
+    "k1-binh-thuong-train-01.pcap": {
+      "so_goi_arp": 6,
+      "so_ip": 4,
+      "canh_bao": []
+    },
+    "k1-binh-thuong-train-02.pcap": {
+      "so_goi_arp": 6,
+      "so_ip": 4,
+      "canh_bao": []
+    },
+    "k1-binh-thuong-train-03.pcap": {
+      "so_goi_arp": 0,
+      "so_ip": 0,
+      "canh_bao": []
+    },
+    "k1-binh-thuong-val-01.pcap": {
+      "so_goi_arp": 6,
+      "so_ip": 4,
+      "canh_bao": []
+    },
+    "k2-quet-cham-test-01.pcap": {
+      "so_goi_arp": 58,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "k2-quet-cham-test-02.pcap": {
+      "so_goi_arp": 60,
+      "so_ip": 2,
+      "canh_bao": []
+    },
+    "k2-quet-cham-test-03.pcap": {
+      "so_goi_arp": 72,
+      "so_ip": 2,
+      "canh_bao": []
+    },
+    "k2-quet-cham-test-04.pcap": {
+      "so_goi_arp": 62,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "k2-quet-cham-test-05.pcap": {
+      "so_goi_arp": 62,
+      "so_ip": 2,
+      "canh_bao": []
+    },
+    "k2-quet-cham-test-06.pcap": {
+      "so_goi_arp": 64,
+      "so_ip": 2,
+      "canh_bao": []
+    },
+    "k2-quet-cham-test-08.pcap": {
+      "so_goi_arp": 8,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "k2-quet-cham-test-09.pcap": {
+      "so_goi_arp": 62,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "k2-quet-cham-test-10.pcap": {
+      "so_goi_arp": 68,
+      "so_ip": 2,
+      "canh_bao": []
+    },
+    "k2-quet-cham-test-11.pcap": {
+      "so_goi_arp": 54,
+      "so_ip": 2,
+      "canh_bao": []
+    },
+    "k2-quet-cham-train-01.pcap": {
+      "so_goi_arp": 92,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "k2-quet-cham-train-02.pcap": {
+      "so_goi_arp": 64,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "k2-quet-cham-train-03.pcap": {
+      "so_goi_arp": 82,
+      "so_ip": 2,
+      "canh_bao": []
+    },
+    "k2-quet-cham-val-01.pcap": {
+      "so_goi_arp": 68,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "k2-quet-nhanh-test-01.pcap": {
+      "so_goi_arp": 12,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "k2-quet-nhanh-test-02.pcap": {
+      "so_goi_arp": 4,
+      "so_ip": 2,
+      "canh_bao": []
+    },
+    "k2-quet-nhanh-test-03.pcap": {
+      "so_goi_arp": 4,
+      "so_ip": 2,
+      "canh_bao": []
+    },
+    "k2-quet-nhanh-test-04.pcap": {
+      "so_goi_arp": 12,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "k2-quet-nhanh-test-05.pcap": {
+      "so_goi_arp": 4,
+      "so_ip": 2,
+      "canh_bao": []
+    },
+    "k2-quet-nhanh-test-06.pcap": {
+      "so_goi_arp": 4,
+      "so_ip": 2,
+      "canh_bao": []
+    },
+    "k2-quet-nhanh-test-07.pcap": {
+      "so_goi_arp": 14,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "k2-quet-nhanh-test-08.pcap": {
+      "so_goi_arp": 10,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "k2-quet-nhanh-test-09.pcap": {
+      "so_goi_arp": 14,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "k2-quet-nhanh-test-10.pcap": {
+      "so_goi_arp": 4,
+      "so_ip": 2,
+      "canh_bao": []
+    },
+    "k2-quet-nhanh-test-11.pcap": {
+      "so_goi_arp": 4,
+      "so_ip": 2,
+      "canh_bao": []
+    },
+    "k2-quet-nhanh-train-01.pcap": {
+      "so_goi_arp": 10,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "k2-quet-nhanh-train-02.pcap": {
+      "so_goi_arp": 12,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "k2-quet-nhanh-train-03.pcap": {
+      "so_goi_arp": 4,
+      "so_ip": 2,
+      "canh_bao": []
+    },
+    "k2-quet-nhanh-val-01.pcap": {
+      "so_goi_arp": 12,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "k3-dos-muc1-test-01.pcap": {
+      "so_goi_arp": 10,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "k3-dos-muc1-test-02.pcap": {
+      "so_goi_arp": 0,
+      "so_ip": 0,
+      "canh_bao": []
+    },
+    "k3-dos-muc1-test-03.pcap": {
+      "so_goi_arp": 0,
+      "so_ip": 0,
+      "canh_bao": []
+    },
+    "k3-dos-muc1-test-04.pcap": {
+      "so_goi_arp": 8,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "k3-dos-muc1-test-05.pcap": {
+      "so_goi_arp": 0,
+      "so_ip": 0,
+      "canh_bao": []
+    },
+    "k3-dos-muc1-test-06.pcap": {
+      "so_goi_arp": 2,
+      "so_ip": 2,
+      "canh_bao": []
+    },
+    "k3-dos-muc1-test-08.pcap": {
+      "so_goi_arp": 12,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "k3-dos-muc1-test-09.pcap": {
+      "so_goi_arp": 8,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "k3-dos-muc1-test-10.pcap": {
+      "so_goi_arp": 2,
+      "so_ip": 2,
+      "canh_bao": []
+    },
+    "k3-dos-muc1-test-11.pcap": {
+      "so_goi_arp": 2,
+      "so_ip": 2,
+      "canh_bao": []
+    },
+    "k3-dos-muc1-train-01.pcap": {
+      "so_goi_arp": 8,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "k3-dos-muc1-train-02.pcap": {
+      "so_goi_arp": 10,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "k3-dos-muc1-train-03.pcap": {
+      "so_goi_arp": 2,
+      "so_ip": 2,
+      "canh_bao": []
+    },
+    "k3-dos-muc1-val-01.pcap": {
+      "so_goi_arp": 14,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "k3-dos-muc2-test-01.pcap": {
+      "so_goi_arp": 8,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "k3-dos-muc2-test-02.pcap": {
+      "so_goi_arp": 0,
+      "so_ip": 0,
+      "canh_bao": []
+    },
+    "k3-dos-muc2-test-03.pcap": {
+      "so_goi_arp": 0,
+      "so_ip": 0,
+      "canh_bao": []
+    },
+    "k3-dos-muc2-test-04.pcap": {
+      "so_goi_arp": 8,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "k3-dos-muc2-test-05.pcap": {
+      "so_goi_arp": 0,
+      "so_ip": 0,
+      "canh_bao": []
+    },
+    "k3-dos-muc2-test-06.pcap": {
+      "so_goi_arp": 2,
+      "so_ip": 2,
+      "canh_bao": []
+    },
+    "k3-dos-muc2-test-07.pcap": {
+      "so_goi_arp": 8,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "k3-dos-muc2-test-08.pcap": {
+      "so_goi_arp": 10,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "k3-dos-muc2-test-09.pcap": {
+      "so_goi_arp": 8,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "k3-dos-muc2-test-10.pcap": {
+      "so_goi_arp": 2,
+      "so_ip": 2,
+      "canh_bao": []
+    },
+    "k3-dos-muc2-test-11.pcap": {
+      "so_goi_arp": 2,
+      "so_ip": 2,
+      "canh_bao": []
+    },
+    "k3-dos-muc2-train-01.pcap": {
+      "so_goi_arp": 8,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "k3-dos-muc2-train-02.pcap": {
+      "so_goi_arp": 8,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "k3-dos-muc2-train-03.pcap": {
+      "so_goi_arp": 2,
+      "so_ip": 2,
+      "canh_bao": []
+    },
+    "k3-dos-muc2-val-01.pcap": {
+      "so_goi_arp": 8,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "k3-dos-muc3-test-01.pcap": {
+      "so_goi_arp": 8,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "k3-dos-muc3-test-02.pcap": {
+      "so_goi_arp": 0,
+      "so_ip": 0,
+      "canh_bao": []
+    },
+    "k3-dos-muc3-test-03.pcap": {
+      "so_goi_arp": 0,
+      "so_ip": 0,
+      "canh_bao": []
+    },
+    "k3-dos-muc3-test-04.pcap": {
+      "so_goi_arp": 8,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "k3-dos-muc3-test-05.pcap": {
+      "so_goi_arp": 0,
+      "so_ip": 0,
+      "canh_bao": []
+    },
+    "k3-dos-muc3-test-06.pcap": {
+      "so_goi_arp": 2,
+      "so_ip": 2,
+      "canh_bao": []
+    },
+    "k3-dos-muc3-test-08.pcap": {
+      "so_goi_arp": 8,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "k3-dos-muc3-test-09.pcap": {
+      "so_goi_arp": 8,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "k3-dos-muc3-test-10.pcap": {
+      "so_goi_arp": 2,
+      "so_ip": 2,
+      "canh_bao": []
+    },
+    "k3-dos-muc3-test-11.pcap": {
+      "so_goi_arp": 2,
+      "so_ip": 2,
+      "canh_bao": []
+    },
+    "k3-dos-muc3-train-01.pcap": {
+      "so_goi_arp": 8,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "k3-dos-muc3-train-02.pcap": {
+      "so_goi_arp": 8,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "k3-dos-muc3-train-03.pcap": {
+      "so_goi_arp": 2,
+      "so_ip": 2,
+      "canh_bao": []
+    },
+    "k3-dos-muc3-val-01.pcap": {
+      "so_goi_arp": 8,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "k4-bien-thien-test-01.pcap": {
+      "so_goi_arp": 124,
+      "so_ip": 6,
+      "canh_bao": []
+    },
+    "k4-bien-thien-test-02.pcap": {
+      "so_goi_arp": 112,
+      "so_ip": 4,
+      "canh_bao": []
+    },
+    "k4-bien-thien-test-03.pcap": {
+      "so_goi_arp": 130,
+      "so_ip": 4,
+      "canh_bao": []
+    },
+    "k4-bien-thien-test-04.pcap": {
+      "so_goi_arp": 126,
+      "so_ip": 6,
+      "canh_bao": []
+    },
+    "k4-bien-thien-test-05.pcap": {
+      "so_goi_arp": 118,
+      "so_ip": 4,
+      "canh_bao": []
+    },
+    "k4-bien-thien-test-06.pcap": {
+      "so_goi_arp": 130,
+      "so_ip": 4,
+      "canh_bao": []
+    },
+    "k4-bien-thien-test-09.pcap": {
+      "so_goi_arp": 150,
+      "so_ip": 6,
+      "canh_bao": []
+    },
+    "k4-bien-thien-test-10.pcap": {
+      "so_goi_arp": 130,
+      "so_ip": 4,
+      "canh_bao": []
+    },
+    "k4-bien-thien-test-11.pcap": {
+      "so_goi_arp": 120,
+      "so_ip": 4,
+      "canh_bao": []
+    },
+    "k4-bien-thien-train-01.pcap": {
+      "so_goi_arp": 144,
+      "so_ip": 6,
+      "canh_bao": []
+    },
+    "k4-bien-thien-train-02.pcap": {
+      "so_goi_arp": 116,
+      "so_ip": 6,
+      "canh_bao": []
+    },
+    "k4-bien-thien-train-03.pcap": {
+      "so_goi_arp": 114,
+      "so_ip": 4,
+      "canh_bao": []
+    },
+    "k4-bien-thien-val-01.pcap": {
+      "so_goi_arp": 100,
+      "so_ip": 6,
+      "canh_bao": []
+    },
+    "k4-co-dinh-test-01.pcap": {
+      "so_goi_arp": 132,
+      "so_ip": 6,
+      "canh_bao": []
+    },
+    "k4-co-dinh-test-02.pcap": {
+      "so_goi_arp": 120,
+      "so_ip": 4,
+      "canh_bao": []
+    },
+    "k4-co-dinh-test-03.pcap": {
+      "so_goi_arp": 138,
+      "so_ip": 4,
+      "canh_bao": []
+    },
+    "k4-co-dinh-test-04.pcap": {
+      "so_goi_arp": 96,
+      "so_ip": 6,
+      "canh_bao": []
+    },
+    "k4-co-dinh-test-05.pcap": {
+      "so_goi_arp": 118,
+      "so_ip": 4,
+      "canh_bao": []
+    },
+    "k4-co-dinh-test-06.pcap": {
+      "so_goi_arp": 112,
+      "so_ip": 4,
+      "canh_bao": []
+    },
+    "k4-co-dinh-test-07.pcap": {
+      "so_goi_arp": 174,
+      "so_ip": 6,
+      "canh_bao": []
+    },
+    "k4-co-dinh-test-09.pcap": {
+      "so_goi_arp": 164,
+      "so_ip": 6,
+      "canh_bao": []
+    },
+    "k4-co-dinh-test-10.pcap": {
+      "so_goi_arp": 74,
+      "so_ip": 4,
+      "canh_bao": []
+    },
+    "k4-co-dinh-test-11.pcap": {
+      "so_goi_arp": 120,
+      "so_ip": 4,
+      "canh_bao": []
+    },
+    "k4-co-dinh-train-01.pcap": {
+      "so_goi_arp": 76,
+      "so_ip": 6,
+      "canh_bao": []
+    },
+    "k4-co-dinh-train-02.pcap": {
+      "so_goi_arp": 128,
+      "so_ip": 6,
+      "canh_bao": []
+    },
+    "k4-co-dinh-train-03.pcap": {
+      "so_goi_arp": 158,
+      "so_ip": 4,
+      "canh_bao": []
+    },
+    "k4-co-dinh-val-01.pcap": {
+      "so_goi_arp": 62,
+      "so_ip": 6,
+      "canh_bao": []
+    },
+    "k4-doi-chung-test-01.pcap": {
+      "so_goi_arp": 10,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "k4-doi-chung-test-02.pcap": {
+      "so_goi_arp": 0,
+      "so_ip": 0,
+      "canh_bao": []
+    },
+    "k4-doi-chung-test-03.pcap": {
+      "so_goi_arp": 0,
+      "so_ip": 0,
+      "canh_bao": []
+    },
+    "k4-doi-chung-test-04.pcap": {
+      "so_goi_arp": 10,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "k4-doi-chung-test-05.pcap": {
+      "so_goi_arp": 0,
+      "so_ip": 0,
+      "canh_bao": []
+    },
+    "k4-doi-chung-test-06.pcap": {
+      "so_goi_arp": 0,
+      "so_ip": 0,
+      "canh_bao": []
+    },
+    "k4-doi-chung-test-09.pcap": {
+      "so_goi_arp": 8,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "k4-doi-chung-test-10.pcap": {
+      "so_goi_arp": 0,
+      "so_ip": 0,
+      "canh_bao": []
+    },
+    "k4-doi-chung-test-11.pcap": {
+      "so_goi_arp": 0,
+      "so_ip": 0,
+      "canh_bao": []
+    },
+    "k4-doi-chung-train-01.pcap": {
+      "so_goi_arp": 10,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "k4-doi-chung-train-02.pcap": {
+      "so_goi_arp": 8,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "k4-doi-chung-train-03.pcap": {
+      "so_goi_arp": 0,
+      "so_ip": 0,
+      "canh_bao": []
+    },
+    "k4-doi-chung-val-01.pcap": {
+      "so_goi_arp": 8,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "k5-doi-chung-test-01.pcap": {
+      "so_goi_arp": 42,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "k5-doi-chung-test-02.pcap": {
+      "so_goi_arp": 20,
+      "so_ip": 3,
+      "canh_bao": []
+    },
+    "k5-doi-chung-test-03.pcap": {
+      "so_goi_arp": 42,
+      "so_ip": 3,
+      "canh_bao": []
+    },
+    "k5-doi-chung-test-04.pcap": {
+      "so_goi_arp": 48,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "k5-doi-chung-test-05.pcap": {
+      "so_goi_arp": 24,
+      "so_ip": 3,
+      "canh_bao": []
+    },
+    "k5-doi-chung-test-06.pcap": {
+      "so_goi_arp": 36,
+      "so_ip": 3,
+      "canh_bao": []
+    },
+    "k5-doi-chung-test-09.pcap": {
+      "so_goi_arp": 42,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "k5-doi-chung-test-10.pcap": {
+      "so_goi_arp": 40,
+      "so_ip": 3,
+      "canh_bao": []
+    },
+    "k5-doi-chung-test-11.pcap": {
+      "so_goi_arp": 24,
+      "so_ip": 3,
+      "canh_bao": []
+    },
+    "k5-doi-chung-train-01.pcap": {
+      "so_goi_arp": 52,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "k5-doi-chung-train-02.pcap": {
+      "so_goi_arp": 34,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "k5-doi-chung-train-03.pcap": {
+      "so_goi_arp": 38,
+      "so_ip": 3,
+      "canh_bao": []
+    },
+    "k5-doi-chung-val-01.pcap": {
+      "so_goi_arp": 56,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "k5-p2p-test-01.pcap": {
+      "so_goi_arp": 228,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "k5-p2p-test-02.pcap": {
+      "so_goi_arp": 172,
+      "so_ip": 3,
+      "canh_bao": []
+    },
+    "k5-p2p-test-03.pcap": {
+      "so_goi_arp": 118,
+      "so_ip": 3,
+      "canh_bao": []
+    },
+    "k5-p2p-test-04.pcap": {
+      "so_goi_arp": 202,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "k5-p2p-test-05.pcap": {
+      "so_goi_arp": 174,
+      "so_ip": 3,
+      "canh_bao": []
+    },
+    "k5-p2p-test-06.pcap": {
+      "so_goi_arp": 140,
+      "so_ip": 3,
+      "canh_bao": []
+    },
+    "k5-p2p-test-07.pcap": {
+      "so_goi_arp": 180,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "k5-p2p-test-09.pcap": {
+      "so_goi_arp": 134,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "k5-p2p-test-10.pcap": {
+      "so_goi_arp": 198,
+      "so_ip": 3,
+      "canh_bao": []
+    },
+    "k5-p2p-test-11.pcap": {
+      "so_goi_arp": 160,
+      "so_ip": 3,
+      "canh_bao": []
+    },
+    "k5-p2p-train-01.pcap": {
+      "so_goi_arp": 240,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "k5-p2p-train-02.pcap": {
+      "so_goi_arp": 178,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "k5-p2p-train-03.pcap": {
+      "so_goi_arp": 128,
+      "so_ip": 3,
+      "canh_bao": []
+    },
+    "k5-p2p-val-01.pcap": {
+      "so_goi_arp": 192,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "kiem_tra_mirror.pcap": {
+      "so_goi_arp": 10,
+      "so_ip": 6,
+      "canh_bao": []
+    },
+    "x3-syn-muc1-test-01.pcap": {
+      "so_goi_arp": 18,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "x3-syn-muc1-test-02.pcap": {
+      "so_goi_arp": 12,
+      "so_ip": 2,
+      "canh_bao": []
+    },
+    "x3-syn-muc1-test-03.pcap": {
+      "so_goi_arp": 8,
+      "so_ip": 2,
+      "canh_bao": []
+    },
+    "x3-syn-muc2-test-01.pcap": {
+      "so_goi_arp": 16,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "x3-syn-muc2-test-02.pcap": {
+      "so_goi_arp": 8,
+      "so_ip": 2,
+      "canh_bao": []
+    },
+    "x3-syn-muc2-test-03.pcap": {
+      "so_goi_arp": 12,
+      "so_ip": 2,
+      "canh_bao": []
+    },
+    "x3-syn-muc3-test-01.pcap": {
+      "so_goi_arp": 16,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "x3-syn-muc3-test-02.pcap": {
+      "so_goi_arp": 10,
+      "so_ip": 2,
+      "canh_bao": []
+    },
+    "x3-syn-muc3-test-03.pcap": {
+      "so_goi_arp": 10,
+      "so_ip": 2,
+      "canh_bao": []
+    },
+    "x4-doi-chung-doi-vai-test-01.pcap": {
+      "so_goi_arp": 10,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "x4-doi-chung-doi-vai-test-02.pcap": {
+      "so_goi_arp": 0,
+      "so_ip": 0,
+      "canh_bao": []
+    },
+    "x4-doi-chung-doi-vai-test-03.pcap": {
+      "so_goi_arp": 0,
+      "so_ip": 0,
+      "canh_bao": []
+    },
+    "x4-doi-vai-test-01.pcap": {
+      "so_goi_arp": 114,
+      "so_ip": 5,
+      "canh_bao": []
+    },
+    "x4-doi-vai-test-02.pcap": {
+      "so_goi_arp": 66,
+      "so_ip": 4,
+      "canh_bao": []
+    },
+    "x4-doi-vai-test-03.pcap": {
+      "so_goi_arp": 96,
+      "so_ip": 4,
+      "canh_bao": []
+    },
+    "x5-doi-vai-test-01.pcap": {
+      "so_goi_arp": 154,
+      "so_ip": 6,
+      "canh_bao": []
+    },
+    "x5-doi-vai-test-02.pcap": {
+      "so_goi_arp": 134,
+      "so_ip": 3,
+      "canh_bao": []
+    },
+    "x5-doi-vai-test-03.pcap": {
+      "so_goi_arp": 116,
+      "so_ip": 3,
+      "canh_bao": []
+    }
+  }
+}
