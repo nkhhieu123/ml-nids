@@ -220,6 +220,33 @@ Kết luận: **giữ 10 giây bước 2 giây**. Cửa sổ 5 giây kém rõ (t
 viên đáng thử tiếp, nhưng đổi sang nó phải học lại cả ba module trên CIC lẫn lab và đo lại độ trễ realtime, là
 con số mà đề tài đang báo cáo (1,5–3,5 giây).
 
+### 3.1. Cửa sổ 20 giây sau khi dò lại tham số, và độ trễ trên lab (16–17/11/2026, QĐ-081)
+
+Bảng trên dùng tham số Random Forest chọn cho cửa sổ 10 giây. Ở đây chạy lại toàn bộ bước chọn tham số của Chặng
+7 (`nids.classifier chon`) trên bảng cửa sổ 20 giây, học mô hình, chấm trên test CIC, rồi đo trên **lab**: lấy
+mô hình học từ CIC với cửa sổ 10 giây và với cửa sổ 20 giây, chấm 13 lần chạy quét cổng và DoS mới (`test` 12–14)
+bằng `nids.do_tre_cua_so`. Độ trễ = lúc cửa sổ đầu tiên được gán đúng nhãn được chấm, trừ giờ bắt đầu đợt.
+Kết quả: `docs/hinh/w20/`.
+
+| | Cửa sổ 10 giây / bước 2 | Cửa sổ 20 giây / bước 4 |
+|---|---|---|
+| Tham số Random Forest chọn trên validation | sâu 20, lá ≥ 1, `sqrt` đặc trưng | không giới hạn sâu, lá ≥ 3, 50% đặc trưng |
+| Macro-F1 validation CIC | 0,935 | 0,961 |
+| **Macro-F1 test CIC** (khoảng 95%) | 0,908 (0,892–0,923) | 0,914 (0,892–0,932) |
+| Recall test theo công cụ: GoldenEye / Hulk / Slowhttptest / slowloris / PortScan | 0,71 / 0,84 / 0,66 / 0,96 / 0,74 | **0,00** / 1,00 / 0,65 / 0,99 / 0,78 |
+| Lab: đợt quét cổng phát hiện, độ trễ trung vị | 4/4, 4,9 giây | 4/4, 6,9 giây |
+| **Lab: đợt DoS phát hiện** | **9/9**, 5,0 giây | **0/9** |
+| Lab: cửa sổ bình thường bị báo | 0 | 0 |
+
+- **Lợi thế trên validation gần như mất ở test** (0,914 so với 0,908, hai khoảng tin cậy chồng nhau), và test
+  GoldenEye rơi về 0.
+- **Trên lab, mô hình cửa sổ 20 giây bỏ sót cả 9 đợt DoS** tải kết nối mà mô hình 10 giây bắt hết. Cửa sổ dài gộp
+  tải với nhiều traffic bình thường hơn, và mô hình 20 giây học từ ít mẫu DoS hơn (1 060 so với 2 165 cửa sổ
+  train), nên không khái quát sang DoS của lab.
+- Quét cổng vẫn bắt được nhưng chậm hơn khoảng 2 giây.
+
+Kết luận: **giữ cửa sổ 10 giây bước 2 giây**; hướng cửa sổ 20 giây đã thử và không đáng đổi.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.

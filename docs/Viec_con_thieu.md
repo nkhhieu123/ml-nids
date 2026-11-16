@@ -33,7 +33,7 @@ thay được vì cần máy thật.
 | Lớp giữ nhãn `dos` theo host đã nối vào pipeline và realtime nhưng mặc định tắt (QĐ-074); chưa thử trên DoS chậm thật trong lab | Nên có | Chưa biết lớp này có sinh báo động giả trên mạng lab không | Thêm biến thể DoS HTTP chậm vào bộ chạy kịch bản lab (trong giới hạn B24), bật `pipeline.dos_hold` rồi đo |
 | SYN flood gói thô: bắt 9/9 đợt nhờ phía máy tấn công, nhưng cửa sổ của máy nạn nhân ít khi được gán `dos` | Nên có | Nếu nguồn bị giả mạo thì chỉ còn phía nạn nhân để phát hiện | Thu 3 lần `train` của `x3-syn-muc1/2/3` rồi học lại bộ phân loại lab |
 | Bot đóng vai máy điều khiển cũ (`.50`) bị sót ở 2/3 lần chạy `x5-doi-vai` | Nên có | Bot ít traffic nền dễ lọt | Thêm biến thể đổi vai vào `train`; xem ngưỡng gộp theo host |
-| Cửa sổ host 20 giây cho macro-F1 validation cao hơn 10 giây (0,9595 so với 0,9352, QĐ-075) nhưng chưa đo độ trễ, chưa dò lại tham số mô hình; cửa sổ đồ thị 120 giây bước 10 chưa thử độ nhạy | Nên có | Có thể đang bỏ lỡ một cấu hình tốt hơn cho quét chậm và DoS chậm | Dò lại tham số Random Forest trên `output/features_w20`, đo độ trễ realtime với cửa sổ 20 giây; thử cửa sổ đồ thị 60 và 240 giây trên CTU-13 |
+| Cửa sổ đồ thị 120 giây bước 10 của module botnet chưa thử độ nhạy (cửa sổ host đã thử 5, 10, 20 giây: giữ 10, QĐ-081) | Nên có | Có thể có cửa sổ đồ thị phát hiện bot nhanh hơn | Thử cửa sổ đồ thị 60 và 240 giây trên CTU-13 và lab |
 | Brute-force, exploit chưa có dữ liệu; DDoS chỉ một đợt của CIC | Quan trọng | Ba lớp hiện tại không phủ các loại này; lab không sinh được vì B24 cấm exploit | Tải CIC thứ Ba, thứ Năm nếu muốn thêm lớp |
 
 ## 3. Hạn chế đã biết, không có việc phải làm ngay

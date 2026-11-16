@@ -1,0 +1,230 @@
+{
+  "w10": {
+    "cau_hinh": "../config/default.yaml",
+    "mo_hinh": "../models/phan_loai_rf_windows.joblib",
+    "tong": {
+      "port_scan": {
+        "so_dot": 4,
+        "phat_hien": 4,
+        "do_tre_trung_vi_s": 4.925000000000001,
+        "do_tre_nho_nhat_s": 4.67,
+        "do_tre_lon_nhat_s": 5.23
+      },
+      "dos": {
+        "so_dot": 9,
+        "phat_hien": 9,
+        "do_tre_trung_vi_s": 4.99,
+        "do_tre_nho_nhat_s": 4.02,
+        "do_tre_lon_nhat_s": 5.94
+      },
+      "cua_so_bao_nham": 0
+    },
+    "theo_dot": [
+      {
+        "pcap": "k2-quet-cham-test-12.pcap",
+        "nhan": "port_scan",
+        "do_tre_s": 4.86,
+        "so_cua_so_dung": 522,
+        "cua_so_bao_nham_ca_lan": 0
+      },
+      {
+        "pcap": "k2-quet-cham-test-13.pcap",
+        "nhan": "port_scan",
+        "do_tre_s": 5.23,
+        "so_cua_so_dung": 522,
+        "cua_so_bao_nham_ca_lan": 0
+      },
+      {
+        "pcap": "k2-quet-nhanh-test-12.pcap",
+        "nhan": "port_scan",
+        "do_tre_s": 4.67,
+        "so_cua_so_dung": 10,
+        "cua_so_bao_nham_ca_lan": 0
+      },
+      {
+        "pcap": "k2-quet-nhanh-test-13.pcap",
+        "nhan": "port_scan",
+        "do_tre_s": 4.99,
+        "so_cua_so_dung": 10,
+        "cua_so_bao_nham_ca_lan": 0
+      },
+      {
+        "pcap": "k3-dos-muc1-test-12.pcap",
+        "nhan": "dos",
+        "do_tre_s": 5.94,
+        "so_cua_so_dung": 34,
+        "cua_so_bao_nham_ca_lan": 0
+      },
+      {
+        "pcap": "k3-dos-muc1-test-13.pcap",
+        "nhan": "dos",
+        "do_tre_s": 5.73,
+        "so_cua_so_dung": 34,
+        "cua_so_bao_nham_ca_lan": 0
+      },
+      {
+        "pcap": "k3-dos-muc1-test-14.pcap",
+        "nhan": "dos",
+        "do_tre_s": 5.08,
+        "so_cua_so_dung": 34,
+        "cua_so_bao_nham_ca_lan": 0
+      },
+      {
+        "pcap": "k3-dos-muc2-test-12.pcap",
+        "nhan": "dos",
+        "do_tre_s": 4.08,
+        "so_cua_so_dung": 64,
+        "cua_so_bao_nham_ca_lan": 0
+      },
+      {
+        "pcap": "k3-dos-muc2-test-13.pcap",
+        "nhan": "dos",
+        "do_tre_s": 4.99,
+        "so_cua_so_dung": 64,
+        "cua_so_bao_nham_ca_lan": 0
+      },
+      {
+        "pcap": "k3-dos-muc2-test-14.pcap",
+        "nhan": "dos",
+        "do_tre_s": 5.08,
+        "so_cua_so_dung": 64,
+        "cua_so_bao_nham_ca_lan": 0
+      },
+      {
+        "pcap": "k3-dos-muc3-test-12.pcap",
+        "nhan": "dos",
+        "do_tre_s": 4.52,
+        "so_cua_so_dung": 54,
+        "cua_so_bao_nham_ca_lan": 0
+      },
+      {
+        "pcap": "k3-dos-muc3-test-13.pcap",
+        "nhan": "dos",
+        "do_tre_s": 4.05,
+        "so_cua_so_dung": 56,
+        "cua_so_bao_nham_ca_lan": 0
+      },
+      {
+        "pcap": "k3-dos-muc3-test-14.pcap",
+        "nhan": "dos",
+        "do_tre_s": 4.02,
+        "so_cua_so_dung": 56,
+        "cua_so_bao_nham_ca_lan": 0
+      }
+    ]
+  },
+  "w20": {
+    "cau_hinh": "../output/cfg_w20.yaml",
+    "mo_hinh": "../output/w20_mo_hinh/phan_loai_rf_windows.joblib",
+    "tong": {
+      "port_scan": {
+        "so_dot": 4,
+        "phat_hien": 4,
+        "do_tre_trung_vi_s": 6.925000000000001,
+        "do_tre_nho_nhat_s": 4.67,
+        "do_tre_lon_nhat_s": 7.23
+      },
+      "dos": {
+        "so_dot": 9,
+        "phat_hien": 0,
+        "do_tre_trung_vi_s": null,
+        "do_tre_nho_nhat_s": null,
+        "do_tre_lon_nhat_s": null
+      },
+      "cua_so_bao_nham": 0
+    },
+    "theo_dot": [
+      {
+        "pcap": "k2-quet-cham-test-12.pcap",
+        "nhan": "port_scan",
+        "do_tre_s": 6.86,
+        "so_cua_so_dung": 265,
+        "cua_so_bao_nham_ca_lan": 0
+      },
+      {
+        "pcap": "k2-quet-cham-test-13.pcap",
+        "nhan": "port_scan",
+        "do_tre_s": 7.23,
+        "so_cua_so_dung": 265,
+        "cua_so_bao_nham_ca_lan": 0
+      },
+      {
+        "pcap": "k2-quet-nhanh-test-12.pcap",
+        "nhan": "port_scan",
+        "do_tre_s": 4.67,
+        "so_cua_so_dung": 10,
+        "cua_so_bao_nham_ca_lan": 0
+      },
+      {
+        "pcap": "k2-quet-nhanh-test-13.pcap",
+        "nhan": "port_scan",
+        "do_tre_s": 6.99,
+        "so_cua_so_dung": 10,
+        "cua_so_bao_nham_ca_lan": 0
+      },
+      {
+        "pcap": "k3-dos-muc1-test-12.pcap",
+        "nhan": "dos",
+        "do_tre_s": null,
+        "so_cua_so_dung": 0,
+        "cua_so_bao_nham_ca_lan": 0
+      },
+      {
+        "pcap": "k3-dos-muc1-test-13.pcap",
+        "nhan": "dos",
+        "do_tre_s": null,
+        "so_cua_so_dung": 0,
+        "cua_so_bao_nham_ca_lan": 0
+      },
+      {
+        "pcap": "k3-dos-muc1-test-14.pcap",
+        "nhan": "dos",
+        "do_tre_s": null,
+        "so_cua_so_dung": 0,
+        "cua_so_bao_nham_ca_lan": 0
+      },
+      {
+        "pcap": "k3-dos-muc2-test-12.pcap",
+        "nhan": "dos",
+        "do_tre_s": null,
+        "so_cua_so_dung": 0,
+        "cua_so_bao_nham_ca_lan": 0
+      },
+      {
+        "pcap": "k3-dos-muc2-test-13.pcap",
+        "nhan": "dos",
+        "do_tre_s": null,
+        "so_cua_so_dung": 0,
+        "cua_so_bao_nham_ca_lan": 0
+      },
+      {
+        "pcap": "k3-dos-muc2-test-14.pcap",
+        "nhan": "dos",
+        "do_tre_s": null,
+        "so_cua_so_dung": 0,
+        "cua_so_bao_nham_ca_lan": 0
+      },
+      {
+        "pcap": "k3-dos-muc3-test-12.pcap",
+        "nhan": "dos",
+        "do_tre_s": null,
+        "so_cua_so_dung": 0,
+        "cua_so_bao_nham_ca_lan": 0
+      },
+      {
+        "pcap": "k3-dos-muc3-test-13.pcap",
+        "nhan": "dos",
+        "do_tre_s": null,
+        "so_cua_so_dung": 0,
+        "cua_so_bao_nham_ca_lan": 0
+      },
+      {
+        "pcap": "k3-dos-muc3-test-14.pcap",
+        "nhan": "dos",
+        "do_tre_s": null,
+        "so_cua_so_dung": 0,
+        "cua_so_bao_nham_ca_lan": 0
+      }
+    ]
+  }
+}

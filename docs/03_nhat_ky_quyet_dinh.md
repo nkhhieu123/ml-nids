@@ -566,6 +566,13 @@ Mẫu:
 - Quyết định: Trích xuất thứ Hai, thứ Tư, thứ Sáu với 1 giây; học lại Gaussian và Random Forest với tham số đã chọn, lưu `models/h1/`; thêm `config/cic_h1.yaml`. Giữ `config/default.yaml` ở 3 giây để số liệu đã công bố chạy lại được.
 - Hệ quả: Test CIC: Random Forest macro-F1 0,910 (3 giây: 0,908); Gaussian F1 0,742 (0,730), cửa sổ bình thường bị báo 0,59% (1,42%), nhưng recall 0,656 (0,727). Chi tiết docs/72 mục 2.5.
 
+## QĐ-081 — Không đổi sang cửa sổ host 20 giây
+- Ngày: 17/11/2026
+- Trạng thái: Đã chốt (đóng hướng thử tiếp của QĐ-075)
+- Bối cảnh: QĐ-075 thấy cửa sổ 20 giây cao hơn trên validation (0,9595 so với 0,9352) nhưng chưa dò lại tham số, chưa đo độ trễ.
+- Quyết định: Giữ 10 giây bước 2 giây. Căn cứ: dò lại tham số cho 20 giây được validation 0,961 nhưng test CIC chỉ 0,914 (10 giây: 0,908), GoldenEye recall 0; mô hình 20 giây học từ CIC bỏ sót 9/9 đợt DoS trên 13 lần chạy lab mới, mô hình 10 giây bắt 9/9; quét cổng chậm hơn khoảng 2 giây.
+- Hệ quả: Không học lại module nào. Công cụ đo: `nids.do_tre_cua_so`. Chi tiết docs/72 mục 3.1.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
