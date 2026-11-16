@@ -191,7 +191,9 @@ def export(path, out_dir, name=None, networks=None, config_path=None, compute_ha
 
         pipe = WindowPipeline(settings, win["size_s"], win["step_s"], networks, observe_s,
                               flow_sink=write_flow)
-        for rec in extract_packets(path, stats):
+        from .cam_bien import DuplicateFilter
+        dedup = DuplicateFilter.from_config(cfg)
+        for rec in extract_packets(path, stats, dedup):
             for w in pipe.add(rec):
                 win_writer.writerow(window_row(w))
                 counts["windows"] += 1
@@ -219,7 +221,9 @@ def export(path, out_dir, name=None, networks=None, config_path=None, compute_ha
             "windows": {"file": files["windows.csv"].name, "so_dong": counts["windows"]},
             "schema": files["schema.json"].name,
         },
-        "thong_ke": {"packet": stats.as_dict(), "flow": pipe.flows.summary(),
+        "thong_ke": {"packet": {**stats.as_dict(), "goi_trung_bo": dedup.dropped if dedup else None,
+                                "khu_goi_trung_ms": cfg["capture"].get("khu_goi_trung_ms", 0)},
+                     "flow": pipe.flows.summary(),
                      "cua_so": pipe.windows.summary()},
     }
     files["meta.json"].write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")

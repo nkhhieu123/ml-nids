@@ -552,6 +552,13 @@ Mẫu:
 - Quyết định: Thêm `nids.arp_gia_mao`: bảng IP → MAC học từ gói ARP, báo khi một IP đổi MAC, một MAC nhận từ 3 IP trở lên, hoặc MAC của khung khác MAC trong gói ARP. Không thêm module vào `scope.MODULES`; kết quả ghi JSON riêng.
 - Hệ quả: 0 cảnh báo trên 174 bản thu lab (8 373 gói ARP). Phần phát hiện mới kiểm bằng gói dựng tay trong kiểm thử. Chưa nối vào realtime. Chi tiết docs/79.
 
+## QĐ-079 — Tùy chọn khử gói trùng do mirror, mặc định tắt
+- Ngày: 16/11/2026
+- Trạng thái: Đã chốt
+- Bối cảnh: PCAP của CIC có 0,7–11,8% gói nhân đôi, lab ảo 0,01–0,63%; bộ trích xuất không bỏ bản sao (docs/60).
+- Quyết định: Thêm `capture.khu_goi_trung_ms`; lớn hơn 0 thì bỏ bản sao (cùng nội dung IP, bỏ qua TTL và checksum) trước khi ghép flow, ở cả `feature_export` và cảm biến realtime. Mặc định 0.
+- Hệ quả: Với 1 ms, ba đoạn PCAP CIC bỏ 11,8% / 6,5% / 0,7% gói, số flow và số cửa sổ giữ nguyên. Mô hình hiện có học trên dữ liệu chưa khử trùng nên giữ tắt; bật trên mạng thật thì phải trích xuất và học lại. Chi tiết docs/60 mục 3.1.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.

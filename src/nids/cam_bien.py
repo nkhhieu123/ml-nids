@@ -50,6 +50,38 @@ def ip_digest(raw) -> bytes | None:
     return hashlib.blake2b(bytes(ip), digest_size=12).digest()
 
 
+class DuplicateFilter:
+    """Bỏ bản sao của một gói IP (cùng ``ip_digest``) đến trong ``window_ns`` sau bản đầu (QĐ-079).
+
+    Dùng trước khi ghép flow, ở cả trích xuất offline lẫn cảm biến realtime, khi ``capture.khu_goi_trung_ms``
+    lớn hơn 0. Gói không có header IP đọc được thì không bị bỏ."""
+
+    def __init__(self, window_ns=DUP_WINDOW_NS):
+        self.window_ns = int(window_ns)
+        self.last = {}
+        self.dropped = 0
+
+    @classmethod
+    def from_config(cls, cfg):
+        ms = ((cfg or {}).get("capture") or {}).get("khu_goi_trung_ms") or 0
+        return cls(ms * 1_000_000) if ms > 0 else None
+
+    def is_duplicate(self, raw) -> bool:
+        if raw.ts_ns is None:
+            return False
+        s = ip_digest(raw)
+        if s is None:
+            return False
+        prev = self.last.get(s)
+        if prev is not None and 0 <= raw.ts_ns - prev <= self.window_ns:
+            self.dropped += 1
+            return True
+        self.last[s] = raw.ts_ns
+        if len(self.last) > 200_000:        # chỉ cần nhớ các gói rất gần
+            self.last = {k: v for k, v in self.last.items() if raw.ts_ns - v <= self.window_ns}
+        return False
+
+
 def read_with_digest(path):
     """(PacketRecord, mã băm nội dung IP) của các gói IP đọc được trong một PCAP/PCAPNG."""
     from .packets import inspect_packet

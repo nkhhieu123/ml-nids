@@ -52,7 +52,7 @@ Ghi lại để nêu trong báo cáo cuối và để biết khi nào cần làm
 | Không ghép mảnh IP; mảnh sau không có cổng | Nên có | Các lần chạy lab không có gói phân mảnh; mảnh tạo riêng khớp Wireshark (docs/17 mục 3.2) |
 | Đường hầm (IP trong IP, GRE, VXLAN) chỉ đọc header ngoài | Nên có | Lab không dùng đường hầm |
 | Phát hiện giả mạo ARP chỉ chạy trên file PCAP, chưa nối vào cảm biến realtime; phần bắt được mới kiểm bằng gói dựng tay | Nên có | `nids.arp_gia_mao` không báo nhầm trên 174 bản thu lab (docs/79); lab không được giả mạo nguồn (B24) |
-| Không khử gói trùng | Nên có | Lab ảo trùng 0,01–0,63% nên không cần; đo lại nếu switch thật mirror cả hai chiều của cùng cổng |
+| Khử gói trùng đã có nhưng mặc định tắt (`capture.khu_goi_trung_ms`, QĐ-079); mô hình chưa học trên dữ liệu đã khử trùng | Nên có | Lab ảo trùng 0,01–0,63% nên không cần; nếu switch thật mirror cả hai chiều của cùng cổng thì bật, trích xuất và học lại |
 | Mô hình lab không chuyển sang dữ liệu khác: mô hình botnet lab cho recall 0 trên CTU-13 | Quan trọng | 24/24 đợt trên `test` mới chỉ có nghĩa trong lab với bot mô phỏng; đổi vai trò máy trong lab vẫn bắt 6/6 đợt (docs/76) |
 | Random Forest gán 224 cửa sổ Bot của CIC là `port_scan` | Nên có | Không thêm quy tắc: ở chế độ `ket_hop` các cửa sổ này không trùng cảnh báo botnet nào, ghép theo host chỉ đúng 19/34. Bot của CIC quét cổng thật nên nhãn `port_scan` không hẳn sai |
 | Lab ảo chỉ có 7 host, 3 bot | Nên có | Quy tắc topology theo nhóm (QĐ-070) cần ít nhất hai bot bị phát hiện cùng cửa sổ; chưa thử trên mạng lớn |

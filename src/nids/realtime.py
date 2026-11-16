@@ -310,6 +310,8 @@ class RealtimeEngine:
         self.alert_sink, self.score_sink = alert_sink, score_sink
         self.rt = realtime_config(cfg)
         self.events = EventMerger(pc["merge_gap_s"], event_sink)
+        from .cam_bien import DuplicateFilter
+        self.dedup = DuplicateFilter.from_config(cfg)
         from .pipeline import dos_holder
         self.dos_holder = dos_holder(cfg)   # giữ nhãn dos theo host qua các cửa sổ (pipeline.dos_hold, QĐ-074)
         self.window_sink = window_sink          # nhận bảng cửa sổ 10 giây vừa đóng (kiểm tra nhất quán, C10-T08)
@@ -322,7 +324,7 @@ class RealtimeEngine:
         self.next_graph_end = None          # cuối cửa sổ 120 giây kế tiếp cần chấm (giây)
         self.first_s = None                 # thời điểm gói đầu tiên (giây)
         self.now_s = None                   # thời điểm gói mới nhất (giây)
-        self.stats = {"goi": 0, "goi_khong_phai_ip": 0, "cua_so_10s": 0, "cua_so_120s": 0, "canh_bao": 0,
+        self.stats = {"goi": 0, "goi_trung_bo": 0, "goi_khong_phai_ip": 0, "cua_so_10s": 0, "cua_so_120s": 0, "canh_bao": 0,
                       "su_kien": 0, "flow_ket_thuc_do_tran": 0, "flow_bo_khoi_bang_do_tran": 0, "nhip": 0, "thoi_gian_cham_s": {MODULE_ANOMALY: 0.0, MODULE_ATTACK: 0.0, MODULE_BOTNET: 0.0}}
 
     # ---- nhận gói ----
@@ -337,8 +339,11 @@ class RealtimeEngine:
             self.stats["flow_bo_khoi_bang_do_tran"] += 1
 
     def process(self, raw):
-        rec = parse_packet(raw)
         self.stats["goi"] += 1
+        if self.dedup is not None and self.dedup.is_duplicate(raw):     # bản sao do mirror (QĐ-079)
+            self.stats["goi_trung_bo"] += 1
+            return
+        rec = parse_packet(raw)
         if rec is None:
             self.stats["goi_khong_phai_ip"] += 1
             return

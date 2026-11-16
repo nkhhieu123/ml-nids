@@ -64,7 +64,27 @@ Nếu có máy lab chưa xuất hiện, công cụ ghi thêm lý do nhưng khôn
 - **PCAP của CIC có 0,7–11,8% gói nhân đôi**. Bộ trích xuất của dự án **không** bỏ bản sao. Trên CIC
   điều này không gây lệch, vì train và test cùng bị như nhau. Nhưng nếu mạng lab nhân đôi ít hoặc nhiều
   hơn, đặc trưng đếm gói sẽ lệch. Cần đo tỷ lệ này trên lab rồi quyết định có bỏ bản sao khi trích xuất
-  hay không (đã ghi vào docs/Viec_con_thieu.md).
+  hay không (đã ghi vào docs/Viec_con_thieu.md). Trên lab ảo tỷ lệ là 0,01–0,63%. Bộ trích xuất và cảm biến đã
+  có tùy chọn bỏ bản sao, mặc định tắt (mục 3.1).
+
+### 3.1. Tùy chọn khử gói trùng (16/11/2026, QĐ-079)
+
+`capture.khu_goi_trung_ms` lớn hơn 0 thì bộ trích xuất offline (`nids.feature_export`) và cảm biến realtime bỏ
+bản sao của một gói IP đến trong chừng ấy mili giây sau bản đầu, **trước khi ghép flow**. Bản sao được nhận ra
+bằng đúng cách của công cụ này: cùng nội dung gói IP, bỏ qua TTL và checksum header (`cam_bien.DuplicateFilter`).
+Số gói bị bỏ ghi ở `meta.json` (`goi_trung_bo`) và trong số liệu vận hành của cảm biến.
+
+Thử với 1 mili giây trên ba đoạn PCAP của CIC:
+
+| Đoạn | Gói giữ lại khi tắt | Khi bật | Bỏ | Số flow | Số cửa sổ |
+|---|---|---|---|---|---|
+| `fri_binh_thuong` | 75 873 | 66 889 | 8 984 (11,8%) | 4 347 → 4 347 | 4 633 → 4 633 |
+| `fri_quet` | 371 094 | 347 073 | 24 021 (6,5%) | 37 223 → 37 223 | 7 464 → 7 464 |
+| `wed_hulk` | 558 897 | 555 083 | 3 814 (0,7%) | 31 769 → 31 769 | 1 406 → 1 406 |
+
+Số bỏ khớp tỷ lệ nhân đôi đo ở bảng trên. Số flow và số cửa sổ không đổi: bản sao chỉ làm tăng các đặc trưng đếm
+gói, byte. **Mặc định tắt**, vì mọi mô hình hiện có được học trên dữ liệu chưa khử trùng; bật thì phải trích
+xuất và học lại. Nên bật khi switch thật mirror cả cổng vào lẫn cổng ra của cùng một máy.
 
 ## 4. Hạn chế
 

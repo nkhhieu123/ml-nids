@@ -454,7 +454,7 @@ def tcp_flag_names(flags: int | None) -> str:
     return ",".join(name for bit, name in TCP_FLAG_NAMES if flags & bit)
 
 
-def extract_packets(path, stats: ParseStats | None = None):
+def extract_packets(path, stats: ParseStats | None = None, dedup=None):
     """Duyệt các gói IP của một file PCAP/PCAPNG; bỏ qua gói không đọc được.
 
     Khi truyền ``stats``, số gói bỏ qua được đếm vào đó, và nếu file hỏng giữa
@@ -466,6 +466,8 @@ def extract_packets(path, stats: ParseStats | None = None):
     with PcapReader(path) as reader:
         try:
             for pkt in reader:
+                if dedup is not None and dedup.is_duplicate(pkt):   # bản sao do mirror (cam_bien.DuplicateFilter)
+                    continue
                 result = inspect_packet(pkt)
                 if stats is not None:
                     stats.add(pkt, result)
