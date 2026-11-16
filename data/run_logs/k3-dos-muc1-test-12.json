@@ -6,22 +6,22 @@
   "seed": 1540903168,
   "moi_truong": {
     "kieu": "lab ảo: network namespace + bridge + tc mirror",
-    "lab": 49,
+    "lab": 74,
     "nhan": "6.18.33.2-microsoft-standard-WSL2",
     "may": "shanley",
     "nmap": "Nmap version 7.98 ( https://nmap.org )"
   },
   "ban_thu": {
     "file": "data/pcap/lab/k3-dos-muc1-test-12.pcap",
-    "bat_dau": "2026-11-13T01:00:07.669+07:00",
-    "ket_thuc": "2026-11-13T01:05:09.671+07:00",
-    "bat_dau_epoch": 1794506407.669,
-    "ket_thuc_epoch": 1794506709.672,
+    "bat_dau": "2026-11-16T23:37:38.575+07:00",
+    "ket_thuc": "2026-11-16T23:42:40.581+07:00",
+    "bat_dau_epoch": 1794847058.576,
+    "ket_thuc_epoch": 1794847360.581,
     "may_giam_sat": "192.168.50.10",
-    "byte": 1737838,
-    "sha256": "3613b3206e27c73170c2865b5af70f6e1973688eda891ae41c28809e99ee025a",
-    "goi_bat_duoc": 5997,
-    "goi_qua_bo_loc": 5997,
+    "byte": 3096478,
+    "sha256": "7f2547214a5220897ed1018a21e8b112dcc898e70e49f319ad6469e9cc70204b",
+    "goi_bat_duoc": 22060,
+    "goi_qua_bo_loc": 22060,
     "goi_nhan_bo": 0
   },
   "lech_dong_ho_s": 0.0,
@@ -36,18 +36,18 @@
     "ip_dich": [
       "192.168.50.30"
     ],
-    "bat_dau": "2026-11-13T01:00:07.669+07:00",
-    "ket_thuc": "2026-11-13T01:05:07.669+07:00",
+    "bat_dau": "2026-11-16T23:37:38.575+07:00",
+    "ket_thuc": "2026-11-16T23:42:38.575+07:00",
     "mo_ta": "duyệt web nghỉ 1–6 giây, kiểm tra trạng thái api/status mỗi ~30 giây"
   },
   "hanh_vi": [
     {
       "kieu": "tai-ket-noi",
       "nhan": "dos",
-      "bat_dau": "2026-11-13T01:01:44.148+07:00",
-      "ket_thuc": "2026-11-13T01:02:44.352+07:00",
-      "bat_dau_epoch": 1794506504.148,
-      "ket_thuc_epoch": 1794506564.352,
+      "bat_dau": "2026-11-16T23:39:15.055+07:00",
+      "ket_thuc": "2026-11-16T23:40:15.220+07:00",
+      "bat_dau_epoch": 1794847155.055,
+      "ket_thuc_epoch": 1794847215.22,
       "ip_nguon": [
         "192.168.50.20"
       ],
@@ -74,8 +74,8 @@
       "vai_tro": "test",
       "kieu": "tai-ket-noi",
       "nhan": "dos",
-      "bat_dau": "2026-11-13T01:01:44+07:00",
-      "ket_thuc": "2026-11-13T01:02:44+07:00",
+      "bat_dau": "2026-11-16T23:39:15+07:00",
+      "ket_thuc": "2026-11-16T23:40:15+07:00",
       "ip_nguon": "192.168.50.20",
       "ip_dich": "192.168.50.30",
       "tham_so": {
@@ -87,9 +87,9 @@
       "chi_thu": false,
       "muc": 1,
       "ket_noi_moi_giay": 50,
-      "thoi_gian_s": 60.1,
-      "so_lan_thu": 299,
-      "so_lan_noi_duoc": 299
+      "thoi_gian_s": 60.0,
+      "so_lan_thu": 3000,
+      "so_lan_noi_duoc": 3000
     }
   ]
 }

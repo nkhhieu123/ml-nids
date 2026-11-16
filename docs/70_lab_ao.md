@@ -1,8 +1,12 @@
-# C11-T01 — Lab ảo 7 node và nhật ký ground truth
+# C11-T01 — Lab ảo và nhật ký ground truth
 
 Mã nguồn: `scripts/lab_ao.py` (dựng lab, chạy kịch bản, ghi nhật ký), `scripts/chay_chang_11.sh` (chạy mọi
 biến thể), `src/nids/thuc_nghiem.py` (đọc nhật ký làm ground truth). Kiểm thử: `tests/test_thuc_nghiem.py`.
-Quyết định: QĐ-061.
+Quyết định: QĐ-061, QĐ-076.
+
+> **Cập nhật 17/11/2026 (QĐ-076):** lab có thêm hai máy `.44`, `.45` để kịch bản 6 có **năm bot**. Hai máy này
+> im lặng ở mọi kịch bản 1–5, nên các lần chạy cũ và mới của kịch bản 1–5 giống nhau về traffic. Lab hiện có
+> 9 namespace: `.10`, `.20`, `.30`, `.41`–`.45`, `.50`. Kết quả kịch bản 6: docs/80.
 
 ## 1. Vì sao dùng lab ảo
 
@@ -11,7 +15,7 @@ lab được dựng **ảo trên một máy Linux** (đã chạy trên WSL2 Ubun
 
 | Thành phần lab thật | Trong lab ảo |
 |---|---|
-| 7 máy `192.168.50.10`–`.50` | 7 network namespace, mỗi cái có ngăn xếp TCP/IP riêng của nhân Linux |
+| 7 máy `192.168.50.10`–`.50` (nay 9 máy, thêm `.44`, `.45`) | Mỗi máy một network namespace, có ngăn xếp TCP/IP riêng của nhân Linux |
 | Switch | Bridge `nlb<N>` |
 | Cổng mirror (B13) | `tc mirred`: mọi khung **đi vào** switch từ một máy được sao sang máy giám sát, đúng một lần |
 | Máy giám sát Kali | Namespace `.10`, **không cắm vào switch**, chỉ nhận bản sao; chạy `tcpdump` |

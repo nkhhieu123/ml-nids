@@ -2,11 +2,11 @@
 
 Tài liệu chỉ liệt kê những gì **chưa có** hoặc **chưa kiểm chứng**. Mục nào đã xong thì đã được xóa khỏi đây;
 kết quả của chúng nằm ở báo cáo từng chặng, nhật ký quyết định (docs/03) và lịch sử git của file này.
-Cập nhật lần cuối: 14/11/2026.
+Cập nhật lần cuối: 17/11/2026.
 
 Dữ liệu hiện có: **CIC-IDS2017 đủ** (PCAP thứ Hai, thứ Tư, thứ Sáu và CSV có nhãn), **CTU-13 đủ** 13 file
-`.binetflow`, và **lab ảo**: 177 lần chạy (33 `train`, 11 `val`, 99 `test`, 16 lần thí nghiệm bổ sung, 18 lần
-của biến thể đổi vai trò máy và SYN flood) kèm nhật ký lần chạy (docs/70, 71, 73, 74, 76).
+`.binetflow`, và **lab ảo** 9 máy: 273 lần chạy (63 `train`, 21 `val`, 162 `test`, 16 lần thí nghiệm bổ sung, 18
+lần của biến thể đổi vai trò máy và SYN flood trước bộ lần ba) kèm nhật ký lần chạy (docs/70, 71, 73, 74, 76, 80).
 
 Mức: **Quan trọng** là kết quả chưa đáng tin cho tới khi bổ sung; **Nên có** là hoàn thiện, kiểm tra thêm.
 Không còn mục nào ở mức chặn.
@@ -30,9 +30,6 @@ thay được vì cần máy thật.
 
 | Thiếu | Mức | Ảnh hưởng | Cách bổ sung |
 |---|---|---|---|
-| Lớp giữ nhãn `dos` theo host đã nối vào pipeline và realtime nhưng mặc định tắt (QĐ-074); chưa thử trên DoS chậm thật trong lab | Nên có | Chưa biết lớp này có sinh báo động giả trên mạng lab không | Thêm biến thể DoS HTTP chậm vào bộ chạy kịch bản lab (trong giới hạn B24), bật `pipeline.dos_hold` rồi đo |
-| SYN flood gói thô: bắt 9/9 đợt nhờ phía máy tấn công, nhưng cửa sổ của máy nạn nhân ít khi được gán `dos` | Nên có | Nếu nguồn bị giả mạo thì chỉ còn phía nạn nhân để phát hiện | Thu 3 lần `train` của `x3-syn-muc1/2/3` rồi học lại bộ phân loại lab |
-| Bot đóng vai máy điều khiển cũ (`.50`) bị sót ở 2/3 lần chạy `x5-doi-vai` | Nên có | Bot ít traffic nền dễ lọt | Thêm biến thể đổi vai vào `train`; xem ngưỡng gộp theo host |
 | Brute-force, exploit chưa có dữ liệu; DDoS chỉ một đợt của CIC | Quan trọng | Ba lớp hiện tại không phủ các loại này; lab không sinh được vì B24 cấm exploit | Tải CIC thứ Ba, thứ Năm nếu muốn thêm lớp |
 
 ## 3. Hạn chế đã biết, không có việc phải làm ngay
@@ -53,14 +50,13 @@ Ghi lại để nêu trong báo cáo cuối và để biết khi nào cần làm
 | Khử gói trùng đã có nhưng mặc định tắt (`capture.khu_goi_trung_ms`, QĐ-079); mô hình chưa học trên dữ liệu đã khử trùng | Nên có | Lab ảo trùng 0,01–0,63% nên không cần; nếu switch thật mirror cả hai chiều của cùng cổng thì bật, trích xuất và học lại |
 | Mô hình lab không chuyển sang dữ liệu khác: mô hình botnet lab cho recall 0 trên CTU-13 | Quan trọng | 24/24 đợt trên `test` mới chỉ có nghĩa trong lab với bot mô phỏng; đổi vai trò máy trong lab vẫn bắt 6/6 đợt (docs/76) |
 | Random Forest gán 224 cửa sổ Bot của CIC là `port_scan` | Nên có | Không thêm quy tắc: ở chế độ `ket_hop` các cửa sổ này không trùng cảnh báo botnet nào, ghép theo host chỉ đúng 19/34. Bot của CIC quét cổng thật nên nhãn `port_scan` không hẳn sai |
-| Lab ảo chỉ có 7 host, 3 bot | Nên có | Quy tắc topology theo nhóm (QĐ-070) cần ít nhất hai bot bị phát hiện cùng cửa sổ; chưa thử trên mạng lớn |
-| Các lần `test` 1–11 của lab đều đã được xem | Nên có | Mỗi lần học lại phải thu lần `test` mới (QĐ-072) |
+| Lab ảo có 9 host, tối đa 5 bot (QĐ-076) | Nên có | Năm bot được phát hiện đủ, topology đúng 99–100% (docs/80); quy tắc theo nhóm chưa thử trên mạng hàng trăm máy |
+| Các lần `test` 1–14 của lab đều đã được xem | Nên có | Mỗi lần học lại phải thu lần `test` mới (QĐ-072) |
 
 ## 4. Thứ tự nên làm
 
 1. **Bạn:** dựng lab vật lý, cài dự án trên Kali, đồng bộ đồng hồ (mục 1); chạy lại vài kịch bản và so với lab ảo.
-2. **Làm được ngay:** thu `train` cho SYN flood và biến thể đổi vai rồi học lại, kèm lần `test` mới (mục 2).
-   Việc này thay bộ mô hình lab, nên làm sau khi đã báo cáo và demo.
+2. **Nếu muốn thêm lớp:** tải CIC thứ Ba, thứ Năm (brute-force, tấn công web) (mục 2).
 3. Chặng 12: báo cáo và bàn giao; nêu rõ các hạn chế ở mục 3.
 
 ## Thuật ngữ
@@ -69,7 +65,7 @@ Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
 
 | Thuật ngữ | Giải thích |
 |---|---|
-| Lab ảo / lab vật lý | Mạng thử nghiệm dựng bằng network namespace trên một máy / bằng 7 máy và switch thật |
+| Lab ảo / lab vật lý | Mạng thử nghiệm dựng bằng network namespace trên một máy / bằng máy và switch thật |
 | CIC-IDS2017, CTU-13 | Bộ dữ liệu tấn công mạng của Canada (2017) / bộ dữ liệu botnet của Séc (2011) |
 | Mirror, hai chiều | Switch sao chép traffic sang máy giám sát; thấy cả gói đi lẫn gói về của một kết nối |
 | Kali Linux, card `eth0` | Hệ điều hành dự kiến của máy giám sát; tên card mạng dùng để bắt gói |

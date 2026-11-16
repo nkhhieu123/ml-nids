@@ -130,6 +130,10 @@ có đường ra ngoài). Không có lần `train` nào của biến thể này.
 | Bộ mô hình lab học với 3 giây và với 1 giây, chấm trên `test` 9–11 | Cả hai 24/24 đợt, 0 báo động giả |
 | Sáu lần chạy trên lab có **trễ khứ hồi 200 ms** (`lab_ao.py dung --tre-ms 100`) | Hai bộ cho kết quả **giống hệt**: 4/4 đợt, macro-F1 theo cửa sổ 0,971 |
 
+Ghi chú (17/11/2026): sáu lần chạy trễ 200 ms mang số lần 12, trùng với lần `test` 12 của bộ lab lần ba (docs/80) nên bản
+thu đã bị ghi đè. Kết quả ở `tre200ms_*.json` giữ nguyên; nhật ký lần chạy được khôi phục từ git vào
+`data/run_logs/tre200ms/`. Từ nay `lab_ao.py chay` từ chối ghi đè lần chạy đã có nhật ký trừ khi có `--ghi-de`.
+
 Vì vậy `config/lab.yaml` dùng 1 giây: cảnh báo quét và DoS đến sớm hơn khoảng 2 giây (3,1–5,0 → 1,5–2,9 giây khi
 đo bằng phát lại). `config/default.yaml` giữ 3 giây vì mô hình CIC gốc được học với giá trị đó.
 

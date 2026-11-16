@@ -1,4 +1,4 @@
-"""Lab ảo 7 node bằng network namespace của Linux, và bộ chạy kịch bản Chặng 11 (C11-T01..T07).
+"""Lab ảo 9 node bằng network namespace của Linux, và bộ chạy kịch bản Chặng 11 (C11-T01..T07).
 
 Mỗi "máy" của lab (docs/09) là một network namespace có ngăn xếp TCP/IP riêng của nhân Linux, nối vào một
 bridge đóng vai switch. Máy giám sát 192.168.50.10 **không** cắm vào switch: nó chỉ nhận bản sao mọi khung đi
@@ -46,14 +46,20 @@ WORK = Path(os.environ.get("NIDS_LAB_WORK", "/root/nids_lab"))   # ghi PCAP trê
 NET = "192.168.50"
 MONITOR, TESTER, SERVER, CC = 10, 20, 30, 50
 CLIENTS = (41, 42, 43)
-HOSTS = (MONITOR, TESTER, SERVER, *CLIENTS, CC)
+# Kịch bản 6 (QĐ-076): năm bot. Hai máy .44, .45 có trong lab nhưng im lặng ở mọi biến thể khác, nên các
+# lần chạy của kịch bản 1–5 không đổi.
+BOTS5 = (*CLIENTS, 44, 45)
+HOSTS = (MONITOR, TESTER, SERVER, *BOTS5, CC)
 MAIN_VARIANTS = ("k1-binh-thuong", "k2-quet-cham", "k2-quet-nhanh", "k3-dos-muc1", "k3-dos-muc2", "k3-dos-muc3",
                  "k4-co-dinh", "k4-bien-thien", "k4-doi-chung", "k5-p2p", "k5-doi-chung")
 # Biến thể kiểm tra khái quát (QĐ-069), chỉ dùng để chấm, không dùng để học:
 # - x4/x5 "đổi vai": bot, máy điều khiển, cổng và chu kỳ khác hẳn các biến thể k4/k5;
 # - x3-syn: SYN flood bằng hping3 (gói thô, không giả mạo nguồn), chỉ trong lab ảo cô lập, tối đa 60 giây.
+BOT5_VARIANTS = ("k6-tap-trung", "k6-p2p", "k6-doi-chung")
+# DoS HTTP chậm (QĐ-077): giữ kết nối mở để đo lớp giữ nhãn dos trên lab; 60 giây như mọi DoS của lab.
+SLOW_VARIANTS = ("x3-dos-cham",)
 EXTRA_VARIANTS = ("x4-doi-vai", "x4-doi-chung-doi-vai", "x5-doi-vai", "x3-syn-muc1", "x3-syn-muc2", "x3-syn-muc3")
-VARIANTS = MAIN_VARIANTS + EXTRA_VARIANTS
+VARIANTS = MAIN_VARIANTS + BOT5_VARIANTS + SLOW_VARIANTS + EXTRA_VARIANTS
 WEB_FILES = {"index.html": "<html><body><h1>nids-lab</h1><a href=about.html>about</a></body></html>\n" * 20,
              "about.html": "<html><body>May chu dich vu cua lab.</body></html>\n" * 40,
              "assets/app.css": "body{font-family:sans-serif}\n" * 300,
@@ -270,6 +276,43 @@ def plan(variant, lan, rng):
         p["hanh_vi"].append({"kieu": "ngang-hang" if bot else "doi-chung-ngang-hang", "nhan": "botnet" if bot else "benign",
                              "nguon": list(CLIENTS), "dich": list(CLIENTS), "bat_dau_sau_s": rng.uniform(30, 60),
                              "lenh": lenh, "tham_so": tham_so})
+    elif variant == "x3-dos-cham":
+        so, gian = (150, 200, 120)[k], (10, 15, 8)[k]
+        p["thoi_luong_s"] = 300
+        p["hanh_vi"].append({"kieu": "dos-cham", "nhan": "dos", "nguon": [TESTER], "dich": [SERVER],
+                             "bat_dau_sau_s": rng.uniform(90, 150),
+                             "lenh": {TESTER: py("sinh_traffic.py", "dos-cham", "--may-chu", ip(SERVER), "--cong", 80,
+                                                 "--so-ket-noi", so, "--gian-cach", gian, "--thoi-gian", 60,
+                                                 "--vai-tro", "test", "--lan", lan, "--seed", rng.randrange(10**6))},
+                             "tham_so": {"cong": 80, "so_ket_noi": so, "gian_cach_s": gian, "thoi_gian_s": 60}})
+    elif variant.startswith("k6-"):
+        p["thoi_luong_s"], p["nen"] = 700, [TESTER, *BOTS5]
+        n = len(BOTS5)
+        if variant == "k6-p2p":
+            chu_ky, jitter, cong = (8, 20, 30)[k], (0.3, 0.5, 0.4)[k], 40000
+            step = {0: range(1, n), 1: (1,), 2: (1, 2)}[k]        # lưới đầy đủ / vòng / hai bot kế tiếp
+            peers = {h: [BOTS5[(i + s) % n] for s in step] for i, h in enumerate(BOTS5)}
+            lenh = {h: py("sinh_topology.py", "ngang-hang", *sum((["--peer", ip(x)] for x in peers[h]), []),
+                          "--cong", cong, "--chu-ky", chu_ky, "--jitter", jitter, "--thoi-gian", 600,
+                          "--seed", rng.randrange(10**6)) for h in BOTS5}
+            kieu, nhan, dich = "ngang-hang", "botnet", list(BOTS5)
+            tham_so = {"cong": cong, "giao_thuc": "udp", "chu_ky_s": chu_ky, "jitter": jitter, "topology": "p2p",
+                       "peer": {ip(h): [ip(x) for x in v] for h, v in peers.items()}}
+        else:
+            bot = variant == "k6-tap-trung"
+            chu_ky = (30, 60, 45)[k]
+            jitter = (0.2, 0.4, 0.3)[k] if bot else 0.1
+            dich, cong = (CC, 8080) if bot else (SERVER, 80)
+            kieu = "tap-trung" if bot else "doi-chung-tap-trung"
+            if bot:
+                p["may_nhan"].append((CC, py("sinh_topology.py", "may-chu", "--cong", cong, "--thoi-gian", 3600)))
+            lenh = {h: py("sinh_topology.py", kieu, "--may-chu", ip(dich), "--cong", cong, "--chu-ky", chu_ky,
+                          "--jitter", jitter, "--thoi-gian", 600, "--seed", rng.randrange(10**6)) for h in BOTS5}
+            nhan, dich = ("botnet" if bot else "benign"), [dich]
+            tham_so = {"cong": cong, "chu_ky_s": chu_ky, "jitter": jitter, "topology": "centralized" if bot else "none"}
+        tham_so.update(thoi_gian_s=600, so_bot=n)
+        p["hanh_vi"].append({"kieu": kieu, "nhan": nhan, "nguon": list(BOTS5), "dich": dich,
+                             "bat_dau_sau_s": rng.uniform(30, 60), "lenh": lenh, "tham_so": tham_so})
     elif variant.startswith("x3-syn-muc"):
         muc = int(variant[-1])
         rate = {1: 50, 2: 200, 3: 600}[muc]
@@ -310,8 +353,10 @@ def plan(variant, lan, rng):
 
 # ---------------------------------------------------------------- một lần chạy
 
-def run(lab, variant, role, lan, seed=None, out_root=ROOT, scale=1.0, tester_bg=False):
+def run(lab, variant, role, lan, seed=None, out_root=ROOT, scale=1.0, tester_bg=False, overwrite=False):
     run_id = f"{variant}-{role}-{lan:02d}"
+    if not overwrite and (out_root / "data/run_logs" / f"{run_id}.json").exists():
+        raise SystemExit(f"{run_id} đã có nhật ký; chọn số lần khác hoặc thêm --ghi-de")
     seed = zlib.crc32(run_id.encode()) if seed is None else seed
     rng = random.Random(seed)
     p = plan(variant, lan, rng)
@@ -501,7 +546,7 @@ def protocol_check(lab, out_root=ROOT):
 
 
 def main(argv=None):
-    ap = argparse.ArgumentParser(description="Lab ảo 7 node và bộ chạy kịch bản Chặng 11.")
+    ap = argparse.ArgumentParser(description="Lab ảo 9 node và bộ chạy kịch bản Chặng 11.")
     sub = ap.add_subparsers(dest="lenh", required=True)
     for name in ("dung", "go", "kiem-tra", "giao-thuc", "chay"):
         sub.add_parser(name).add_argument("--lab", type=int, default=1, help="số thứ tự lab (chạy song song nhiều lab)")
@@ -513,6 +558,7 @@ def main(argv=None):
     c.add_argument("--lan", type=int, nargs="+", default=[1], help="số thứ tự lần chạy; nhiều số thì chạy lần lượt")
     c.add_argument("--seed", type=int, help="mặc định suy từ mã lần chạy")
     c.add_argument("--ti-le", type=float, default=1.0, help="co thời gian để thử nhanh script; lần thật để 1")
+    c.add_argument("--ghi-de", action="store_true", help="cho phép ghi đè lần chạy đã có nhật ký")
     c.add_argument("--nen-may-tan-cong", action="store_true",
                    help="thí nghiệm bổ sung: máy thử nghiệm .20 cũng sinh traffic bình thường suốt bản thu")
     a = ap.parse_args(argv)
@@ -528,7 +574,8 @@ def main(argv=None):
         protocol_check(a.lab)
     else:
         for lan in a.lan:
-            run(a.lab, a.bien_the, a.vai_tro, lan, a.seed, scale=a.ti_le, tester_bg=a.nen_may_tan_cong)
+            run(a.lab, a.bien_the, a.vai_tro, lan, a.seed, scale=a.ti_le, tester_bg=a.nen_may_tan_cong,
+                overwrite=a.ghi_de)
     return 0
 
 

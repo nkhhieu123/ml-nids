@@ -13,7 +13,7 @@ class ConfigTest(unittest.TestCase):
         cfg = load_config()
         self.assertEqual(cfg["windows"]["flow"], {"size_s": 10, "step_s": 2})
         self.assertEqual(cfg["windows"]["graph"], {"size_s": 120, "step_s": 10})
-        self.assertEqual(len(cfg["lab"]["hosts"]), 7)
+        self.assertEqual(len(cfg["lab"]["hosts"]), 9)          # 7 máy + hai bot của kịch bản 6 (QĐ-076)
         self.assertIn("192.168.50.10", cfg["lab"]["hosts"])
         self.assertEqual(cfg["alerts"]["channels"], ["terminal", "csv"])
 

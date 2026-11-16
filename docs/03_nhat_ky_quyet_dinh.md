@@ -580,6 +580,27 @@ Mẫu:
 - Quyết định: Giữ `windows.graph` 120 giây bước 10. Căn cứ: dựng lại đặc trưng và học lại trên CTU-13 với 60/5 và 240/20 giây; F1 test 0,801 / 0,798 / 0,798 cho 60 / 120 / 240 giây; 60 giây báo nhầm nhiều hơn (Background 17,4% so với 11,9%); F1 validation chênh lớn (0,880 so với 0,536) nhưng validation chỉ có hai bot.
 - Hệ quả: Không học lại. Chưa thử trên lab. Chi tiết docs/72 mục 4.
 
+## QĐ-076 — Thêm hai máy bot, kịch bản 6 có năm bot
+- Ngày: 16/11/2026
+- Trạng thái: Đã chốt
+- Bối cảnh: Lab chỉ có ba bot (`.41`–`.43`); yêu cầu kiểm thử botnet với ít nhất năm bot; quy tắc topology theo nhóm (QĐ-070) chưa thử với nhiều bot hơn.
+- Quyết định: Thêm `.44`, `.45` vào lab ảo; hai máy này chỉ hoạt động ở kịch bản 6 (`k6-tap-trung`, `k6-p2p`, `k6-doi-chung`), im lặng ở kịch bản 1–5 để các lần chạy cũ vẫn so được. Tham số chốt trong `config/default.yaml` mục `lab.nam_bot`.
+- Hệ quả: Trên lần `test` 12–14: 15/15 bot tập trung và 15/15 bot ngang hàng bị phát hiện, topology đúng 100% và 99,2%, đối chứng không bị báo; bộ mô hình lab lần hai (chưa thấy năm bot) cũng đạt 15/15. Chi tiết docs/80.
+
+## QĐ-077 — Thêm biến thể DoS HTTP chậm vào lab
+- Ngày: 16/11/2026
+- Trạng thái: Đã chốt
+- Bối cảnh: Lớp giữ nhãn `dos` (QĐ-074) mới đo trên CIC; lab không có DoS chậm.
+- Quyết định: Thêm `sinh_traffic.py dos-cham` và biến thể `x3-dos-cham`: giữ 120–200 kết nối HTTP với yêu cầu chưa xong, gửi thêm header vô hại mỗi 8–15 giây; trần 300 kết nối và 60 giây như mọi DoS của lab (B16, B24).
+- Hệ quả: Bộ lab lần ba bắt 3/3 đợt; recall cửa sổ phía nạn nhân 0,886, có lớp giữ nhãn 1,000 nhưng thêm 18 cửa sổ bình thường ngay sau tấn công (không thành sự kiện báo giả). Chi tiết docs/80 mục 4.3.
+
+## QĐ-083 — Bộ mô hình lab lần ba thay bộ lần hai
+- Ngày: 17/11/2026
+- Trạng thái: Đã chốt (tiếp QĐ-072)
+- Bối cảnh: Bộ lần hai sót phía nạn nhân của SYN flood (recall cửa sổ 0,10) và bot `.50` của `x5-doi-vai` (6/9).
+- Quyết định: Học lại ba module với `train` thêm của `k6`, `x3-dos-cham`, `x3-syn`, `x4`, `x5` (cùng lệnh, cùng tham số); thu 63 lần `test` mới (12–14). Bộ mới ở `models/lab/`, `config/lab.yaml`; bộ cũ giữ ở `models/lab_b2/`. Lớp giữ nhãn `dos` vẫn tắt trong `config/lab.yaml`.
+- Hệ quả: 48/48 đợt, 0 sự kiện báo giả trên 63 lần `test` mới (bộ cũ cũng 48/48, 0); recall cửa sổ nạn nhân SYN flood 0,10 → 0,97; bot bị báo ở `x5-doi-vai` 6/9 → 9/9; macro-F1 test CIC của bộ phân loại 0,903 (bộ cũ 0,906). Chi tiết docs/80.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.

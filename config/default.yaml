@@ -4,6 +4,7 @@
 capture:
   interface: eth0            # giao diện giám sát trên Kali, chỉnh theo lab
   pcap_dir: data/pcap
+  khu_goi_trung_ms: 0        # >0: bỏ bản sao của cùng gói IP đến trong chừng này mili giây (mirror hai chiều, QĐ-079); 0: tắt
 
 # Cửa sổ ban đầu; chỉnh trên tập validation rồi giữ cố định khi kiểm thử.
 windows:
@@ -129,6 +130,8 @@ lab:
     192.168.50.41: Client/Bot mô phỏng 1
     192.168.50.42: Client/Bot mô phỏng 2
     192.168.50.43: Client/Bot mô phỏng 3
+    192.168.50.44: Client/Bot mô phỏng 4 (chỉ kịch bản 6)
+    192.168.50.45: Client/Bot mô phỏng 5 (chỉ kịch bản 6)
     192.168.50.50: Server điều phối mô phỏng
   may_chu_dich: 192.168.50.30   # đích của kịch bản 1–3 (máy chủ dịch vụ)
   # Tham số kịch bản lab đã chốt trước lần chạy đầu tiên (QĐ-062). scripts/lab_ao.py dùng đúng các giá trị này;
@@ -161,6 +164,17 @@ lab:
     jitter: [0.3, 0.5, 0.4]
     peer: [luoi, vong, luoi]             # luoi: mỗi bot gọi hai bot kia; vong: 41→42→43→41
     cong_doi_chung: 6881                 # k5-doi-chung: chia sẻ khối dữ liệu TCP
+  nam_bot:                       # kịch bản 6: năm bot .41–.45 (QĐ-076); .44, .45 im lặng ở các kịch bản 1–5
+    so_bot: 5
+    tap_trung_cong: 8080         # k6-tap-trung: năm bot gọi máy điều khiển .50
+    tap_trung_chu_ky_s: [30, 60, 45]
+    tap_trung_jitter: [0.2, 0.4, 0.3]
+    p2p_cong: 40000              # k6-p2p: năm bot gửi UDP cho nhau
+    p2p_chu_ky_s: [8, 20, 30]
+    p2p_jitter: [0.3, 0.5, 0.4]
+    peer: [luoi, vong, hai_ke]   # luoi: gọi cả bốn bot kia; vong: 41→42→…→45→41; hai_ke: gọi hai bot kế tiếp
+    doi_chung_chu_ky_s: [30, 60, 45]     # k6-doi-chung: năm máy kiểm tra trạng thái .30:80 định kỳ (lành tính)
+    thoi_gian_s: 600
 
 paths:
   data_dir: data

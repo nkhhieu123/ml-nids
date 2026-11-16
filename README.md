@@ -166,6 +166,8 @@ So sánh bộ phân loại với 8 mô hình baseline: [docs/78_so_sanh_baseline
 
 Phát hiện dấu hiệu giả mạo ARP bằng quy tắc: [docs/79_arp_gia_mao.md](docs/79_arp_gia_mao.md)
 
+Botnet năm bot (lab 9 máy) và bộ mô hình lab lần ba: [docs/80_bot_5_va_bo_lab_3.md](docs/80_bot_5_va_bo_lab_3.md)
+
 Hướng dẫn báo cáo tiến độ và demo bằng các file trong `demo/`: [demo/HUONG_DAN.md](demo/HUONG_DAN.md)
 
 Giữ nhãn `dos` theo host để vớt DoS HTTP chậm (đã nối vào pipeline và realtime, bật bằng `pipeline.dos_hold`, mặc định tắt): [docs/75_dos_cham.md](docs/75_dos_cham.md)

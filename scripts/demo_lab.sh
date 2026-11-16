@@ -25,10 +25,10 @@ don_dep() {
 trap don_dep EXIT
 
 echo "=== DEMO: $v ==="
-echo "[1/4] Dựng lab ảo 7 máy (192.168.50.0/24, không có đường ra ngoài)..."
+echo "[1/4] Dựng lab ảo (192.168.50.0/24, không có đường ra ngoài)..."
 python3 scripts/lab_ao.py go --lab "$lab" >/dev/null 2>&1
 python3 scripts/lab_ao.py dung --lab "$lab" >/dev/null || { echo "Không dựng được lab. Chạy demo/0_kiem_tra.bat."; exit 1; }
-echo "      .10 giám sát | .20 máy thử tấn công | .30 máy chủ web | .41-.43 máy trạm | .50 máy điều khiển"
+echo "      .10 giám sát | .20 máy thử tấn công | .30 máy chủ web | .41-.45 máy trạm | .50 máy điều khiển"
 
 echo "[2/4] Bật cảm biến realtime trên máy giám sát .10 (mô hình lab, config/lab.yaml)..."
 rm -rf "$out"; mkdir -p "$out" output/demo
@@ -49,13 +49,13 @@ echo "      tức cả máy phát tấn công (.20) lẫn máy bị tấn công 
 echo
 tail -n +1 -F "$alerts" 2>/dev/null | awk -F, '
   BEGIN { ten["192.168.50.20"] = "máy thử tấn công"; ten["192.168.50.30"] = "máy chủ web";
-          ten["192.168.50.41"] = "máy trạm 1"; ten["192.168.50.42"] = "máy trạm 2"; ten["192.168.50.43"] = "máy trạm 3";
+          ten["192.168.50.41"] = "máy trạm 1"; ten["192.168.50.42"] = "máy trạm 2"; ten["192.168.50.43"] = "máy trạm 3"; ten["192.168.50.44"] = "máy trạm 4"; ten["192.168.50.45"] = "máy trạm 5";
           ten["192.168.50.50"] = "máy điều khiển" }
   $1 != "anomaly" && $1 != "module" { printf "  >> %s  PHÁT HIỆN LƯU LƯỢNG %-9s tại %-13s (%s)  điểm %s\n",
                                       strftime("%H:%M:%S"), toupper($2), $5, ten[$5], $7; fflush() }' &
 tail_pid=$!
 disown
-python3 scripts/lab_ao.py chay --lab "$lab" --bien-the "$v" --vai-tro test --lan "$lan" --ti-le "$tile" >"$out/chay.txt" 2>&1 &
+python3 scripts/lab_ao.py chay --lab "$lab" --bien-the "$v" --vai-tro test --lan "$lan" --ti-le "$tile" --ghi-de >"$out/chay.txt" 2>&1 &
 chay_pid=$!
 while kill -0 "$chay_pid" 2>/dev/null; do
   sleep 5

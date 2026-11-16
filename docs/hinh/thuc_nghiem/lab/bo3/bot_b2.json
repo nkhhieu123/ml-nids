@@ -1,0 +1,812 @@
+{
+  "tong_hop": {
+    "k4-bien-thien": {
+      "so_lan_chay": 3,
+      "cua_so_bao_nham": 0,
+      "may_bi_bao_nham": [],
+      "bot_bi_bao": 9,
+      "tong_bot": 9,
+      "ty_le_bot": 1.0,
+      "dot_phat_hien": 3,
+      "topology_dung": 607,
+      "topology_cua_so": 607,
+      "ty_le_topology": 1.0
+    },
+    "k4-co-dinh": {
+      "so_lan_chay": 3,
+      "cua_so_bao_nham": 0,
+      "may_bi_bao_nham": [],
+      "bot_bi_bao": 9,
+      "tong_bot": 9,
+      "ty_le_bot": 1.0,
+      "dot_phat_hien": 3,
+      "topology_dung": 611,
+      "topology_cua_so": 611,
+      "ty_le_topology": 1.0
+    },
+    "k4-doi-chung": {
+      "so_lan_chay": 3,
+      "cua_so_bao_nham": 0,
+      "may_bi_bao_nham": []
+    },
+    "k5-doi-chung": {
+      "so_lan_chay": 3,
+      "cua_so_bao_nham": 0,
+      "may_bi_bao_nham": []
+    },
+    "k5-p2p": {
+      "so_lan_chay": 3,
+      "cua_so_bao_nham": 0,
+      "may_bi_bao_nham": [],
+      "bot_bi_bao": 9,
+      "tong_bot": 9,
+      "ty_le_bot": 1.0,
+      "dot_phat_hien": 3,
+      "topology_dung": 599,
+      "topology_cua_so": 607,
+      "ty_le_topology": 0.987
+    },
+    "k6-doi-chung": {
+      "so_lan_chay": 3,
+      "cua_so_bao_nham": 0,
+      "may_bi_bao_nham": []
+    },
+    "k6-p2p": {
+      "so_lan_chay": 3,
+      "cua_so_bao_nham": 0,
+      "may_bi_bao_nham": [],
+      "bot_bi_bao": 15,
+      "tong_bot": 15,
+      "ty_le_bot": 1.0,
+      "dot_phat_hien": 3,
+      "topology_dung": 1010,
+      "topology_cua_so": 1021,
+      "ty_le_topology": 0.989
+    },
+    "k6-tap-trung": {
+      "so_lan_chay": 3,
+      "cua_so_bao_nham": 0,
+      "may_bi_bao_nham": [],
+      "bot_bi_bao": 15,
+      "tong_bot": 15,
+      "ty_le_bot": 1.0,
+      "dot_phat_hien": 3,
+      "topology_dung": 1010,
+      "topology_cua_so": 1010,
+      "ty_le_topology": 1.0
+    },
+    "x4-doi-chung-doi-vai": {
+      "so_lan_chay": 3,
+      "cua_so_bao_nham": 0,
+      "may_bi_bao_nham": []
+    },
+    "x4-doi-vai": {
+      "so_lan_chay": 3,
+      "cua_so_bao_nham": 0,
+      "may_bi_bao_nham": [],
+      "bot_bi_bao": 9,
+      "tong_bot": 9,
+      "ty_le_bot": 1.0,
+      "dot_phat_hien": 3,
+      "topology_dung": 608,
+      "topology_cua_so": 608,
+      "ty_le_topology": 1.0
+    },
+    "x5-doi-vai": {
+      "so_lan_chay": 3,
+      "cua_so_bao_nham": 0,
+      "may_bi_bao_nham": [],
+      "bot_bi_bao": 6,
+      "tong_bot": 9,
+      "ty_le_bot": 0.667,
+      "dot_phat_hien": 3,
+      "topology_dung": 364,
+      "topology_cua_so": 403,
+      "ty_le_topology": 0.903
+    }
+  },
+  "lan_chay": [
+    {
+      "ma_lan_chay": "k4-bien-thien-test-12",
+      "bien_the": "k4-bien-thien",
+      "so_bot": 3,
+      "topology_that": "centralized",
+      "bot_bi_bao": 3,
+      "bot_bo_sot": [],
+      "cua_so_bot_bi_bao": {
+        "192.168.50.41": 68,
+        "192.168.50.42": 64,
+        "192.168.50.43": 71
+      },
+      "giay_toi_canh_bao_dau": {
+        "192.168.50.41": 20.6,
+        "192.168.50.42": 20.6,
+        "192.168.50.43": 10.6
+      },
+      "topology": {
+        "so_cua_so": 203,
+        "dung": 203,
+        "theo_nhan": {
+          "centralized": 203,
+          "p2p": 0
+        }
+      },
+      "may_bi_bao_nham": [],
+      "cua_so_bao_nham": 0
+    },
+    {
+      "ma_lan_chay": "k4-bien-thien-test-13",
+      "bien_the": "k4-bien-thien",
+      "so_bot": 3,
+      "topology_that": "centralized",
+      "bot_bi_bao": 3,
+      "bot_bo_sot": [],
+      "cua_so_bot_bi_bao": {
+        "192.168.50.41": 70,
+        "192.168.50.42": 70,
+        "192.168.50.43": 71
+      },
+      "giay_toi_canh_bao_dau": {
+        "192.168.50.41": 6.1,
+        "192.168.50.42": 6.1,
+        "192.168.50.43": 6.1
+      },
+      "topology": {
+        "so_cua_so": 211,
+        "dung": 211,
+        "theo_nhan": {
+          "centralized": 211,
+          "p2p": 0
+        }
+      },
+      "may_bi_bao_nham": [],
+      "cua_so_bao_nham": 0
+    },
+    {
+      "ma_lan_chay": "k4-bien-thien-test-14",
+      "bien_the": "k4-bien-thien",
+      "so_bot": 3,
+      "topology_that": "centralized",
+      "bot_bi_bao": 3,
+      "bot_bo_sot": [],
+      "cua_so_bot_bi_bao": {
+        "192.168.50.41": 66,
+        "192.168.50.42": 60,
+        "192.168.50.43": 67
+      },
+      "giay_toi_canh_bao_dau": {
+        "192.168.50.41": 2.3,
+        "192.168.50.42": 52.3,
+        "192.168.50.43": 42.3
+      },
+      "topology": {
+        "so_cua_so": 193,
+        "dung": 193,
+        "theo_nhan": {
+          "centralized": 193,
+          "p2p": 0
+        }
+      },
+      "may_bi_bao_nham": [],
+      "cua_so_bao_nham": 0
+    },
+    {
+      "ma_lan_chay": "k4-co-dinh-test-12",
+      "bien_the": "k4-co-dinh",
+      "so_bot": 3,
+      "topology_that": "centralized",
+      "bot_bi_bao": 3,
+      "bot_bo_sot": [],
+      "cua_so_bot_bi_bao": {
+        "192.168.50.41": 66,
+        "192.168.50.42": 71,
+        "192.168.50.43": 71
+      },
+      "giay_toi_canh_bao_dau": {
+        "192.168.50.41": 26.1,
+        "192.168.50.42": 6.1,
+        "192.168.50.43": 6.1
+      },
+      "topology": {
+        "so_cua_so": 208,
+        "dung": 208,
+        "theo_nhan": {
+          "centralized": 208,
+          "p2p": 0
+        }
+      },
+      "may_bi_bao_nham": [],
+      "cua_so_bao_nham": 0
+    },
+    {
+      "ma_lan_chay": "k4-co-dinh-test-13",
+      "bien_the": "k4-co-dinh",
+      "so_bot": 3,
+      "topology_that": "centralized",
+      "bot_bi_bao": 3,
+      "bot_bo_sot": [],
+      "cua_so_bot_bi_bao": {
+        "192.168.50.41": 67,
+        "192.168.50.42": 69,
+        "192.168.50.43": 69
+      },
+      "giay_toi_canh_bao_dau": {
+        "192.168.50.41": 9.1,
+        "192.168.50.42": 9.1,
+        "192.168.50.43": 19.1
+      },
+      "topology": {
+        "so_cua_so": 205,
+        "dung": 205,
+        "theo_nhan": {
+          "centralized": 205,
+          "p2p": 0
+        }
+      },
+      "may_bi_bao_nham": [],
+      "cua_so_bao_nham": 0
+    },
+    {
+      "ma_lan_chay": "k4-co-dinh-test-14",
+      "bien_the": "k4-co-dinh",
+      "so_bot": 3,
+      "topology_that": "centralized",
+      "bot_bi_bao": 3,
+      "bot_bo_sot": [],
+      "cua_so_bot_bi_bao": {
+        "192.168.50.41": 66,
+        "192.168.50.42": 66,
+        "192.168.50.43": 66
+      },
+      "giay_toi_canh_bao_dau": {
+        "192.168.50.41": 50.2,
+        "192.168.50.42": 40.2,
+        "192.168.50.43": 40.2
+      },
+      "topology": {
+        "so_cua_so": 198,
+        "dung": 198,
+        "theo_nhan": {
+          "centralized": 198,
+          "p2p": 0
+        }
+      },
+      "may_bi_bao_nham": [],
+      "cua_so_bao_nham": 0
+    },
+    {
+      "ma_lan_chay": "k4-doi-chung-test-12",
+      "bien_the": "k4-doi-chung",
+      "so_bot": 0,
+      "may_bi_bao_nham": [],
+      "cua_so_bao_nham": 0
+    },
+    {
+      "ma_lan_chay": "k4-doi-chung-test-13",
+      "bien_the": "k4-doi-chung",
+      "so_bot": 0,
+      "may_bi_bao_nham": [],
+      "cua_so_bao_nham": 0
+    },
+    {
+      "ma_lan_chay": "k4-doi-chung-test-14",
+      "bien_the": "k4-doi-chung",
+      "so_bot": 0,
+      "may_bi_bao_nham": [],
+      "cua_so_bao_nham": 0
+    },
+    {
+      "ma_lan_chay": "k5-doi-chung-test-12",
+      "bien_the": "k5-doi-chung",
+      "so_bot": 0,
+      "may_bi_bao_nham": [],
+      "cua_so_bao_nham": 0
+    },
+    {
+      "ma_lan_chay": "k5-doi-chung-test-13",
+      "bien_the": "k5-doi-chung",
+      "so_bot": 0,
+      "may_bi_bao_nham": [],
+      "cua_so_bao_nham": 0
+    },
+    {
+      "ma_lan_chay": "k5-doi-chung-test-14",
+      "bien_the": "k5-doi-chung",
+      "so_bot": 0,
+      "may_bi_bao_nham": [],
+      "cua_so_bao_nham": 0
+    },
+    {
+      "ma_lan_chay": "k5-p2p-test-12",
+      "bien_the": "k5-p2p",
+      "so_bot": 3,
+      "topology_that": "p2p",
+      "bot_bi_bao": 3,
+      "bot_bo_sot": [],
+      "cua_so_bot_bi_bao": {
+        "192.168.50.41": 68,
+        "192.168.50.42": 66,
+        "192.168.50.43": 69
+      },
+      "giay_toi_canh_bao_dau": {
+        "192.168.50.41": 28.1,
+        "192.168.50.42": 8.1,
+        "192.168.50.43": 18.1
+      },
+      "topology": {
+        "so_cua_so": 203,
+        "dung": 202,
+        "theo_nhan": {
+          "centralized": 1,
+          "p2p": 202
+        }
+      },
+      "may_bi_bao_nham": [],
+      "cua_so_bao_nham": 0
+    },
+    {
+      "ma_lan_chay": "k5-p2p-test-13",
+      "bien_the": "k5-p2p",
+      "so_bot": 3,
+      "topology_that": "p2p",
+      "bot_bi_bao": 3,
+      "bot_bo_sot": [],
+      "cua_so_bot_bi_bao": {
+        "192.168.50.41": 65,
+        "192.168.50.42": 72,
+        "192.168.50.43": 69
+      },
+      "giay_toi_canh_bao_dau": {
+        "192.168.50.41": 7.9,
+        "192.168.50.42": 7.9,
+        "192.168.50.43": 7.9
+      },
+      "topology": {
+        "so_cua_so": 206,
+        "dung": 204,
+        "theo_nhan": {
+          "centralized": 2,
+          "p2p": 204
+        }
+      },
+      "may_bi_bao_nham": [],
+      "cua_so_bao_nham": 0
+    },
+    {
+      "ma_lan_chay": "k5-p2p-test-14",
+      "bien_the": "k5-p2p",
+      "so_bot": 3,
+      "topology_that": "p2p",
+      "bot_bi_bao": 3,
+      "bot_bo_sot": [],
+      "cua_so_bot_bi_bao": {
+        "192.168.50.41": 62,
+        "192.168.50.42": 65,
+        "192.168.50.43": 71
+      },
+      "giay_toi_canh_bao_dau": {
+        "192.168.50.41": 13.0,
+        "192.168.50.42": 23.0,
+        "192.168.50.43": 3.0
+      },
+      "topology": {
+        "so_cua_so": 198,
+        "dung": 193,
+        "theo_nhan": {
+          "centralized": 5,
+          "p2p": 193
+        }
+      },
+      "may_bi_bao_nham": [],
+      "cua_so_bao_nham": 0
+    },
+    {
+      "ma_lan_chay": "k6-doi-chung-test-12",
+      "bien_the": "k6-doi-chung",
+      "so_bot": 0,
+      "may_bi_bao_nham": [],
+      "cua_so_bao_nham": 0
+    },
+    {
+      "ma_lan_chay": "k6-doi-chung-test-13",
+      "bien_the": "k6-doi-chung",
+      "so_bot": 0,
+      "may_bi_bao_nham": [],
+      "cua_so_bao_nham": 0
+    },
+    {
+      "ma_lan_chay": "k6-doi-chung-test-14",
+      "bien_the": "k6-doi-chung",
+      "so_bot": 0,
+      "may_bi_bao_nham": [],
+      "cua_so_bao_nham": 0
+    },
+    {
+      "ma_lan_chay": "k6-p2p-test-12",
+      "bien_the": "k6-p2p",
+      "so_bot": 5,
+      "topology_that": "p2p",
+      "bot_bi_bao": 5,
+      "bot_bo_sot": [],
+      "cua_so_bot_bi_bao": {
+        "192.168.50.41": 64,
+        "192.168.50.42": 69,
+        "192.168.50.43": 67,
+        "192.168.50.44": 67,
+        "192.168.50.45": 69
+      },
+      "giay_toi_canh_bao_dau": {
+        "192.168.50.41": 20.3,
+        "192.168.50.42": 10.3,
+        "192.168.50.43": 10.3,
+        "192.168.50.44": 20.3,
+        "192.168.50.45": 30.3
+      },
+      "topology": {
+        "so_cua_so": 336,
+        "dung": 335,
+        "theo_nhan": {
+          "centralized": 1,
+          "p2p": 335
+        }
+      },
+      "may_bi_bao_nham": [],
+      "cua_so_bao_nham": 0
+    },
+    {
+      "ma_lan_chay": "k6-p2p-test-13",
+      "bien_the": "k6-p2p",
+      "so_bot": 5,
+      "topology_that": "p2p",
+      "bot_bi_bao": 5,
+      "bot_bo_sot": [],
+      "cua_so_bot_bi_bao": {
+        "192.168.50.41": 72,
+        "192.168.50.42": 69,
+        "192.168.50.43": 72,
+        "192.168.50.44": 71,
+        "192.168.50.45": 69
+      },
+      "giay_toi_canh_bao_dau": {
+        "192.168.50.41": 3.1,
+        "192.168.50.42": 3.1,
+        "192.168.50.43": 3.1,
+        "192.168.50.44": 13.1,
+        "192.168.50.45": 13.1
+      },
+      "topology": {
+        "so_cua_so": 353,
+        "dung": 350,
+        "theo_nhan": {
+          "centralized": 3,
+          "p2p": 350
+        }
+      },
+      "may_bi_bao_nham": [],
+      "cua_so_bao_nham": 0
+    },
+    {
+      "ma_lan_chay": "k6-p2p-test-14",
+      "bien_the": "k6-p2p",
+      "so_bot": 5,
+      "topology_that": "p2p",
+      "bot_bi_bao": 5,
+      "bot_bo_sot": [],
+      "cua_so_bot_bi_bao": {
+        "192.168.50.41": 61,
+        "192.168.50.42": 70,
+        "192.168.50.43": 63,
+        "192.168.50.44": 69,
+        "192.168.50.45": 69
+      },
+      "giay_toi_canh_bao_dau": {
+        "192.168.50.41": 11.4,
+        "192.168.50.42": 21.4,
+        "192.168.50.43": 21.4,
+        "192.168.50.44": 21.4,
+        "192.168.50.45": 11.4
+      },
+      "topology": {
+        "so_cua_so": 332,
+        "dung": 325,
+        "theo_nhan": {
+          "centralized": 7,
+          "p2p": 325
+        }
+      },
+      "may_bi_bao_nham": [],
+      "cua_so_bao_nham": 0
+    },
+    {
+      "ma_lan_chay": "k6-tap-trung-test-12",
+      "bien_the": "k6-tap-trung",
+      "so_bot": 5,
+      "topology_that": "centralized",
+      "bot_bi_bao": 5,
+      "bot_bo_sot": [],
+      "cua_so_bot_bi_bao": {
+        "192.168.50.41": 66,
+        "192.168.50.42": 67,
+        "192.168.50.43": 67,
+        "192.168.50.44": 68,
+        "192.168.50.45": 68
+      },
+      "giay_toi_canh_bao_dau": {
+        "192.168.50.41": 36.2,
+        "192.168.50.42": 36.2,
+        "192.168.50.43": 26.2,
+        "192.168.50.44": 26.2,
+        "192.168.50.45": 36.2
+      },
+      "topology": {
+        "so_cua_so": 336,
+        "dung": 336,
+        "theo_nhan": {
+          "centralized": 336,
+          "p2p": 0
+        }
+      },
+      "may_bi_bao_nham": [],
+      "cua_so_bao_nham": 0
+    },
+    {
+      "ma_lan_chay": "k6-tap-trung-test-13",
+      "bien_the": "k6-tap-trung",
+      "so_bot": 5,
+      "topology_that": "centralized",
+      "bot_bi_bao": 5,
+      "bot_bo_sot": [],
+      "cua_so_bot_bi_bao": {
+        "192.168.50.41": 71,
+        "192.168.50.42": 67,
+        "192.168.50.43": 69,
+        "192.168.50.44": 67,
+        "192.168.50.45": 69
+      },
+      "giay_toi_canh_bao_dau": {
+        "192.168.50.41": 9.8,
+        "192.168.50.42": 9.8,
+        "192.168.50.43": 29.8,
+        "192.168.50.44": 39.8,
+        "192.168.50.45": 19.8
+      },
+      "topology": {
+        "so_cua_so": 343,
+        "dung": 343,
+        "theo_nhan": {
+          "centralized": 343,
+          "p2p": 0
+        }
+      },
+      "may_bi_bao_nham": [],
+      "cua_so_bao_nham": 0
+    },
+    {
+      "ma_lan_chay": "k6-tap-trung-test-14",
+      "bien_the": "k6-tap-trung",
+      "so_bot": 5,
+      "topology_that": "centralized",
+      "bot_bi_bao": 5,
+      "bot_bo_sot": [],
+      "cua_so_bot_bi_bao": {
+        "192.168.50.41": 66,
+        "192.168.50.42": 64,
+        "192.168.50.43": 65,
+        "192.168.50.44": 68,
+        "192.168.50.45": 68
+      },
+      "giay_toi_canh_bao_dau": {
+        "192.168.50.41": 24.7,
+        "192.168.50.42": 64.7,
+        "192.168.50.43": 54.7,
+        "192.168.50.44": 14.7,
+        "192.168.50.45": 24.7
+      },
+      "topology": {
+        "so_cua_so": 331,
+        "dung": 331,
+        "theo_nhan": {
+          "centralized": 331,
+          "p2p": 0
+        }
+      },
+      "may_bi_bao_nham": [],
+      "cua_so_bao_nham": 0
+    },
+    {
+      "ma_lan_chay": "x4-doi-chung-doi-vai-test-12",
+      "bien_the": "x4-doi-chung-doi-vai",
+      "so_bot": 0,
+      "may_bi_bao_nham": [],
+      "cua_so_bao_nham": 0
+    },
+    {
+      "ma_lan_chay": "x4-doi-chung-doi-vai-test-13",
+      "bien_the": "x4-doi-chung-doi-vai",
+      "so_bot": 0,
+      "may_bi_bao_nham": [],
+      "cua_so_bao_nham": 0
+    },
+    {
+      "ma_lan_chay": "x4-doi-chung-doi-vai-test-14",
+      "bien_the": "x4-doi-chung-doi-vai",
+      "so_bot": 0,
+      "may_bi_bao_nham": [],
+      "cua_so_bao_nham": 0
+    },
+    {
+      "ma_lan_chay": "x4-doi-vai-test-12",
+      "bien_the": "x4-doi-vai",
+      "so_bot": 3,
+      "topology_that": "centralized",
+      "bot_bi_bao": 3,
+      "bot_bo_sot": [],
+      "cua_so_bot_bi_bao": {
+        "192.168.50.20": 65,
+        "192.168.50.42": 63,
+        "192.168.50.43": 61
+      },
+      "giay_toi_canh_bao_dau": {
+        "192.168.50.20": 39.8,
+        "192.168.50.42": 39.8,
+        "192.168.50.43": 39.8
+      },
+      "topology": {
+        "so_cua_so": 189,
+        "dung": 189,
+        "theo_nhan": {
+          "centralized": 189,
+          "p2p": 0
+        }
+      },
+      "may_bi_bao_nham": [],
+      "cua_so_bao_nham": 0
+    },
+    {
+      "ma_lan_chay": "x4-doi-vai-test-13",
+      "bien_the": "x4-doi-vai",
+      "so_bot": 3,
+      "topology_that": "centralized",
+      "bot_bi_bao": 3,
+      "bot_bo_sot": [],
+      "cua_so_bot_bi_bao": {
+        "192.168.50.20": 70,
+        "192.168.50.42": 69,
+        "192.168.50.43": 69
+      },
+      "giay_toi_canh_bao_dau": {
+        "192.168.50.20": 7.9,
+        "192.168.50.42": 7.9,
+        "192.168.50.43": 27.9
+      },
+      "topology": {
+        "so_cua_so": 208,
+        "dung": 208,
+        "theo_nhan": {
+          "centralized": 208,
+          "p2p": 0
+        }
+      },
+      "may_bi_bao_nham": [],
+      "cua_so_bao_nham": 0
+    },
+    {
+      "ma_lan_chay": "x4-doi-vai-test-14",
+      "bien_the": "x4-doi-vai",
+      "so_bot": 3,
+      "topology_that": "centralized",
+      "bot_bi_bao": 3,
+      "bot_bo_sot": [],
+      "cua_so_bot_bi_bao": {
+        "192.168.50.20": 71,
+        "192.168.50.42": 69,
+        "192.168.50.43": 71
+      },
+      "giay_toi_canh_bao_dau": {
+        "192.168.50.20": 8.3,
+        "192.168.50.42": 8.3,
+        "192.168.50.43": 8.3
+      },
+      "topology": {
+        "so_cua_so": 211,
+        "dung": 211,
+        "theo_nhan": {
+          "centralized": 211,
+          "p2p": 0
+        }
+      },
+      "may_bi_bao_nham": [],
+      "cua_so_bao_nham": 0
+    },
+    {
+      "ma_lan_chay": "x5-doi-vai-test-12",
+      "bien_the": "x5-doi-vai",
+      "so_bot": 3,
+      "topology_that": "p2p",
+      "bot_bi_bao": 2,
+      "bot_bo_sot": [
+        "192.168.50.50"
+      ],
+      "cua_so_bot_bi_bao": {
+        "192.168.50.20": 66,
+        "192.168.50.43": 66,
+        "192.168.50.50": 0
+      },
+      "giay_toi_canh_bao_dau": {
+        "192.168.50.20": 23.8,
+        "192.168.50.43": 13.8,
+        "192.168.50.50": null
+      },
+      "topology": {
+        "so_cua_so": 132,
+        "dung": 114,
+        "theo_nhan": {
+          "centralized": 18,
+          "p2p": 114
+        }
+      },
+      "may_bi_bao_nham": [],
+      "cua_so_bao_nham": 0
+    },
+    {
+      "ma_lan_chay": "x5-doi-vai-test-13",
+      "bien_the": "x5-doi-vai",
+      "so_bot": 3,
+      "topology_that": "p2p",
+      "bot_bi_bao": 2,
+      "bot_bo_sot": [
+        "192.168.50.50"
+      ],
+      "cua_so_bot_bi_bao": {
+        "192.168.50.20": 68,
+        "192.168.50.43": 68,
+        "192.168.50.50": 0
+      },
+      "giay_toi_canh_bao_dau": {
+        "192.168.50.20": 14.0,
+        "192.168.50.43": 14.0,
+        "192.168.50.50": null
+      },
+      "topology": {
+        "so_cua_so": 136,
+        "dung": 126,
+        "theo_nhan": {
+          "centralized": 10,
+          "p2p": 126
+        }
+      },
+      "may_bi_bao_nham": [],
+      "cua_so_bao_nham": 0
+    },
+    {
+      "ma_lan_chay": "x5-doi-vai-test-14",
+      "bien_the": "x5-doi-vai",
+      "so_bot": 3,
+      "topology_that": "p2p",
+      "bot_bi_bao": 2,
+      "bot_bo_sot": [
+        "192.168.50.50"
+      ],
+      "cua_so_bot_bi_bao": {
+        "192.168.50.20": 68,
+        "192.168.50.43": 67,
+        "192.168.50.50": 0
+      },
+      "giay_toi_canh_bao_dau": {
+        "192.168.50.20": 23.1,
+        "192.168.50.43": 33.1,
+        "192.168.50.50": null
+      },
+      "topology": {
+        "so_cua_so": 135,
+        "dung": 124,
+        "theo_nhan": {
+          "centralized": 11,
+          "p2p": 124
+        }
+      },
+      "may_bi_bao_nham": [],
+      "cua_so_bao_nham": 0
+    }
+  ]
+}

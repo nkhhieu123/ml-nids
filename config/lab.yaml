@@ -4,6 +4,7 @@
 capture:
   interface: eth0
   pcap_dir: data/pcap
+  khu_goi_trung_ms: 0
 windows:
   flow:
     size_s: 10
@@ -154,6 +155,8 @@ lab:
     192.168.50.41: Client/Bot mô phỏng 1
     192.168.50.42: Client/Bot mô phỏng 2
     192.168.50.43: Client/Bot mô phỏng 3
+    192.168.50.44: Client/Bot mô phỏng 4 (chỉ kịch bản 6)
+    192.168.50.45: Client/Bot mô phỏng 5 (chỉ kịch bản 6)
     192.168.50.50: Server điều phối mô phỏng
   may_chu_dich: 192.168.50.30
   quet:
@@ -213,6 +216,35 @@ lab:
     - vong
     - luoi
     cong_doi_chung: 6881
+  nam_bot:
+    so_bot: 5
+    tap_trung_cong: 8080
+    tap_trung_chu_ky_s:
+    - 30
+    - 60
+    - 45
+    tap_trung_jitter:
+    - 0.2
+    - 0.4
+    - 0.3
+    p2p_cong: 40000
+    p2p_chu_ky_s:
+    - 8
+    - 20
+    - 30
+    p2p_jitter:
+    - 0.3
+    - 0.5
+    - 0.4
+    peer:
+    - luoi
+    - vong
+    - hai_ke
+    doi_chung_chu_ky_s:
+    - 30
+    - 60
+    - 45
+    thoi_gian_s: 600
 paths:
   data_dir: data
   model_dir: models

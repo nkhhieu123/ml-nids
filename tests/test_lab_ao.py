@@ -69,6 +69,29 @@ class LabPlanMatchesConfigTest(unittest.TestCase):
             self.assertEqual(per_bot, {2} if n["peer"][lan - 1] == "luoi" else {1})
         self.assertEqual(behavior("k5-doi-chung", 1)["tham_so"]["cong"], n["cong_doi_chung"])
 
+    def test_five_bots(self):
+        c = LAB["nam_bot"]
+        self.assertEqual(len(lab_ao.BOTS5), c["so_bot"])
+        self.assertEqual(lab_ao.BOTS5[:3], lab_ao.CLIENTS)            # kịch bản 1–5 vẫn dùng ba máy cũ
+        for lan in (1, 2, 3):
+            t = behavior("k6-tap-trung", lan)
+            self.assertEqual(len(t["nguon"]), 5)
+            self.assertEqual((t["tham_so"]["cong"], t["tham_so"]["chu_ky_s"], t["tham_so"]["jitter"]),
+                             (c["tap_trung_cong"], c["tap_trung_chu_ky_s"][lan - 1], c["tap_trung_jitter"][lan - 1]))
+            p = behavior("k6-p2p", lan)["tham_so"]
+            self.assertEqual((p["cong"], p["chu_ky_s"], p["jitter"]),
+                             (c["p2p_cong"], c["p2p_chu_ky_s"][lan - 1], c["p2p_jitter"][lan - 1]))
+            want = {"luoi": 4, "vong": 1, "hai_ke": 2}[c["peer"][lan - 1]]
+            self.assertEqual({len(v) for v in p["peer"].values()}, {want})
+            self.assertTrue(all(lab_ao.ip(lab_ao.CC) not in v for v in p["peer"].values()))
+            d = behavior("k6-doi-chung", lan)
+            self.assertEqual((d["nhan"], d["dich"], d["tham_so"]["chu_ky_s"]),
+                             ("benign", [lab_ao.SERVER], c["doi_chung_chu_ky_s"][lan - 1]))
+        for v in lab_ao.MAIN_VARIANTS:                                 # .44, .45 im lặng ngoài kịch bản 6
+            p = lab_ao.plan(v, 1, random.Random(1))
+            used = set(p["nen"]) | {h for b in p["hanh_vi"] for h in b["lenh"]}
+            self.assertFalse(used & {44, 45}, v)
+
 
 if __name__ == "__main__":
     unittest.main()
