@@ -573,6 +573,13 @@ Mẫu:
 - Quyết định: Giữ 10 giây bước 2 giây. Căn cứ: dò lại tham số cho 20 giây được validation 0,961 nhưng test CIC chỉ 0,914 (10 giây: 0,908), GoldenEye recall 0; mô hình 20 giây học từ CIC bỏ sót 9/9 đợt DoS trên 13 lần chạy lab mới, mô hình 10 giây bắt 9/9; quét cổng chậm hơn khoảng 2 giây.
 - Hệ quả: Không học lại module nào. Công cụ đo: `nids.do_tre_cua_so`. Chi tiết docs/72 mục 3.1.
 
+## QĐ-082 — Giữ cửa sổ đồ thị 120 giây sau khi thử 60 và 240 giây
+- Ngày: 17/11/2026
+- Trạng thái: Đã chốt
+- Bối cảnh: Cửa sổ đồ thị của module botnet chưa thử độ nhạy (docs/Viec_con_thieu.md).
+- Quyết định: Giữ `windows.graph` 120 giây bước 10. Căn cứ: dựng lại đặc trưng và học lại trên CTU-13 với 60/5 và 240/20 giây; F1 test 0,801 / 0,798 / 0,798 cho 60 / 120 / 240 giây; 60 giây báo nhầm nhiều hơn (Background 17,4% so với 11,9%); F1 validation chênh lớn (0,880 so với 0,536) nhưng validation chỉ có hai bot.
+- Hệ quả: Không học lại. Chưa thử trên lab. Chi tiết docs/72 mục 4.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.

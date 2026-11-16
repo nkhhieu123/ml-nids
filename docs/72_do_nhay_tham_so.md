@@ -247,6 +247,31 @@ Kết quả: `docs/hinh/w20/`.
 
 Kết luận: **giữ cửa sổ 10 giây bước 2 giây**; hướng cửa sổ 20 giây đã thử và không đáng đổi.
 
+## 4. Cửa sổ đồ thị của module botnet (17/11/2026, QĐ-082)
+
+Cửa sổ đồ thị 120 giây bước 10 giây (QĐ-036) chưa từng thử độ nhạy. Thử 60 giây bước 5 và 240 giây bước 20 (giữ tỷ
+lệ cửa sổ : bước = 12 : 1): dựng lại đặc trưng host–cửa sổ cho cả 13 scenario CTU-13 (`nids.graph_features
+dac-trung`), chạy lại toàn bộ bước chọn tham số và ngưỡng của Chặng 8 (`nids.botnet huan-luyen`), rồi chấm
+validation và test. Thời gian nhìn lại của đặc trưng gọi định kỳ giữ 600 giây. Kết quả:
+`docs/hinh/cua_so_do_thi/`.
+
+| | 60 giây / bước 5 | **120 giây / bước 10** (hiện tại) | 240 giây / bước 20 |
+|---|---|---|---|
+| Tham số Random Forest chọn | không giới hạn sâu, lá ≥ 5 | không giới hạn sâu, lá ≥ 5 | sâu 10, lá ≥ 5 |
+| Ngưỡng (chọn trên validation) | 0,05 | 0,1 | 0,1 |
+| F1 validation (scenario 4, 13) | 0,880 | 0,536 | 0,483 |
+| **F1 test** (scenario 1, 2, 6, 8, 9) | 0,801 | **0,798** | 0,798 |
+| Precision / recall test | 0,963 / 0,686 | 0,971 / 0,678 | 0,969 / 0,679 |
+| Cửa sổ bình thường bị báo (test) | 2,27% | 1,58% | 1,50% |
+| Background bị báo (test) | 17,4% | 11,9% | 9,1% |
+
+- **Ba độ dài cho cùng F1 test** (0,798–0,801). Mức tăng lớn của 60 giây trên validation không xuất hiện ở
+  test: validation chỉ có hai scenario, mỗi scenario một bot, nên rất nhạy với một bot đơn lẻ.
+- Cửa sổ 60 giây báo nhầm nhiều hơn (bình thường 2,27%, Background 17,4%). Cửa sổ 240 giây báo nhầm ít hơn một
+  chút nhưng cảnh báo đến muộn hơn, vì phải chờ cửa sổ dài đóng.
+
+Kết luận: **giữ 120 giây bước 10 giây**.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
