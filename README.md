@@ -164,6 +164,8 @@ Quy trình xử lý dữ liệu từ gói tin tới kết quả (tiền xử lý
 
 So sánh bộ phân loại với 8 mô hình baseline: [docs/78_so_sanh_baseline.md](docs/78_so_sanh_baseline.md)
 
+EDA tổng hợp ba bộ dữ liệu (CIC-IDS2017, CTU-13, lab): [docs/81_eda_tong_hop.md](docs/81_eda_tong_hop.md)
+
 Phát hiện dấu hiệu giả mạo ARP bằng quy tắc: [docs/79_arp_gia_mao.md](docs/79_arp_gia_mao.md)
 
 Botnet năm bot (lab 9 máy) và bộ mô hình lab lần ba: [docs/80_bot_5_va_bo_lab_3.md](docs/80_bot_5_va_bo_lab_3.md)

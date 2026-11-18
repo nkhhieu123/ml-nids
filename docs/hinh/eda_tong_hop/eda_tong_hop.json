@@ -1,0 +1,826 @@
+{
+  "cic": {
+    "tong_quan": {
+      "cic17_monday": {
+        "goi": 11655546,
+        "flow": 381707,
+        "cua_so": 152513
+      },
+      "cic17_wednesday": {
+        "goi": 13732433,
+        "flow": 506163,
+        "cua_so": 163431
+      },
+      "cic17_friday": {
+        "goi": 9944187,
+        "flow": 555024,
+        "cua_so": 149449
+      }
+    },
+    "lop_theo_tap": {
+      "test": {
+        "benign": 99988,
+        "dos": 727,
+        "port_scan": 220
+      },
+      "train": {
+        "benign": 252221,
+        "dos": 2270,
+        "port_scan": 707
+      },
+      "validation": {
+        "benign": 84958,
+        "dos": 648,
+        "port_scan": 164
+      }
+    },
+    "chat_luong_train": {
+      "so_cua_so": 255198,
+      "ty_le_trung_ca_dac_trung_lan_nhan": 0.4607,
+      "nhom_dac_trung_trung_mang_nhieu_nhan": 11,
+      "cot_hang": []
+    },
+    "mo_ta_train": {
+      "packets_out": {
+        "trong": 0.0,
+        "bang_0": 0.0291,
+        "trung_binh": 254.1405,
+        "do_lech_chuan": 1611.4083,
+        "trung_vi": 20.0,
+        "p99": 3686.03,
+        "lon_nhat": 33425.0,
+        "do_lech_skew": 11.03,
+        "so_gia_tri_khac": 5137
+      },
+      "packets_in": {
+        "trong": 0.0,
+        "bang_0": 0.0166,
+        "trung_binh": 298.1062,
+        "do_lech_chuan": 2027.8237,
+        "trung_vi": 20.0,
+        "p99": 4548.03,
+        "lon_nhat": 42803.0,
+        "do_lech_skew": 11.23,
+        "so_gia_tri_khac": 5662
+      },
+      "bytes_out": {
+        "trong": 0.0,
+        "bang_0": 0.0291,
+        "trung_binh": 44124.0702,
+        "do_lech_chuan": 780142.6434,
+        "trung_vi": 2028.0,
+        "p99": 493872.82,
+        "lon_nhat": 30795933.0,
+        "do_lech_skew": 35.79,
+        "so_gia_tri_khac": 47618
+      },
+      "bytes_in": {
+        "trong": 0.0,
+        "bang_0": 0.0166,
+        "trung_binh": 469517.5296,
+        "do_lech_chuan": 4549894.0924,
+        "trung_vi": 1963.0,
+        "p99": 6226674.17,
+        "lon_nhat": 119997350.0,
+        "do_lech_skew": 13.57,
+        "so_gia_tri_khac": 51089
+      },
+      "dst_hosts": {
+        "trong": 0.0,
+        "bang_0": 0.1347,
+        "trung_binh": 8.5672,
+        "do_lech_chuan": 15.2013,
+        "trung_vi": 2.0,
+        "p99": 73.0,
+        "lon_nhat": 201.0,
+        "do_lech_skew": 3.45,
+        "so_gia_tri_khac": 184
+      },
+      "dst_ports": {
+        "trong": 0.0,
+        "bang_0": 0.1363,
+        "trung_binh": 2.0321,
+        "do_lech_chuan": 15.563,
+        "trung_vi": 2.0,
+        "p99": 5.0,
+        "lon_nhat": 998.0,
+        "do_lech_skew": 63.49,
+        "so_gia_tri_khac": 32
+      },
+      "dst_host_ports": {
+        "trong": 0.0,
+        "bang_0": 0.1363,
+        "trung_binh": 9.1304,
+        "do_lech_chuan": 22.0713,
+        "trung_vi": 2.0,
+        "p99": 77.0,
+        "lon_nhat": 998.0,
+        "do_lech_skew": 23.09,
+        "so_gia_tri_khac": 203
+      },
+      "new_conn_out": {
+        "trong": 0.0,
+        "bang_0": 0.6594,
+        "trung_binh": 11.5051,
+        "do_lech_chuan": 129.5424,
+        "trung_vi": 0.0,
+        "p99": 201.0,
+        "lon_nhat": 7987.0,
+        "do_lech_skew": 41.76,
+        "so_gia_tri_khac": 736
+      },
+      "src_hosts": {
+        "trong": 0.0,
+        "bang_0": 0.7211,
+        "trung_binh": 0.5274,
+        "do_lech_chuan": 1.1472,
+        "trung_vi": 0.0,
+        "p99": 5.0,
+        "lon_nhat": 11.0,
+        "do_lech_skew": 3.02,
+        "so_gia_tri_khac": 12
+      },
+      "new_conn_in": {
+        "trong": 0.0,
+        "bang_0": 0.8161,
+        "trung_binh": 8.0935,
+        "do_lech_chuan": 126.9945,
+        "trung_vi": 0.0,
+        "p99": 135.0,
+        "lon_nhat": 7991.0,
+        "do_lech_skew": 44.31,
+        "so_gia_tri_khac": 629
+      },
+      "dst_port_entropy": {
+        "trong": 0.1363,
+        "bang_0": 0.3573,
+        "trung_binh": 0.5995,
+        "do_lech_chuan": 0.5793,
+        "trung_vi": 0.6253,
+        "p99": 1.9713,
+        "lon_nhat": 9.9587,
+        "do_lech_skew": 1.62,
+        "so_gia_tri_khac": 39525
+      },
+      "tcp_attempts_out": {
+        "trong": 0.0,
+        "bang_0": 0.7511,
+        "trung_binh": 7.2379,
+        "do_lech_chuan": 125.0391,
+        "trung_vi": 0.0,
+        "p99": 99.0,
+        "lon_nhat": 7976.0,
+        "do_lech_skew": 46.01,
+        "so_gia_tri_khac": 431
+      },
+      "incomplete_out": {
+        "trong": 0.0,
+        "bang_0": 0.9792,
+        "trung_binh": 1.7618,
+        "do_lech_chuan": 105.5091,
+        "trung_vi": 0.0,
+        "p99": 2.0,
+        "lon_nhat": 7976.0,
+        "do_lech_skew": 67.98,
+        "so_gia_tri_khac": 119
+      },
+      "no_reply_out": {
+        "trong": 0.0,
+        "bang_0": 0.9868,
+        "trung_binh": 0.1481,
+        "do_lech_chuan": 5.2562,
+        "trung_vi": 0.0,
+        "p99": 1.0,
+        "lon_nhat": 808.0,
+        "do_lech_skew": 112.41,
+        "so_gia_tri_khac": 104
+      },
+      "rejected_out": {
+        "trong": 0.0,
+        "bang_0": 0.9959,
+        "trung_binh": 1.5974,
+        "do_lech_chuan": 104.354,
+        "trung_vi": 0.0,
+        "p99": 0.0,
+        "lon_nhat": 7897.0,
+        "do_lech_skew": 68.22,
+        "so_gia_tri_khac": 89
+      },
+      "half_open_out": {
+        "trong": 0.0,
+        "bang_0": 0.9944,
+        "trung_binh": 0.0164,
+        "do_lech_chuan": 0.5024,
+        "trung_vi": 0.0,
+        "p99": 0.0,
+        "lon_nhat": 40.0,
+        "do_lech_skew": 61.97,
+        "so_gia_tri_khac": 19
+      },
+      "incomplete_ratio_out": {
+        "trong": 0.7511,
+        "bang_0": 0.9165,
+        "trung_binh": 0.0344,
+        "do_lech_chuan": 0.1629,
+        "trung_vi": 0.0,
+        "p99": 1.0,
+        "lon_nhat": 1.0,
+        "do_lech_skew": 5.15,
+        "so_gia_tri_khac": 954
+      },
+      "tcp_attempts_in": {
+        "trong": 0.0,
+        "bang_0": 0.9399,
+        "trung_binh": 3.7386,
+        "do_lech_chuan": 124.0355,
+        "trung_vi": 0.0,
+        "p99": 4.0,
+        "lon_nhat": 7981.0,
+        "do_lech_skew": 47.24,
+        "so_gia_tri_khac": 304
+      },
+      "incomplete_in": {
+        "trong": 0.0,
+        "bang_0": 0.996,
+        "trung_binh": 1.7095,
+        "do_lech_chuan": 105.5071,
+        "trung_vi": 0.0,
+        "p99": 0.0,
+        "lon_nhat": 7976.0,
+        "do_lech_skew": 67.98,
+        "so_gia_tri_khac": 115
+      },
+      "incomplete_ratio_in": {
+        "trong": 0.9399,
+        "bang_0": 0.9337,
+        "trung_binh": 0.0292,
+        "do_lech_chuan": 0.1411,
+        "trung_vi": 0.0,
+        "p99": 0.8462,
+        "lon_nhat": 1.0,
+        "do_lech_skew": 5.27,
+        "so_gia_tri_khac": 487
+      }
+    },
+    "mat_can_bang_train": {
+      "benign_tren_dos": 111.1,
+      "benign_tren_port_scan": 356.7
+    },
+    "phan_biet_train": {
+      "port_scan": {
+        "dst_port_entropy": {
+          "auc": 0.7914,
+          "auc_tach": 0.7914,
+          "thong_tin_tuong_ho": 0.0067
+        },
+        "new_conn_in": {
+          "auc": 0.7194,
+          "auc_tach": 0.7194,
+          "thong_tin_tuong_ho": 0.0041
+        },
+        "src_hosts": {
+          "auc": 0.7109,
+          "auc_tach": 0.7109,
+          "thong_tin_tuong_ho": 0.0023
+        },
+        "dst_ports": {
+          "auc": 0.704,
+          "auc_tach": 0.704,
+          "thong_tin_tuong_ho": 0.0046
+        },
+        "dst_hosts": {
+          "auc": 0.3043,
+          "auc_tach": 0.6957,
+          "thong_tin_tuong_ho": 0.0016
+        },
+        "tcp_attempts_in": {
+          "auc": 0.6925,
+          "auc_tach": 0.6925,
+          "thong_tin_tuong_ho": 0.0046
+        },
+        "rejected_out": {
+          "auc": 0.6739,
+          "auc_tach": 0.6739,
+          "thong_tin_tuong_ho": 0.0045
+        },
+        "incomplete_ratio_in": {
+          "auc": 0.6713,
+          "auc_tach": 0.6713,
+          "thong_tin_tuong_ho": 0.0053
+        },
+        "incomplete_in": {
+          "auc": 0.671,
+          "auc_tach": 0.671,
+          "thong_tin_tuong_ho": 0.0052
+        },
+        "new_conn_out": {
+          "auc": 0.6678,
+          "auc_tach": 0.6678,
+          "thong_tin_tuong_ho": 0.0026
+        },
+        "incomplete_out": {
+          "auc": 0.6676,
+          "auc_tach": 0.6676,
+          "thong_tin_tuong_ho": 0.004
+        },
+        "incomplete_ratio_out": {
+          "auc": 0.6672,
+          "auc_tach": 0.6672,
+          "thong_tin_tuong_ho": 0.0031
+        },
+        "half_open_out": {
+          "auc": 0.6161,
+          "auc_tach": 0.6161,
+          "thong_tin_tuong_ho": 0.0032
+        },
+        "tcp_attempts_out": {
+          "auc": 0.5816,
+          "auc_tach": 0.5816,
+          "thong_tin_tuong_ho": 0.0026
+        },
+        "packets_out": {
+          "auc": 0.5766,
+          "auc_tach": 0.5766,
+          "thong_tin_tuong_ho": 0.0028
+        },
+        "packets_in": {
+          "auc": 0.5591,
+          "auc_tach": 0.5591,
+          "thong_tin_tuong_ho": 0.003
+        },
+        "bytes_out": {
+          "auc": 0.5585,
+          "auc_tach": 0.5585,
+          "thong_tin_tuong_ho": 0.0044
+        },
+        "bytes_in": {
+          "auc": 0.5512,
+          "auc_tach": 0.5512,
+          "thong_tin_tuong_ho": 0.0042
+        },
+        "no_reply_out": {
+          "auc": 0.5378,
+          "auc_tach": 0.5378,
+          "thong_tin_tuong_ho": 0.0015
+        },
+        "dst_host_ports": {
+          "auc": 0.5232,
+          "auc_tach": 0.5232,
+          "thong_tin_tuong_ho": 0.0037
+        }
+      },
+      "dos": {
+        "tcp_attempts_in": {
+          "auc": 0.8701,
+          "auc_tach": 0.8701,
+          "thong_tin_tuong_ho": 0.0228
+        },
+        "bytes_out": {
+          "auc": 0.8472,
+          "auc_tach": 0.8472,
+          "thong_tin_tuong_ho": 0.0165
+        },
+        "bytes_in": {
+          "auc": 0.8346,
+          "auc_tach": 0.8346,
+          "thong_tin_tuong_ho": 0.0133
+        },
+        "packets_in": {
+          "auc": 0.8339,
+          "auc_tach": 0.8339,
+          "thong_tin_tuong_ho": 0.0125
+        },
+        "packets_out": {
+          "auc": 0.8327,
+          "auc_tach": 0.8327,
+          "thong_tin_tuong_ho": 0.0121
+        },
+        "new_conn_in": {
+          "auc": 0.8089,
+          "auc_tach": 0.8089,
+          "thong_tin_tuong_ho": 0.0124
+        },
+        "src_hosts": {
+          "auc": 0.7478,
+          "auc_tach": 0.7478,
+          "thong_tin_tuong_ho": 0.0081
+        },
+        "dst_hosts": {
+          "auc": 0.267,
+          "auc_tach": 0.733,
+          "thong_tin_tuong_ho": 0.0076
+        },
+        "dst_host_ports": {
+          "auc": 0.3146,
+          "auc_tach": 0.6854,
+          "thong_tin_tuong_ho": 0.0049
+        },
+        "incomplete_in": {
+          "auc": 0.6676,
+          "auc_tach": 0.6676,
+          "thong_tin_tuong_ho": 0.0158
+        },
+        "incomplete_ratio_in": {
+          "auc": 0.6675,
+          "auc_tach": 0.6675,
+          "thong_tin_tuong_ho": 0.0149
+        },
+        "no_reply_out": {
+          "auc": 0.6639,
+          "auc_tach": 0.6639,
+          "thong_tin_tuong_ho": 0.0123
+        },
+        "incomplete_out": {
+          "auc": 0.6614,
+          "auc_tach": 0.6614,
+          "thong_tin_tuong_ho": 0.0096
+        },
+        "incomplete_ratio_out": {
+          "auc": 0.6589,
+          "auc_tach": 0.6589,
+          "thong_tin_tuong_ho": 0.0089
+        },
+        "tcp_attempts_out": {
+          "auc": 0.6309,
+          "auc_tach": 0.6309,
+          "thong_tin_tuong_ho": 0.0066
+        },
+        "new_conn_out": {
+          "auc": 0.6134,
+          "auc_tach": 0.6134,
+          "thong_tin_tuong_ho": 0.0059
+        },
+        "dst_ports": {
+          "auc": 0.4131,
+          "auc_tach": 0.5869,
+          "thong_tin_tuong_ho": 0.0016
+        },
+        "dst_port_entropy": {
+          "auc": 0.4597,
+          "auc_tach": 0.5403,
+          "thong_tin_tuong_ho": 0.0069
+        },
+        "half_open_out": {
+          "auc": 0.5172,
+          "auc_tach": 0.5172,
+          "thong_tin_tuong_ho": 0.0008
+        },
+        "rejected_out": {
+          "auc": 0.4979,
+          "auc_tach": 0.5021,
+          "thong_tin_tuong_ho": 0.0
+        }
+      }
+    }
+  },
+  "ctu13": {
+    "so_host_cua_so": 515984,
+    "theo_tap_nhan": {
+      "test": {
+        "background": 148720,
+        "normal_host": 24880,
+        "suspect_host": 19188,
+        "bo": 6489
+      },
+      "train": {
+        "background": 183958,
+        "normal_host": 32827,
+        "bo": 11977,
+        "suspect_host": 9575
+      },
+      "validation": {
+        "background": 60131,
+        "normal_host": 10453,
+        "suspect_host": 6555,
+        "bo": 1231
+      }
+    },
+    "trung_vi_train": {
+      "normal_host": {
+        "so_peer": 8.0,
+        "so_peer_ra": 8.0,
+        "so_peer_vao": 0.0,
+        "so_flow_ra": 48.0,
+        "so_flow_vao": 0.0,
+        "so_byte_ra": 21912.0,
+        "so_byte_vao": 0.0,
+        "so_goi_ra": 182.0,
+        "so_goi_vao": 0.0,
+        "ty_le_tuong_ho": 0.0,
+        "tap_trung_ra": 0.6667,
+        "entropy_peer_ra": 0.6152,
+        "tap_trung_vao": 1.0,
+        "entropy_peer_vao": 0.0,
+        "so_cong_ra": 2.0,
+        "ty_le_khong_tra_loi_ra": 0.0,
+        "ty_le_udp": 0.6667,
+        "ty_le_peer_noi_bo": 0.125,
+        "ty_le_peer_moi": 0.1429,
+        "beacon_so_cap_du_quan_sat": 10.0,
+        "beacon_so_cap_deu": 1.0,
+        "beacon_cv_nho_nhat": 0.0154,
+        "beacon_chu_ky": 30.5272,
+        "beacon_so_quan_sat_lon_nhat": 167.0
+      },
+      "suspect_host": {
+        "so_peer": 58.0,
+        "so_peer_ra": 56.0,
+        "so_peer_vao": 1.0,
+        "so_flow_ra": 58.0,
+        "so_flow_vao": 4.0,
+        "so_byte_ra": 12440.0,
+        "so_byte_vao": 700.0,
+        "so_goi_ra": 189.0,
+        "so_goi_vao": 9.0,
+        "ty_le_tuong_ho": 0.0,
+        "tap_trung_ra": 0.0179,
+        "entropy_peer_ra": 1.0,
+        "tap_trung_vao": 0.5,
+        "entropy_peer_vao": 0.9464,
+        "so_cong_ra": 1.0,
+        "ty_le_khong_tra_loi_ra": 0.9667,
+        "ty_le_udp": 0.0,
+        "ty_le_peer_noi_bo": 0.0,
+        "ty_le_peer_moi": 1.0,
+        "beacon_so_cap_du_quan_sat": 0.0,
+        "beacon_so_cap_deu": 0.0,
+        "beacon_cv_nho_nhat": 1.676,
+        "beacon_chu_ky": 3.3367,
+        "beacon_so_quan_sat_lon_nhat": 0.0
+      }
+    },
+    "phan_biet_train": {
+      "suspect_host": {
+        "beacon_chu_ky": {
+          "auc": 0.0554,
+          "auc_tach": 0.9446,
+          "thong_tin_tuong_ho": 0.3707
+        },
+        "beacon_so_cap_du_quan_sat": {
+          "auc": 0.0578,
+          "auc_tach": 0.9422,
+          "thong_tin_tuong_ho": 0.3297
+        },
+        "ty_le_khong_tra_loi_ra": {
+          "auc": 0.9229,
+          "auc_tach": 0.9229,
+          "thong_tin_tuong_ho": 0.3599
+        },
+        "beacon_so_cap_deu": {
+          "auc": 0.1007,
+          "auc_tach": 0.8993,
+          "thong_tin_tuong_ho": 0.2828
+        },
+        "beacon_cv_nho_nhat": {
+          "auc": 0.1151,
+          "auc_tach": 0.8849,
+          "thong_tin_tuong_ho": 0.3713
+        },
+        "beacon_so_quan_sat_lon_nhat": {
+          "auc": 0.1368,
+          "auc_tach": 0.8632,
+          "thong_tin_tuong_ho": 0.3322
+        },
+        "ty_le_peer_moi": {
+          "auc": 0.8462,
+          "auc_tach": 0.8462,
+          "thong_tin_tuong_ho": 0.2707
+        },
+        "so_flow_vao": {
+          "auc": 0.7886,
+          "auc_tach": 0.7886,
+          "thong_tin_tuong_ho": 0.1851
+        },
+        "so_peer_vao": {
+          "auc": 0.7818,
+          "auc_tach": 0.7818,
+          "thong_tin_tuong_ho": 0.1511
+        },
+        "ty_le_udp": {
+          "auc": 0.2288,
+          "auc_tach": 0.7712,
+          "thong_tin_tuong_ho": 0.4131
+        },
+        "so_goi_vao": {
+          "auc": 0.7686,
+          "auc_tach": 0.7686,
+          "thong_tin_tuong_ho": 0.1905
+        },
+        "so_cong_ra": {
+          "auc": 0.2336,
+          "auc_tach": 0.7664,
+          "thong_tin_tuong_ho": 0.2709
+        },
+        "so_byte_vao": {
+          "auc": 0.7661,
+          "auc_tach": 0.7661,
+          "thong_tin_tuong_ho": 0.2613
+        },
+        "tap_trung_vao": {
+          "auc": 0.716,
+          "auc_tach": 0.716,
+          "thong_tin_tuong_ho": 0.1579
+        },
+        "entropy_peer_vao": {
+          "auc": 0.7152,
+          "auc_tach": 0.7152,
+          "thong_tin_tuong_ho": 0.1312
+        },
+        "entropy_peer_ra": {
+          "auc": 0.6981,
+          "auc_tach": 0.6981,
+          "thong_tin_tuong_ho": 0.3809
+        },
+        "tap_trung_ra": {
+          "auc": 0.3147,
+          "auc_tach": 0.6853,
+          "thong_tin_tuong_ho": 0.3879
+        },
+        "so_peer": {
+          "auc": 0.6444,
+          "auc_tach": 0.6444,
+          "thong_tin_tuong_ho": 0.3869
+        },
+        "so_byte_ra": {
+          "auc": 0.3609,
+          "auc_tach": 0.6391,
+          "thong_tin_tuong_ho": 0.4375
+        },
+        "ty_le_peer_noi_bo": {
+          "auc": 0.3788,
+          "auc_tach": 0.6212,
+          "thong_tin_tuong_ho": 0.3287
+        },
+        "so_peer_ra": {
+          "auc": 0.613,
+          "auc_tach": 0.613,
+          "thong_tin_tuong_ho": 0.3618
+        },
+        "so_flow_ra": {
+          "auc": 0.5896,
+          "auc_tach": 0.5896,
+          "thong_tin_tuong_ho": 0.2353
+        },
+        "ty_le_tuong_ho": {
+          "auc": 0.5817,
+          "auc_tach": 0.5817,
+          "thong_tin_tuong_ho": 0.049
+        },
+        "so_goi_ra": {
+          "auc": 0.4929,
+          "auc_tach": 0.5071,
+          "thong_tin_tuong_ho": 0.2693
+        }
+      }
+    },
+    "o_trong_train": {
+      "tap_trung_vao": 0.7167,
+      "entropy_peer_vao": 0.7167,
+      "beacon_cv_nho_nhat": 0.2694,
+      "beacon_chu_ky": 0.2694
+    }
+  },
+  "lab": {
+    "lan_chay_theo_bien_the": {
+      "k1-binh-thuong": {
+        "test": 13,
+        "train": 3,
+        "val": 1
+      },
+      "k2-quet-cham": {
+        "test": 13,
+        "train": 3,
+        "val": 1
+      },
+      "k2-quet-nhanh": {
+        "test": 14,
+        "train": 3,
+        "val": 1
+      },
+      "k3-dos-muc1": {
+        "test": 13,
+        "train": 3,
+        "val": 1
+      },
+      "k3-dos-muc2": {
+        "test": 14,
+        "train": 3,
+        "val": 1
+      },
+      "k3-dos-muc3": {
+        "test": 13,
+        "train": 3,
+        "val": 1
+      },
+      "k4-bien-thien": {
+        "test": 12,
+        "train": 3,
+        "val": 1
+      },
+      "k4-co-dinh": {
+        "test": 13,
+        "train": 3,
+        "val": 1
+      },
+      "k4-doi-chung": {
+        "test": 12,
+        "train": 3,
+        "val": 1
+      },
+      "k5-doi-chung": {
+        "test": 12,
+        "train": 3,
+        "val": 1
+      },
+      "k5-p2p": {
+        "test": 13,
+        "train": 3,
+        "val": 1
+      },
+      "k6-doi-chung": {
+        "test": 3,
+        "train": 3,
+        "val": 1
+      },
+      "k6-p2p": {
+        "test": 3,
+        "train": 3,
+        "val": 1
+      },
+      "k6-tap-trung": {
+        "test": 3,
+        "train": 3,
+        "val": 1
+      },
+      "x3-dos-cham": {
+        "test": 3,
+        "train": 3,
+        "val": 1
+      },
+      "x3-syn-muc1": {
+        "test": 6,
+        "train": 3,
+        "val": 1
+      },
+      "x3-syn-muc2": {
+        "test": 6,
+        "train": 3,
+        "val": 1
+      },
+      "x3-syn-muc3": {
+        "test": 6,
+        "train": 3,
+        "val": 1
+      },
+      "x4-doi-chung-doi-vai": {
+        "test": 6,
+        "train": 3,
+        "val": 1
+      },
+      "x4-doi-vai": {
+        "test": 6,
+        "train": 3,
+        "val": 1
+      },
+      "x5-doi-vai": {
+        "test": 6,
+        "train": 3,
+        "val": 1
+      }
+    },
+    "trung_vi_binh_thuong": {
+      "packets_in": {
+        "cic": 19.0,
+        "lab": 23.0
+      },
+      "packets_out": {
+        "cic": 20.0,
+        "lab": 26.0
+      },
+      "new_conn_in": {
+        "cic": 0.0,
+        "lab": 0.0
+      },
+      "new_conn_out": {
+        "cic": 0.0,
+        "lab": 2.0
+      },
+      "dst_ports": {
+        "cic": 2.0,
+        "lab": 1.0
+      },
+      "src_hosts": {
+        "cic": 0.0,
+        "lab": 0.0
+      },
+      "dst_hosts": {
+        "cic": 2.0,
+        "lab": 1.0
+      },
+      "bytes_in": {
+        "cic": 1902.0,
+        "lab": 6344.5
+      }
+    }
+  }
+}
