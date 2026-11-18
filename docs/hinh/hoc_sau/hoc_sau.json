@@ -1,0 +1,1152 @@
+{
+  "du_lieu": {
+    "so_mau_train_truoc_bo_trung": 166269,
+    "so_mau_train_sau_bo_trung": 85989,
+    "ty_le_can_bang": null,
+    "seed": 42,
+    "lop_train": {
+      "benign": 83346,
+      "dos": 2165,
+      "port_scan": 478
+    },
+    "lop_validation": {
+      "benign": 53949,
+      "dos": 648,
+      "port_scan": 164
+    },
+    "lop_test": {
+      "benign": 67713,
+      "dos": 727,
+      "port_scan": 220
+    }
+  },
+  "k_cua_so_truoc": 5,
+  "mo_hinh": {
+    "random_forest (cơ sở)": {
+      "macro_f1_validation": {
+        "trung_binh": 0.9358,
+        "do_lech": 0.0016
+      },
+      "macro_f1_test": {
+        "trung_binh": 0.9052,
+        "do_lech": 0.0007
+      },
+      "test_lan_dau": {
+        "macro_f1": 0.9061,
+        "accuracy": 0.997,
+        "theo_lop": {
+          "benign": {
+            "precision": 0.9975,
+            "recall": 0.9996,
+            "f1": 0.9985,
+            "so_mau": 67713
+          },
+          "port_scan": {
+            "precision": 0.9467,
+            "recall": 0.7273,
+            "f1": 0.8226,
+            "so_mau": 220
+          },
+          "dos": {
+            "precision": 0.9622,
+            "recall": 0.8404,
+            "f1": 0.8972,
+            "so_mau": 727
+          }
+        },
+        "confusion": {
+          "nhan": [
+            "benign",
+            "port_scan",
+            "dos"
+          ],
+          "ma_tran": [
+            [
+              67685,
+              9,
+              19
+            ],
+            [
+              55,
+              160,
+              5
+            ],
+            [
+              116,
+              0,
+              611
+            ]
+          ]
+        },
+        "ty_le_benign_bi_bao": 0.00041
+      },
+      "test_theo_seed": [
+        0.9061,
+        0.905,
+        0.9044
+      ],
+      "tham_so": {
+        "n_estimators": 300,
+        "max_depth": 20,
+        "min_samples_leaf": 1,
+        "max_features": "sqrt",
+        "class_weight": null
+      },
+      "giay_hoc_mot_lan": 7.5
+    },
+    "lightgbm": {
+      "macro_f1_validation": {
+        "trung_binh": 0.9401,
+        "do_lech": 0.0
+      },
+      "macro_f1_test": {
+        "trung_binh": 0.9146,
+        "do_lech": 0.0
+      },
+      "test_lan_dau": {
+        "macro_f1": 0.9146,
+        "accuracy": 0.9971,
+        "theo_lop": {
+          "benign": {
+            "precision": 0.9979,
+            "recall": 0.9993,
+            "f1": 0.9986,
+            "so_mau": 67713
+          },
+          "port_scan": {
+            "precision": 0.8738,
+            "recall": 0.8182,
+            "f1": 0.8451,
+            "so_mau": 220
+          },
+          "dos": {
+            "precision": 0.9567,
+            "recall": 0.8501,
+            "f1": 0.9002,
+            "so_mau": 727
+          }
+        },
+        "confusion": {
+          "nhan": [
+            "benign",
+            "port_scan",
+            "dos"
+          ],
+          "ma_tran": [
+            [
+              67664,
+              24,
+              25
+            ],
+            [
+              37,
+              180,
+              3
+            ],
+            [
+              107,
+              2,
+              618
+            ]
+          ]
+        },
+        "ty_le_benign_bi_bao": 0.00072
+      },
+      "test_theo_seed": [
+        0.9146,
+        0.9146,
+        0.9146
+      ],
+      "chon_tham_so": {
+        "num_leaves": 127,
+        "learning_rate": 0.1,
+        "min_child_samples": 10,
+        "class_weight": null,
+        "so_vong": 31
+      },
+      "luoi": [
+        {
+          "num_leaves": 31,
+          "learning_rate": 0.05,
+          "min_child_samples": 10,
+          "class_weight": null,
+          "so_vong": 43,
+          "macro_f1_validation": 0.9347,
+          "giay": 1.8
+        },
+        {
+          "num_leaves": 31,
+          "learning_rate": 0.05,
+          "min_child_samples": 10,
+          "class_weight": "balanced",
+          "so_vong": 550,
+          "macro_f1_validation": 0.6677,
+          "giay": 9.2
+        },
+        {
+          "num_leaves": 31,
+          "learning_rate": 0.05,
+          "min_child_samples": 40,
+          "class_weight": null,
+          "so_vong": 74,
+          "macro_f1_validation": 0.9344,
+          "giay": 2.2
+        },
+        {
+          "num_leaves": 31,
+          "learning_rate": 0.05,
+          "min_child_samples": 40,
+          "class_weight": "balanced",
+          "so_vong": 694,
+          "macro_f1_validation": 0.6693,
+          "giay": 11.1
+        },
+        {
+          "num_leaves": 31,
+          "learning_rate": 0.1,
+          "min_child_samples": 10,
+          "class_weight": null,
+          "so_vong": 20,
+          "macro_f1_validation": 0.9216,
+          "giay": 1.4
+        },
+        {
+          "num_leaves": 31,
+          "learning_rate": 0.1,
+          "min_child_samples": 10,
+          "class_weight": "balanced",
+          "so_vong": 327,
+          "macro_f1_validation": 0.6651,
+          "giay": 6.2
+        },
+        {
+          "num_leaves": 31,
+          "learning_rate": 0.1,
+          "min_child_samples": 40,
+          "class_weight": null,
+          "so_vong": 23,
+          "macro_f1_validation": 0.9293,
+          "giay": 1.6
+        },
+        {
+          "num_leaves": 31,
+          "learning_rate": 0.1,
+          "min_child_samples": 40,
+          "class_weight": "balanced",
+          "so_vong": 281,
+          "macro_f1_validation": 0.6668,
+          "giay": 5.2
+        },
+        {
+          "num_leaves": 63,
+          "learning_rate": 0.05,
+          "min_child_samples": 10,
+          "class_weight": null,
+          "so_vong": 175,
+          "macro_f1_validation": 0.8225,
+          "giay": 4.7
+        },
+        {
+          "num_leaves": 63,
+          "learning_rate": 0.05,
+          "min_child_samples": 10,
+          "class_weight": "balanced",
+          "so_vong": 462,
+          "macro_f1_validation": 0.6664,
+          "giay": 9.8
+        },
+        {
+          "num_leaves": 63,
+          "learning_rate": 0.05,
+          "min_child_samples": 40,
+          "class_weight": null,
+          "so_vong": 121,
+          "macro_f1_validation": 0.931,
+          "giay": 3.4
+        },
+        {
+          "num_leaves": 63,
+          "learning_rate": 0.05,
+          "min_child_samples": 40,
+          "class_weight": "balanced",
+          "so_vong": 385,
+          "macro_f1_validation": 0.6691,
+          "giay": 8.9
+        },
+        {
+          "num_leaves": 63,
+          "learning_rate": 0.1,
+          "min_child_samples": 10,
+          "class_weight": null,
+          "so_vong": 53,
+          "macro_f1_validation": 0.9325,
+          "giay": 2.6
+        },
+        {
+          "num_leaves": 63,
+          "learning_rate": 0.1,
+          "min_child_samples": 10,
+          "class_weight": "balanced",
+          "so_vong": 200,
+          "macro_f1_validation": 0.6709,
+          "giay": 5.5
+        },
+        {
+          "num_leaves": 63,
+          "learning_rate": 0.1,
+          "min_child_samples": 40,
+          "class_weight": null,
+          "so_vong": 55,
+          "macro_f1_validation": 0.9352,
+          "giay": 2.6
+        },
+        {
+          "num_leaves": 63,
+          "learning_rate": 0.1,
+          "min_child_samples": 40,
+          "class_weight": "balanced",
+          "so_vong": 215,
+          "macro_f1_validation": 0.6696,
+          "giay": 5.7
+        },
+        {
+          "num_leaves": 127,
+          "learning_rate": 0.05,
+          "min_child_samples": 10,
+          "class_weight": null,
+          "so_vong": 96,
+          "macro_f1_validation": 0.8127,
+          "giay": 4.2
+        },
+        {
+          "num_leaves": 127,
+          "learning_rate": 0.05,
+          "min_child_samples": 10,
+          "class_weight": "balanced",
+          "so_vong": 252,
+          "macro_f1_validation": 0.6663,
+          "giay": 8.2
+        },
+        {
+          "num_leaves": 127,
+          "learning_rate": 0.05,
+          "min_child_samples": 40,
+          "class_weight": null,
+          "so_vong": 103,
+          "macro_f1_validation": 0.8164,
+          "giay": 4.6
+        },
+        {
+          "num_leaves": 127,
+          "learning_rate": 0.05,
+          "min_child_samples": 40,
+          "class_weight": "balanced",
+          "so_vong": 319,
+          "macro_f1_validation": 0.6714,
+          "giay": 11.8
+        },
+        {
+          "num_leaves": 127,
+          "learning_rate": 0.1,
+          "min_child_samples": 10,
+          "class_weight": null,
+          "so_vong": 31,
+          "macro_f1_validation": 0.9401,
+          "giay": 2.9
+        },
+        {
+          "num_leaves": 127,
+          "learning_rate": 0.1,
+          "min_child_samples": 10,
+          "class_weight": "balanced",
+          "so_vong": 93,
+          "macro_f1_validation": 0.6658,
+          "giay": 4.3
+        },
+        {
+          "num_leaves": 127,
+          "learning_rate": 0.1,
+          "min_child_samples": 40,
+          "class_weight": null,
+          "so_vong": 57,
+          "macro_f1_validation": 0.812,
+          "giay": 3.6
+        },
+        {
+          "num_leaves": 127,
+          "learning_rate": 0.1,
+          "min_child_samples": 40,
+          "class_weight": "balanced",
+          "so_vong": 154,
+          "macro_f1_validation": 0.6709,
+          "giay": 6.0
+        }
+      ]
+    },
+    "mlp (học sâu)": {
+      "macro_f1_validation": {
+        "trung_binh": 0.9334,
+        "do_lech": 0.0032
+      },
+      "macro_f1_test": {
+        "trung_binh": 0.8978,
+        "do_lech": 0.0045
+      },
+      "test_lan_dau": {
+        "macro_f1": 0.8996,
+        "accuracy": 0.997,
+        "theo_lop": {
+          "benign": {
+            "precision": 0.9973,
+            "recall": 0.9997,
+            "f1": 0.9985,
+            "so_mau": 67713
+          },
+          "port_scan": {
+            "precision": 0.9337,
+            "recall": 0.7045,
+            "f1": 0.8031,
+            "so_mau": 220
+          },
+          "dos": {
+            "precision": 0.9773,
+            "recall": 0.8294,
+            "f1": 0.8973,
+            "so_mau": 727
+          }
+        },
+        "confusion": {
+          "nhan": [
+            "benign",
+            "port_scan",
+            "dos"
+          ],
+          "ma_tran": [
+            [
+              67693,
+              11,
+              9
+            ],
+            [
+              60,
+              155,
+              5
+            ],
+            [
+              124,
+              0,
+              603
+            ]
+          ]
+        },
+        "ty_le_benign_bi_bao": 0.0003
+      },
+      "test_theo_seed": [
+        0.8996,
+        0.9022,
+        0.8916
+      ],
+      "do_tham_so": [
+        {
+          "an": 64,
+          "luy_thua_trong_so": 0.0,
+          "lr": 0.001,
+          "macro_f1_validation": 0.932,
+          "vong": 20
+        },
+        {
+          "an": 64,
+          "luy_thua_trong_so": 0.0,
+          "lr": 0.0003,
+          "macro_f1_validation": 0.9304,
+          "vong": 32
+        },
+        {
+          "an": 64,
+          "luy_thua_trong_so": 0.25,
+          "lr": 0.001,
+          "macro_f1_validation": 0.9185,
+          "vong": 19
+        },
+        {
+          "an": 64,
+          "luy_thua_trong_so": 0.25,
+          "lr": 0.0003,
+          "macro_f1_validation": 0.9022,
+          "vong": 16
+        },
+        {
+          "an": 64,
+          "luy_thua_trong_so": 0.5,
+          "lr": 0.001,
+          "macro_f1_validation": 0.8666,
+          "vong": 6
+        },
+        {
+          "an": 64,
+          "luy_thua_trong_so": 0.5,
+          "lr": 0.0003,
+          "macro_f1_validation": 0.8096,
+          "vong": 6
+        },
+        {
+          "an": 128,
+          "luy_thua_trong_so": 0.0,
+          "lr": 0.001,
+          "macro_f1_validation": 0.933,
+          "vong": 16
+        },
+        {
+          "an": 128,
+          "luy_thua_trong_so": 0.0,
+          "lr": 0.0003,
+          "macro_f1_validation": 0.9309,
+          "vong": 17
+        },
+        {
+          "an": 128,
+          "luy_thua_trong_so": 0.25,
+          "lr": 0.001,
+          "macro_f1_validation": 0.9254,
+          "vong": 15
+        },
+        {
+          "an": 128,
+          "luy_thua_trong_so": 0.25,
+          "lr": 0.0003,
+          "macro_f1_validation": 0.9202,
+          "vong": 15
+        },
+        {
+          "an": 128,
+          "luy_thua_trong_so": 0.5,
+          "lr": 0.001,
+          "macro_f1_validation": 0.9035,
+          "vong": 15
+        },
+        {
+          "an": 128,
+          "luy_thua_trong_so": 0.5,
+          "lr": 0.0003,
+          "macro_f1_validation": 0.8933,
+          "vong": 25
+        }
+      ],
+      "chon_tham_so": {
+        "an": 128,
+        "luy_thua_trong_so": 0.0,
+        "lr": 0.001
+      },
+      "theo_seed": [
+        {
+          "vong_tot_nhat": 16,
+          "macro_f1_validation": 0.933,
+          "giay": 28.7
+        },
+        {
+          "vong_tot_nhat": 22,
+          "macro_f1_validation": 0.9375,
+          "giay": 34.2
+        },
+        {
+          "vong_tot_nhat": 6,
+          "macro_f1_validation": 0.9297,
+          "giay": 15.6
+        }
+      ]
+    },
+    "mlp gộp 3 seed (học sâu)": {
+      "macro_f1_validation": {
+        "trung_binh": 0.9301,
+        "do_lech": 0.0
+      },
+      "macro_f1_test": {
+        "trung_binh": 0.9015,
+        "do_lech": 0.0
+      },
+      "test_lan_dau": {
+        "macro_f1": 0.9015,
+        "accuracy": 0.997,
+        "theo_lop": {
+          "benign": {
+            "precision": 0.9973,
+            "recall": 0.9998,
+            "f1": 0.9985,
+            "so_mau": 67713
+          },
+          "port_scan": {
+            "precision": 0.9623,
+            "recall": 0.6955,
+            "f1": 0.8074,
+            "so_mau": 220
+          },
+          "dos": {
+            "precision": 0.9805,
+            "recall": 0.8294,
+            "f1": 0.8987,
+            "so_mau": 727
+          }
+        },
+        "confusion": {
+          "nhan": [
+            "benign",
+            "port_scan",
+            "dos"
+          ],
+          "ma_tran": [
+            [
+              67700,
+              6,
+              7
+            ],
+            [
+              62,
+              153,
+              5
+            ],
+            [
+              124,
+              0,
+              603
+            ]
+          ]
+        },
+        "ty_le_benign_bi_bao": 0.00019
+      },
+      "test_theo_seed": [
+        0.9015
+      ],
+      "chon_tham_so": {
+        "an": 128,
+        "luy_thua_trong_so": 0.0,
+        "lr": 0.001
+      }
+    },
+    "gru (học sâu)": {
+      "macro_f1_validation": {
+        "trung_binh": 0.9601,
+        "do_lech": 0.009
+      },
+      "macro_f1_test": {
+        "trung_binh": 0.9399,
+        "do_lech": 0.0067
+      },
+      "test_lan_dau": {
+        "macro_f1": 0.949,
+        "accuracy": 0.9981,
+        "theo_lop": {
+          "benign": {
+            "precision": 0.9991,
+            "recall": 0.9991,
+            "f1": 0.9991,
+            "so_mau": 67713
+          },
+          "port_scan": {
+            "precision": 0.8782,
+            "recall": 0.95,
+            "f1": 0.9127,
+            "so_mau": 220
+          },
+          "dos": {
+            "precision": 0.9477,
+            "recall": 0.923,
+            "f1": 0.9352,
+            "so_mau": 727
+          }
+        },
+        "confusion": {
+          "nhan": [
+            "benign",
+            "port_scan",
+            "dos"
+          ],
+          "ma_tran": [
+            [
+              67651,
+              29,
+              33
+            ],
+            [
+              7,
+              209,
+              4
+            ],
+            [
+              56,
+              0,
+              671
+            ]
+          ]
+        },
+        "ty_le_benign_bi_bao": 0.00092
+      },
+      "test_theo_seed": [
+        0.949,
+        0.9375,
+        0.9332
+      ],
+      "do_tham_so": [
+        {
+          "an": 64,
+          "luy_thua_trong_so": 0.0,
+          "lr": 0.001,
+          "macro_f1_validation": 0.972,
+          "vong": 17
+        },
+        {
+          "an": 64,
+          "luy_thua_trong_so": 0.0,
+          "lr": 0.0003,
+          "macro_f1_validation": 0.9194,
+          "vong": 5
+        },
+        {
+          "an": 64,
+          "luy_thua_trong_so": 0.25,
+          "lr": 0.001,
+          "macro_f1_validation": 0.9537,
+          "vong": 5
+        },
+        {
+          "an": 64,
+          "luy_thua_trong_so": 0.25,
+          "lr": 0.0003,
+          "macro_f1_validation": 0.9498,
+          "vong": 5
+        },
+        {
+          "an": 64,
+          "luy_thua_trong_so": 0.5,
+          "lr": 0.001,
+          "macro_f1_validation": 0.9316,
+          "vong": 7
+        },
+        {
+          "an": 64,
+          "luy_thua_trong_so": 0.5,
+          "lr": 0.0003,
+          "macro_f1_validation": 0.9214,
+          "vong": 16
+        },
+        {
+          "an": 128,
+          "luy_thua_trong_so": 0.0,
+          "lr": 0.001,
+          "macro_f1_validation": 0.9541,
+          "vong": 23
+        },
+        {
+          "an": 128,
+          "luy_thua_trong_so": 0.0,
+          "lr": 0.0003,
+          "macro_f1_validation": 0.9561,
+          "vong": 30
+        },
+        {
+          "an": 128,
+          "luy_thua_trong_so": 0.25,
+          "lr": 0.001,
+          "macro_f1_validation": 0.9366,
+          "vong": 6
+        },
+        {
+          "an": 128,
+          "luy_thua_trong_so": 0.25,
+          "lr": 0.0003,
+          "macro_f1_validation": 0.9113,
+          "vong": 2
+        },
+        {
+          "an": 128,
+          "luy_thua_trong_so": 0.5,
+          "lr": 0.001,
+          "macro_f1_validation": 0.9282,
+          "vong": 11
+        },
+        {
+          "an": 128,
+          "luy_thua_trong_so": 0.5,
+          "lr": 0.0003,
+          "macro_f1_validation": 0.9409,
+          "vong": 14
+        }
+      ],
+      "chon_tham_so": {
+        "an": 64,
+        "luy_thua_trong_so": 0.0,
+        "lr": 0.001
+      },
+      "theo_seed": [
+        {
+          "vong_tot_nhat": 17,
+          "macro_f1_validation": 0.972,
+          "giay": 64.9
+        },
+        {
+          "vong_tot_nhat": 15,
+          "macro_f1_validation": 0.9582,
+          "giay": 63.4
+        },
+        {
+          "vong_tot_nhat": 20,
+          "macro_f1_validation": 0.9501,
+          "giay": 78.2
+        }
+      ]
+    },
+    "gru gộp 3 seed (học sâu)": {
+      "macro_f1_validation": {
+        "trung_binh": 0.9671,
+        "do_lech": 0.0
+      },
+      "macro_f1_test": {
+        "trung_binh": 0.9504,
+        "do_lech": 0.0
+      },
+      "test_lan_dau": {
+        "macro_f1": 0.9504,
+        "accuracy": 0.9984,
+        "theo_lop": {
+          "benign": {
+            "precision": 0.9989,
+            "recall": 0.9996,
+            "f1": 0.9992,
+            "so_mau": 67713
+          },
+          "port_scan": {
+            "precision": 0.9286,
+            "recall": 0.8864,
+            "f1": 0.907,
+            "so_mau": 220
+          },
+          "dos": {
+            "precision": 0.9696,
+            "recall": 0.9216,
+            "f1": 0.945,
+            "so_mau": 727
+          }
+        },
+        "confusion": {
+          "nhan": [
+            "benign",
+            "port_scan",
+            "dos"
+          ],
+          "ma_tran": [
+            [
+              67683,
+              15,
+              15
+            ],
+            [
+              19,
+              195,
+              6
+            ],
+            [
+              57,
+              0,
+              670
+            ]
+          ]
+        },
+        "ty_le_benign_bi_bao": 0.00044
+      },
+      "test_theo_seed": [
+        0.9504
+      ],
+      "chon_tham_so": {
+        "an": 64,
+        "luy_thua_trong_so": 0.0,
+        "lr": 0.001
+      }
+    },
+    "lightgbm + ngữ cảnh K cửa sổ": {
+      "macro_f1_validation": {
+        "trung_binh": 0.9358,
+        "do_lech": 0.0
+      },
+      "macro_f1_test": {
+        "trung_binh": 0.8968,
+        "do_lech": 0.0
+      },
+      "test_lan_dau": {
+        "macro_f1": 0.8968,
+        "accuracy": 0.9973,
+        "theo_lop": {
+          "benign": {
+            "precision": 0.9982,
+            "recall": 0.9993,
+            "f1": 0.9988,
+            "so_mau": 67713
+          },
+          "port_scan": {
+            "precision": 0.8837,
+            "recall": 0.6909,
+            "f1": 0.7755,
+            "so_mau": 220
+          },
+          "dos": {
+            "precision": 0.933,
+            "recall": 0.8996,
+            "f1": 0.916,
+            "so_mau": 727
+          }
+        },
+        "confusion": {
+          "nhan": [
+            "benign",
+            "port_scan",
+            "dos"
+          ],
+          "ma_tran": [
+            [
+              67667,
+              20,
+              26
+            ],
+            [
+              47,
+              152,
+              21
+            ],
+            [
+              73,
+              0,
+              654
+            ]
+          ]
+        },
+        "ty_le_benign_bi_bao": 0.00068
+      },
+      "test_theo_seed": [
+        0.8968
+      ],
+      "chon_tham_so": {
+        "num_leaves": 127,
+        "learning_rate": 0.1,
+        "min_child_samples": 40,
+        "class_weight": null,
+        "so_vong": 72
+      },
+      "luoi": [
+        {
+          "num_leaves": 31,
+          "learning_rate": 0.05,
+          "min_child_samples": 10,
+          "class_weight": null,
+          "so_vong": 94,
+          "macro_f1_validation": 0.9104,
+          "giay": 6.8
+        },
+        {
+          "num_leaves": 31,
+          "learning_rate": 0.05,
+          "min_child_samples": 10,
+          "class_weight": "balanced",
+          "so_vong": 343,
+          "macro_f1_validation": 0.885,
+          "giay": 15.1
+        },
+        {
+          "num_leaves": 31,
+          "learning_rate": 0.05,
+          "min_child_samples": 40,
+          "class_weight": null,
+          "so_vong": 195,
+          "macro_f1_validation": 0.8951,
+          "giay": 10.6
+        },
+        {
+          "num_leaves": 31,
+          "learning_rate": 0.05,
+          "min_child_samples": 40,
+          "class_weight": "balanced",
+          "so_vong": 369,
+          "macro_f1_validation": 0.8956,
+          "giay": 15.9
+        },
+        {
+          "num_leaves": 31,
+          "learning_rate": 0.1,
+          "min_child_samples": 10,
+          "class_weight": null,
+          "so_vong": 145,
+          "macro_f1_validation": 0.9035,
+          "giay": 7.5
+        },
+        {
+          "num_leaves": 31,
+          "learning_rate": 0.1,
+          "min_child_samples": 10,
+          "class_weight": "balanced",
+          "so_vong": 176,
+          "macro_f1_validation": 0.8893,
+          "giay": 9.6
+        },
+        {
+          "num_leaves": 31,
+          "learning_rate": 0.1,
+          "min_child_samples": 40,
+          "class_weight": null,
+          "so_vong": 76,
+          "macro_f1_validation": 0.9104,
+          "giay": 6.3
+        },
+        {
+          "num_leaves": 31,
+          "learning_rate": 0.1,
+          "min_child_samples": 40,
+          "class_weight": "balanced",
+          "so_vong": 187,
+          "macro_f1_validation": 0.8884,
+          "giay": 9.7
+        },
+        {
+          "num_leaves": 63,
+          "learning_rate": 0.05,
+          "min_child_samples": 10,
+          "class_weight": null,
+          "so_vong": 148,
+          "macro_f1_validation": 0.9199,
+          "giay": 10.9
+        },
+        {
+          "num_leaves": 63,
+          "learning_rate": 0.05,
+          "min_child_samples": 10,
+          "class_weight": "balanced",
+          "so_vong": 172,
+          "macro_f1_validation": 0.8685,
+          "giay": 12.4
+        },
+        {
+          "num_leaves": 63,
+          "learning_rate": 0.05,
+          "min_child_samples": 40,
+          "class_weight": null,
+          "so_vong": 132,
+          "macro_f1_validation": 0.9093,
+          "giay": 10.1
+        },
+        {
+          "num_leaves": 63,
+          "learning_rate": 0.05,
+          "min_child_samples": 40,
+          "class_weight": "balanced",
+          "so_vong": 203,
+          "macro_f1_validation": 0.8733,
+          "giay": 13.5
+        },
+        {
+          "num_leaves": 63,
+          "learning_rate": 0.1,
+          "min_child_samples": 10,
+          "class_weight": null,
+          "so_vong": 68,
+          "macro_f1_validation": 0.9159,
+          "giay": 6.2
+        },
+        {
+          "num_leaves": 63,
+          "learning_rate": 0.1,
+          "min_child_samples": 10,
+          "class_weight": "balanced",
+          "so_vong": 90,
+          "macro_f1_validation": 0.8643,
+          "giay": 7.5
+        },
+        {
+          "num_leaves": 63,
+          "learning_rate": 0.1,
+          "min_child_samples": 40,
+          "class_weight": null,
+          "so_vong": 62,
+          "macro_f1_validation": 0.9299,
+          "giay": 7.1
+        },
+        {
+          "num_leaves": 63,
+          "learning_rate": 0.1,
+          "min_child_samples": 40,
+          "class_weight": "balanced",
+          "so_vong": 78,
+          "macro_f1_validation": 0.8685,
+          "giay": 8.6
+        },
+        {
+          "num_leaves": 127,
+          "learning_rate": 0.05,
+          "min_child_samples": 10,
+          "class_weight": null,
+          "so_vong": 76,
+          "macro_f1_validation": 0.9165,
+          "giay": 10.6
+        },
+        {
+          "num_leaves": 127,
+          "learning_rate": 0.05,
+          "min_child_samples": 10,
+          "class_weight": "balanced",
+          "so_vong": 152,
+          "macro_f1_validation": 0.8727,
+          "giay": 15.3
+        },
+        {
+          "num_leaves": 127,
+          "learning_rate": 0.05,
+          "min_child_samples": 40,
+          "class_weight": null,
+          "so_vong": 127,
+          "macro_f1_validation": 0.9078,
+          "giay": 13.2
+        },
+        {
+          "num_leaves": 127,
+          "learning_rate": 0.05,
+          "min_child_samples": 40,
+          "class_weight": "balanced",
+          "so_vong": 204,
+          "macro_f1_validation": 0.8763,
+          "giay": 17.5
+        },
+        {
+          "num_leaves": 127,
+          "learning_rate": 0.1,
+          "min_child_samples": 10,
+          "class_weight": null,
+          "so_vong": 34,
+          "macro_f1_validation": 0.9179,
+          "giay": 6.8
+        },
+        {
+          "num_leaves": 127,
+          "learning_rate": 0.1,
+          "min_child_samples": 10,
+          "class_weight": "balanced",
+          "so_vong": 80,
+          "macro_f1_validation": 0.8808,
+          "giay": 8.7
+        },
+        {
+          "num_leaves": 127,
+          "learning_rate": 0.1,
+          "min_child_samples": 40,
+          "class_weight": null,
+          "so_vong": 72,
+          "macro_f1_validation": 0.9358,
+          "giay": 8.1
+        },
+        {
+          "num_leaves": 127,
+          "learning_rate": 0.1,
+          "min_child_samples": 40,
+          "class_weight": "balanced",
+          "so_vong": 93,
+          "macro_f1_validation": 0.8883,
+          "giay": 10.0
+        }
+      ]
+    }
+  }
+}

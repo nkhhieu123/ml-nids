@@ -105,6 +105,9 @@ Chạy khoảng 2 phút. Cần có bảng đặc trưng trong `output/features/`
 
 ## 7. Phạm vi
 
+- So sánh với LightGBM và mô hình học sâu (MLP, GRU đọc chuỗi cửa sổ) ở docs/82: GRU đạt macro-F1 test 0,940–0,950,
+  cao hơn Random Forest.
+
 - Chỉ so sánh cho **module phân loại tấn công**. Module bất thường (Gaussian) học không giám sát nên không so
   trực tiếp với các mô hình có giám sát này. Module botnet đã có Logistic Regression làm baseline (docs/49).
 - Chỉ trên CIC-IDS2017. Chưa chạy bảng này trên dữ liệu lab.

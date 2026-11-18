@@ -166,6 +166,8 @@ So sánh bộ phân loại với 8 mô hình baseline: [docs/78_so_sanh_baseline
 
 EDA tổng hợp ba bộ dữ liệu (CIC-IDS2017, CTU-13, lab): [docs/81_eda_tong_hop.md](docs/81_eda_tong_hop.md)
 
+LightGBM và mô hình học sâu (MLP, GRU) so với mô hình cơ sở Random Forest: [docs/82_lightgbm_va_hoc_sau.md](docs/82_lightgbm_va_hoc_sau.md)
+
 Phát hiện dấu hiệu giả mạo ARP bằng quy tắc: [docs/79_arp_gia_mao.md](docs/79_arp_gia_mao.md)
 
 Botnet năm bot (lab 9 máy) và bộ mô hình lab lần ba: [docs/80_bot_5_va_bo_lab_3.md](docs/80_bot_5_va_bo_lab_3.md)

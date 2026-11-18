@@ -615,6 +615,13 @@ Mẫu:
 - Quyết định: Thêm `nids.duong_ham.decapsulate` (IP trong IP, IPv6 trong IPv4, GRE phiên bản 0, VXLAN cổng 4789; tối đa hai lớp; gói phân mảnh giữ nguyên), bật bằng `capture.giai_duong_ham`, dùng ở `feature_export` và cảm biến realtime. Mặc định tắt để giữ khớp Wireshark ở header ngoài và giữ mọi số liệu đã công bố.
 - Hệ quả: Trên bản thu kiểm tra giao thức của lab, ba đường hầm được bóc đúng (48 gói, 6 flow mới giữa hai máy trong đường hầm). Phân mảnh đã được gắn đúng flow từ trước (39 mảnh, 0 mồ côi), nên không cần ghép mảnh ở bảng gói.
 
+## QĐ-084 — So bộ phân loại với LightGBM và học sâu (MLP, GRU)
+- Ngày: 18/11/2026
+- Trạng thái: Đã chốt
+- Bối cảnh: Cần đánh giá mô hình học sâu và LightGBM so với mô hình cơ sở Random Forest. LightGBM là cây tăng cường, không phải học sâu.
+- Quyết định: Thêm `nids.hoc_sau`: Random Forest (cơ sở), LightGBM (lưới 24 bộ), MLP và GRU trên chuỗi 5 cửa sổ trước + cửa sổ hiện tại (lưới 12 bộ mỗi loại, 3 seed); thêm LightGBM nhận cùng chuỗi để tách phần đóng góp của ngữ cảnh. Chọn trên validation, đọc test một lần.
+- Hệ quả: Macro-F1 test: Random Forest 0,905; LightGBM 0,915; MLP 0,902; GRU 0,940 ± 0,007 (gộp 3 seed 0,950); LightGBM + ngữ cảnh 0,897. GRU vượt mô hình cơ sở ở cả ba seed, nhờ đọc chuỗi. Hệ thống vẫn dùng Random Forest; GRU chưa nối vào cảm biến, chưa thử trên lab. Chi tiết docs/82.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
