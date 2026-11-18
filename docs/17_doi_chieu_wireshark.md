@@ -144,8 +144,15 @@ riêng cho các nhánh mà dữ liệu trước đây gần như không có (`py
   Đã sửa để nhận đường hầm chạy trên UDP là khác biệt có chủ ý (`tests/test_wireshark_compare.py`).
 - **Gói TSO trên Linux giữ đúng Total Length** (lớn hơn MTU), khác trường hợp Total Length bằng 0 từng gặp ở
   bản bắt trên Windows; cả hai đều được xử lý. Trên cổng mirror không có gói gộp vì lab tắt TSO ở card ảo.
-- **Đường hầm chỉ đọc header ngoài** vẫn là giới hạn đã chọn: flow của traffic trong đường hầm là flow của
-  hai đầu đường hầm. Lab không dùng đường hầm nên chưa cần đọc header trong.
+- **Đường hầm chỉ đọc header ngoài** theo mặc định: flow của traffic trong đường hầm là flow của hai đầu đường
+  hầm. Từ 18/11/2026 có tùy chọn `capture.giai_duong_ham: true` (QĐ-086, `nids.duong_ham`) để bóc IP trong IP,
+  IPv6 trong IPv4, GRE và VXLAN rồi đọc gói bên trong, ở cả trích xuất offline lẫn cảm biến realtime. Trên
+  `giao_thuc_mirror.pcap`: 48 gói bên trong của ba đường hầm được đọc đúng địa chỉ `10.99.x.x` và cổng thật;
+  bảng flow có thêm 6 flow giữa hai máy trong đường hầm và không còn flow mang giao thức đường hầm (4, 47). Bật
+  tùy chọn này thì đối chiếu Wireshark phải so với gói bên trong.
+- **Phân mảnh:** bộ đọc gói không ghép mảnh, nên mảnh sau trong bảng gói không có cổng. Ở mức **flow** các mảnh
+  sau đã được gắn đúng flow nhờ mảnh đầu (`flow.fragment_timeout_s`, QĐ-016): trên bản thu này 39 mảnh được gắn,
+  0 mảnh mồ côi. Đặc trưng của mô hình tính từ flow nên không bị ảnh hưởng.
 
 ## 4. Nhận xét
 

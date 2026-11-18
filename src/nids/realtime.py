@@ -34,6 +34,7 @@ import pandas as pd
 
 from .alerts import AlertSink
 from .flows import FlowSettings, csv_row as flow_row
+from .duong_ham import decapsulate
 from .packets import parse_packet
 from .scope import MODULE_ANOMALY, MODULE_ATTACK, MODULE_BOTNET
 from .window_features import WindowPipeline, csv_row as window_row
@@ -312,6 +313,8 @@ class RealtimeEngine:
         self.events = EventMerger(pc["merge_gap_s"], event_sink)
         from .cam_bien import DuplicateFilter
         self.dedup = DuplicateFilter.from_config(cfg)
+        from .duong_ham import enabled as decap_enabled
+        self.decap = decap_enabled(cfg)    # bóc lớp đường hầm trước khi đọc gói (QĐ-086)
         from .arp_gia_mao import ArpWatch
         self.arp = ArpWatch()               # dấu hiệu giả mạo ARP theo quy tắc (QĐ-078, QĐ-085)
         self.arp_sink = arp_sink
@@ -346,6 +349,8 @@ class RealtimeEngine:
         if self.dedup is not None and self.dedup.is_duplicate(raw):     # bản sao do mirror (QĐ-079)
             self.stats["goi_trung_bo"] += 1
             return
+        if self.decap:
+            raw = decapsulate(raw)
         rec = parse_packet(raw)
         if rec is None:
             self.stats["goi_khong_phai_ip"] += 1

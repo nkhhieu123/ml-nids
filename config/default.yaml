@@ -4,6 +4,7 @@
 capture:
   interface: eth0            # giao diện giám sát trên Kali, chỉnh theo lab
   pcap_dir: data/pcap
+  giai_duong_ham: false      # true: bóc IP trong IP, GRE, VXLAN và đọc gói bên trong (QĐ-086); false: chỉ header ngoài
   khu_goi_trung_ms: 0        # >0: bỏ bản sao của cùng gói IP đến trong chừng này mili giây (mirror hai chiều, QĐ-079); 0: tắt
 
 # Cửa sổ ban đầu; chỉnh trên tập validation rồi giữ cố định khi kiểm thử.

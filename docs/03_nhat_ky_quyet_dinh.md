@@ -608,6 +608,13 @@ Mẫu:
 - Quyết định: `RealtimeEngine` đưa gói không phải IP qua `ArpWatch`; dấu hiệu ghi vào `<tên>.arp.jsonl` và log, đếm trong số liệu vận hành. Không thêm vào `alerts.csv` để giữ schema ba module.
 - Hệ quả: Phát lại một lần chạy lab: 434 gói ARP, 0 cảnh báo. Sửa kèm lỗi có từ trước trên Windows: chạy `--im-lang` thì luồng bỏ đi mở bằng cp1252 nên dừng khi gặp tiếng Việt; nay mở bằng UTF-8.
 
+## QĐ-086 — Tùy chọn bóc lớp đường hầm, mặc định tắt
+- Ngày: 18/11/2026
+- Trạng thái: Đã chốt
+- Bối cảnh: Bộ đọc chỉ đọc header ngoài; traffic trong đường hầm bị gộp thành flow giữa hai đầu đường hầm.
+- Quyết định: Thêm `nids.duong_ham.decapsulate` (IP trong IP, IPv6 trong IPv4, GRE phiên bản 0, VXLAN cổng 4789; tối đa hai lớp; gói phân mảnh giữ nguyên), bật bằng `capture.giai_duong_ham`, dùng ở `feature_export` và cảm biến realtime. Mặc định tắt để giữ khớp Wireshark ở header ngoài và giữ mọi số liệu đã công bố.
+- Hệ quả: Trên bản thu kiểm tra giao thức của lab, ba đường hầm được bóc đúng (48 gói, 6 flow mới giữa hai máy trong đường hầm). Phân mảnh đã được gắn đúng flow từ trước (39 mảnh, 0 mồ côi), nên không cần ghép mảnh ở bảng gói.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.

@@ -44,8 +44,7 @@ Ghi lại để nêu trong báo cáo cuối và để biết khi nào cần làm
 | Mọi traffic tấn công CIC đi qua NAT `172.16.0.1` | Nên có | Kết quả theo host phía tấn công trên CIC không đại diện; trên lab đã đo với máy tấn công thật (docs/71 mục 7) |
 | CTU-13 chỉ có 4 máy bình thường đã xác nhận, giống nhau ở mọi tập; validation chỉ có 1 IP bot | Quan trọng | Mô hình CTU-13 dễ học danh tính máy; phải giữ ràng buộc Background ≤ 5% (QĐ-040). Lab cũng chỉ có 4–5 máy bình thường |
 | Chế độ `ket_hop` không cho module botnet xét host không bị anomaly báo | Quan trọng | Bot chậm lọt ở chế độ này; lab dùng `doc_lap` (QĐ-068). Trên CIC `ket_hop` vẫn là mặc định (QĐ-047) |
-| Không ghép mảnh IP; mảnh sau không có cổng | Nên có | Các lần chạy lab không có gói phân mảnh; mảnh tạo riêng khớp Wireshark (docs/17 mục 3.2) |
-| Đường hầm (IP trong IP, GRE, VXLAN) chỉ đọc header ngoài | Nên có | Lab không dùng đường hầm |
+| Bóc đường hầm (IP trong IP, GRE, VXLAN) đã có nhưng mặc định tắt (QĐ-086); chưa thử đường hầm khác (GENEVE, MPLS, IPsec) | Nên có | Traffic mã hóa IPsec không bóc được; mô hình chưa học trên traffic đã bóc đường hầm |
 | Phát hiện giả mạo ARP (file PCAP và cảm biến realtime) mới kiểm phần bắt được bằng gói dựng tay | Nên có | Không báo nhầm trên 174 bản thu lab (docs/79); lab không được giả mạo nguồn (B24) nên không có lần giả mạo thật |
 | Khử gói trùng đã có nhưng mặc định tắt (`capture.khu_goi_trung_ms`, QĐ-079); mô hình chưa học trên dữ liệu đã khử trùng | Nên có | Lab ảo trùng 0,01–0,63% nên không cần; nếu switch thật mirror cả hai chiều của cùng cổng thì bật, trích xuất và học lại |
 | Mô hình lab không chuyển sang dữ liệu khác: mô hình botnet lab cho recall 0 trên CTU-13 | Quan trọng | 24/24 đợt trên `test` mới chỉ có nghĩa trong lab với bot mô phỏng; đổi vai trò máy trong lab vẫn bắt 6/6 đợt (docs/76) |

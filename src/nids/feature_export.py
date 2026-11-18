@@ -193,7 +193,8 @@ def export(path, out_dir, name=None, networks=None, config_path=None, compute_ha
                               flow_sink=write_flow)
         from .cam_bien import DuplicateFilter
         dedup = DuplicateFilter.from_config(cfg)
-        for rec in extract_packets(path, stats, dedup):
+        from .duong_ham import enabled as decap_enabled
+        for rec in extract_packets(path, stats, dedup, decap_enabled(cfg)):
             for w in pipe.add(rec):
                 win_writer.writerow(window_row(w))
                 counts["windows"] += 1
@@ -222,7 +223,8 @@ def export(path, out_dir, name=None, networks=None, config_path=None, compute_ha
             "schema": files["schema.json"].name,
         },
         "thong_ke": {"packet": {**stats.as_dict(), "goi_trung_bo": dedup.dropped if dedup else None,
-                                "khu_goi_trung_ms": cfg["capture"].get("khu_goi_trung_ms", 0)},
+                                "khu_goi_trung_ms": cfg["capture"].get("khu_goi_trung_ms", 0),
+                                "giai_duong_ham": bool(cfg["capture"].get("giai_duong_ham", False))},
                      "flow": pipe.flows.summary(),
                      "cua_so": pipe.windows.summary()},
     }
