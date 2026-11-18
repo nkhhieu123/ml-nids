@@ -61,5 +61,23 @@ class ArpTest(unittest.TestCase):
         self.assertEqual((w.canh_bao[0]["mac_cu"], w.canh_bao[0]["mac_moi"]), ("02:00:00:00:00:02", "02:00:00:00:00:ee"))
 
 
+class RealtimeArpTest(unittest.TestCase):
+    def test_engine_reports_mac_change(self):
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        from test_pipeline import fake_artifacts
+
+        from nids.config import load_config
+        from nids.pcap_reader import RawPacket
+        from nids.realtime import RealtimeEngine
+
+        got = []
+        eng = RealtimeEngine(load_config(), ["192.168.50.0/24"], arts=fake_artifacts(), mode="doc_lap", run_id="t",
+                             arp_sink=got.append)
+        for i, fr in enumerate([arp(2, B, "192.168.50.30", "192.168.50.41"), arp(2, EVIL, "192.168.50.30", "192.168.50.41")]):
+            eng.process(RawPacket(i, (1000 + i) * 10**9, len(fr), len(fr), 1, fr))
+        self.assertEqual([c["loai"] for c in got], ["doi_mac"])
+        self.assertEqual((eng.stats["goi_arp"], eng.stats["canh_bao_arp"]), (2, 1))
+
+
 if __name__ == "__main__":
     unittest.main()

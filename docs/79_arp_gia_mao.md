@@ -40,8 +40,10 @@ kiểm bằng gói dựng tay trong kiểm thử. Phần "không báo nhầm" đ
 
 ## 4. Giới hạn
 
-- Chạy trên file PCAP, chưa nối vào cảm biến realtime. Lớp `ArpWatch` nhận từng gói theo thứ tự thời gian nên nối
-  vào được mà không đổi logic.
+- ~~Chạy trên file PCAP, chưa nối vào cảm biến realtime.~~ Đã nối (18/11/2026, QĐ-085): cảm biến realtime đưa mọi
+  gói không phải IP qua `ArpWatch`; mỗi dấu hiệu được ghi một dòng vào `<tên>.arp.jsonl` và một dòng cảnh báo vào
+  log; `so_lieu_tong.json` có mục `arp` (số gói ARP, số cảnh báo). Phát lại `k6-p2p-test-13` qua cảm biến: 434 gói
+  ARP, 0 cảnh báo. Cảnh báo ARP không vào `alerts.csv` vì không thuộc ba module học máy.
 - Nếu kẻ tấn công giả mạo ngay từ gói ARP đầu tiên của một IP (trước khi máy thật lên tiếng), bảng học sai từ đầu
   và chỉ báo khi máy thật trả lời.
 - Chưa đọc ARP trong IPv6 (IPv6 dùng Neighbor Discovery qua ICMPv6, không dùng ARP).

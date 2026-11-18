@@ -284,7 +284,7 @@ class RealtimeEngine:
     """Nhận ``RawPacket`` từng gói; trả cảnh báo qua ``alert_sink`` (và mọi dự đoán qua ``score_sink``)."""
 
     def __init__(self, cfg, networks, arts=None, mode=None, run_id="realtime", alert_sink=None, score_sink=None,
-                 event_sink=None, window_sink=None):
+                 event_sink=None, window_sink=None, arp_sink=None):
         from .botnet import topology_rule
         from .graph_features import beacon_config, graph_window
         from .pipeline import load_artifacts, pipeline_config
@@ -312,6 +312,9 @@ class RealtimeEngine:
         self.events = EventMerger(pc["merge_gap_s"], event_sink)
         from .cam_bien import DuplicateFilter
         self.dedup = DuplicateFilter.from_config(cfg)
+        from .arp_gia_mao import ArpWatch
+        self.arp = ArpWatch()               # dấu hiệu giả mạo ARP theo quy tắc (QĐ-078, QĐ-085)
+        self.arp_sink = arp_sink
         from .pipeline import dos_holder
         self.dos_holder = dos_holder(cfg)   # giữ nhãn dos theo host qua các cửa sổ (pipeline.dos_hold, QĐ-074)
         self.window_sink = window_sink          # nhận bảng cửa sổ 10 giây vừa đóng (kiểm tra nhất quán, C10-T08)
@@ -346,6 +349,7 @@ class RealtimeEngine:
         rec = parse_packet(raw)
         if rec is None:
             self.stats["goi_khong_phai_ip"] += 1
+            self._arp(raw)
             return
         if rec.ts_ns is not None:
             self.now_s = rec.ts_ns / NS if self.now_s is None else max(self.now_s, rec.ts_ns / NS)
@@ -356,6 +360,20 @@ class RealtimeEngine:
             self.stats["flow_ket_thuc_do_tran"] += self.pipe.flows.evict_oldest(self.rt["max_active_flows"])
             self.pipe._drain_flows()
         self._graph_until(self.now_s)
+
+    def _arp(self, raw):
+        from .arp_gia_mao import parse_arp
+        p = parse_arp(raw.linktype, raw.data)
+        if p is None:
+            return
+        before = len(self.arp.canh_bao)
+        self.arp.add(raw.ts, p)
+        self.stats["goi_arp"] = self.arp.so_goi_arp
+        for c in self.arp.canh_bao[before:]:
+            self.stats["canh_bao_arp"] = self.stats.get("canh_bao_arp", 0) + 1
+            LOG.warning("ARP %s: %s", c["loai"], c)
+            if self.arp_sink is not None:
+                self.arp_sink(c)
 
     def tick(self, now_s):
         """Đẩy thời gian khi không có gói (mạng im lặng): flow hết hạn, cửa sổ đóng, botnet được chấm.
@@ -721,7 +739,7 @@ def _main(a, cfg, rt, log_path):
     LOG.info("khởi động %s: nguồn %s, mạng %s, chế độ %s, commit %s, log %s", name,
              f"card {a.iface}" if a.iface else f"pcap {a.pcap}", nets, a.che_do or "theo cấu hình",
              str(_git_version().get("commit"))[:8], log_path)
-    for suffix in ("alerts.csv", "diem.csv", "su_kien.csv", "so_lieu.jsonl", "so_lieu_tong.json"):
+    for suffix in ("alerts.csv", "diem.csv", "su_kien.csv", "so_lieu.jsonl", "so_lieu_tong.json", "arp.jsonl"):
         old = out / f"{name}.{suffix}"
         if old.exists():                 # cùng tên với lần chạy trước: giữ bản cũ, không ghi lẫn (trước khi mở file nào)
             backup = old.with_name(f"{name}.cu.{suffix}")
@@ -741,12 +759,19 @@ def _main(a, cfg, rt, log_path):
         ev_writer.writerow({k: "" if row.get(k) is None else row[k] for k in EVENT_COLUMNS})
         ev_file.flush()
 
-    score_sink = AlertSink(out / f"{name}.diem.csv", stream=open(Path("nul" if sys.platform == "win32" else "/dev/null"), "w"),
+    score_sink = AlertSink(out / f"{name}.diem.csv", stream=open(Path("nul" if sys.platform == "win32" else "/dev/null"), "w", encoding="utf-8"),
                            log_all=True) if a.ghi_diem else None
-    stream = open(Path("nul" if sys.platform == "win32" else "/dev/null"), "w") if a.im_lang else None
+    stream = open(Path("nul" if sys.platform == "win32" else "/dev/null"), "w", encoding="utf-8") if a.im_lang else None
+    arp_file = (out / f"{name}.arp.jsonl").open("w", encoding="utf-8")
+
+    def on_arp(c):
+        arp_file.write(json.dumps({**c, "thoi_diem": _iso(c["thoi_diem"])}, ensure_ascii=False) + "\n")
+        arp_file.flush()
+
+    import json
     with AlertSink(out / f"{name}.alerts.csv", stream=stream) as sink, open_source(a.iface, a.pcap, a.toc_do) as source:
         engine = RealtimeEngine(cfg, nets, mode=a.che_do, run_id=name, alert_sink=sink, score_sink=score_sink,
-                                event_sink=on_event)
+                                event_sink=on_event, arp_sink=on_arp)
         rate = 1.0 if a.iface else (a.toc_do or 0.0)
         runner = ThreadedRunner(source, engine, rt["queue_size"], rt["tick_s"], rate)
         runner.stop_timeout_s = rt["stop_timeout_s"]
@@ -762,8 +787,9 @@ def _main(a, cfg, rt, log_path):
     if score_sink:
         score_sink.close()
     ev_file.close()
+    arp_file.close()
     s = engine.stats
-    import json
+    summary["arp"] = {"goi": engine.arp.so_goi_arp, "canh_bao": len(engine.arp.canh_bao)}
     (out / f"{name}.so_lieu_tong.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
     print("Số liệu:", json.dumps(summary, ensure_ascii=False))
     LOG.info("dừng (%s): %s gói, %s cảnh báo, %s sự kiện, bỏ khi dừng %s gói", summary["ly_do_dung"], n,

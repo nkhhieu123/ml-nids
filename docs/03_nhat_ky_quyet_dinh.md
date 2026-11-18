@@ -601,6 +601,13 @@ Mẫu:
 - Quyết định: Học lại ba module với `train` thêm của `k6`, `x3-dos-cham`, `x3-syn`, `x4`, `x5` (cùng lệnh, cùng tham số); thu 63 lần `test` mới (12–14). Bộ mới ở `models/lab/`, `config/lab.yaml`; bộ cũ giữ ở `models/lab_b2/`. Lớp giữ nhãn `dos` vẫn tắt trong `config/lab.yaml`.
 - Hệ quả: 48/48 đợt, 0 sự kiện báo giả trên 63 lần `test` mới (bộ cũ cũng 48/48, 0); recall cửa sổ nạn nhân SYN flood 0,10 → 0,97; bot bị báo ở `x5-doi-vai` 6/9 → 9/9; macro-F1 test CIC của bộ phân loại 0,903 (bộ cũ 0,906). Chi tiết docs/80.
 
+## QĐ-085 — Nối phát hiện giả mạo ARP vào cảm biến realtime
+- Ngày: 18/11/2026
+- Trạng thái: Đã chốt (tiếp QĐ-078)
+- Bối cảnh: `nids.arp_gia_mao` chỉ chạy trên file PCAP.
+- Quyết định: `RealtimeEngine` đưa gói không phải IP qua `ArpWatch`; dấu hiệu ghi vào `<tên>.arp.jsonl` và log, đếm trong số liệu vận hành. Không thêm vào `alerts.csv` để giữ schema ba module.
+- Hệ quả: Phát lại một lần chạy lab: 434 gói ARP, 0 cảnh báo. Sửa kèm lỗi có từ trước trên Windows: chạy `--im-lang` thì luồng bỏ đi mở bằng cp1252 nên dừng khi gặp tiếng Việt; nay mở bằng UTF-8.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
