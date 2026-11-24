@@ -30,7 +30,7 @@ thay được vì cần máy thật.
 
 | Thiếu | Mức | Ảnh hưởng | Cách bổ sung |
 |---|---|---|---|
-| Brute-force, exploit chưa có dữ liệu; DDoS chỉ một đợt của CIC | Quan trọng | Ba lớp hiện tại không phủ các loại này; lab không sinh được vì B24 cấm exploit | Tải CIC thứ Ba, thứ Năm nếu muốn thêm lớp |
+| Brute-force, exploit chưa có dữ liệu; DDoS chỉ một đợt của CIC (DDoS năm nguồn trong lab đã bắt 3/3, QĐ-087, nhưng chưa có lớp `ddos` riêng) | Quan trọng | Ba lớp hiện tại không phủ các loại này; lab không sinh được vì B24 cấm exploit | Tải CIC thứ Ba, thứ Năm nếu muốn thêm lớp |
 
 ## 3. Hạn chế đã biết, không có việc phải làm ngay
 

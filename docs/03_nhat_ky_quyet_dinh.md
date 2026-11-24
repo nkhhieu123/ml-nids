@@ -636,6 +636,13 @@ Mẫu:
 - Quyết định: `Preprocessor` và `gaussian.fill_empty` đổi ±∞ thành ô trống trước mọi bước khác.
 - Hệ quả: Kết quả trên dữ liệu hiện có không đổi; dữ liệu lạ có ±∞ không làm hỏng mô hình. Chi tiết docs/32 mục 1.x.
 
+## QĐ-087 — Thử DDoS nhiều nguồn trong lab
+- Ngày: 25/11/2026
+- Trạng thái: Đã chốt
+- Bối cảnh: CIC chỉ có một đợt DDoS (đi qua NAT nên trông như một nguồn); kế hoạch yêu cầu DDoS phải có nhiều nguồn.
+- Quyết định: Thêm biến thể `x3-ddos`: năm máy lab cùng tải kết nối vào `.30`, 60 giây, chỉ trong lab ảo cô lập (B16, B24). Chỉ dùng để chấm, không đưa vào `train`. Không thêm lớp `ddos` riêng.
+- Hệ quả: Bộ lab lần ba bắt 3/3 đợt, recall cửa sổ 1,0 cho cả năm nguồn và nạn nhân, 0 báo giả. Chi tiết docs/80 mục 4.4.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.

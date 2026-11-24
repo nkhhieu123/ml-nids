@@ -122,6 +122,26 @@ Bộ lần ba thay bộ lần hai ở `models/lab/` và `config/lab.yaml`; bộ 
   nối liền với đợt tấn công nên **không tạo sự kiện báo động giả nào**: chấm cả 63 lần chạy với lớp giữ nhãn bật
   vẫn 48/48 đợt, 0 sự kiện báo giả. Vì bộ lần ba đã bắt nạn nhân tới 0,97, `config/lab.yaml` **vẫn để lớp này tắt**.
 
+### 4.4. DDoS nhiều nguồn (25/11/2026, QĐ-087)
+
+Kế hoạch ghi: "một nguồn flood là DoS; thử nghiệm DDoS cần nhiều nguồn". Biến thể `x3-ddos`: năm máy `.20`, `.41`,
+`.42`, `.44`, `.45` **cùng lúc** tải kết nối vào máy chủ web `.30` trong 60 giây (mỗi máy 50 / 50 / 200 kết nối mỗi
+giây ở ba lần chạy; tổng 250 / 250 / 1 000). Chỉ trong lab ảo cô lập, giới hạn 60 giây như mọi DoS của lab. Bộ mô
+hình lab lần ba **chưa từng học DDoS nhiều nguồn**; ba lần chạy là `test` 21–23 (`scripts/chay_ddos.sh`).
+
+| | Kết quả |
+|---|---|
+| Đợt phát hiện | **3/3**, độ trễ tới cuối cửa sổ trung vị 0,9 giây |
+| Recall `dos` theo cửa sổ, 5 máy tấn công (525 cửa sổ) | **1,000** |
+| Recall `dos` theo cửa sổ, máy nạn nhân (105 cửa sổ) | **1,000** |
+| Cửa sổ bình thường bị gán tấn công (463 cửa sổ) | 0 |
+| Sự kiện báo động giả | 0 |
+| Gói nhân bỏ | 0 (lần nặng nhất 364 483 gói) |
+
+Hệ thống báo cả năm nguồn và máy nạn nhân, nên người vận hành thấy được đây là tấn công từ nhiều nguồn. Bộ phân
+loại vẫn gán nhãn `dos`, không tách riêng lớp `ddos`: ba lớp của đề tài không có lớp DDoS riêng. 1 073 cửa sổ bị
+bỏ vì mơ hồ (máy vừa duyệt web vừa tấn công trong cùng 10 giây, phần flow tấn công dưới 20%).
+
 ## 5. Giới hạn
 
 - Năm bot vẫn là bot mô phỏng trong lab 9 máy; mạng thật có nhiều máy hơn và bot thật ồn hơn (docs/76 mục 4).

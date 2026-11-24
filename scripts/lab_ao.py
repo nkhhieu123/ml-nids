@@ -58,8 +58,10 @@ MAIN_VARIANTS = ("k1-binh-thuong", "k2-quet-cham", "k2-quet-nhanh", "k3-dos-muc1
 BOT5_VARIANTS = ("k6-tap-trung", "k6-p2p", "k6-doi-chung")
 # DoS HTTP chậm (QĐ-077): giữ kết nối mở để đo lớp giữ nhãn dos trên lab; 60 giây như mọi DoS của lab.
 SLOW_VARIANTS = ("x3-dos-cham",)
+# DDoS nhiều nguồn (QĐ-087): năm máy cùng tải kết nối vào máy chủ dịch vụ, 60 giây, chỉ trong lab ảo cô lập.
+DDOS_VARIANTS = ("x3-ddos",)
 EXTRA_VARIANTS = ("x4-doi-vai", "x4-doi-chung-doi-vai", "x5-doi-vai", "x3-syn-muc1", "x3-syn-muc2", "x3-syn-muc3")
-VARIANTS = MAIN_VARIANTS + BOT5_VARIANTS + SLOW_VARIANTS + EXTRA_VARIANTS
+VARIANTS = MAIN_VARIANTS + BOT5_VARIANTS + SLOW_VARIANTS + DDOS_VARIANTS + EXTRA_VARIANTS
 WEB_FILES = {"index.html": "<html><body><h1>nids-lab</h1><a href=about.html>about</a></body></html>\n" * 20,
              "about.html": "<html><body>May chu dich vu cua lab.</body></html>\n" * 40,
              "assets/app.css": "body{font-family:sans-serif}\n" * 300,
@@ -276,6 +278,16 @@ def plan(variant, lan, rng):
         p["hanh_vi"].append({"kieu": "ngang-hang" if bot else "doi-chung-ngang-hang", "nhan": "botnet" if bot else "benign",
                              "nguon": list(CLIENTS), "dich": list(CLIENTS), "bat_dau_sau_s": rng.uniform(30, 60),
                              "lenh": lenh, "tham_so": tham_so})
+    elif variant == "x3-ddos":
+        muc = (1, 1, 2)[k]                      # mỗi nguồn 50 / 50 / 200 kết nối mỗi giây
+        src = [TESTER, 44, 45, CLIENTS[0], CLIENTS[1]]
+        p["thoi_luong_s"] = 300
+        p["hanh_vi"].append({"kieu": "tai-ket-noi", "nhan": "dos", "nguon": src, "dich": [SERVER],
+                             "bat_dau_sau_s": rng.uniform(90, 150),
+                             "lenh": {h: py("sinh_traffic.py", "tai-ket-noi", "--may-chu", ip(SERVER), "--cong", 80,
+                                            "--muc", muc, "--thoi-gian", 60, "--vai-tro", "test", "--lan", lan)
+                                      for h in src},
+                             "tham_so": {"cong": 80, "muc_moi_nguon": muc, "so_nguon": len(src), "thoi_gian_s": 60}})
     elif variant == "x3-dos-cham":
         so, gian = (150, 200, 120)[k], (10, 15, 8)[k]
         p["thoi_luong_s"] = 300
