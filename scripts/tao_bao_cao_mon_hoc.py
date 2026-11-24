@@ -1,4 +1,12 @@
-"""Điền nội dung báo cáo môn học vào mẫu Word của khoa. Chỉ ghi những gì đã làm được."""
+"""Điền nội dung báo cáo môn học vào mẫu Word của khoa. Chỉ ghi những gì đã làm được.
+
+    python scripts/tao_bao_cao_mon_hoc.py "<mẫu của khoa>.docx" docs/Bao_cao_mon_hoc.docx
+    python scripts/tao_bao_cao_mon_hoc.py docs/Bao_cao_mon_hoc.docx docs/Bao_cao_mon_hoc.docx   # viết lại phần thân
+
+Đầu vào là mẫu gốc của khoa, hoặc chính báo cáo đã điền (khi mẫu gốc không còn): khi đó giữ bìa, mục lục, danh
+sách hình, bảng phân công, chỉ xóa và viết lại từ "MỞ ĐẦU". Sau khi chạy, mở bằng Word và cập nhật trường (F9) để
+mục lục và danh sách hình đúng số trang.
+"""
 import copy
 import sys
 
@@ -22,9 +30,12 @@ def set_text(p, text):
         r._r.getparent().remove(r._r)
 
 
+DA_DIEN = next((p for p in ps if p.style.name == "txtTieuDe01" and p.text.strip() == "MỞ ĐẦU"), None)
+
 # ---------- bìa
-set_text(ps[15], "ỨNG DỤNG HỌC MÁY PHÁT HIỆN TẤN CÔNG MẠNG DỰA TRÊN DỮ LIỆU LƯU LƯỢNG MẠNG")
-set_text(ps[33], "Đà Nẵng, 11/2026")
+if DA_DIEN is None:
+    set_text(ps[15], "ỨNG DỤNG HỌC MÁY PHÁT HIỆN TẤN CÔNG MẠNG DỰA TRÊN DỮ LIỆU LƯU LƯỢNG MẠNG")
+    set_text(ps[33], "Đà Nẵng, 11/2026")
 
 # ---------- bảng từ viết tắt
 VT = [("IDS", "Intrusion Detection System", "Hệ thống phát hiện xâm nhập"),
@@ -41,7 +52,13 @@ VT = [("IDS", "Intrusion Detection System", "Hệ thống phát hiện xâm nh�
       ("F1", "F1-score", "Trung bình điều hòa của precision và recall"),
       ("AUC", "Area Under the Curve", "Diện tích dưới đường cong ROC"),
       ("WSL", "Windows Subsystem for Linux", "Linux chạy trong Windows"),
-      ("CSV", "Comma-Separated Values", "Định dạng bảng dạng văn bản")]
+      ("CSV", "Comma-Separated Values", "Định dạng bảng dạng văn bản"),
+      ("EDA", "Exploratory Data Analysis", "Phân tích khám phá dữ liệu"),
+      ("MLP", "Multi-Layer Perceptron", "Mạng nơ-ron truyền thẳng nhiều lớp"),
+      ("GRU", "Gated Recurrent Unit", "Mạng nơ-ron hồi quy đọc chuỗi"),
+      ("LightGBM", "Light Gradient Boosting Machine", "Thư viện cây tăng cường theo gradient"),
+      ("DDoS", "Distributed Denial of Service", "Từ chối dịch vụ từ nhiều nguồn"),
+      ("ARP", "Address Resolution Protocol", "Giao thức tìm địa chỉ MAC từ địa chỉ IP")]
 t = d.tables[1]
 while len(t.rows) < len(VT) + 1:
     t._tbl.append(copy.deepcopy(t.rows[-1]._tr))
@@ -56,7 +73,7 @@ for row, vals in zip(t.rows[1:], VT):
             par.add_run(v)
 
 # ---------- bảng phân công: chỉ điền cột công việc, người thực hiện để nhóm tự ghi
-CV = ["Khảo sát dữ liệu, bộ đọc gói tin và log, ghép flow, tính đặc trưng",
+CV = [] if DA_DIEN is not None else ["Khảo sát dữ liệu, bộ đọc gói tin và log, ghép flow, tính đặc trưng",
       "Gán nhãn, chia tập, module phát hiện bất thường (Gaussian)",
       "Module phân loại tấn công (Random Forest)",
       "Module botnet và nhận dạng topology",
@@ -69,8 +86,7 @@ for i, (row, v) in enumerate(zip(d.tables[2].rows[1:], CV), 1):
         else:
             par.add_run(val)
 
-# ---------- bỏ hai dòng hướng dẫn của mẫu, chèn danh sách hình tự động
-p_hint, p_fig_hint, p_fig = ps[35], ps[75], ps[76]
+# ---------- bỏ hai dòng hướng dẫn của mẫu, chèn danh sách hình tự động (chỉ với mẫu gốc)
 
 
 def field(par, instr):
@@ -90,12 +106,14 @@ def field(par, instr):
             r._r.append(it)
 
 
-field(p_fig, ' TOC \\h \\z \\t "_txtHinhCaption,2" ')
-for p in (p_hint, p_fig_hint):
-    p._p.getparent().remove(p._p)
+if DA_DIEN is None:
+    p_hint, p_fig_hint, p_fig = ps[35], ps[75], ps[76]
+    field(p_fig, ' TOC \\h \\z \\t "_txtHinhCaption,2" ')
+    for p in (p_hint, p_fig_hint):
+        p._p.getparent().remove(p._p)
 
-# ---------- xóa toàn bộ phần thân mẫu (từ MỞ ĐẦU), giữ sectPr cuối
-start = ps[84]._p
+# ---------- xóa toàn bộ phần thân (từ MỞ ĐẦU), giữ sectPr cuối
+start = ps[84]._p if DA_DIEN is None else DA_DIEN._p
 el = start
 dele = []
 while el is not None:
@@ -220,14 +238,17 @@ B("Tự viết bộ đọc PCAP và bộ ghép flow bằng Python, đối chiế
   "offline và realtime.",
   "Gán nhãn theo lịch tấn công; chia tập huấn luyện, kiểm định, kiểm tra theo thời gian để tránh rò rỉ dữ liệu; "
   "tham số và ngưỡng chỉ chọn trên tập kiểm định.",
-  "Dựng lab ảo 7 máy bằng network namespace trên WSL2; mỗi lần chạy có nhật ký ghi giờ tấn công thật để chấm.",
-  "Mỗi quyết định kỹ thuật được ghi lại kèm lý do (73 quyết định); mã nguồn có 444 kiểm thử tự động.")
+  "Dựng lab ảo 9 máy bằng network namespace trên WSL2; mỗi lần chạy có nhật ký ghi giờ tấn công thật để chấm.",
+  "So sánh mô hình chính với 8 mô hình cơ sở, LightGBM và hai mô hình học sâu trên cùng dữ liệu.",
+  "Mỗi quyết định kỹ thuật được ghi lại kèm lý do (90 quyết định); mã nguồn có 461 kiểm thử tự động và chạy lại "
+  "được từ một bản clone mới.")
 S("4. Bố cục của báo cáo")
 P("Báo cáo bao gồm các phần chính sau:")
 B("Mở đầu.",
   "Chương 1: trình bày cơ sở lý thuyết về lưu lượng mạng, các loại tấn công được xét, các mô hình học máy và bộ dữ "
   "liệu sử dụng.",
-  "Chương 2: trình bày phân tích bài toán, thiết kế các module, thiết kế dữ liệu và tổ chức chương trình.",
+  "Chương 2: trình bày phân tích bài toán, phân tích khám phá dữ liệu, quy trình xử lý dữ liệu từ gói tin tới kết "
+  "quả, thiết kế các module, thiết kế dữ liệu và tổ chức chương trình theo bốn giai đoạn.",
   "Chương 3: trình bày môi trường triển khai, kết quả thực nghiệm trên bộ dữ liệu công khai và trên lab, nhận xét.",
   "Kết luận và hướng phát triển.")
 
@@ -262,6 +283,10 @@ P("Gaussian đa biến mô tả dữ liệu bình thường bằng vectơ trung 
 P("Random Forest là tập hợp nhiều cây quyết định, mỗi cây học trên một mẫu ngẫu nhiên của dữ liệu và của đặc "
   "trưng; kết quả là trung bình xác suất của các cây. Mô hình này chịu được đặc trưng có thang đo khác nhau và "
   "quan hệ phi tuyến. Logistic Regression được dùng làm mức chuẩn để so sánh.")
+P("LightGBM là thuật toán cây tăng cường theo gradient: dựng nhiều cây nối tiếp, cây sau sửa lỗi của các cây trước; "
+  "nó không phải học sâu. Học sâu dùng mạng nơ-ron nhiều lớp học bằng lan truyền ngược. Đề tài dùng hai mạng: MLP "
+  "(mạng truyền thẳng) nhận đặc trưng của một cửa sổ, và GRU (mạng hồi quy) nhận chuỗi các cửa sổ liên tiếp của "
+  "cùng một máy, mang theo thông tin từ các bước trước để nhận ra hành vi trải dài nhiều cửa sổ.")
 P("Chỉ số đánh giá: precision là phần cảnh báo đúng trong các cảnh báo; recall là phần tấn công bắt được; F1 là "
   "trung bình điều hòa của hai chỉ số; macro-F1 là trung bình F1 của các lớp, mỗi lớp nặng như nhau. Với kiểm "
   "thử trên lab, đề tài đếm theo đợt tấn công: một đợt được coi là phát hiện khi có ít nhất một cảnh báo đúng "
@@ -273,7 +298,7 @@ bang("Bảng 1.1. Dữ liệu sử dụng và lý do chọn", ["Dữ liệu", "D
        "DoS (thứ Tư) và Nmap (thứ Sáu); thứ Hai chỉ có lưu lượng bình thường"),
       ("CTU-13, 13 kịch bản", "Module botnet",
        "Botnet thật trong mạng trường đại học, có nhãn từng flow, có cả kiểu tập trung và ngang hàng"),
-      ("Lab ảo 7 máy, 177 lần chạy", "Kiểm thử thực nghiệm; học lại mô hình cho mạng lab",
+      ("Lab ảo 9 máy, 278 lần chạy", "Kiểm thử thực nghiệm; học lại mô hình cho mạng lab",
        "Cần đo trên mạng tự dựng, có nhãn chuẩn tự ghi và đo được độ trễ realtime")],
      [3.6, 3.9, 8.0])
 P("Với CIC-IDS2017, đề tài dùng PCAP chứ không dùng file CSV đặc trưng có sẵn, vì hệ thống realtime phải tính "
@@ -301,6 +326,114 @@ B("Dữ liệu công khai có đủ cho quét cổng, DoS tầng HTTP và botnet
   "Nhóm chưa có 7 máy thật và switch có cổng mirror, nên mạng thử nghiệm được dựng ảo bằng network namespace "
   "trên WSL2. Gói tin vẫn là gói thật của nhân Linux, Nginx và Nmap.",
   "Lab không được chạy mã độc, nên bot trong lab là chương trình mô phỏng chỉ gọi định kỳ, không gây hại.")
+H2("PHÂN TÍCH KHÁM PHÁ DỮ LIỆU (EDA)")
+P("Trước khi xây mô hình, đề tài phân tích cả ba bộ dữ liệu. Mọi thống kê theo nhãn chỉ tính trên tập huấn luyện "
+  "để không nhìn trước tập kiểm định và kiểm tra.")
+hinh(H + "eda_phan_bo_lop.png", "Hình 2.1. Số flow và số cửa sổ host theo lớp và tập (thang log), CIC-IDS2017", 15.0)
+bang("Bảng 2.1. Các phát hiện chính của EDA và quyết định tương ứng", ["Điều thấy trong dữ liệu", "Quyết định"],
+     [("Mất cân bằng nặng: 111 cửa sổ bình thường mới có 1 cửa sổ DoS, 357 mới có 1 cửa sổ quét cổng",
+       "Dùng macro-F1 thay accuracy (đoán toàn bình thường đã đạt accuracy 0,986); thử cân bằng lớp khi chọn mô hình"),
+      ("Đặc trưng đếm lệch phải rất mạnh: trung vị nhỏ, phân vị 99 lớn hơn hàng trăm lần; 94% cửa sổ không nhận "
+       "kết nối TCP nào", "Lấy log(1 + x) rồi chuẩn hóa; Yeo-Johnson cho Gaussian"),
+      ("46% cửa sổ huấn luyện trùng hệt nhau (máy im lặng)", "Bỏ mẫu trùng trong tập huấn luyện"),
+      ("Ô trống có nghĩa (máy không mở kết nối TCP thì không có tỷ lệ); 0 giá trị vô hạn",
+       "Điền trung vị kèm cột đánh dấu; giá trị vô hạn nếu có được coi như ô trống"),
+      ("Không đặc trưng nào một mình đủ tách lớp: AUC một biến cao nhất 0,87 (DoS), 0,79 (quét cổng)",
+       "Cần mô hình phi tuyến kết hợp nhiều đặc trưng"),
+      ("CTU-13: máy bình thường gọi định kỳ đều, bot thật ồn và không đều; bot liên lạc với 58 máy so với 8",
+       "Gọi định kỳ không tự chứng minh botnet; cần kịch bản đối chứng lành tính"),
+      ("Lưu lượng bình thường của lab hẹp và đều, khác hẳn CIC-IDS2017",
+       "Học lại mô hình trên dữ liệu lab")], [8.0, 7.5])
+hinh(H + "eda_tong_hop/cic_auc_dac_trung.png",
+     "Hình 2.2. Mức tách lớp của từng đặc trưng khi dùng một mình (AUC một biến), tập huấn luyện CIC-IDS2017", 13.0)
+hinh(H + "eda_tong_hop/lech_cic_lab.png",
+     "Hình 2.3. Phân bố lưu lượng bình thường của CIC-IDS2017 và của lab khác nhau", 15.5)
+
+H2("QUY TRÌNH XỬ LÝ DỮ LIỆU")
+P("Dữ liệu đi qua tám bước, từ gói tin thô tới kết quả đánh giá. Bước 1 tới 4 và bước 6, 7 chạy giống hệt nhau khi "
+  "huấn luyện, khi chạy offline trên file PCAP và khi chạy realtime trên card mạng; bước 5 và 8 chỉ có khi huấn "
+  "luyện và đánh giá.")
+code(["(1) PCAP / card mạng",
+      " -> (2) đọc header từng gói",
+      " -> (3) ghép flow hai chiều",
+      " -> (4a) cửa sổ host 10 giây -> (6) Gaussian, Random Forest -+",
+      " -> (4b) đồ thị 120 giây     -> (6) RF botnet, topology     -+-> (7) cảnh báo",
+      "(5) gán nhãn, chia tập 60/20/20, tiền xử lý (học trên tập huấn luyện)",
+      " -> (8) đánh giá trên tập kiểm tra"])
+d.add_paragraph(style="Normal")
+H3("Bước 1–2: Đọc gói tin")
+P("Bộ đọc tự viết đọc từng gói của file PCAP hoặc PCAPNG (hoặc nhận gói từ socket AF_PACKET khi chạy realtime), bóc "
+  "header Ethernet (có VLAN), IPv4, IPv6, TCP, UDP và lấy: thời điểm, IP nguồn, IP đích, giao thức, cổng, cờ TCP, "
+  "kích thước. Không đọc nội dung gói. Gói không phải IP được đếm theo lý do và bỏ qua; gói ARP đi sang bộ phát hiện "
+  "giả mạo ARP riêng.")
+bang("Bảng 2.2. So sánh công cụ đọc gói trên cùng 20 000 gói của CIC-IDS2017",
+     ["Công cụ", "Thời gian", "Tốc độ (gói/giây)", "Khớp bộ đọc của đề tài"],
+     [("Tự viết (chọn)", "0,18 s", "≈ 110 000", "—"), ("dpkt 1.9.8", "0,32 s", "≈ 62 000", "20 000/20 000"),
+      ("Scapy 2.8.0", "4,58 s", "≈ 4 400", "20 000/20 000"), ("PyShark (TShark 4.6.8)", "62,7 s", "≈ 320", "20 000/20 000")],
+     [4.5, 2.8, 3.7, 4.5])
+H3("Bước 3: Ghép flow hai chiều")
+P("Các gói có cùng bộ năm (IP nguồn, IP đích, cổng nguồn, cổng đích, giao thức) thuộc một flow hai chiều; chiều thuận "
+  "là chiều của bên mở kết nối. Flow kết thúc khi có FIN cả hai chiều hoặc RST (chờ thêm 10 giây cho gói cuối), khi "
+  "im lặng 60 giây, hoặc khi dài quá 120 giây (phần sau thành flow tiếp nối). Mảnh IP sau được gắn vào flow của mảnh "
+  "đầu. Mỗi flow ghi số gói, số byte mỗi chiều, thời lượng, thống kê kích thước và khoảng cách giữa các gói, số lần "
+  "xuất hiện từng cờ TCP, kết nối có hoàn tất bắt tay không.")
+H3("Bước 4: Tính đặc trưng theo cửa sổ")
+B("Cửa sổ host 10 giây, trượt mỗi 2 giây: với mỗi máy tính 20 đặc trưng gồm số gói, số byte hai chiều; số máy đích, "
+  "số cổng đích, số cặp máy–cổng; số máy gọi tới; số kết nối mới mỗi chiều; entropy cổng đích; số lần thử mở kết "
+  "nối TCP và số không hoàn tất, không được trả lời, bị từ chối, mở dở, tỷ lệ không hoàn tất sau thời gian chờ "
+  "bắt tay (3 giây; lab 1 giây).",
+  "Cửa sổ đồ thị 120 giây, trượt mỗi 10 giây: đồ thị liên lạc có hướng giữa các máy; với mỗi máy tính 24 đặc trưng: "
+  "số máy liên lạc mỗi chiều, mức tương hỗ, mức tập trung vào một đối tác, entropy, tỷ lệ UDP, tỷ lệ kết nối không "
+  "được trả lời, và đặc trưng gọi định kỳ (nhìn lại 600 giây, cặp có ít nhất 5 lần liên lạc, hệ số biến thiên "
+  "khoảng cách không quá 0,3 là đều).")
+H3("Bước 5: Gán nhãn, chia tập, tiền xử lý")
+P("Nhãn lấy từ lịch tấn công của CIC-IDS2017 (nới 60 giây mỗi đầu), từ nhãn flow của CTU-13, và từ nhật ký lần chạy "
+  "của lab. Cửa sổ có dưới 20% flow là tấn công được coi là mơ hồ và bị bỏ.")
+bang("Bảng 2.3. Cách chia tập huấn luyện, kiểm định, kiểm tra", ["Dữ liệu", "Cách chia", "Lý do"],
+     [("CIC-IDS2017", "60% / 20% / 20% theo thời gian trong từng đợt tấn công và từng khoảng bình thường; bỏ các "
+       "cửa sổ trong 10 giây sát ranh giới hai tập", "Cửa sổ liền nhau gần giống nhau; trộn ngẫu nhiên sẽ cho điểm "
+       "cao giả. Chia trong từng đợt để mọi loại tấn công có ở cả ba tập"),
+      ("CTU-13", "Theo kịch bản: huấn luyện 3, 5, 7, 10, 11, 12; kiểm định 4, 13; kiểm tra 1, 2, 6, 8, 9",
+       "Tập kiểm tra có họ bot chưa thấy khi học"),
+      ("Lab", "Theo lần chạy: lần train, val, test thu riêng; mỗi lần học lại thu lần test mới",
+       "Lần kiểm tra không bao giờ dùng để học hay chỉnh")], [2.7, 6.8, 6.0])
+bang("Bảng 2.4. Tiền xử lý (mọi tham số chỉ học trên tập huấn luyện)", ["Bước", "Phân loại tấn công", "Gaussian"],
+     [("Bỏ mẫu trùng", "Bỏ cửa sổ huấn luyện trùng hệt: 166 269 còn 85 989", "—"),
+      ("Ô trống, giá trị vô hạn", "Điền trung vị + cột đánh dấu; vô hạn coi như trống", "Điền 0 cho cột trống nghĩa "
+       "là không có gì"),
+      ("Giảm lệch", "log(1 + x) cho cột đếm, byte", "Yeo-Johnson hoặc log theo từng đặc trưng"),
+      ("Chuẩn hóa", "Trung bình 0, độ lệch chuẩn 1", "Trung bình 0, độ lệch chuẩn 1"),
+      ("Cân bằng lớp", "Thử giảm mẫu và trọng số lớp; tập kiểm định chọn không cân bằng", "Không áp dụng")],
+     [3.3, 6.6, 5.6])
+H3("Bước 6: Áp dụng thuật toán")
+B("Gaussian đa biến: học trên 252 221 cửa sổ bình thường; điểm là khoảng cách Mahalanobis bình phương; cảnh báo khi "
+  "điểm vượt ngưỡng 64,65 chọn trên tập kiểm định.",
+  "Random Forest phân loại: 300 cây, sâu tối đa 20, học trên 85 989 cửa sổ có nhãn; tham số chọn bằng lưới trên tập "
+  "kiểm định theo macro-F1; mỗi cây bỏ phiếu, điểm cảnh báo là tỷ lệ phiếu của lớp được chọn.",
+  "Random Forest botnet: 300 cây, học trên 226 360 host–cửa sổ CTU-13; cảnh báo khi xác suất ≥ 0,1; sau đó quy tắc "
+  "gán topology: nhiều bot cùng gọi về một máy là tập trung; bot bị nghi có flow trực tiếp với bot bị nghi khác là "
+  "ngang hàng.",
+  "Ba module ghép theo một trong ba chế độ: độc lập (lab), tuần tự, kết hợp (mặc định với CIC-IDS2017).")
+H3("Bước 7–8: Cảnh báo và đánh giá")
+P("Mỗi cửa sổ bị báo sinh một dòng cảnh báo theo định dạng chung; cảnh báo lặp của cùng module, nhãn, máy cách nhau "
+  "không quá 30 giây được gộp thành sự kiện. Đánh giá trên tập kiểm tra bằng precision, recall, F1, macro-F1, "
+  "accuracy và ma trận nhầm lẫn; trên lab đếm theo đợt tấn công và đo độ trễ từ lúc hành vi bắt đầu tới cảnh báo "
+  "đúng đầu tiên, gồm cả thời gian chờ cửa sổ.")
+
+H2("BỐN GIAI ĐOẠN THỰC HIỆN")
+bang("Bảng 2.5. Bốn giai đoạn của đề cương và sản phẩm tương ứng", ["Giai đoạn", "Đã làm", "Kết quả chính"],
+     [("1. Chuyển log và traffic thành dữ liệu có cấu trúc", "Khảo sát và chọn dữ liệu; bộ đọc PCAP/PCAPNG và log "
+       "Nginx tự viết; ghép flow hai chiều; cửa sổ host và đồ thị; schema, công thức, cách gán nhãn",
+       "Khớp Wireshark ở 35,5 triệu gói; 1,44 triệu flow, 465 nghìn cửa sổ host CIC"),
+      ("2. Phân tích và phát hiện bất thường", "Gán nhãn, chia tập, EDA, tiền xử lý; Gaussian; Random Forest so với 8 "
+       "mô hình cơ sở, LightGBM, MLP, GRU", "Gaussian F1 0,730; Random Forest macro-F1 0,908; GRU 0,940–0,950"),
+      ("3. Phát hiện tấn công và phân tích botnet", "Đồ thị liên lạc, gọi định kỳ, hai mô hình botnet, topology bằng "
+       "quy tắc, đối chứng lành tính; ba chế độ ghép module", "Botnet CTU-13 F1 0,798; topology tập trung 99,9%"),
+      ("4. Triển khai realtime và kiểm thử", "Cảm biến realtime dùng đúng mã offline; lab ảo 9 máy; quét, DoS, SYN, "
+       "DoS chậm, DDoS, botnet 3 và 5 bot; dashboard", "51/51 đợt, 0 báo động giả trên 66 lần kiểm tra mới; độ "
+       "trễ thật 3,9–4,2 giây")], [4.0, 6.8, 4.7])
+P("Ánh xạ từng dòng yêu cầu của bốn giai đoạn tới mã nguồn, tài liệu và kết quả nằm ở docs/83_bon_giai_doan.md của "
+  "kho mã nguồn.")
 H2("PHÂN TÍCH CHỨC NĂNG")
 H3("Đối tượng sử dụng")
 P("Người quản trị mạng hoặc người giám sát an ninh: chạy cảm biến trên máy giám sát, đọc file cảnh báo và file sự "
@@ -333,16 +466,17 @@ B("Pipeline offline: một lệnh nhận file PCAP, chạy ba module bằng mô 
   "Cảm biến realtime bắt gói bằng socket AF_PACKET, không dùng thư viện ngoài; luồng đọc đẩy gói vào hàng đợi có "
   "giới hạn, luồng xử lý chấm khi cửa sổ đóng; chạy nền bằng systemd và dừng êm theo tín hiệu.")
 H3("Công nghệ sử dụng")
-bang("Bảng 2.1. Công nghệ sử dụng", ["Thành phần", "Công nghệ"],
+bang("Bảng 2.6. Công nghệ sử dụng", ["Thành phần", "Công nghệ"],
      [("Ngôn ngữ", "Python 3.13"),
       ("Học máy", "scikit-learn 1.8 (Random Forest, Logistic Regression, Ledoit-Wolf), NumPy, pandas"),
+      ("So sánh mô hình", "LightGBM 4.7, PyTorch 2.7 (MLP, GRU)"),
       ("Đọc gói tin, ghép flow", "Tự viết bằng thư viện chuẩn của Python"),
       ("Đối chiếu", "Wireshark/TShark"),
       ("Lab ảo", "WSL2 Ubuntu, network namespace, bridge, tc mirror, tcpdump"),
       ("Sinh lưu lượng", "Nginx (máy chủ web), Nmap (quét cổng), hping3 (SYN flood), script Python (tải kết nối, bot "
                          "mô phỏng)"),
       ("Triển khai", "systemd, file cấu hình YAML"),
-      ("Kiểm thử", "unittest, 444 kiểm thử tự động")], [4.5, 11.0])
+      ("Kiểm thử", "unittest, 461 kiểm thử tự động; kiểm tra clone và cài trên môi trường mới")], [4.5, 11.0])
 H2("THIẾT KẾ DỮ LIỆU")
 P("Hệ thống không dùng cơ sở dữ liệu quan hệ. Dữ liệu trung gian và kết quả là các bảng CSV có mô tả cấu trúc đi "
   "kèm.")
@@ -356,7 +490,7 @@ P("Bảng flow: mỗi kết nối một dòng, gồm bộ năm giá trị, thờ
   "chiều, cờ TCP, trạng thái bắt tay. Bảng cửa sổ host: mỗi máy trong mỗi cửa sổ 10 giây một dòng. Mỗi bảng có "
   "file mô tả đơn vị, kiểu và vai trò của từng cột, và file ghi nguồn gốc (file PCAP, tham số, phiên bản mã).")
 H3("Bảng cảnh báo và nhật ký lần chạy")
-bang("Bảng 2.2. Các cột của bảng cảnh báo (dùng chung cho ba module)", ["Cột", "Ý nghĩa"],
+bang("Bảng 2.7. Các cột của bảng cảnh báo (dùng chung cho ba module)", ["Cột", "Ý nghĩa"],
      [("module", "Module phát cảnh báo: anomaly, attack_classification, botnet_topology"),
       ("label", "Nhãn: anomaly, port_scan, dos, suspect_host"),
       ("window_start, window_end", "Cửa sổ thời gian của cảnh báo"),
@@ -369,8 +503,9 @@ P("Nhật ký lần chạy là file JSON do bộ chạy kịch bản của lab g
   "hình, nên nhãn chuẩn độc lập với mô hình.")
 H2("XÂY DỰNG CHƯƠNG TRÌNH")
 H3("Tổ chức thư mục")
-bang("Bảng 2.3. Tổ chức thư mục", ["Thư mục", "Nội dung"],
-     [("src/nids", "Mã nguồn của hệ thống (khoảng 45 module)"),
+bang("Bảng 2.8. Tổ chức thư mục", ["Thư mục", "Nội dung"],
+     [("src/nids", "Mã nguồn của hệ thống (55 module)"),
+      ("notebooks", "Notebook EDA, Gaussian, phân loại, botnet, đã chạy sẵn kết quả"),
       ("config", "default.yaml (mô hình học từ CIC-IDS2017, CTU-13), lab.yaml (mô hình học trên lab), bảng kê dữ liệu"),
       ("models", "Mô hình đã lưu kèm thông tin nguồn gốc; models/lab là bộ mô hình của lab"),
       ("scripts", "Dựng lab ảo, chạy kịch bản, sinh lưu lượng, cài đặt, demo"),
@@ -400,19 +535,20 @@ para("Chương này trình bày môi trường triển khai, kết quả của t
      "thử trên lab ảo và nhận xét.", "_txtNoiDung02")
 H2("MÔ HÌNH TRIỂN KHAI")
 H3("Môi trường triển khai")
-P("Lab ảo gồm 7 máy trong mạng 192.168.50.0/24, mỗi máy là một network namespace nối vào một bridge. Mọi gói qua "
+P("Lab ảo gồm 9 máy trong mạng 192.168.50.0/24, mỗi máy là một network namespace nối vào một bridge. Mọi gói qua "
   "bridge được sao chép (mirror) về máy giám sát. Mạng không có đường ra ngoài.")
 bang("Bảng 3.1. Các máy trong lab ảo", ["Địa chỉ", "Vai trò"],
      [("192.168.50.10", "Máy giám sát: nhận bản sao gói tin, chạy tcpdump và cảm biến"),
       ("192.168.50.20", "Máy thử nghiệm: nguồn của quét cổng và DoS"),
       ("192.168.50.30", "Máy chủ dịch vụ (Nginx)"),
       ("192.168.50.41 – .43", "Máy trạm duyệt web; đóng vai bot mô phỏng trong kịch bản botnet"),
+      ("192.168.50.44 – .45", "Máy trạm chỉ hoạt động ở kịch bản năm bot"),
       ("192.168.50.50", "Máy điều khiển mô phỏng")], [4.0, 11.5])
 H3("Các công cụ sử dụng")
 B("Nginx phục vụ trang web; script Python sinh lưu lượng duyệt web bình thường.",
   "Nmap quét cổng 1–1024 (chậm: giãn cách 0,5 giây; nhanh: -T4).",
-  "Script tải kết nối ở ba mức 50, 200, 600 kết nối mỗi giây; hping3 gửi SYN (không giả mạo nguồn). Mỗi đợt "
-  "tối đa 60 giây.",
+  "Script tải kết nối ở ba mức 50, 200, 600 kết nối mỗi giây; hping3 gửi SYN (không giả mạo nguồn); DoS HTTP chậm "
+  "giữ 120–200 kết nối mở; DDoS: năm máy cùng tải kết nối. Mỗi đợt tối đa 60 giây.",
   "Script bot mô phỏng: gọi máy điều khiển theo chu kỳ 30–60 giây (tập trung) hoặc gửi UDP cho nhau theo chu kỳ "
   "8–30 giây (ngang hàng).")
 H3("Cấu hình hệ thống")
@@ -440,8 +576,35 @@ bang("Bảng 3.3. So sánh hai mô hình phân loại", ["", "Logistic Regressio
 hinh(H + "phan_loai_confusion.png", "Hình 3.1. Ma trận nhầm lẫn của hai mô hình phân loại trên tập kiểm tra", 15.0)
 P("Random Forest đạt macro-F1 0,935 trên tập kiểm định và 0,908 trên tập kiểm tra. Phần bỏ sót chủ yếu là DoS "
   "HTTP chậm: giữa hai đợt gửi, cửa sổ 10 giây của máy bị tấn công trông như bình thường. Một lớp bổ sung giữ "
-  "nhãn dos theo máy đã được đo thử: recall dos trên tập kiểm tra tăng từ 0,838 lên 0,938; lớp này chưa được bật "
-  "trong hệ thống.")
+  "nhãn dos theo máy nâng recall dos trên tập kiểm tra từ 0,838 lên 0,938; lớp này đã nối vào pipeline và cảm biến, "
+  "bật bằng cấu hình, mặc định tắt.")
+H3("Kịch bản 3b: So sánh với 8 mô hình cơ sở")
+P("Tám mô hình cơ sở được học trên cùng dữ liệu, cùng chia tập, cùng tiền xử lý với Random Forest.")
+bang("Bảng 3.3b. Macro-F1 của các mô hình cơ sở", ["Mô hình", "Kiểm định", "Kiểm tra", "Cửa sổ bình thường bị báo"],
+     [("Random Forest (chọn)", "0,935", "0,908", "0,041%"), ("Extra Trees", "0,931", "0,896", "0,030%"),
+      ("Gradient Boosting", "0,921", "0,893", "0,052%"), ("Decision Tree", "0,918", "0,882", "0,155%"),
+      ("MLP (sklearn)", "0,915", "0,887", "0,282%"), ("Logistic Regression", "0,880", "0,828", "0,016%"),
+      ("Linear SVM", "0,823", "0,732", "0,038%"), ("K-Nearest Neighbors", "0,806", "0,757", "1,892%"),
+      ("Gaussian Naive Bayes", "0,646", "0,600", "1,131%")], [5.0, 3.0, 3.0, 4.5])
+hinh(H + "so_sanh_mo_hinh.png", "Hình 3.1b. Macro-F1 của Random Forest và tám mô hình cơ sở", 14.0)
+P("Các mô hình dựa trên cây đứng đầu vì dấu hiệu tấn công có dạng ngưỡng; mô hình tuyến tính thấp hơn rõ; Naive "
+  "Bayes thấp nhất vì giả định các đặc trưng độc lập sai nặng ở đây.")
+H3("Kịch bản 3c: LightGBM và mô hình học sâu")
+P("So thêm LightGBM (cây tăng cường, không phải học sâu) và hai mạng nơ-ron. Tham số chọn trên tập kiểm định; mỗi "
+  "mạng học với 3 seed; tập kiểm tra chỉ đọc một lần.")
+bang("Bảng 3.3c. Mô hình cơ sở, LightGBM và học sâu trên tập kiểm tra CIC-IDS2017",
+     ["Mô hình", "Macro-F1 kiểm định", "Macro-F1 kiểm tra", "Recall port_scan", "Recall dos"],
+     [("Random Forest (cơ sở)", "0,936", "0,905", "0,727", "0,840"),
+      ("LightGBM", "0,940", "0,915", "0,818", "0,850"),
+      ("LightGBM + 5 cửa sổ trước", "0,936", "0,897", "0,691", "0,900"),
+      ("MLP (học sâu, gộp 3 seed)", "0,930", "0,902", "0,696", "0,829"),
+      ("GRU (học sâu; macro-F1 trung bình 3 seed, recall của seed đầu)", "0,960", "0,940 ± 0,007", "0,950", "0,923"),
+      ("GRU (gộp 3 seed)", "0,967", "0,950", "0,886", "0,922")], [5.0, 2.7, 2.9, 2.5, 2.4])
+hinh(H + "hoc_sau/so_sanh_hoc_sau.png", "Hình 3.1c. Macro-F1 của mô hình cơ sở, LightGBM và học sâu", 14.0)
+P("Mô hình học sâu GRU cao hơn mô hình cơ sở ở cả ba seed (0,949; 0,938; 0,933 so với 0,905). Phần tăng đến từ việc "
+  "đọc chuỗi cửa sổ: quét chậm và DoS chậm trải dài nhiều cửa sổ. Đưa cùng 5 cửa sổ trước cho LightGBM không tăng "
+  "điểm, còn MLP không đọc chuỗi thì không vượt Random Forest. Hệ thống đang chạy vẫn dùng Random Forest; GRU chưa "
+  "nối vào cảm biến.")
 H3("Kịch bản 4: Module botnet trên CTU-13")
 bang("Bảng 3.4. Phát hiện máy bot trên tập kiểm tra CTU-13 (kịch bản 1, 2, 6, 8, 9)",
      ["", "Random Forest (chọn)", "Logistic Regression"],
@@ -455,8 +618,8 @@ P("Pipeline chạy trên bốn đoạn PCAP của CIC-IDS2017 nằm trong khoả
   "realtime, cảnh báo của module bất thường và module phân loại giống hệt kết quả offline.")
 
 H2("KẾT QUẢ THỰC NGHIỆM TRÊN LAB ẢO")
-P("Đã thu 177 lần chạy: 33 lần để học, 11 lần để chọn ngưỡng, 99 lần để kiểm tra, 16 lần thí nghiệm bổ sung và 18 "
-  "lần của các biến thể kiểm tra khái quát. Không lần nào mất gói ở máy giám sát.")
+P("Đã thu 278 lần chạy: 63 lần để học, 21 lần để chọn ngưỡng, 165 lần để kiểm tra, còn lại là thí nghiệm bổ sung. "
+  "Không lần nào mất gói ở máy giám sát.")
 bang("Bảng 3.5. Các kịch bản lab", ["Kịch bản", "Biến thể", "Nội dung"],
      [("1. Bình thường", "k1-binh-thuong", "Ba máy trạm duyệt web"),
       ("2. Quét cổng", "k2-quet-cham, k2-quet-nhanh", "Nmap quét cổng 1–1024 của máy chủ"),
@@ -464,7 +627,11 @@ bang("Bảng 3.5. Các kịch bản lab", ["Kịch bản", "Biến thể", "Nộ
       ("4. Botnet tập trung", "k4-co-dinh, k4-bien-thien, k4-doi-chung",
        "Ba bot gọi máy điều khiển theo chu kỳ; đối chứng: gọi định kỳ lành tính tới máy chủ dịch vụ"),
       ("5. Botnet ngang hàng", "k5-p2p, k5-doi-chung",
-       "Ba bot gửi UDP cho nhau; đối chứng: các máy chia sẻ khối dữ liệu lớn")], [3.5, 4.5, 7.5])
+       "Ba bot gửi UDP cho nhau; đối chứng: các máy chia sẻ khối dữ liệu lớn"),
+      ("6. Botnet năm bot", "k6-tap-trung, k6-p2p, k6-doi-chung",
+       "Năm bot .41–.45 tập trung hoặc ngang hàng; đối chứng năm máy gọi định kỳ lành tính"),
+      ("Bổ sung", "x3-syn, x3-dos-cham, x3-ddos, x4/x5 đổi vai",
+       "SYN flood, DoS HTTP chậm, DDoS năm nguồn, đổi vai trò máy")], [3.5, 4.5, 7.5])
 H3("Kịch bản 1: Mô hình học từ dữ liệu công khai, chạy trên lab")
 P("Mô hình và ngưỡng đã khóa từ CIC-IDS2017 và CTU-13 được chấm trên 33 lần kiểm tra của lab, không chỉnh gì.")
 hinh(H + "thuc_nghiem/lab/lab_do_tre.png",
@@ -499,6 +666,20 @@ bang("Bảng 3.7. Mô hình lab trên các biến thể chưa từng học", ["B
        "Recall 0")], [3.5, 6.5, 5.5])
 P("Mô hình lab nhận ra bot ở vai trò, cổng và chu kỳ chưa từng thấy, nhưng không nhận ra bot thật của CTU-13. "
   "Kết quả 24/24 vì vậy chỉ có nghĩa trong lab với bot mô phỏng.")
+H3("Kịch bản 3b: Năm bot, DDoS và bộ mô hình lab lần ba")
+P("Lab được thêm hai máy để có năm bot. Bộ mô hình lab lần ba học thêm năm bot, SYN flood, DoS HTTP chậm và đổi vai "
+  "trò máy; chấm trên 63 lần kiểm tra mới và 3 lần DDoS năm nguồn (chưa từng học).")
+bang("Bảng 3.7b. Kết quả trên 66 lần kiểm tra mới của lab", ["Loại", "Đợt", "Phát hiện", "Độ trễ tới cuối cửa sổ"],
+     [("Quét cổng", "6", "6", "1,7–1,9 s"), ("DoS tải kết nối", "9", "9", "0,9–2,0 s"),
+      ("SYN flood", "9", "9", "1,0–1,1 s"), ("DoS HTTP chậm", "3", "3", "1,1 s"), ("DDoS năm nguồn", "3", "3", "0,9 s"),
+      ("Botnet ba bot", "9", "9", "6–9 s"), ("Botnet năm bot", "6", "6", "10–15 s"), ("Botnet đổi vai", "6", "6", "8–14 s"),
+      ("Tổng; sự kiện báo động giả", "51", "51; 0 báo giả", "")], [5.0, 2.0, 3.5, 5.0])
+B("Năm bot: 15/15 bot tập trung và 15/15 bot ngang hàng bị báo; topology đúng 100% và 99,2%; đối chứng năm máy "
+  "không bị báo.",
+  "DDoS: cả năm nguồn và máy nạn nhân đều được gán dos ở mọi cửa sổ.",
+  "SYN flood: recall phía máy nạn nhân tăng từ 0,10 (bộ lần hai) lên 0,97, nên vẫn phát hiện được khi máy tấn công "
+  "nằm ngoài mạng giám sát.")
+hinh(H + "dashboard_do_thi_bot.png", "Hình 3.3b. Dashboard: năm máy bị nghi botnet ngang hàng trong một lần kiểm tra", 9.0)
 H3("Kịch bản 4: Cảm biến realtime bắt trực tiếp (demo)")
 P("Cảm biến chạy trên máy giám sát của lab, dùng bộ mô hình lab, bắt gói trực tiếp trong lúc kịch bản chạy. Kết "
   "quả của ba lần chạy demo ngày 13/11/2026:")
@@ -515,6 +696,23 @@ code(["  >> 10:33:17  CẢNH BÁO PORT_SCAN  host 192.168.50.20   điểm 0.9533
       "  Cảnh báo có loại tấn công nằm ngoài đợt tấn công (báo động giả): 0"])
 para("Hình 3.4. Trích màn hình demo quét cổng: cảnh báo và phần tổng kết", "_txtHinhCaption")
 P("Trong thí nghiệm bổ sung, cảm biến bắt trực tiếp không mất gói ở tải tới khoảng 2 900 gói mỗi giây.")
+H3("Kịch bản 5: Kết quả realtime và đối chiếu với offline")
+bang("Bảng 3.9. Kết quả realtime", ["Đo gì", "Kết quả"],
+     [("Nhất quán realtime – offline", "Cùng nhãn ở mọi cửa sổ trên 15 467 cửa sổ"),
+      ("Độ trễ thật, cảm biến bắt trực tiếp", "Quét 4,2 s; DoS 3,9 s; botnet tập trung 30,0 s; ngang hàng 17,8 s"),
+      ("Gói bỏ, tài nguyên", "0 gói bỏ; CPU dưới 6% một nhân; RAM 213–257 MB"),
+      ("Tải cao", "0 gói bỏ tới khoảng 2 900 gói/s")], [5.5, 10.0])
+H3("Phân tích báo động giả và bỏ sót")
+bang("Bảng 3.10. Nguyên nhân báo động giả, bỏ sót và cách đã xử lý", ["Hiện tượng", "Nguyên nhân", "Đã xử lý"],
+     [("Gaussian báo máy chủ web của lab suốt bản thu", "Học bình thường từ máy trạm CIC", "Học lại trên lab: 0"),
+      ("Phân loại gán dos khi chia sẻ dữ liệu lớn", "Chưa từng thấy truyền dữ liệu lớn nội bộ", "Thêm đối chứng vào "
+       "tập học: 0"),
+      ("Gaussian khoảng 17 đợt báo giả mỗi giờ trên CIC", "Lưu lượng người dùng thật đa dạng", "Không dùng một mình"),
+      ("Bỏ sót botnet lab 9/9 với mô hình CTU-13", "Bot CTU-13 ồn, bot lab gọi nhẹ và đều", "Học lại trên lab: 0 bỏ sót"),
+      ("Bỏ sót DoS HTTP chậm (recall 0,66)", "Giữa hai đợt gửi cửa sổ trông bình thường", "Lớp giữ nhãn dos (0,82); GRU"),
+      ("Bỏ sót phía nạn nhân SYN flood", "Không có kết nối hoàn tất, khác DoS đã học", "Học thêm SYN flood: 0,97"),
+      ("Chế độ tuần tự bỏ sót 28–35% cửa sổ tấn công", "Gaussian không báo thì phân loại không được hỏi",
+       "Không dùng làm mặc định")], [5.3, 5.3, 4.9])
 
 H2("NHẬN XÉT ĐÁNH GIÁ KẾT QUẢ")
 P("Qua kết quả thực nghiệm, có những nhận xét như sau:")
@@ -524,14 +722,18 @@ B("Quét cổng và DoS tải kết nối có dấu hiệu giống nhau ở mọ
   "kỳ với rất ít lưu lượng. Ngược lại, mô hình học trên lab không nhận ra bot của CTU-13.",
   "Báo động giả của mô hình cũ trên lab có cùng một nguyên nhân: mô hình chưa từng thấy mạng này (máy chủ web, "
   "truyền dữ liệu nội bộ).",
-  "Học lại trên chính mạng cần giám sát giải quyết cả hai vấn đề trong lab: 24/24 đợt, không báo động giả. Lab "
-  "dễ hơn mạng thật: chỉ 7 máy, lưu lượng bình thường do bộ sinh tạo ra nên đều đặn.",
+  "Học lại trên chính mạng cần giám sát giải quyết cả hai vấn đề trong lab: 51/51 đợt trên 66 lần kiểm tra mới, "
+  "không báo động giả, kể cả năm bot và DDoS. Lab dễ hơn mạng thật: chỉ 9 máy, lưu lượng bình thường do bộ sinh "
+  "tạo ra nên đều đặn.",
+  "Học sâu chỉ có lợi khi mô hình được đọc chuỗi thời gian: GRU đạt macro-F1 0,940–0,950 so với 0,908 của Random "
+  "Forest, còn MLP trên một cửa sổ thì không hơn.",
   "Độ trễ của quét cổng và DoS là vài giây vì cửa sổ 10 giây trượt mỗi 2 giây; giảm thời gian chờ bắt tay từ 3 "
   "xuống 1 giây làm cảnh báo sớm hơn khoảng 2 giây mà không đổi kết quả phát hiện.",
   "Module Gaussian không đủ dùng một mình trên CIC-IDS2017; nó có ích như một tín hiệu bổ sung.")
 H2("Kết chương")
-P("Chương này đã trình bày môi trường lab ảo, kết quả của ba module trên CIC-IDS2017 và CTU-13, kết quả kiểm thử "
-  "trên lab với mô hình cũ và mô hình học lại, kiểm tra khái quát và kết quả demo realtime.")
+P("Chương này đã trình bày môi trường lab ảo, kết quả của ba module trên CIC-IDS2017 và CTU-13, so sánh với mô "
+  "hình cơ sở và học sâu, kết quả kiểm thử trên lab với ba bộ mô hình, kiểm tra khái quát, kết quả realtime và phân "
+  "tích báo động giả, bỏ sót.")
 
 # =====================================================================================================
 T("KẾT LUẬN VÀ HƯỚNG PHÁT TRIỂN")
@@ -539,26 +741,29 @@ S("1. KẾT QUẢ ĐẠT ĐƯỢC")
 P("Đề tài đã đạt được những kết quả sau:")
 B("Xây dựng được trọn chuỗi xử lý từ gói tin tới cảnh báo, chạy được offline trên file PCAP và realtime trên card "
   "mạng, dùng cùng một đoạn mã tính đặc trưng.",
-  "Bộ đọc gói tin tự viết khớp Wireshark ở mọi trường của 4,57 triệu gói.",
-  "Module phân loại (Random Forest) đạt macro-F1 0,908 trên tập kiểm tra CIC-IDS2017; module botnet đạt precision "
-  "0,971, recall 0,678 trên tập kiểm tra CTU-13 với các họ bot chưa thấy lúc học; module Gaussian đạt F1 0,730.",
-  "Dựng được lab ảo 7 máy và bộ chạy kịch bản tự ghi nhãn chuẩn; thu 177 lần chạy.",
-  "Trên lab, bộ mô hình học lại phát hiện 24/24 đợt tấn công trên các lần kiểm tra mới, không báo động giả; vẫn "
-  "phát hiện khi đổi vai trò máy (6/6) và với SYN flood (9/9).",
-  "Cảm biến realtime phát cảnh báo quét cổng và DoS sau khoảng 1,5–3 giây trong demo.",
-  "Mã nguồn có 444 kiểm thử tự động; 73 quyết định kỹ thuật được ghi lại kèm lý do.")
+  "Bộ đọc gói tin tự viết khớp Wireshark ở mọi trường của 35,5 triệu gói, nhanh gấp 25 lần Scapy.",
+  "Module phân loại (Random Forest) đạt macro-F1 0,908 trên tập kiểm tra CIC-IDS2017, đứng đầu tám mô hình cơ sở; "
+  "mô hình học sâu GRU đọc chuỗi cửa sổ đạt 0,940–0,950; module botnet đạt precision 0,971, recall 0,678 trên tập "
+  "kiểm tra CTU-13 với các họ bot chưa thấy lúc học; module Gaussian đạt F1 0,730.",
+  "Phân tích khám phá ba bộ dữ liệu và dùng kết quả đó cho từng quyết định tiền xử lý và chọn mô hình.",
+  "Dựng được lab ảo 9 máy và bộ chạy kịch bản tự ghi nhãn chuẩn; thu 278 lần chạy.",
+  "Trên lab, bộ mô hình lần ba phát hiện 51/51 đợt tấn công trên 66 lần kiểm tra mới, không báo động giả, gồm cả "
+  "botnet năm bot (15/15 bot mỗi kiểu) và DDoS năm nguồn.",
+  "Cảm biến realtime cho cùng kết quả với offline ở mọi cửa sổ; độ trễ thật 3,9–4,2 giây với quét cổng và DoS.",
+  "Mã nguồn có 461 kiểm thử tự động, chạy lại được từ bản clone mới; 90 quyết định kỹ thuật được ghi lại kèm lý do.")
 P("Tuy nhiên, vẫn còn tồn tại các vấn đề như sau:")
 B("Mới kiểm thử trên lab ảo; chưa chạy trên lab vật lý và chưa cài trên Kali Linux.",
   "Mô hình không chuyển giữa các mạng: mô hình botnet của lab cho recall 0 trên CTU-13.",
-  "DoS HTTP chậm còn bị bỏ sót (recall Slowhttptest 0,66 trên CIC-IDS2017); lớp giữ nhãn dos đã đo nhưng chưa bật.",
+  "DoS HTTP chậm còn bị bỏ sót với Random Forest (recall Slowhttptest 0,66 trên CIC-IDS2017); lớp giữ nhãn dos và "
+  "GRU cải thiện được nhưng GRU chưa nối vào cảm biến.",
   "Module Gaussian báo động giả nhiều trên CIC-IDS2017.",
   "Chưa có dữ liệu cho brute-force và khai thác lỗ hổng.")
 S("2. KIẾN NGHỊ VÀ HƯỚNG PHÁT TRIỂN")
 P("Một số hướng phát triển của đề tài như sau:")
 B("Dựng lab vật lý với switch có cổng mirror, cài hệ thống trên Kali Linux và so kết quả với lab ảo.",
-  "Bật lớp giữ nhãn dos theo máy trong pipeline và cảm biến realtime.",
-  "Thu thêm dữ liệu học cho SYN flood và các biến thể đổi vai trò máy.",
-  "Thử độ nhạy của độ dài cửa sổ; bổ sung các loại tấn công khác.")
+  "Nối mô hình GRU vào cảm biến realtime và thử trên lab.",
+  "Bổ sung lớp brute-force và khai thác lỗ hổng bằng dữ liệu CIC-IDS2017 thứ Ba, thứ Năm.",
+  "Đánh giá rủi ro chặn nhầm trước khi tích hợp firewall tự động chặn IP.")
 
 T("TÀI LIỆU THAM KHẢO")
 for ref in [
@@ -587,7 +792,8 @@ code(["demo\\0_kiem_tra.bat          kiểm tra môi trường",
       "demo\\1_demo_quet_cong.bat    quét cổng bằng Nmap, cảm biến realtime",
       "demo\\2_demo_dos.bat          tải kết nối 60 giây",
       "demo\\3_demo_binh_thuong.bat  chỉ có lưu lượng bình thường",
-      "demo\\4_ket_qua_da_luu.bat    in bảng kết quả đã lưu"])
+      "demo\\4_ket_qua_da_luu.bat    in bảng kết quả đã lưu",
+      "demo\\5_phat_lai_ban_thu.bat  phát lại bản thu lab qua cảm biến realtime, mở dashboard"])
 d.add_paragraph(style="Normal")
 S("2. Lệnh chạy pipeline và cảm biến")
 code(["cd src",
