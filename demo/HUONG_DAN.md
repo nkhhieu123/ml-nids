@@ -346,6 +346,14 @@ Số liệu mỗi lần chạy khác nhau đôi chút (số gói, giờ, độ t
 | Bị DoS | Dòng `DOS` liên tục trong 60 giây, cho `.20` và `.30` | `PHÁT HIỆN`, trễ khoảng 1,5 giây |
 | Tấn công dừng | Các dòng dừng sau khoảng 10 giây | — |
 
+### 3.2b. Phát lại bản thu đã lưu (`5_phat_lai_ban_thu.bat`)
+
+Chạy ngay trên Windows, không cần WSL. Chọn một trong sáu bản thu (bình thường, quét, DoS, DDoS năm nguồn, botnet
+năm bot tập trung, ngang hàng); cảm biến realtime đọc bản thu nhanh gấp 10 lần thời gian thật, in cảnh báo khi phát
+ra, cuối cùng in tổng kết so với nhật ký lần chạy và mở dashboard trong trình duyệt. Cách này dùng để **trình diễn
+botnet** (mỗi lần chạy thật 12 phút, phát lại còn khoảng 70 giây) và làm phương án dự phòng khi lab ảo hỏng. Cần
+thư mục `data/pcap/lab/` của máy đã chạy lab. Kịch bản bảo vệ đầy đủ: `demo/KICH_BAN_BAO_VE.md`.
+
 ### 3.3. Vì sao không demo botnet trực tiếp
 
 Kịch bản botnet cần ít nhất 10 phút (bot gọi máy điều khiển mỗi 30–60 giây, module chấm trên cửa sổ 120
