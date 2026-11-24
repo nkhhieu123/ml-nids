@@ -160,6 +160,18 @@ Thí nghiệm bổ sung (cảm biến bắt trực tiếp, máy tấn công có 
 
 Bộ mô hình lab lần hai, kiểm tra khái quát (đổi vai trò máy, SYN flood, chấm chéo CTU-13), chờ bắt tay 1 giây: [docs/76_khai_quat_lab.md](docs/76_khai_quat_lab.md)
 
+### Chặng 12 — Báo cáo và bàn giao
+
+- [x] C12-T01: Notebook cho ba hướng tiếp cận — `notebooks/05_eda`, `06_gaussian`, `07_phan_loai`, `08_botnet`
+- [x] C12-T02: Bảng kết quả offline và realtime riêng — [docs/85_bang_ket_qua.md](docs/85_bang_ket_qua.md)
+- [x] C12-T03: Kiến trúc, hướng dẫn triển khai và tái lập — [docs/84_kien_truc_trien_khai.md](docs/84_kien_truc_trien_khai.md)
+- [x] C12-T04: Phân tích báo động giả, bỏ sót và giới hạn — [docs/85_bang_ket_qua.md](docs/85_bang_ket_qua.md) mục 4–6
+- [x] C12-T05: Bảng yêu cầu → mã nguồn → bằng chứng — [docs/86_yeu_cau_bang_chung.md](docs/86_yeu_cau_bang_chung.md)
+- [x] C12-T06: Kiểm tra clone và chạy từ môi trường mới — [docs/84_kien_truc_trien_khai.md](docs/84_kien_truc_trien_khai.md) mục 2
+- [x] C12-T07: Kịch bản bảo vệ và bản phát lại PCAP — [demo/KICH_BAN_BAO_VE.md](demo/KICH_BAN_BAO_VE.md), `demo/5_phat_lai_ban_thu.bat`
+
+Báo cáo Chặng 12: [docs/Bao_cao_Chang_12.md](docs/Bao_cao_Chang_12.md). Bốn giai đoạn của đề cương: dòng nào làm ở đâu, kết quả ra sao: [docs/83_bon_giai_doan.md](docs/83_bon_giai_doan.md). Báo cáo môn học (Word): `docs/Bao_cao_mon_hoc.docx`
+
 Quy trình xử lý dữ liệu từ gói tin tới kết quả (tiền xử lý, chia tập 60/20/20, ba thuật toán): [docs/77_quy_trinh_xu_ly_du_lieu.md](docs/77_quy_trinh_xu_ly_du_lieu.md)
 
 So sánh bộ phân loại với 8 mô hình baseline: [docs/78_so_sanh_baseline.md](docs/78_so_sanh_baseline.md)

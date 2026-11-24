@@ -2,7 +2,7 @@
 
 Tài liệu chỉ liệt kê những gì **chưa có** hoặc **chưa kiểm chứng**. Mục nào đã xong thì đã được xóa khỏi đây;
 kết quả của chúng nằm ở báo cáo từng chặng, nhật ký quyết định (docs/03) và lịch sử git của file này.
-Cập nhật lần cuối: 17/11/2026.
+Cập nhật lần cuối: 25/11/2026.
 
 Dữ liệu hiện có: **CIC-IDS2017 đủ** (PCAP thứ Hai, thứ Tư, thứ Sáu và CSV có nhãn), **CTU-13 đủ** 13 file
 `.binetflow`, và **lab ảo** 9 máy: 273 lần chạy (63 `train`, 21 `val`, 162 `test`, 16 lần thí nghiệm bổ sung, 18
@@ -56,7 +56,7 @@ Ghi lại để nêu trong báo cáo cuối và để biết khi nào cần làm
 
 1. **Bạn:** dựng lab vật lý, cài dự án trên Kali, đồng bộ đồng hồ (mục 1); chạy lại vài kịch bản và so với lab ảo.
 2. **Nếu muốn thêm lớp:** tải CIC thứ Ba, thứ Năm (brute-force, tấn công web) (mục 2).
-3. Chặng 12: báo cáo và bàn giao; nêu rõ các hạn chế ở mục 3.
+3. Chặng 12 đã xong (docs/Bao_cao_Chang_12.md); các hạn chế ở mục 3 đã nêu trong docs/85.
 
 ## Thuật ngữ
 
