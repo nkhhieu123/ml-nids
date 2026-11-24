@@ -73,7 +73,9 @@ def _port(s) -> pd.Series:
 
 def normalize(chunk, session) -> pd.DataFrame:
     """Một khúc ``.binetflow`` thành bảng flow chung. StartTime là giờ địa phương, đọc như UTC."""
-    ts = pd.to_datetime(chunk["StartTime"], format="%Y/%m/%d %H:%M:%S.%f").astype("int64") / 1e9
+    # Trừ mốc 1970 rồi đổi ra giây: đúng với mọi độ phân giải thời gian (pandas 3 mặc định micro giây, pandas 2
+    # nano giây), không phụ thuộc cách lưu số nguyên bên trong.
+    ts = (pd.to_datetime(chunk["StartTime"], format="%Y/%m/%d %H:%M:%S.%f") - pd.Timestamp(0)).dt.total_seconds()
     dur = pd.to_numeric(chunk["Dur"], errors="coerce").fillna(0.0)
     tot = pd.to_numeric(chunk["TotBytes"], errors="coerce")
     srcb = pd.to_numeric(chunk["SrcBytes"], errors="coerce")
