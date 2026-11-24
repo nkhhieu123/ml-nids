@@ -102,12 +102,40 @@ chưa đo trên file CIC-IDS2017 thật.
 bỏ block nào. 1 triệu gói đầu của mỗi file khớp Wireshark. Chi tiết ở
 [06_cic_ids2017.md](06_cic_ids2017.md), mục 7.
 
+## 6. So sánh với Scapy, dpkt và PyShark (25/11/2026, QĐ-088)
+
+Kế hoạch gợi ý chọn giữa Scapy, PyShark và dpkt. QĐ-013 chọn tự viết dựa trên lập luận; mục này đo thật để kiểm
+lại. Bốn công cụ đọc cùng 20 000 gói IP đầu của `output/pcap/fri_binh_thuong.pcap` (một đoạn CIC thứ Sáu) và lấy
+đúng các trường pipeline cần: IP nguồn/đích, giao thức, cổng, độ dài IP (`nids.so_sanh_bo_doc`, kết quả
+`docs/hinh/so_sanh_bo_doc.json`).
+
+```bash
+cd src
+python -m nids.so_sanh_bo_doc ../output/pcap/fri_binh_thuong.pcap --so-goi 20000 --out ../docs/hinh/so_sanh_bo_doc.json
+```
+
+| Công cụ | Phiên bản | Thời gian | Tốc độ | Khớp bộ đọc của đề tài |
+|---|---|---|---|---|
+| **Tự viết** (`pcap_reader` + `packets`) | — | **0,18 s** | **≈ 110 000 gói/s** | — |
+| dpkt | 1.9.8 | 0,32 s | ≈ 62 000 gói/s | 20 000/20 000 |
+| Scapy | 2.8.0 | 4,58 s | ≈ 4 400 gói/s | 20 000/20 000 |
+| PyShark (gọi TShark 4.6.8) | — | 62,7 s | ≈ 320 gói/s | 20 000/20 000 |
+
+- **Cả bốn cho cùng kết quả ở mọi gói**, nên lựa chọn chỉ còn là tốc độ và phụ thuộc.
+- **Bộ đọc tự viết nhanh nhất**, gấp khoảng 1,8 lần dpkt, 25 lần Scapy, 340 lần PyShark. Một ngày CIC cỡ 10–14
+  triệu gói: tự viết khoảng 2 phút; Scapy gần 1 giờ; PyShark khoảng 12 giờ.
+- dpkt là lựa chọn thay thế hợp lý nếu không muốn tự viết. Scapy hợp để dựng gói hoặc thử nhanh, không hợp cho
+  file lớn. PyShark cho kết quả giống Wireshark nhưng quá chậm và cần cài Wireshark trên mọi máy.
+- Realtime dùng socket `AF_PACKET` của Linux (`nids.nguon_goi`) thay vì Scapy, cùng lý do: không thêm thư viện và
+  đưa gói thẳng vào đúng bộ phân tích header của offline (B12).
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
 
 | Thuật ngữ | Giải thích |
 |---|---|
+| Scapy, dpkt, PyShark | Ba thư viện Python đọc gói tin; PyShark điều khiển TShark của Wireshark |
 | Bộ đọc (reader) | Phần mã mở file và lấy ra lần lượt từng bản ghi |
 | Packet | Một gói tin |
 | RawPacket | Bản ghi thô của một gói: thời điểm, độ dài và byte gốc, chưa phân tích nội dung |

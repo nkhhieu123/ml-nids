@@ -622,6 +622,13 @@ Mẫu:
 - Quyết định: Thêm `nids.hoc_sau`: Random Forest (cơ sở), LightGBM (lưới 24 bộ), MLP và GRU trên chuỗi 5 cửa sổ trước + cửa sổ hiện tại (lưới 12 bộ mỗi loại, 3 seed); thêm LightGBM nhận cùng chuỗi để tách phần đóng góp của ngữ cảnh. Chọn trên validation, đọc test một lần.
 - Hệ quả: Macro-F1 test: Random Forest 0,905; LightGBM 0,915; MLP 0,902; GRU 0,940 ± 0,007 (gộp 3 seed 0,950); LightGBM + ngữ cảnh 0,897. GRU vượt mô hình cơ sở ở cả ba seed, nhờ đọc chuỗi. Hệ thống vẫn dùng Random Forest; GRU chưa nối vào cảm biến, chưa thử trên lab. Chi tiết docs/82.
 
+## QĐ-088 — Giữ bộ đọc gói tự viết sau khi đo so với Scapy, dpkt, PyShark
+- Ngày: 25/11/2026
+- Trạng thái: Đã chốt (bổ sung căn cứ đo cho QĐ-013, QĐ-014)
+- Bối cảnh: QĐ-013 chọn tự viết dựa trên lập luận về tốc độ và phụ thuộc, chưa đo.
+- Quyết định: Giữ bộ đọc tự viết. Căn cứ: trên 20 000 gói CIC, bốn công cụ cho cùng kết quả ở mọi gói; tốc độ tự viết ≈ 110 000 gói/s, dpkt ≈ 62 000, Scapy ≈ 4 400, PyShark ≈ 320.
+- Hệ quả: Công cụ đo `nids.so_sanh_bo_doc`; chi tiết docs/11 mục 6.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.

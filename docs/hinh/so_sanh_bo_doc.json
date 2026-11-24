@@ -1,0 +1,39 @@
+{
+  "file": "fri_binh_thuong.pcap",
+  "so_goi_toi_da": 20000,
+  "ket_qua": {
+    "tu_viet": {
+      "so_goi_ip": 20000,
+      "giay": 0.18,
+      "goi_moi_giay": 109831,
+      "khop_bo_doc_de_tai": 20000,
+      "ty_le_khop": 1.0
+    },
+    "dpkt": {
+      "so_goi_ip": 20000,
+      "giay": 0.32,
+      "goi_moi_giay": 61691,
+      "khop_bo_doc_de_tai": 20000,
+      "ty_le_khop": 1.0
+    },
+    "scapy": {
+      "so_goi_ip": 20000,
+      "giay": 4.58,
+      "goi_moi_giay": 4368,
+      "khop_bo_doc_de_tai": 20000,
+      "ty_le_khop": 1.0
+    },
+    "pyshark": {
+      "so_goi_ip": 20000,
+      "giay": 62.7,
+      "goi_moi_giay": 319,
+      "khop_bo_doc_de_tai": 20000,
+      "ty_le_khop": 1.0
+    }
+  },
+  "phien_ban": {
+    "python": "3.13.3",
+    "scapy": "2.8.0",
+    "dpkt": "1.9.8"
+  }
+}
