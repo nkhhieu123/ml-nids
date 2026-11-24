@@ -44,6 +44,17 @@ class PreprocessTest(unittest.TestCase):
         sa, sb = a.pipeline.named_steps["chuan_hoa"], b.pipeline.named_steps["chuan_hoa"]
         self.assertTrue(np.allclose(sa.mean_, sb.mean_) and np.allclose(sa.scale_, sb.scale_))
 
+    def test_infinite_values_treated_as_missing(self):
+        from nids.preprocessing import Preprocessor
+        feats = ["a", "b"]
+        train = pd.DataFrame({"a": [1.0, 2.0, 3.0, 4.0], "b": [0.1, 0.2, 0.3, 0.4]})
+        pre = Preprocessor("windows", feats, ["a"]).fit(train)
+        bad = pd.DataFrame({"a": [np.inf, 2.0], "b": [0.2, -np.inf]})
+        X = pre.transform(bad)
+        self.assertTrue(np.isfinite(X).all())
+        good = pre.transform(pd.DataFrame({"a": [np.nan, 2.0], "b": [0.2, np.nan]}))
+        np.testing.assert_allclose(X, good)          # vô hạn được xử lý đúng như ô trống
+
     def test_missing_indicator_and_log(self):
         res = prepare(self.prefixes, "windows", "attack_classification")
         pre = res["preprocessor"]

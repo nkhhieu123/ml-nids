@@ -629,6 +629,13 @@ Mẫu:
 - Quyết định: Giữ bộ đọc tự viết. Căn cứ: trên 20 000 gói CIC, bốn công cụ cho cùng kết quả ở mọi gói; tốc độ tự viết ≈ 110 000 gói/s, dpkt ≈ 62 000, Scapy ≈ 4 400, PyShark ≈ 320.
 - Hệ quả: Công cụ đo `nids.so_sanh_bo_doc`; chi tiết docs/11 mục 6.
 
+## QĐ-089 — Giá trị vô hạn được coi như ô trống
+- Ngày: 25/11/2026
+- Trạng thái: Đã chốt
+- Bối cảnh: Yêu cầu xử lý dữ liệu thiếu và giá trị vô hạn. Bảng CIC có 0 giá trị vô hạn vì bộ trích xuất không chia cho 0.
+- Quyết định: `Preprocessor` và `gaussian.fill_empty` đổi ±∞ thành ô trống trước mọi bước khác.
+- Hệ quả: Kết quả trên dữ liệu hiện có không đổi; dữ liệu lạ có ±∞ không làm hỏng mô hình. Chi tiết docs/32 mục 1.x.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.

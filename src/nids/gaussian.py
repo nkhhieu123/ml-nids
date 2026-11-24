@@ -87,8 +87,10 @@ def select_features(train: pd.DataFrame, candidates=None) -> tuple[list, dict]:
 
 
 def fill_empty(df: pd.DataFrame) -> pd.DataFrame:
-    """Điền 0 cho các cột trống nghĩa là "không có gì" (``EMPTY_MEANS_ZERO``)."""
+    """Điền 0 cho các cột trống nghĩa là "không có gì" (``EMPTY_MEANS_ZERO``); giá trị vô hạn coi như trống (QĐ-089)."""
     out = df.copy()
+    num = out.select_dtypes("number").columns
+    out[num] = out[num].replace([np.inf, -np.inf], np.nan)
     for f in EMPTY_MEANS_ZERO:
         if f in out:
             out[f] = out[f].fillna(0.0)

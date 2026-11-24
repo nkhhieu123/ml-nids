@@ -51,7 +51,9 @@ class Preprocessor:
     info: dict = field(default_factory=dict)
 
     def _log(self, df):
-        X = df[self.features].astype(float).copy()
+        # Giá trị vô hạn (chia cho 0 ở dữ liệu lạ) coi như ô trống: được điền trung vị và đánh dấu (QĐ-089).
+        # Bảng do bộ trích xuất của đề tài sinh ra không có giá trị vô hạn vì mọi phép chia đã chặn mẫu số 0.
+        X = df[self.features].astype(float).replace([np.inf, -np.inf], np.nan)
         X[self.log_features] = _signed_log1p(X[self.log_features])
         return X.to_numpy()
 

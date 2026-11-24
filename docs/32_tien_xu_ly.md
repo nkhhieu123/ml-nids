@@ -71,6 +71,14 @@ thật. Bước fit làm trước bước cân bằng, nên tham số chuẩn h�
 Không dùng SMOTE (sinh mẫu giả): với các đặc trưng đếm rời rạc, mẫu nội suy không tương ứng hành
 vi mạng có thật, và lớp ít nhất đã đủ vài trăm mẫu.
 
+### 1.x. Giá trị vô hạn (25/11/2026, QĐ-089)
+
+Đã đếm trên toàn bộ bảng CIC ba ngày: **0 giá trị vô hạn** trong 465 393 cửa sổ host và 1 442 894 flow, vì mọi phép
+chia trong bộ trích xuất đã chặn mẫu số bằng 0 (không có mẫu số thì để trống, không chia). Để dữ liệu lạ, ví dụ
+bảng do công cụ khác sinh ra, không làm hỏng mô hình, bộ tiền xử lý và Gaussian đổi `+∞`, `-∞` thành ô trống rồi
+xử lý như ô trống: điền trung vị và đánh dấu (bộ phân loại), điền 0 hoặc bỏ theo quy tắc của Gaussian. Kiểm thử:
+`test_infinite_values_treated_as_missing`. Với dữ liệu hiện có, kết quả không đổi.
+
 ## 2. Kết quả trên CIC-IDS2017
 
 | Bộ | Fit trên | Train trước → sau bỏ trùng | Train sau cân bằng | Validation | Test |
