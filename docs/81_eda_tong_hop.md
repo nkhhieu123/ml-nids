@@ -117,8 +117,12 @@ Trung vị trên train:
 | Tỷ lệ kết nối ra không được trả lời | 0 | 0,97 |
 
 Đặc trưng tách bot tốt nhất là **nhóm gọi định kỳ** (`beacon_chu_ky` AUC 0,94, `beacon_so_cap_du_quan_sat` 0,94)
-và **tỷ lệ kết nối ra không được trả lời** (0,92). Bot của CTU-13 liên lạc với rất nhiều máy, phần lớn không trả
-lời (spam, quét), còn máy bình thường nói chuyện với ít máy quen. Ô trống: các cột chiều vào và đặc trưng gọi định
+và **tỷ lệ kết nối ra không được trả lời** (0,92). Chú ý chiều của nhóm gọi định kỳ: trong CTU-13 chính **máy bình
+thường** mới gọi đều (trung vị một cặp gọi đều, chu kỳ khoảng 30 giây, hệ số biến thiên 0,015: đồng bộ giờ, cập
+nhật), còn **bot thật thì ồn và không đều** (trung vị 0 cặp gọi đều, hệ số biến thiên 1,68). Bot của CTU-13 liên lạc
+với rất nhiều máy (trung vị 58 so với 8), phần lớn không trả lời (spam, quét). Đây cũng là lý do mô hình học từ
+CTU-13 không nhận ra bot của lab, vốn chỉ gọi đều và nhẹ (docs/71, 76); và vì sao "gọi định kỳ" không tự chứng minh
+botnet, phải có đối chứng lành tính (`k4-doi-chung`, `k6-doi-chung`). Ô trống: các cột chiều vào và đặc trưng gọi định
 kỳ trống ở 27–72% host–cửa sổ (máy không có kết nối vào, hoặc chưa đủ 5 lần liên lạc để đo nhịp).
 
 ## 7. Lab khác CIC thế nào

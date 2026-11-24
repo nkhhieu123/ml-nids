@@ -164,6 +164,8 @@ Quy trình xử lý dữ liệu từ gói tin tới kết quả (tiền xử lý
 
 So sánh bộ phân loại với 8 mô hình baseline: [docs/78_so_sanh_baseline.md](docs/78_so_sanh_baseline.md)
 
+Notebook: `notebooks/05_eda.ipynb` (EDA), `06_gaussian.ipynb`, `07_phan_loai.ipynb` (Random Forest, baseline, LightGBM, học sâu), `08_botnet.ipynb` (botnet, topology); sinh lại bằng `python scripts/tao_notebook.py`
+
 EDA tổng hợp ba bộ dữ liệu (CIC-IDS2017, CTU-13, lab): [docs/81_eda_tong_hop.md](docs/81_eda_tong_hop.md)
 
 LightGBM và mô hình học sâu (MLP, GRU) so với mô hình cơ sở Random Forest: [docs/82_lightgbm_va_hoc_sau.md](docs/82_lightgbm_va_hoc_sau.md)
