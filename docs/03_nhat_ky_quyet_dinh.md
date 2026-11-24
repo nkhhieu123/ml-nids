@@ -643,6 +643,13 @@ Mẫu:
 - Quyết định: Thêm biến thể `x3-ddos`: năm máy lab cùng tải kết nối vào `.30`, 60 giây, chỉ trong lab ảo cô lập (B16, B24). Chỉ dùng để chấm, không đưa vào `train`. Không thêm lớp `ddos` riêng.
 - Hệ quả: Bộ lab lần ba bắt 3/3 đợt, recall cửa sổ 1,0 cho cả năm nguồn và nạn nhân, 0 báo giả. Chi tiết docs/80 mục 4.4.
 
+## QĐ-090 — Dashboard là trang HTML tĩnh sinh từ file cảnh báo; chưa tích hợp firewall
+- Ngày: 25/11/2026
+- Trạng thái: Đã chốt
+- Bối cảnh: Dashboard và tự động chặn IP là tùy chọn nâng cao (Giai đoạn 4).
+- Quyết định: `nids.dashboard` sinh một file HTML tự chứa (hình nhúng sẵn, không cần máy chủ, không tải gì từ mạng) từ `alerts.csv` và `su_kien.csv`: số cảnh báo theo module, dòng thời gian theo máy, máy bị báo nhiều nhất, đồ thị máy bị nghi botnet. Không tích hợp firewall: chưa đánh giá rủi ro chặn nhầm trên mạng thật, và hệ thống chưa chạy trên mạng thật.
+- Hệ quả: Mẫu `docs/hinh/dashboard_mau.html` (lần chạy năm bot ngang hàng). Dashboard chưa tự cập nhật theo thời gian thực; chạy lại lệnh để làm mới.
+
 ## Thuật ngữ
 
 Giải thích ngắn các thuật ngữ dùng trong tài liệu này.
