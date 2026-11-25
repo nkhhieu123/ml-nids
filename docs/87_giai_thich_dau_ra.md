@@ -275,8 +275,14 @@ là 35 cảnh báo `dos` liên tiếp trên máy `.20` kéo dài 78 giây (60 gi
 
 ## 12. Điểm mọi cửa sổ — `<tên>.diem.csv`
 
-Chỉ có khi chạy `nids.realtime --ghi-diem`. Cùng cột với `alerts.csv`, nhưng gồm **mọi** cửa sổ, kể cả nhãn không
-cảnh báo (`normal`, `benign`, `normal_host`, `none`). Dùng để vẽ phân bố điểm hoặc đối chiếu với offline. File rất lớn.
+Pipeline offline luôn ghi file này; cảm biến realtime chỉ ghi khi chạy `--ghi-diem`. Cùng cột với `alerts.csv`,
+nhưng gồm **mọi** cửa sổ, kể cả nhãn không cảnh báo (`normal`, `benign`, `normal_host`, `none`). Dùng để vẽ phân bố
+điểm hoặc đối chiếu với offline. File rất lớn.
+
+Pipeline offline còn ghi `<tên>.anomaly.csv`, `<tên>.attack_classification.csv`, `<tên>.botnet_topology.csv` (bảng
+dự đoán của từng module: máy, cửa sổ, nhãn đoán, điểm; bộ phân loại có thêm cột `p_benign`, `p_dos`, `p_port_scan`;
+botnet có thêm `topology`) và `<tên>.pipeline.json` (chế độ, số flow, số cửa sổ, số cảnh báo, số sự kiện, thời gian
+từng bước).
 
 ## 13. Số liệu vận hành — `<tên>.so_lieu.jsonl`, `<tên>.so_lieu_tong.json`
 

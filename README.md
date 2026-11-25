@@ -170,7 +170,7 @@ Bộ mô hình lab lần hai, kiểm tra khái quát (đổi vai trò máy, SYN 
 - [x] C12-T06: Kiểm tra clone và chạy từ môi trường mới — [docs/84_kien_truc_trien_khai.md](docs/84_kien_truc_trien_khai.md) mục 2
 - [x] C12-T07: Kịch bản bảo vệ và bản phát lại PCAP — [demo/KICH_BAN_BAO_VE.md](demo/KICH_BAN_BAO_VE.md), `demo/5_phat_lai_ban_thu.bat`
 
-Báo cáo Chặng 12: [docs/Bao_cao_Chang_12.md](docs/Bao_cao_Chang_12.md). Giải thích từng file đầu ra (bảng đặc trưng, nhãn, mô hình, cảnh báo, sự kiện, số liệu vận hành, nhật ký lần chạy, kết quả chấm): [docs/87_giai_thich_dau_ra.md](docs/87_giai_thich_dau_ra.md). Bốn giai đoạn của đề cương: dòng nào làm ở đâu, kết quả ra sao: [docs/83_bon_giai_doan.md](docs/83_bon_giai_doan.md). Báo cáo môn học (Word): `docs/Bao_cao_mon_hoc.docx`
+Báo cáo Chặng 12: [docs/Bao_cao_Chang_12.md](docs/Bao_cao_Chang_12.md). Hướng dẫn chạy trên Linux (cài đặt, phân tích PCAP, lab ảo, cảm biến trên card thật, systemd): [docs/88_huong_dan_chay_linux.md](docs/88_huong_dan_chay_linux.md). Giải thích từng file đầu ra (bảng đặc trưng, nhãn, mô hình, cảnh báo, sự kiện, số liệu vận hành, nhật ký lần chạy, kết quả chấm): [docs/87_giai_thich_dau_ra.md](docs/87_giai_thich_dau_ra.md). Bốn giai đoạn của đề cương: dòng nào làm ở đâu, kết quả ra sao: [docs/83_bon_giai_doan.md](docs/83_bon_giai_doan.md). Báo cáo môn học (Word): `docs/Bao_cao_mon_hoc.docx`
 
 Quy trình xử lý dữ liệu từ gói tin tới kết quả (tiền xử lý, chia tập 60/20/20, ba thuật toán): [docs/77_quy_trinh_xu_ly_du_lieu.md](docs/77_quy_trinh_xu_ly_du_lieu.md)
 
