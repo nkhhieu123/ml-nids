@@ -309,7 +309,33 @@ cd notebooks && jupyter notebook           # mở 05_eda, 06_gaussian, 07_phan_l
 
 Notebook cần bảng đặc trưng trong `output/features/`, `output/ctu13/` và mô hình trong `models/` (mục 3).
 
-## 10. Sự cố thường gặp
+## 10. Chạy trong máy ảo VMware
+
+Ubuntu hoặc Kali chạy trong VMware Workstation/Player dùng được cho **mọi mục ở trên**: máy ảo có nhân Linux đầy
+đủ nên lab ảo (network namespace, `tc mirred`) chạy tốt, thường còn ít trục trặc hơn WSL2.
+
+| Việc | Khuyến nghị |
+|---|---|
+| Ảnh hệ điều hành | Kali có bản dựng sẵn cho VMware (kali.org); hoặc Ubuntu 22.04/24.04 |
+| CPU, RAM | Demo và một lab: 2 nhân, 4 GB. Thu nhiều lab song song (mục 6.5) hoặc huấn luyện lại: 4–8 nhân, 8–16 GB |
+| Ổ đĩa | 40 GB nếu chỉ chạy; thêm khoảng 40 GB nếu tải PCAP CIC-IDS2017 để tự huấn luyện |
+| Mã nguồn | Clone **bên trong** máy ảo (`~/ml-nids`), không chạy từ thư mục chia sẻ `/mnt/hgfs` (chậm, lỗi quyền) |
+| Mô hình | Chép `models/` từ Windows sang qua thư mục chia sẻ hoặc `scp` |
+| Đồng hồ | Cài `open-vm-tools` để giờ máy ảo khớp máy thật |
+| Demo | File `.bat` không chạy trong Linux; dùng lệnh ở mục 5 và 6.2 |
+
+**Giám sát lưu lượng thật từ máy ảo.** Card ảo của máy ảo mặc định chỉ thấy lưu lượng của chính nó. Hai cách:
+
+- **Nhiều máy ảo làm lab** (gần với lab 7 máy của B13 hơn lab namespace): đặt các máy ảo cùng một mạng `host-only`
+  hoặc `LAN segment`; máy ảo giám sát bật chế độ promiscuous trên card đó. Trên máy chủ Windows, VMware thường cho
+  máy ảo ở chế độ promiscuous thấy lưu lượng của các máy ảo khác cùng mạng ảo.
+- **Mạng thật:** thêm card ảo kiểu `bridged` gắn vào card vật lý cắm ở cổng mirror của switch.
+
+Trước khi chạy mô hình, **luôn kiểm tra bằng `nids.cam_bien`** (mục 7.1) rằng máy ảo thấy cả hai chiều của các kết
+nối giữa các máy khác; hành vi promiscuous phụ thuộc phiên bản VMware và hệ điều hành máy chủ. Cách này chưa được thử
+trong đề tài.
+
+## 11. Sự cố thường gặp
 
 | Hiện tượng | Nguyên nhân | Cách xử lý |
 |---|---|---|
