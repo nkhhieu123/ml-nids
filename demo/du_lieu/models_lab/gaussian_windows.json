@@ -1,0 +1,125 @@
+{
+  "mo_hinh": "Gaussian đa biến trên cửa sổ host (Chặng 6)",
+  "bang": "windows",
+  "dac_trung": [
+    "packets_out",
+    "packets_in",
+    "dst_hosts",
+    "dst_ports",
+    "new_conn_out",
+    "src_hosts",
+    "new_conn_in",
+    "dst_port_entropy",
+    "tcp_attempts_out",
+    "no_reply_out",
+    "rejected_out",
+    "half_open_out",
+    "tcp_attempts_in",
+    "incomplete_in"
+  ],
+  "bien_doi": {
+    "yeo_johnson": [
+      "packets_out",
+      "packets_in",
+      "dst_hosts",
+      "dst_ports",
+      "new_conn_out",
+      "src_hosts",
+      "new_conn_in",
+      "tcp_attempts_out",
+      "tcp_attempts_in"
+    ],
+    "log1p": [
+      "dst_port_entropy",
+      "no_reply_out",
+      "rejected_out",
+      "half_open_out",
+      "incomplete_in"
+    ],
+    "lambda": {
+      "packets_out": -0.0872,
+      "packets_in": -0.1677,
+      "dst_hosts": 0.9172,
+      "dst_ports": 1.1099,
+      "new_conn_out": 1.0706,
+      "src_hosts": -2.4108,
+      "new_conn_in": -1.9359,
+      "tcp_attempts_out": 1.0717,
+      "tcp_attempts_in": -1.9612
+    },
+    "dien_0_khi_trong": [
+      "dst_port_entropy"
+    ],
+    "chuan_hoa_trung_binh": [
+      2.863163,
+      2.486761,
+      0.863614,
+      0.934436,
+      2.464747,
+      0.101205,
+      0.104761,
+      0.032598,
+      2.46206,
+      0.0,
+      0.0,
+      0.0,
+      0.101907,
+      0.0
+    ],
+    "chuan_hoa_do_lech": [
+      0.510528,
+      0.418992,
+      0.51952,
+      0.564739,
+      1.537699,
+      0.171037,
+      0.203454,
+      0.112839,
+      1.536739,
+      1.0,
+      1.0,
+      1.0,
+      0.200298,
+      1.0
+    ]
+  },
+  "diem": "d² Mahalanobis; anomaly khi d² > nguong",
+  "nguong": 3179.336151509429,
+  "cau_hinh": {
+    "gaussian": {
+      "covariance": "ledoit_wolf",
+      "fit_session_candidates": [
+        [
+          "cic17_monday"
+        ],
+        null
+      ],
+      "threshold": "f1_on_dinh",
+      "threshold_band": 1.2,
+      "target_fpr": 0.01
+    }
+  },
+  "so_mau_fit": 92454,
+  "so_dac_trung": 14,
+  "hiep_phuong_sai": {
+    "phuong_phap": "ledoit_wolf",
+    "he_so_co": 5e-05,
+    "tri_rieng_nho_nhat_truoc": 3.590282713030517e-05,
+    "so_tri_rieng_nang": 0,
+    "nguong_tri_rieng": 6.534730509981756e-06,
+    "chi_so_dieu_kien": 182011.58605879993
+  },
+  "du_lieu": "lab: cửa sổ bình thường của các lần chạy train; ngưỡng chọn trên val",
+  "ma_nguon": {
+    "commit": "bf00463b5d9baceadc4c1dd5b04c46983a34b22d",
+    "co_sua_chua_commit": true
+  },
+  "phien_ban": {
+    "python": "3.13.3",
+    "numpy": "2.2.5",
+    "pandas": "2.2.3",
+    "scikit-learn": "1.8.0",
+    "scipy": "1.15.2"
+  },
+  "thoi_diem_tao": "2026-11-17T00:39:35+07:00"
+}

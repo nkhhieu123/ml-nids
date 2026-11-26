@@ -6,6 +6,10 @@ mạng thật → chạy nền bằng systemd.
 
 Mọi lệnh chạy tại thư mục dự án (`~/ml-nids`) trừ khi ghi khác. Lệnh có `sudo` cần quyền root.
 
+**Chỉ cần demo:** `git clone`, rồi `bash demo_linux.sh`. Script tự cài gói hệ thống, môi trường Python, giải nén mô hình
+lab và 6 bản thu demo từ `demo/du_lieu/`, rồi hiện menu (0 kiểm tra, 1–5 từng bước, 7 demo đầy đủ, 8 phát lại dự
+phòng). Lần đầu cần Internet; chạy `bash demo_linux.sh cai-dat` trước buổi báo cáo.
+
 | Muốn làm gì | Mục | Cần root | Cần dữ liệu lớn |
 |---|---|---|---|
 | Cài đặt, chạy kiểm thử | 1–2 | Chỉ khi cài gói | Không |

@@ -3,3 +3,6 @@
 deploy/* text eol=lf
 *.py text eol=lf
 *.yaml text eol=lf
+
+# Gói dữ liệu demo: giữ nguyên từng byte (SHA256 được kiểm tra khi giải nén)
+demo/du_lieu/** -text

@@ -1,0 +1,60 @@
+{
+  "mo_hinh": "random_forest phát hiện host bot trên host–cửa sổ 120 giây (Chặng 8)",
+  "loai": "random_forest",
+  "tham_so": {
+    "n_estimators": 300,
+    "max_depth": null,
+    "min_samples_leaf": 5,
+    "class_weight": null
+  },
+  "dac_trung": [
+    "so_peer",
+    "so_peer_ra",
+    "so_peer_vao",
+    "so_flow_ra",
+    "so_flow_vao",
+    "so_byte_ra",
+    "so_byte_vao",
+    "so_goi_ra",
+    "so_goi_vao",
+    "ty_le_tuong_ho",
+    "tap_trung_ra",
+    "entropy_peer_ra",
+    "tap_trung_vao",
+    "entropy_peer_vao",
+    "so_cong_ra",
+    "ty_le_khong_tra_loi_ra",
+    "ty_le_udp",
+    "ty_le_peer_noi_bo",
+    "ty_le_peer_moi",
+    "beacon_so_cap_du_quan_sat",
+    "beacon_so_cap_deu",
+    "beacon_cv_nho_nhat",
+    "beacon_chu_ky",
+    "beacon_so_quan_sat_lon_nhat"
+  ],
+  "cot_khong_log": [
+    "beacon_cv_nho_nhat",
+    "entropy_peer_ra",
+    "entropy_peer_vao",
+    "tap_trung_ra",
+    "tap_trung_vao",
+    "ty_le_khong_tra_loi_ra",
+    "ty_le_peer_moi",
+    "ty_le_peer_noi_bo",
+    "ty_le_tuong_ho",
+    "ty_le_udp"
+  ],
+  "so_mau_train": 21283,
+  "lop_train": {
+    "normal_host": 16847,
+    "suspect_host": 4436
+  },
+  "du_lieu": "lab: host–cửa sổ 120 giây của các lần chạy train; ngưỡng chọn trên val",
+  "nguong": 0.8023,
+  "ma_nguon": {
+    "commit": "bf00463b5d9baceadc4c1dd5b04c46983a34b22d",
+    "co_sua_chua_commit": true
+  },
+  "thoi_diem_tao": "2026-11-17T00:39:56+07:00"
+}

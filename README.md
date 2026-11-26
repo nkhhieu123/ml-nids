@@ -188,6 +188,8 @@ Botnet năm bot (lab 9 máy) và bộ mô hình lab lần ba: [docs/80_bot_5_va_
 
 Hướng dẫn báo cáo tiến độ và demo bằng các file trong `demo/`: [demo/HUONG_DAN.md](demo/HUONG_DAN.md)
 
+Demo trên Linux bằng một file (tự cài đặt lần đầu, rồi hiện menu): `bash demo_linux.sh`
+
 Giữ nhãn `dos` theo host để vớt DoS HTTP chậm (đã nối vào pipeline và realtime, bật bằng `pipeline.dos_hold`, mặc định tắt): [docs/75_dos_cham.md](docs/75_dos_cham.md)
 
 Độ nhạy của các tham số tạm thời, đo trên validation: [docs/72_do_nhay_tham_so.md](docs/72_do_nhay_tham_so.md)
