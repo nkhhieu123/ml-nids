@@ -1,5 +1,11 @@
 # Hướng dẫn báo cáo tiến độ và demo
 
+> **Lưu ý (bản Linux):** các file `.bat` chạy trên Windows đã được bỏ. Trên Linux dùng:
+> - `bash demo_linux.sh` — menu demo (0 kiểm tra, 1–5 từng bước, 7 đầy đủ, 8 phát lại). Tương ứng các file `.bat` cũ bên dưới.
+> - `demo/truc_tiep/` — demo trực tiếp nhiều cửa sổ: mở `giam_sat.sh` (máy .10) trước, rồi `tancong_dos.sh`, `tancong_nmap.sh`, `tancong_botnet.sh` ở các cửa sổ riêng.
+>
+> Bảng ở mục 4 vẫn mô tả đúng nội dung từng bước; chỉ cần thay "bấm file `.bat`" bằng mục tương ứng của `demo_linux.sh`.
+
 Tài liệu dùng cho buổi báo cáo: nói gì, theo thứ tự nào, và bấm file nào để demo. Mọi con số lấy từ
 [Bao_cao_Chang_11.md](../docs/Bao_cao_Chang_11.md), [76_khai_quat_lab.md](../docs/76_khai_quat_lab.md) và
 [72_do_nhay_tham_so.md](../docs/72_do_nhay_tham_so.md). Các file demo đã được chạy thử ngày 13/11/2026 trên máy này.

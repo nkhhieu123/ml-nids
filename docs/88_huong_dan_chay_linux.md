@@ -188,8 +188,28 @@ sudo PY=$PY bash scripts/demo_lab.sh k2-quet-nhanh    # Nmap quét cổng, kho�
 sudo PY=$PY bash scripts/demo_lab.sh k3-dos-muc2      # tải kết nối 60 giây, khoảng 3 phút
 ```
 
-Đây là cùng nội dung với `demo/1_`–`3_*.bat` trên Windows. Cách đọc màn hình: `demo/HUONG_DAN.md` mục 3.2. Kết quả
-ở `output/demo/<lần chạy>/`.
+Mỗi lệnh tự dựng lab, chạy một loại tấn công rồi so với đáp án. Cách đọc màn hình: `demo/HUONG_DAN.md` mục 3.2.
+Kết quả ở `output/demo/<lần chạy>/`.
+
+### 6.2b. Demo trực tiếp nhiều cửa sổ (mỗi loại tấn công một terminal)
+
+Dùng khi muốn trình diễn trước thầy: một cửa sổ là cảm biến `.10`, mỗi loại tấn công một cửa sổ riêng; gõ script là
+tấn công, dừng (Ctrl+C) thì `.10` ngừng hiện loại đó. Tất cả dùng chung một lab (số 8), mô hình lab.
+
+```bash
+# Cửa sổ 1 — GIÁM SÁT (chạy trước): dựng lab, bật web .30 và máy điều khiển .50, bật cảm biến .10
+bash demo/truc_tiep/giam_sat.sh
+# Cửa sổ 2 — DoS từ .20 vào .30
+bash demo/truc_tiep/tancong_dos.sh
+# Cửa sổ 3 — quét cổng (Nmap) từ .20 vào .30
+bash demo/truc_tiep/tancong_nmap.sh
+# Cửa sổ 4 — botnet: ba bot .41 .42 .43 gọi máy điều khiển .50
+bash demo/truc_tiep/tancong_botnet.sh            # thêm 'ngang-hang' để bot gọi lẫn nhau
+```
+
+Các script tự xin `sudo`. Cửa sổ `.10` chỉ in: giờ, loại tấn công phát hiện, máy nào. Quét cổng và DoS hiện sau
+1–3 giây; botnet hiện sau khoảng 10–20 giây và sau khi dừng cần tới ~120 giây mới tắt (module botnet nhìn lại cửa
+sổ đồ thị 120 giây). Đóng cửa sổ giám sát là tự dọn lab.
 
 ### 6.3. Chạy một kịch bản đầy đủ
 

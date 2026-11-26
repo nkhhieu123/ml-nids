@@ -168,7 +168,7 @@ Bộ mô hình lab lần hai, kiểm tra khái quát (đổi vai trò máy, SYN 
 - [x] C12-T04: Phân tích báo động giả, bỏ sót và giới hạn — [docs/85_bang_ket_qua.md](docs/85_bang_ket_qua.md) mục 4–6
 - [x] C12-T05: Bảng yêu cầu → mã nguồn → bằng chứng — [docs/86_yeu_cau_bang_chung.md](docs/86_yeu_cau_bang_chung.md)
 - [x] C12-T06: Kiểm tra clone và chạy từ môi trường mới — [docs/84_kien_truc_trien_khai.md](docs/84_kien_truc_trien_khai.md) mục 2
-- [x] C12-T07: Kịch bản bảo vệ và bản phát lại PCAP — [demo/KICH_BAN_BAO_VE.md](demo/KICH_BAN_BAO_VE.md), `demo/5_phat_lai_ban_thu.bat`
+- [x] C12-T07: Kịch bản bảo vệ và bản phát lại PCAP — [demo/KICH_BAN_BAO_VE.md](demo/KICH_BAN_BAO_VE.md), `scripts/phat_lai_demo.py`
 
 Báo cáo Chặng 12: [docs/Bao_cao_Chang_12.md](docs/Bao_cao_Chang_12.md). Hướng dẫn chạy trên Linux (cài đặt, phân tích PCAP, lab ảo, cảm biến trên card thật, systemd): [docs/88_huong_dan_chay_linux.md](docs/88_huong_dan_chay_linux.md). Giải thích từng file đầu ra (bảng đặc trưng, nhãn, mô hình, cảnh báo, sự kiện, số liệu vận hành, nhật ký lần chạy, kết quả chấm): [docs/87_giai_thich_dau_ra.md](docs/87_giai_thich_dau_ra.md). Bốn giai đoạn của đề cương: dòng nào làm ở đâu, kết quả ra sao: [docs/83_bon_giai_doan.md](docs/83_bon_giai_doan.md). Báo cáo môn học (Word): `docs/Bao_cao_mon_hoc.docx`
 
@@ -186,9 +186,11 @@ Phát hiện dấu hiệu giả mạo ARP bằng quy tắc: [docs/79_arp_gia_mao
 
 Botnet năm bot (lab 9 máy) và bộ mô hình lab lần ba: [docs/80_bot_5_va_bo_lab_3.md](docs/80_bot_5_va_bo_lab_3.md)
 
-Hướng dẫn báo cáo tiến độ và demo bằng các file trong `demo/`: [demo/HUONG_DAN.md](demo/HUONG_DAN.md)
+Hướng dẫn báo cáo tiến độ và demo: [demo/HUONG_DAN.md](demo/HUONG_DAN.md)
 
 Demo trên Linux bằng một file (tự cài đặt lần đầu, rồi hiện menu): `bash demo_linux.sh`
+
+Demo trực tiếp nhiều cửa sổ (mỗi loại tấn công một terminal riêng; cửa sổ `.10` phát hiện ngay): các script trong `demo/truc_tiep/` — mở cửa sổ giám sát `bash demo/truc_tiep/giam_sat.sh` trước, rồi mở thêm cửa sổ tấn công `tancong_dos.sh`, `tancong_nmap.sh`, `tancong_botnet.sh`.
 
 Giữ nhãn `dos` theo host để vớt DoS HTTP chậm (đã nối vào pipeline và realtime, bật bằng `pipeline.dos_hold`, mặc định tắt): [docs/75_dos_cham.md](docs/75_dos_cham.md)
 
