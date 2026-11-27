@@ -696,6 +696,17 @@ code(["  >> 10:33:17  CẢNH BÁO PORT_SCAN  host 192.168.50.20   điểm 0.9533
       "  Cảnh báo có loại tấn công nằm ngoài đợt tấn công (báo động giả): 0"])
 para("Hình 3.4. Trích màn hình demo quét cổng: cảnh báo và phần tổng kết", "_txtHinhCaption")
 P("Trong thí nghiệm bổ sung, cảm biến bắt trực tiếp không mất gói ở tải tới khoảng 2 900 gói mỗi giây.")
+P("Ngoài ba lần chạy trên, nhóm làm thêm một bản demo trực tiếp nhiều cửa sổ để trình diễn: một cửa sổ là cảm "
+  "biến trên máy giám sát .10, mỗi loại tấn công một cửa sổ riêng (máy .20 chạy quét cổng và DoS vào máy chủ .30; "
+  "ba bot .41, .42, .43 chạy botnet). Khi một cửa sổ tấn công chạy, cửa sổ giám sát .10 lập tức in dòng phát hiện "
+  "kèm giờ, loại tấn công và máy liên quan; khi dừng tấn công thì sau vài giây .10 ngừng hiện loại đó. Ba hình dưới "
+  "là màn hình thật của cửa sổ giám sát .10 trong lần chạy demo này.")
+hinh(H + "thuc_nghiem/demo/demo_quet_cong.png",
+     "Hình 3.4b. Cửa sổ giám sát .10: phát hiện quét cổng liên tục vào máy chủ .30 (điểm ~0,97)", 13.5)
+hinh(H + "thuc_nghiem/demo/demo_dos_va_quet.png",
+     "Hình 3.4c. Hai loại tấn công cùng lúc: cảm biến .10 phân biệt DoS (tại .30) và quét cổng (tại .20 và .30)", 13.5)
+hinh(H + "thuc_nghiem/demo/demo_botnet_p2p.png",
+     "Hình 3.4d. Botnet ngang hàng: cảm biến .10 báo ba host .41, .42, .43 là bot nghi vấn và nhận đúng topology ngang hàng", 13.5)
 H3("Kịch bản 5: Kết quả realtime và đối chiếu với offline")
 bang("Bảng 3.9. Kết quả realtime", ["Đo gì", "Kết quả"],
      [("Nhất quán realtime – offline", "Cùng nhãn ở mọi cửa sổ trên 15 467 cửa sổ"),
@@ -787,13 +798,15 @@ for ref in ["https://www.unb.ca/cic/datasets/ids-2017.html", "https://www.strato
     para(ref, "txtTaiLieuThamKhao")
 
 T("PHỤ LỤC")
-S("1. Lệnh chạy demo")
-code(["demo\\0_kiem_tra.bat          kiểm tra môi trường",
-      "demo\\1_demo_quet_cong.bat    quét cổng bằng Nmap, cảm biến realtime",
-      "demo\\2_demo_dos.bat          tải kết nối 60 giây",
-      "demo\\3_demo_binh_thuong.bat  chỉ có lưu lượng bình thường",
-      "demo\\4_ket_qua_da_luu.bat    in bảng kết quả đã lưu",
-      "demo\\5_phat_lai_ban_thu.bat  phát lại bản thu lab qua cảm biến realtime, mở dashboard"])
+S("1. Lệnh chạy demo (Linux)")
+code(["bash demo_linux.sh                 menu demo: 0 kiểm tra, 1-5 từng bước, 7 đầy đủ, 8 phát lại",
+      "python scripts/phat_lai_demo.py bot5-p2p    phát lại bản thu botnet qua cảm biến realtime, mở dashboard",
+      "",
+      "# Demo trực tiếp nhiều cửa sổ (mỗi loại tấn công một terminal):",
+      "bash demo/truc_tiep/giam_sat.sh             cửa sổ giám sát .10 (chạy trước)",
+      "bash demo/truc_tiep/tancong_dos.sh          .20 tấn công DoS vào .30",
+      "bash demo/truc_tiep/tancong_nmap.sh         .20 quét cổng .30",
+      "bash demo/truc_tiep/tancong_botnet.sh       ba bot .41 .42 .43 (thêm 'ngang-hang' cho P2P)"])
 d.add_paragraph(style="Normal")
 S("2. Lệnh chạy pipeline và cảm biến")
 code(["cd src",
